@@ -1,0 +1,3593 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Admin Dashboard</title>
+<!-- Firebase SDK loaded dynamically via initFirebaseSDK() saat user enable Cloud Sync -->
+<style>
+/* ═══════════════════════════════════════════
+   VARIABLES & RESET
+═══════════════════════════════════════════ */
+:root{
+  --sb-bg:#141c2e;
+  --sb-surface:#1a2540;
+  --sb-border:rgba(255,255,255,.07);
+  --sb-text:rgba(255,255,255,.55);
+  --sb-text-active:#fff;
+  --sb-accent:#667eea;
+  --sb-accent-2:#764ba2;
+  --sb-w:240px;
+
+  --bg:#f0f2f8;
+  --surface:#fff;
+  --border:#e8eaf0;
+  --text:#1a202c;
+  --text-muted:#718096;
+  --radius:12px;
+  --radius-sm:8px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.06);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.12);
+
+  --primary:#667eea;
+  --primary-dark:#5a67d8;
+  --primary-light:#ebf4ff;
+  --green:#10b981;
+  --green-light:#d1fae5;
+  --orange:#f59e0b;
+  --orange-light:#fef3c7;
+  --red:#ef4444;
+  --red-light:#fee2e2;
+  --purple:#8b5cf6;
+  --purple-light:#ede9fe;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+
+/* ═══════════════════════════════════════════
+   LOGIN PAGE
+═══════════════════════════════════════════ */
+#viewLogin{
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#141c2e 0%,#1a2540 40%,#232f4a 100%);
+  padding:20px;
+}
+.login-card{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:20px;
+  padding:40px 36px;
+  width:100%;max-width:380px;
+  backdrop-filter:blur(20px);
+  box-shadow:0 24px 64px rgba(0,0,0,.4);
+}
+.login-logo{
+  display:flex;align-items:center;justify-content:center;
+  gap:10px;margin-bottom:32px;
+}
+.login-logo-icon{
+  width:44px;height:44px;
+  background:linear-gradient(135deg,var(--sb-accent),var(--sb-accent-2));
+  border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;
+}
+.login-logo-text{
+  font-size:20px;font-weight:700;color:#fff;letter-spacing:-.3px;
+}
+.login-logo-text span{color:var(--sb-accent);font-weight:400}
+.login-title{font-size:24px;font-weight:700;color:#fff;margin-bottom:6px;text-align:center}
+.login-sub{font-size:14px;color:rgba(255,255,255,.45);text-align:center;margin-bottom:28px}
+.login-label{font-size:12px;font-weight:600;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;display:block}
+.login-input{
+  width:100%;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.1);
+  border-radius:10px;padding:13px 16px;font-size:15px;color:#fff;
+  font-family:inherit;outline:none;transition:border-color .2s,background .2s;
+  margin-bottom:14px;
+}
+.login-input::placeholder{color:rgba(255,255,255,.25)}
+.login-input:focus{border-color:var(--sb-accent);background:rgba(255,255,255,.09)}
+.login-input.err{border-color:#ef4444}
+.login-err{font-size:12px;color:#fc8181;margin:-8px 0 12px;display:none}
+.login-err.show{display:block}
+.login-btn{
+  width:100%;background:linear-gradient(135deg,var(--sb-accent),var(--sb-accent-2));
+  color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;
+  cursor:pointer;font-family:inherit;transition:opacity .15s,transform .1s;letter-spacing:.2px;
+}
+.login-btn:hover{opacity:.9}
+.login-btn:active{transform:scale(.98)}
+.login-footer{text-align:center;margin-top:20px;font-size:12px;color:rgba(255,255,255,.25)}
+
+/* ═══════════════════════════════════════════
+   DASHBOARD LAYOUT
+═══════════════════════════════════════════ */
+#viewDashboard{display:none;height:100vh;display:none;flex-direction:row}
+#viewDashboard.show{display:flex}
+
+/* SIDEBAR */
+.sidebar{
+  width:var(--sb-w);min-width:var(--sb-w);
+  background:var(--sb-bg);
+  display:flex;flex-direction:column;
+  height:100vh;position:fixed;top:0;left:0;z-index:200;
+  border-right:1px solid var(--sb-border);
+  transition:transform .3s ease;
+}
+.sb-logo{
+  padding:24px 20px 20px;
+  display:flex;align-items:center;gap:10px;
+  border-bottom:1px solid var(--sb-border);
+}
+.sb-logo-icon{
+  width:36px;height:36px;
+  background:linear-gradient(135deg,var(--sb-accent),var(--sb-accent-2));
+  border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+}
+.sb-logo-text{font-size:15px;font-weight:700;color:#fff;letter-spacing:-.2px}
+.sb-logo-text span{display:block;font-size:11px;color:rgba(255,255,255,.35);font-weight:400;margin-top:1px}
+.sb-section{padding:16px 12px 8px;font-size:10px;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.8px}
+.sb-nav{padding:0 8px;flex:1;overflow-y:auto}
+.sb-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:10px;
+  cursor:pointer;margin-bottom:2px;
+  color:var(--sb-text);font-size:13.5px;font-weight:500;
+  transition:all .15s;border:none;background:none;width:100%;text-align:left;font-family:inherit;
+}
+.sb-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.8)}
+.sb-item.active{background:linear-gradient(135deg,rgba(102,126,234,.25),rgba(118,75,162,.15));color:#fff;font-weight:600}
+.sb-item.active .sb-icon{color:var(--sb-accent)}
+.sb-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.sb-badge{margin-left:auto;background:var(--sb-accent);color:#fff;border-radius:50px;padding:2px 8px;font-size:10px;font-weight:700}
+.sb-divider{height:1px;background:var(--sb-border);margin:10px 12px}
+.sb-user{
+  padding:16px 14px;border-top:1px solid var(--sb-border);
+  display:flex;align-items:center;gap:10px;
+}
+.sb-avatar{
+  width:34px;height:34px;border-radius:50%;
+  background:linear-gradient(135deg,var(--sb-accent),var(--sb-accent-2));
+  display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;font-weight:700;flex-shrink:0;
+}
+.sb-user-info{flex:1;min-width:0}
+.sb-user-name{font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-user-role{font-size:11px;color:rgba(255,255,255,.35);margin-top:1px}
+.sb-logout{background:none;border:none;color:rgba(255,255,255,.35);cursor:pointer;padding:4px;border-radius:6px;font-size:14px;transition:color .15s}
+.sb-logout:hover{color:#fc8181}
+
+/* MAIN */
+.main{
+  margin-left:var(--sb-w);flex:1;
+  min-height:100vh;display:flex;flex-direction:column;
+  overflow-y:auto;
+}
+.topbar{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0 28px;height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+}
+.topbar-title{font-size:17px;font-weight:700;color:var(--text)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.topbar-preview-btn{
+  display:flex;align-items:center;gap:6px;
+  background:linear-gradient(135deg,var(--sb-accent),var(--sb-accent-2));
+  color:#fff;border:none;border-radius:8px;padding:8px 16px;
+  font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;
+  transition:opacity .15s;
+}
+.topbar-preview-btn:hover{opacity:.88}
+.hamburger{display:none;background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;color:var(--text)}
+.content{padding:28px;flex:1}
+
+/* ═══════════════════════════════════════════
+   COMPONENTS
+═══════════════════════════════════════════ */
+/* PANELS */
+.panel{display:none}
+.panel.active{display:block}
+
+/* CARDS */
+.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;margin-bottom:20px}
+.card-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.card-sub{font-size:13px;color:var(--text-muted);margin-bottom:20px}
+.card-divider{height:1px;background:var(--border);margin:20px 0}
+
+/* STAT CARDS */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat-card{
+  background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:20px;display:flex;flex-direction:column;gap:6px;position:relative;overflow:hidden;
+}
+.stat-card::before{
+  content:'';position:absolute;top:0;right:0;width:80px;height:80px;
+  border-radius:50%;transform:translate(20px,-20px);opacity:.08;
+}
+.stat-card-1::before{background:var(--primary)}
+.stat-card-2::before{background:var(--green)}
+.stat-card-3::before{background:var(--orange)}
+.stat-card-4::before{background:var(--purple)}
+.stat-icon{font-size:20px;margin-bottom:4px}
+.stat-val{font-size:28px;font-weight:800;color:var(--text);letter-spacing:-1px}
+.stat-label{font-size:12px;color:var(--text-muted);font-weight:500}
+.stat-trend{font-size:11px;font-weight:600;margin-top:2px}
+.trend-up{color:var(--green)}.trend-neutral{color:var(--text-muted)}
+
+/* FORM ELEMENTS */
+.form-group{margin-bottom:18px}
+.label{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:7px;display:block}
+.input{
+  width:100%;border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  padding:11px 14px;font-size:14px;font-family:inherit;outline:none;
+  color:var(--text);background:var(--surface);transition:border-color .15s,box-shadow .15s;
+}
+.input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(102,126,234,.12)}
+.input.err{border-color:var(--red)}
+.input[readonly]{background:#f7f8fc;color:var(--text-muted);cursor:default}
+textarea.input{resize:vertical;min-height:100px;line-height:1.6}
+.hint{font-size:12px;color:var(--text-muted);margin-top:6px;line-height:1.6}
+.hint code{background:#f0f2f8;padding:1px 6px;border-radius:4px;font-size:11px;color:var(--primary)}
+.err-msg{font-size:12px;color:var(--red);margin-top:5px;display:none}
+.err-msg.show{display:block}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+
+/* BUTTONS */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  border:none;border-radius:var(--radius-sm);padding:10px 18px;
+  font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;
+  transition:all .15s;text-decoration:none;
+}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff}
+.btn-primary:hover{opacity:.88}
+.btn-success{background:linear-gradient(135deg,var(--green),#059669);color:#fff}
+.btn-success:hover{opacity:.88}
+.btn-outline{background:#fff;border:1.5px solid var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--primary);color:var(--primary)}
+.btn-danger{background:var(--red-light);color:var(--red);border:1px solid #fca5a5}
+.btn-danger:hover{background:#fecaca}
+.btn-ghost{background:none;border:none;color:var(--text-muted);padding:8px 10px}
+.btn-ghost:hover{background:var(--bg);color:var(--text)}
+.btn-sm{padding:7px 14px;font-size:12px}
+.btn-lg{padding:13px 24px;font-size:15px}
+.btn-full{width:100%}
+.btn-icon{padding:8px;border-radius:8px;background:var(--bg);border:1px solid var(--border)}
+.btn-icon:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-light)}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:50px;font-size:11px;font-weight:600}
+.badge-green{background:var(--green-light);color:#059669}
+.badge-orange{background:var(--orange-light);color:#d97706}
+.badge-blue{background:var(--primary-light);color:var(--primary)}
+.badge-purple{background:var(--purple-light);color:var(--purple)}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;border-radius:var(--radius-sm);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse}
+th{background:#f7f8fc;padding:11px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-muted);text-align:left;border-bottom:1px solid var(--border)}
+td{padding:13px 16px;font-size:13px;border-bottom:1px solid var(--border);color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbff}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:56px 0;color:var(--text-muted)}
+.empty-icon{font-size:48px;margin-bottom:12px;opacity:.5}
+.empty-title{font-size:15px;font-weight:600;margin-bottom:4px;color:var(--text)}
+.empty-sub{font-size:13px}
+
+/* LEADS LIST */
+.lead-item{
+  border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;
+  margin-bottom:10px;background:var(--surface);transition:border-color .15s,box-shadow .15s;
+  display:flex;align-items:center;gap:14px;
+}
+.lead-item:hover{border-color:var(--primary);box-shadow:0 0 0 3px rgba(102,126,234,.08)}
+.lead-avatar{
+  width:40px;height:40px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--sb-accent),var(--sb-accent-2));
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700;
+}
+.lead-info{flex:1;min-width:0}
+.lead-name{font-size:14px;font-weight:700;margin-bottom:2px}
+.lead-meta{font-size:12px;color:var(--text-muted);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.lead-actions{display:flex;gap:6px;flex-shrink:0}
+
+/* PRODUCT ITEMS */
+.prod-item{
+  border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;
+  margin-bottom:10px;display:flex;align-items:center;gap:14px;background:var(--surface);
+  transition:border-color .15s;
+}
+.prod-item:hover{border-color:var(--primary)}
+.prod-num{
+  width:36px;height:36px;border-radius:10px;flex-shrink:0;
+  background:var(--primary-light);color:var(--primary);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;
+}
+.prod-info{flex:1}
+.prod-name{font-size:14px;font-weight:600;margin-bottom:2px}
+.prod-price{font-size:13px;color:var(--green);font-weight:700}
+.prod-desc{font-size:12px;color:var(--text-muted);margin-top:2px}
+.prod-actions{display:flex;gap:6px}
+
+/* CODE BOX */
+.code-wrap{position:relative;margin-bottom:12px}
+.code-box{
+  background:#0d1117;border-radius:var(--radius-sm);padding:18px;
+  font-family:'Cascadia Code',Consolas,monospace;font-size:12px;
+  color:#e6edf3;overflow-x:auto;white-space:pre;line-height:1.6;
+  border:1px solid rgba(255,255,255,.08);max-height:320px;overflow-y:auto;
+}
+.copy-btn{
+  position:absolute;top:10px;right:10px;
+  background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);
+  border:1px solid rgba(255,255,255,.15);border-radius:6px;
+  padding:5px 12px;font-size:11px;cursor:pointer;transition:all .15s;font-family:inherit;font-weight:500;
+}
+.copy-btn:hover{background:rgba(255,255,255,.2);color:#fff}
+.copy-btn.copied{background:rgba(16,185,129,.2);color:#10b981;border-color:rgba(16,185,129,.3)}
+
+/* GTM STATUS */
+.gtm-status{
+  display:flex;align-items:center;gap:10px;padding:14px 16px;
+  border-radius:var(--radius-sm);background:var(--bg);border:1px solid var(--border);margin-bottom:16px;
+}
+.status-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.status-dot.active{background:var(--green);box-shadow:0 0 0 3px var(--green-light)}
+.status-dot.inactive{background:#d1d5db;box-shadow:0 0 0 3px #f3f4f6}
+.gtm-status-text{font-size:13px;font-weight:600}
+.gtm-status-sub{font-size:12px;color:var(--text-muted)}
+
+/* EVENTS TABLE */
+.event-item{
+  display:flex;align-items:flex-start;gap:12px;padding:12px 0;
+  border-bottom:1px solid var(--border);
+}
+.event-item:last-child{border-bottom:none}
+.event-name{
+  background:var(--primary-light);color:var(--primary);
+  border-radius:6px;padding:3px 10px;font-size:12px;font-weight:700;
+  font-family:monospace;white-space:nowrap;
+}
+.event-info{flex:1}
+.event-title{font-size:13px;font-weight:600;margin-bottom:2px}
+.event-desc{font-size:12px;color:var(--text-muted)}
+
+/* FORM PREVIEW */
+.preview-wrapper{
+  background:linear-gradient(135deg,#f0f2f8,#e8ecf5);
+  border-radius:var(--radius);padding:32px 20px;
+  display:flex;align-items:center;justify-content:center;
+  border:1px dashed var(--border);min-height:300px;
+}
+.preview-card{
+  background:#fff;border-radius:12px;padding:24px 20px;
+  width:100%;max-width:360px;box-shadow:0 4px 24px rgba(0,0,0,.1);
+}
+.preview-headline{font-size:14px;font-weight:600;color:#222;margin-bottom:16px;line-height:1.5}
+.preview-prod-item{
+  border:1.5px solid #e0e0e0;border-radius:8px;padding:10px 14px;
+  margin-bottom:8px;display:flex;align-items:center;gap:10px;
+  font-size:13px;font-weight:500;
+}
+.preview-check{width:16px;height:16px;border-radius:50%;border:2px solid #ccc;flex-shrink:0}
+.preview-input-mock{
+  width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:11px 14px;
+  font-size:14px;color:#bbb;margin-bottom:10px;background:#fff;
+  font-family:inherit;cursor:default;
+}
+.preview-btn-mock{
+  width:100%;border-radius:8px;padding:14px;font-size:16px;font-weight:700;
+  border:none;cursor:default;color:#fff;text-align:center;
+}
+.preview-trust{display:flex;justify-content:center;gap:14px;margin-top:12px}
+.preview-trust span{font-size:11px;color:#888}
+
+/* PRODUCT TABS */
+.prod-tab{
+  padding:11px 18px;font-size:13px;font-weight:600;border:none;
+  background:none;cursor:pointer;color:var(--text-muted);
+  border-bottom:2px solid transparent;margin-bottom:-1px;
+  transition:all .15s;font-family:inherit;white-space:nowrap;
+}
+.prod-tab:hover{color:var(--text);background:#fafbff;}
+.prod-tab.active{color:var(--primary);border-bottom-color:var(--primary);background:#fafbff;}
+
+/* PROD LIST STATUS BADGES */
+.prod-status-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:28px;right:28px;
+  background:#1a202c;color:#fff;
+  padding:12px 20px;border-radius:10px;
+  font-size:13px;font-weight:500;
+  box-shadow:0 8px 32px rgba(0,0,0,.25);
+  z-index:9999;opacity:0;transform:translateY(12px);
+  transition:all .2s;pointer-events:none;
+}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* OVERLAY */
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:190}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .topbar{padding:0 16px}
+  .content{padding:16px}
+  .hamburger{display:flex}
+  .stat-grid{grid-template-columns:1fr 1fr}
+  .form-row{grid-template-columns:1fr}
+  .form-row-3{grid-template-columns:1fr}
+  .sb-overlay{display:block}
+  .sb-overlay.show{display:block;opacity:1}
+}
+@media(max-width:480px){
+  .stat-grid{grid-template-columns:1fr}
+}
+
+/* ═══════════════════════════════════════════
+   LOGIN ROLE TABS (Admin / CS)
+═══════════════════════════════════════════ */
+.login-tabs{
+  display:flex;gap:4px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.08);
+  padding:4px;border-radius:10px;margin-bottom:22px;
+}
+.login-tab{
+  flex:1;border:none;background:transparent;
+  color:rgba(255,255,255,.5);
+  padding:9px 12px;font-size:13px;font-weight:600;
+  border-radius:7px;cursor:pointer;font-family:inherit;transition:all .15s;
+}
+.login-tab:hover{color:rgba(255,255,255,.85)}
+.login-tab.active{
+  background:linear-gradient(135deg,var(--sb-accent),var(--sb-accent-2));
+  color:#fff;box-shadow:0 4px 12px rgba(102,126,234,.3);
+}
+
+/* ═══════════════════════════════════════════
+   CS VIEW (panel khusus CS)
+═══════════════════════════════════════════ */
+#viewCS{
+  display:none;flex-direction:column;
+  min-height:100vh;background:var(--bg);
+}
+.csv-topbar{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0 28px;height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+}
+.csv-brand{display:flex;align-items:center;gap:12px}
+.csv-brand-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,var(--sb-accent),var(--sb-accent-2));
+  display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;
+}
+.csv-brand-name{font-size:15px;font-weight:700;color:var(--text)}
+.csv-brand-sub{font-size:12px;color:var(--text-muted)}
+.csv-content{flex:1;padding:28px;max-width:1200px;width:100%;margin:0 auto;box-sizing:border-box}
+.cs-lead-card{
+  border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:16px;margin-bottom:12px;background:#fff;
+  transition:border-color .15s,box-shadow .15s;
+}
+.cs-lead-card:hover{border-color:var(--primary);box-shadow:0 0 0 3px rgba(102,126,234,.06)}
+.cs-filter-tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--border);overflow-x:auto;padding-bottom:0}
+@media(max-width:768px){
+  .csv-topbar{padding:0 16px}
+  .csv-content{padding:16px}
+}
+
+/* ═══════════════════════════════════════════
+   DATE FILTER BAR
+═══════════════════════════════════════════ */
+.date-filter-bar{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  background:#f7f8fc;border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;
+}
+.date-filter-bar .dfb-label{
+  font-size:11px;font-weight:700;color:var(--text-muted);
+  text-transform:uppercase;letter-spacing:.4px;
+}
+.date-filter-bar .dfb-select{
+  border:1.5px solid var(--border);border-radius:6px;
+  padding:7px 10px;font-size:13px;font-family:inherit;
+  color:var(--text);background:#fff;outline:none;cursor:pointer;
+  font-weight:500;
+}
+.date-filter-bar .dfb-select:focus{border-color:var(--primary)}
+.date-filter-bar .dfb-custom{display:none;align-items:center;gap:6px}
+.date-filter-bar .dfb-custom.show{display:inline-flex}
+.date-filter-bar .dfb-date{
+  border:1.5px solid var(--border);border-radius:6px;
+  padding:6px 10px;font-size:13px;font-family:inherit;
+  color:var(--text);background:#fff;outline:none;
+}
+.date-filter-bar .dfb-date:focus{border-color:var(--primary)}
+.date-filter-bar .dfb-info{
+  margin-left:auto;font-size:12px;color:var(--text-muted);
+  font-weight:600;display:flex;align-items:center;gap:8px;
+}
+.date-filter-bar .dfb-info b{color:var(--primary);font-weight:700}
+
+/* ═══════════════════════════════════════════
+   CLOUD SYNC STATUS BADGE
+═══════════════════════════════════════════ */
+.cloud-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 10px;border-radius:50px;
+  font-size:11px;font-weight:600;
+  border:1px solid transparent;
+}
+.cloud-badge .cb-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:currentColor;
+  animation:cloudPulse 2s ease-in-out infinite;
+}
+.cloud-badge.cb-online{background:#dcfce7;color:#166534;border-color:#86efac}
+.cloud-badge.cb-offline{background:#fef3c7;color:#92400e;border-color:#fcd34d}
+.cloud-badge.cb-error{background:#fee2e2;color:#991b1b;border-color:#fca5a5}
+@keyframes cloudPulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ═══════════════════════════════════════════
+   MULTI-CS SELECTOR CHIPS
+═══════════════════════════════════════════ */
+.cs-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 10px;border-radius:8px;
+  background:var(--primary-light);color:var(--primary);
+  border:1px solid rgba(102,126,234,.3);
+  font-size:12px;font-weight:600;margin:3px;
+}
+.cs-chip-remove{
+  background:none;border:none;color:inherit;
+  cursor:pointer;font-size:14px;padding:0 2px;
+  opacity:.6;transition:opacity .15s;
+}
+.cs-chip-remove:hover{opacity:1}
+
+/* ═══════════════════════════════════════════
+   NOTIFICATION POPUP (lead baru)
+═══════════════════════════════════════════ */
+.notif-popup{
+  position:fixed;top:80px;right:20px;
+  background:#fff;border-radius:12px;
+  box-shadow:0 12px 32px rgba(0,0,0,.18),0 0 0 1px var(--border);
+  padding:14px 16px;width:320px;max-width:calc(100vw - 40px);
+  z-index:9998;
+  transform:translateX(380px);opacity:0;
+  transition:transform .35s cubic-bezier(.22,1,.36,1),opacity .35s;
+  display:flex;gap:12px;align-items:flex-start;
+  border-left:4px solid var(--green);
+}
+.notif-popup.show{transform:translateX(0);opacity:1}
+.notif-popup-icon{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  background:var(--green-light);color:var(--green);
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+}
+.notif-popup-body{flex:1;min-width:0}
+.notif-popup-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
+.notif-popup-msg{font-size:12px;color:var(--text-muted);line-height:1.5}
+.notif-popup-close{
+  background:none;border:none;color:var(--text-muted);
+  font-size:16px;cursor:pointer;padding:2px 4px;flex-shrink:0;
+}
+
+/* ═══════════════════════════════════════════
+   POWERED BY HARSTROONG
+═══════════════════════════════════════════ */
+.powered-by{
+  text-align:center;padding:18px 12px 14px;
+  font-size:11.5px;font-weight:500;letter-spacing:.3px;
+  color:var(--text-muted);
+}
+.powered-by .pb-brand{
+  background:linear-gradient(135deg,var(--sb-accent),var(--sb-accent-2));
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+  font-weight:700;
+}
+.powered-by-dark{
+  text-align:center;padding:20px 12px 8px;
+  font-size:11.5px;font-weight:500;letter-spacing:.3px;
+  color:rgba(255,255,255,.35);
+}
+.powered-by-dark .pb-brand{
+  color:#fff;font-weight:700;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════
+     LOGIN
+═══════════════════════════════════ -->
+<div id="viewLogin">
+  <div style="display:flex;flex-direction:column;align-items:center;width:100%">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">⚡</div>
+      <div class="login-logo-text">Order<span>Dashboard</span></div>
+    </div>
+    <div class="login-title">Selamat Datang</div>
+    <div class="login-sub">Pilih jenis akses, lalu masuk untuk lanjut</div>
+
+    <!-- Role tabs -->
+    <div class="login-tabs">
+      <button type="button" class="login-tab active" id="loginTabAdmin" onclick="switchLoginTab('admin')">👤 Admin</button>
+      <button type="button" class="login-tab" id="loginTabCS" onclick="switchLoginTab('cs')">💬 CS</button>
+    </div>
+
+    <!-- Admin form (original) -->
+    <div id="loginAdminForm">
+      <label class="login-label">Password Admin</label>
+      <input class="login-input" id="loginPass" type="password" placeholder="Masukkan password..." onkeydown="if(event.key==='Enter')doLogin()"/>
+      <div class="login-err" id="loginErr">Password salah. Coba lagi.</div>
+      <button class="login-btn" onclick="doLogin()">Masuk ke Dashboard →</button>
+      <div class="login-footer">Password default: <code style="color:rgba(255,255,255,.5)">admin123</code></div>
+    </div>
+
+    <!-- CS form (baru) -->
+    <div id="loginCSForm" style="display:none">
+      <label class="login-label">Username CS</label>
+      <input class="login-input" id="loginCSUser" type="text" placeholder="Contoh: sari, budi" onkeydown="if(event.key==='Enter')document.getElementById('loginCSPass').focus()"/>
+      <label class="login-label">Password</label>
+      <input class="login-input" id="loginCSPass" type="password" placeholder="Password CS..." onkeydown="if(event.key==='Enter')doCSLogin()"/>
+      <div class="login-err" id="loginCSErr">Username atau password salah, atau akun belum aktif.</div>
+      <button class="login-btn" onclick="doCSLogin()">Masuk Panel CS →</button>
+      <div class="login-footer">Akun CS dibuat oleh admin via menu <em>Akses Login CS</em></div>
+    </div>
+  </div>
+  <div class="powered-by-dark">Powered by <span class="pb-brand">Harstroong</span></div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════
+     DASHBOARD
+═══════════════════════════════════ -->
+<div id="viewDashboard">
+
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sb-overlay" id="sbOverlay" onclick="closeSidebar()"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-icon">⚡</div>
+      <div class="sb-logo-text">Order Dashboard<span id="sbStoreName">Admin Panel</span></div>
+    </div>
+
+    <div class="sb-nav">
+      <div class="sb-section">Menu</div>
+      <button class="sb-item active" onclick="showPanel('overview')">
+        <span class="sb-icon">📊</span> Overview
+      </button>
+      <button class="sb-item" onclick="showPanel('leads')">
+        <span class="sb-icon">👥</span> Leads
+        <span class="sb-badge" id="leadsBadge">0</span>
+      </button>
+
+      <div class="sb-section">Kelola</div>
+      <button class="sb-item" onclick="showPanel('produk')">
+        <span class="sb-icon">📦</span> Produk
+      </button>
+      <button class="sb-item" onclick="showPanel('form')">
+        <span class="sb-icon">📋</span> Form Builder
+      </button>
+      <button class="sb-item" onclick="showPanel('cs')">
+        <span class="sb-icon">💬</span> CS & Greeting
+      </button>
+      <button class="sb-item" onclick="showPanel('csaccess')">
+        <span class="sb-icon">🔐</span> Akses Login CS
+      </button>
+
+      <div class="sb-section">Integrasi</div>
+      <button class="sb-item" onclick="showPanel('gtm')">
+        <span class="sb-icon">📈</span> GTM Tracking
+      </button>
+      <button class="sb-item" onclick="showPanel('embed')">
+        <span class="sb-icon">🔗</span> Embed HTML
+      </button>
+      <button class="sb-item" onclick="showPanel('cloud')">
+        <span class="sb-icon">☁️</span> Cloud Sync
+      </button>
+
+      <div class="sb-divider"></div>
+      <button class="sb-item" onclick="showPanel('settings')">
+        <span class="sb-icon">⚙️</span> Pengaturan
+      </button>
+    </div>
+
+    <div class="sb-user">
+      <div class="sb-avatar">A</div>
+      <div class="sb-user-info">
+        <div class="sb-user-name">Administrator</div>
+        <div class="sb-user-role">Super Admin</div>
+      </div>
+      <button class="sb-logout" onclick="doLogout()" title="Keluar">⏻</button>
+    </div>
+  </aside>
+
+  <!-- MAIN AREA -->
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="hamburger" onclick="openSidebar()">☰</button>
+        <div class="topbar-title" id="topbarTitle">Overview</div>
+      </div>
+      <div class="topbar-right">
+        <span class="cloud-badge cb-offline" id="cloudBadge" onclick="showPanel('cloud')" style="cursor:pointer" title="Klik untuk konfigurasi">
+          <span class="cb-dot"></span>
+          <span id="cloudBadgeText">Local Only</span>
+        </span>
+        <button class="topbar-preview-btn" onclick="previewForm()">👁️ Preview Form</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ── OVERVIEW ── -->
+      <div class="panel active" id="panel-overview">
+        <div class="stat-grid">
+          <div class="stat-card stat-card-1">
+            <div class="stat-icon">👥</div>
+            <div class="stat-val" id="ov-total">0</div>
+            <div class="stat-label">Total Leads</div>
+            <div class="stat-trend trend-neutral" id="ov-total-t">Semua waktu</div>
+          </div>
+          <div class="stat-card stat-card-2">
+            <div class="stat-icon">📅</div>
+            <div class="stat-val" id="ov-today">0</div>
+            <div class="stat-label">Leads Hari Ini</div>
+            <div class="stat-trend trend-neutral" id="ov-today-t">—</div>
+          </div>
+          <div class="stat-card stat-card-3">
+            <div class="stat-icon">📦</div>
+            <div class="stat-val" id="ov-prods">0</div>
+            <div class="stat-label">Produk Aktif</div>
+            <div class="stat-trend trend-neutral">Di form</div>
+          </div>
+          <div class="stat-card stat-card-4">
+            <div class="stat-icon">📊</div>
+            <div class="stat-val" id="ov-gtm">—</div>
+            <div class="stat-label">GTM Status</div>
+            <div class="stat-trend trend-neutral" id="ov-gtm-t">Belum dikonfigurasi</div>
+          </div>
+        </div>
+
+        <!-- Recent Leads -->
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <div class="card-title" style="margin-bottom:0">🕐 Leads Terbaru</div>
+            <button class="btn btn-outline btn-sm" onclick="showPanel('leads')">Lihat Semua →</button>
+          </div>
+          <div class="date-filter-bar">
+            <span class="dfb-label">📅 Periode:</span>
+            <select class="dfb-select" id="ovDateSel" onchange="onDateFilterChange('ov')">
+              <option value="lifetime">Lifetime (Semua)</option>
+              <option value="today">Hari Ini</option>
+              <option value="yesterday">Kemarin</option>
+              <option value="3days">3 Hari Terakhir</option>
+              <option value="7days">7 Hari Terakhir</option>
+              <option value="30days">30 Hari Terakhir</option>
+              <option value="thismonth">Bulan Ini</option>
+              <option value="custom">Custom Range</option>
+            </select>
+            <span class="dfb-custom" id="ovDateCustom">
+              <input type="date" class="dfb-date" id="ovDateStart" onchange="onDateFilterChange('ov')"/>
+              <span style="color:var(--text-muted)">—</span>
+              <input type="date" class="dfb-date" id="ovDateEnd" onchange="onDateFilterChange('ov')"/>
+            </span>
+            <span class="dfb-info" id="ovDateInfo"></span>
+          </div>
+          <div id="ov-recent-leads"></div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+          <div class="card-title">⚡ Quick Actions</div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px">
+            <button class="btn btn-primary" onclick="showPanel('produk');cancelProd()">📦 Kelola Produk</button>
+            <button class="btn btn-outline" onclick="showPanel('embed')">🔗 Ambil Embed Code</button>
+            <button class="btn btn-outline" onclick="showPanel('gtm')">📈 Setup GTM</button>
+            <button class="btn btn-outline" onclick="exportCSV()">⬇️ Export Leads CSV</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── LEADS ── -->
+      <div class="panel" id="panel-leads">
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:20px">
+            <div>
+              <div class="card-title" style="margin-bottom:2px">👥 Semua Leads</div>
+              <div style="font-size:13px;color:var(--text-muted)">Data customer yang mengisi form</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-success btn-sm" onclick="exportCSV()">⬇️ Export CSV</button>
+              <button class="btn btn-danger btn-sm" onclick="clearLeads()">🗑️ Hapus Semua</button>
+            </div>
+          </div>
+          <!-- Date Range Filter -->
+          <div class="date-filter-bar">
+            <span class="dfb-label">📅 Periode:</span>
+            <select class="dfb-select" id="leadsDateSel" onchange="onDateFilterChange('leads')">
+              <option value="lifetime">Lifetime (Semua)</option>
+              <option value="today">Hari Ini</option>
+              <option value="yesterday">Kemarin</option>
+              <option value="3days">3 Hari Terakhir</option>
+              <option value="7days">7 Hari Terakhir</option>
+              <option value="30days">30 Hari Terakhir</option>
+              <option value="thismonth">Bulan Ini</option>
+              <option value="custom">Custom Range</option>
+            </select>
+            <span class="dfb-custom" id="leadsDateCustom">
+              <input type="date" class="dfb-date" id="leadsDateStart" onchange="onDateFilterChange('leads')"/>
+              <span style="color:var(--text-muted)">—</span>
+              <input type="date" class="dfb-date" id="leadsDateEnd" onchange="onDateFilterChange('leads')"/>
+            </span>
+            <span class="dfb-info" id="leadsDateInfo"></span>
+          </div>
+          <!-- Search Filter -->
+          <div style="margin-bottom:16px">
+            <input class="input" id="leadSearch" type="text" placeholder="🔍  Cari nama atau nomor WA..." oninput="renderLeads()" style="max-width:320px"/>
+          </div>
+          <div id="leadsList"></div>
+        </div>
+      </div>
+
+      <!-- ── PRODUK ── -->
+      <div class="panel" id="panel-produk">
+
+        <!-- Product List -->
+        <div class="card" id="prodListCard">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <div>
+              <div class="card-title" style="margin-bottom:2px">📦 Daftar Produk / Campaign</div>
+              <div style="font-size:13px;color:var(--text-muted)">Setiap produk punya CS, Greeting, GTM & Embed sendiri</div>
+            </div>
+            <button class="btn btn-primary" onclick="showProdForm(null)">➕ Tambah Produk</button>
+          </div>
+          <div id="prodList"></div>
+        </div>
+
+        <!-- Product Detail Form (hidden by default) -->
+        <div id="prodFormCard" style="display:none">
+          <!-- Header -->
+          <div class="card" style="margin-bottom:0;border-radius:var(--radius) var(--radius) 0 0;border-bottom:2px solid var(--primary)">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div>
+                <div class="card-title" id="prodFormTitle" style="margin-bottom:2px">➕ Tambah Produk Baru</div>
+                <div style="font-size:13px;color:var(--text-muted)">Konfigurasi lengkap per produk/campaign</div>
+              </div>
+              <button class="btn btn-ghost" onclick="cancelProd()" style="font-size:20px;padding:4px 10px">✕</button>
+            </div>
+          </div>
+
+          <!-- Tabs inside product form -->
+          <div style="background:#fff;border-left:1px solid var(--border);border-right:1px solid var(--border)">
+            <div style="display:flex;border-bottom:1px solid var(--border);overflow-x:auto">
+              <button class="prod-tab active" id="ptab-info" onclick="switchProdTab('info')">📦 Info Produk</button>
+              <button class="prod-tab" id="ptab-cs" onclick="switchProdTab('cs')">💬 CS & Greeting</button>
+              <button class="prod-tab" id="ptab-gtm" onclick="switchProdTab('gtm')">📊 GTM Tracking</button>
+              <button class="prod-tab" id="ptab-embed" onclick="switchProdTab('embed')">🔗 Embed</button>
+            </div>
+          </div>
+
+          <!-- Tab: Info Produk -->
+          <div class="card" id="ppanel-info" style="border-radius:0;border-top:none;margin-bottom:0;border-left:1px solid var(--border);border-right:1px solid var(--border)">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="label">Nama Produk / Campaign *</label>
+                <input class="input" id="fName" type="text" placeholder="Lampu Jagung 3 Warna"/>
+              </div>
+              <div class="form-group">
+                <label class="label">Harga (Opsional)</label>
+                <input class="input" id="fPrice" type="text" placeholder="Rp 99.000"/>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="label">Deskripsi (Opsional)</label>
+              <input class="input" id="fDesc" type="text" placeholder="Garansi 1 tahun, stok terbatas..."/>
+            </div>
+          </div>
+
+          <!-- Tab: CS & Greeting -->
+          <div class="card" id="ppanel-cs" style="display:none;border-radius:0;border-top:none;margin-bottom:0;border-left:1px solid var(--border);border-right:1px solid var(--border)">
+
+            <!-- Step 2: Pilih CS -->
+            <div style="margin-bottom:20px">
+              <div class="label" style="margin-bottom:4px">Step 2 — Pilih CS untuk Produk Ini *</div>
+              <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px">
+                Boleh pilih lebih dari satu CS — lead akan dibagi rata otomatis (round robin) ke CS dengan jumlah lead paling sedikit.
+              </div>
+              <div id="csSelectedChips" style="margin-bottom:10px;min-height:30px"></div>
+
+              <!-- CS Cards Selector (multi-select) -->
+              <div id="csSelectorList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
+              <div id="errCSSelect" style="font-size:12px;color:var(--red);display:none;margin-bottom:8px">⚠️ Pilih minimal 1 CS</div>
+
+              <a onclick="showPanel('cs')" style="font-size:13px;color:var(--primary);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px">
+                ➕ Tambah CS baru di menu CS & Greeting
+              </a>
+            </div>
+
+            <div class="card-divider"></div>
+
+            <!-- Produk name for WA -->
+            <div class="form-group">
+              <label class="label">Nama Produk untuk Pesan WA</label>
+              <input class="input" id="fProdWA" type="text" placeholder="Lampu Jagung 3 Warna" oninput="updateProdGreetingPreview()"/>
+              <div class="hint">Mengisi variabel <code>{produk}</code> di pesan WA otomatis</div>
+            </div>
+
+            <!-- Greeting override -->
+            <div class="form-group">
+              <label class="label">Template Greeting (Override — opsional)</label>
+              <textarea class="input" id="fGreeting" rows="8" style="font-family:monospace;font-size:13px" placeholder="Kosongkan untuk pakai template global dari menu CS & Greeting..." oninput="updateProdGreetingPreview()"></textarea>
+              <div class="hint">Variabel: <code>{nama}</code> <code>{wa}</code> <code>{produk}</code> <code>{toko}</code> <code>{alamat}</code> <code>{kota}</code> <code>{kecamatan}</code></div>
+            </div>
+
+            <!-- Preview -->
+            <div class="label" style="margin-bottom:8px">Preview Pesan WA:</div>
+            <div style="background:#e8f5e9;border-radius:10px 10px 10px 0;padding:14px 16px;font-size:13px;line-height:1.8;color:#1b5e20;font-family:monospace;white-space:pre-wrap;max-height:180px;overflow-y:auto;border:1px solid #c8e6c9" id="prodGreetingPreview"></div>
+          </div>
+
+          <!-- Tab: GTM -->
+          <div class="card" id="ppanel-gtm" style="display:none;border-radius:0;border-top:none;margin-bottom:0;border-left:1px solid var(--border);border-right:1px solid var(--border)">
+            <div style="background:var(--primary-light);border-radius:8px;padding:10px 14px;margin-bottom:18px;font-size:13px;color:var(--primary)">
+              💡 Kosongkan untuk menggunakan GTM global dari menu <strong>GTM Tracking</strong>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="label">GTM Container ID (Override)</label>
+                <input class="input" id="fGTM" type="text" placeholder="GTM-XXXXXXX (atau kosongkan)"/>
+                <div class="hint">Jika diisi, override GTM ID global khusus produk ini</div>
+              </div>
+              <div class="form-group">
+                <label class="label">Google Ads Conversion Label</label>
+                <input class="input" id="fConv" type="text" placeholder="AW-XXXXXXXXX/YYYY"/>
+                <div class="hint">Conversion label spesifik untuk campaign produk ini</div>
+              </div>
+            </div>
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px;font-size:13px;color:#166534;line-height:1.8">
+              <strong>Events yang dikirim saat form disubmit:</strong><br/>
+              • <code>generate_lead</code> → GTM dataLayer<br/>
+              • <code>conversion</code> → Google Ads (jika Conversion Label diisi)<br/>
+              • Data yang dikirim: nama customer, nama produk ini
+            </div>
+          </div>
+
+          <!-- Tab: Embed -->
+          <div class="card" id="ppanel-embed" style="display:none;border-radius:0;border-top:none;margin-bottom:0;border-left:1px solid var(--border);border-right:1px solid var(--border)">
+            <div style="background:#fff3cd;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:#856404">
+              ⚠️ Simpan produk dulu agar embed code ter-generate dengan konfigurasi terbaru
+            </div>
+            <div style="margin-bottom:16px">
+              <div style="font-size:14px;font-weight:700;margin-bottom:4px">📄 Embed Inline</div>
+              <div style="font-size:13px;color:var(--text-muted);margin-bottom:10px">Copy-paste ke landing page — tidak perlu hosting</div>
+              <div class="code-wrap">
+                <div class="code-box" id="prodEmbedInline" style="max-height:200px">Simpan produk dulu untuk generate embed code...</div>
+                <button class="copy-btn" onclick="copyCode('prodEmbedInline',this)">Copy Code</button>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:14px;font-weight:700;margin-bottom:4px">🖼️ iFrame Embed</div>
+              <div style="font-size:13px;color:var(--text-muted);margin-bottom:10px">Upload file ke hosting, ganti URL_FORM_DISINI</div>
+              <div class="code-wrap">
+                <div class="code-box" id="prodEmbedIframe">Simpan produk dulu untuk generate embed code...</div>
+                <button class="copy-btn" onclick="copyCode('prodEmbedIframe',this)">Copy Code</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Footer -->
+          <div style="background:#fff;border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);padding:16px 24px;display:flex;gap:10px;align-items:center">
+            <button class="btn btn-primary btn-lg" onclick="saveProd()">💾 Simpan Produk</button>
+            <button class="btn btn-outline" onclick="cancelProd()">Batal</button>
+            <div style="margin-left:auto;font-size:12px;color:var(--text-muted)">Setelah simpan, embed code otomatis ter-update</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── FORM BUILDER ── -->
+      <div class="panel" id="panel-form">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
+          <div>
+            <div class="card">
+              <div class="card-title">📋 Konfigurasi Form</div>
+              <div class="card-sub">Teks dan tampilan yang akan dilihat customer di landing page</div>
+              <div class="form-group">
+                <label class="label">Teks Headline</label>
+                <textarea class="input" id="fHeadline" rows="3" oninput="updatePreview()" placeholder="Silahkan Isi Nama & No WhatsApp..."></textarea>
+                <div class="hint">Tulis <code>CS kami</code> untuk di-highlight otomatis dengan warna aksen</div>
+              </div>
+              <div class="form-group">
+                <label class="label">Teks Tombol CTA</label>
+                <input class="input" id="fCTA" type="text" placeholder="Beli Sekarang ➜" oninput="updatePreview()"/>
+              </div>
+              <div class="form-group">
+                <label class="label">Warna Tombol CTA</label>
+                <div style="display:flex;gap:10px;align-items:center">
+                  <input type="color" id="fBtnColor" value="#43a047" oninput="updatePreview()" style="width:44px;height:36px;border-radius:8px;border:1.5px solid var(--border);cursor:pointer;padding:2px"/>
+                  <input class="input" id="fBtnColorHex" type="text" placeholder="#43a047" style="max-width:120px" oninput="syncColor()"/>
+                  <span style="font-size:12px;color:var(--text-muted)">Klik untuk pilih warna</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="label">Trust Signals (pisah dengan koma)</label>
+                <input class="input" id="fTrust" type="text" placeholder="✅ Respon Cepat, 🔒 Data Aman, ⭐ Terpercaya" oninput="updatePreview()"/>
+              </div>
+              <div class="card-divider"></div>
+              <div style="font-size:13px;font-weight:700;margin-bottom:12px">📋 Field Tambahan di Form</div>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px" id="fieldToggles">
+                <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px">
+                  <input type="checkbox" id="fieldAlamat" onchange="updatePreview()" style="width:16px;height:16px;accent-color:var(--primary)"/>
+                  <span><strong>Alamat</strong> — dipakai untuk variabel <code>{alamat}</code></span>
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px">
+                  <input type="checkbox" id="fieldKota" onchange="updatePreview()" style="width:16px;height:16px;accent-color:var(--primary)"/>
+                  <span><strong>Kota</strong> — dipakai untuk variabel <code>{kota}</code></span>
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px">
+                  <input type="checkbox" id="fieldKecamatan" onchange="updatePreview()" style="width:16px;height:16px;accent-color:var(--primary)"/>
+                  <span><strong>Kecamatan</strong> — dipakai untuk variabel <code>{kecamatan}</code></span>
+                </label>
+              </div>
+              <button class="btn btn-primary" onclick="saveFormConfig()">💾 Simpan Konfigurasi Form</button>
+            </div>
+          </div>
+          <!-- Preview -->
+          <div>
+            <div class="card">
+              <div class="card-title" style="margin-bottom:16px">👁️ Preview Form</div>
+              <div class="preview-wrapper">
+                <div class="preview-card" id="previewCard">
+                  <div class="preview-headline" id="pvHeadline"></div>
+                  <div id="pvProds"></div>
+                  <div class="preview-input-mock">Nama Anda</div>
+                  <div class="preview-input-mock">No. WhatsApp Anda</div>
+                  <div class="preview-btn-mock" id="pvBtn"></div>
+                  <div class="preview-trust" id="pvTrust"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CS & GREETING ── -->
+      <div class="panel" id="panel-cs">
+
+        <!-- STEP 1: Tambah CS -->
+        <div class="card">
+          <div class="card-title">👤 Step 1 — Daftar CS</div>
+          <div class="card-sub">Tambahkan CS beserta nomor WhatsApp-nya. Nanti tinggal pilih di setiap produk.</div>
+
+          <!-- Add CS Form -->
+          <div style="background:var(--bg);border-radius:var(--radius-sm);padding:16px;margin-bottom:16px">
+            <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text)" id="csFormTitle">➕ Tambah CS Baru</div>
+            <input type="hidden" id="editCSId"/>
+            <div class="form-row">
+              <div class="form-group" style="margin-bottom:0">
+                <label class="label">Nama CS *</label>
+                <input class="input" id="csItemName" type="text" placeholder="Misal: Sari, Budi, CS 1..."/>
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label class="label">Nomor WhatsApp *</label>
+                <input class="input" id="csItemWA" type="text" placeholder="6281234567890"/>
+              </div>
+            </div>
+            <div style="margin-top:12px;display:flex;gap:8px">
+              <button class="btn btn-primary btn-sm" onclick="saveCSItem()">💾 Simpan CS</button>
+              <button class="btn btn-outline btn-sm" onclick="cancelCSItem()" id="cancelCSBtn" style="display:none">Batal</button>
+            </div>
+          </div>
+
+          <!-- CS List -->
+          <div id="csItemList"></div>
+        </div>
+
+        <!-- Greeting Template -->
+        <div class="card">
+          <div class="card-title">✍️ Template Greeting (Default)</div>
+          <div class="card-sub">Template pesan WA default. Setiap produk bisa override template ini.</div>
+          <div class="form-group">
+            <label class="label">Template Pesan</label>
+            <textarea class="input" id="csGreeting" rows="10" style="font-family:monospace;font-size:13px" oninput="updateGreetingPreview()"></textarea>
+            <div class="hint">Variabel: <code>{nama}</code> <code>{wa}</code> <code>{produk}</code> <code>{toko}</code> <code>{alamat}</code> <code>{kota}</code> <code>{kecamatan}</code></div>
+          </div>
+          <div style="margin-bottom:16px">
+            <div class="label" style="margin-bottom:8px">Preview Pesan:</div>
+            <div style="background:#e8f5e9;border-radius:10px 10px 10px 0;padding:14px 16px;font-size:13px;line-height:1.8;color:#1b5e20;font-family:monospace;white-space:pre-wrap;max-height:180px;overflow-y:auto;border:1px solid #c8e6c9" id="greetingPreview"></div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-primary" onclick="saveGreeting()">💾 Simpan Template</button>
+            <button class="btn btn-outline" onclick="testGreeting()">📱 Test Pesan</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── AKSES LOGIN CS ── -->
+      <div class="panel" id="panel-csaccess">
+        <div class="card">
+          <div class="card-title">🔐 Akses Login CS</div>
+          <div class="card-sub">
+            Buat akun login untuk CS supaya mereka bisa follow-up lead yang belum diproses lewat WA.
+            Setiap akun terhubung ke profil CS dari menu <strong>CS &amp; Greeting</strong>.
+            CS hanya melihat lead dari produk yang ditugaskan ke profilnya — tanpa akses ke pengaturan apapun.
+          </div>
+
+          <!-- Form tambah / edit akun -->
+          <div style="background:var(--bg);border-radius:var(--radius-sm);padding:16px;margin-bottom:16px">
+            <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text)" id="csAccFormTitle">➕ Tambah Akun CS</div>
+            <input type="hidden" id="editCSUserId"/>
+            <div class="form-row">
+              <div class="form-group" style="margin-bottom:12px">
+                <label class="label">Pilih Profil CS *</label>
+                <select class="input" id="csAccProfile"></select>
+                <div class="hint">Profil dibuat di menu <strong>CS &amp; Greeting</strong></div>
+              </div>
+              <div class="form-group" style="margin-bottom:12px">
+                <label class="label">Username *</label>
+                <input class="input" id="csAccUser" type="text" placeholder="contoh: sari, budi.cs" autocomplete="off"/>
+                <div class="hint">Huruf kecil, tanpa spasi. Unik per akun.</div>
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:12px">
+              <label class="label">Password *</label>
+              <input class="input" id="csAccPass" type="text" placeholder="Password untuk login CS" autocomplete="off"/>
+              <div class="hint">Password ditampilkan jelas supaya admin bisa kasih ke CS.</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-primary btn-sm" onclick="saveCSUser()">💾 Simpan Akun</button>
+              <button class="btn btn-outline btn-sm" onclick="cancelCSUser()" id="cancelCSUserBtn" style="display:none">Batal</button>
+            </div>
+          </div>
+
+          <!-- Daftar akun CS -->
+          <div id="csUserList"></div>
+        </div>
+
+        <div class="card" style="background:#fffbeb;border:1px solid #fde68a">
+          <div class="card-title" style="color:#92400e">💡 Cara Kerja Login CS</div>
+          <ol style="font-size:13px;color:#78350f;line-height:1.9;padding-left:20px">
+            <li>Buat profil CS di menu <strong>CS &amp; Greeting</strong> (nama + nomor WhatsApp)</li>
+            <li>Assign profil CS ke produk di menu <strong>Produk</strong> (tab CS &amp; Greeting)</li>
+            <li>Buat akun login di sini, pilih profil CS-nya, kasih username &amp; password</li>
+            <li>CS login lewat halaman login utama → tab <strong>CS</strong></li>
+            <li>CS lihat lead yang masuk untuk produknya, tandai status follow-up &amp; catat hasilnya</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- ── GTM TRACKING ── -->
+      <div class="panel" id="panel-gtm">
+        <div class="card">
+          <div class="card-title">📊 Google Tag Manager</div>
+          <div class="card-sub">Hubungkan GTM untuk tracking konversi Google Ads secara otomatis</div>
+
+          <!-- Status -->
+          <div class="gtm-status" id="gtmStatusBox">
+            <div class="status-dot inactive" id="gtmDot"></div>
+            <div>
+              <div class="gtm-status-text" id="gtmStatusText">GTM Belum Terhubung</div>
+              <div class="gtm-status-sub" id="gtmStatusSub">Masukkan Container ID untuk mengaktifkan tracking</div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="label">GTM Container ID</label>
+              <input class="input" id="gtmId" type="text" placeholder="GTM-XXXXXXX"/>
+              <div class="hint">Temukan di GTM dashboard → Admin → Container Settings</div>
+            </div>
+            <div class="form-group">
+              <label class="label">Google Ads Conversion Label (Opsional)</label>
+              <input class="input" id="convLabel" type="text" placeholder="AW-XXXXXXXXX/YYYY"/>
+              <div class="hint">Untuk direct tracking tanpa GTM. Format: AW-ID/label</div>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="saveGTM()">💾 Simpan & Aktifkan</button>
+        </div>
+
+        <div class="card">
+          <div class="card-title" style="margin-bottom:16px">📋 Events yang Di-track</div>
+          <div class="event-item">
+            <div class="event-name">generate_lead</div>
+            <div class="event-info">
+              <div class="event-title">Form Submitted</div>
+              <div class="event-desc">Dikirim saat customer mengisi & submit form. Berisi: nama, produk yang dipilih.</div>
+            </div>
+          </div>
+          <div class="event-item">
+            <div class="event-name">page_view</div>
+            <div class="event-info">
+              <div class="event-title">Halaman Dilihat</div>
+              <div class="event-desc">Otomatis dikirim GTM saat halaman landing page dimuat.</div>
+            </div>
+          </div>
+          <div class="event-item">
+            <div class="event-name">conversion</div>
+            <div class="event-info">
+              <div class="event-title">Google Ads Conversion</div>
+              <div class="event-desc">Dikirim ke Google Ads saat form disubmit (jika Conversion Label diisi).</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="background:var(--primary-light);border:1px solid rgba(102,126,234,.2)">
+          <div class="card-title">🛠️ Cara Setup GTM untuk Google Ads</div>
+          <ol style="font-size:13px;color:var(--text);line-height:2;padding-left:20px">
+            <li>Buat akun GTM di <strong>tagmanager.google.com</strong></li>
+            <li>Buat Container baru → copy Container ID (GTM-XXXXX) → paste di atas</li>
+            <li>Di GTM, buat <strong>Trigger</strong>: Custom Event → Event Name: <code>generate_lead</code></li>
+            <li>Buat <strong>Tag</strong>: Google Ads Conversion Tracking → pilih trigger tadi</li>
+            <li>Publish container → selesai! Setiap lead otomatis ter-track di Google Ads</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- ── EMBED HTML ── -->
+      <div class="panel" id="panel-embed">
+        <div class="card">
+          <div class="card-title">📄 Embed Inline</div>
+          <div class="card-sub">Copy-paste langsung ke editor HTML landing page (Elementor, Webflow, Google Sites, dsb). <strong>Tidak perlu hosting!</strong></div>
+          <div class="code-wrap">
+            <div class="code-box" id="embedInline"></div>
+            <button class="copy-btn" onclick="copyCode('embedInline',this)">Copy Code</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🖼️ iFrame Embed</div>
+          <div class="card-sub">Upload file <code>dashboard.html</code> ke hosting dulu, lalu tempel kode ini di landing page. Tambahkan <code>?form</code> di URL untuk mode form-only.</div>
+          <div class="code-wrap">
+            <div class="code-box" id="embedIframe"></div>
+            <button class="copy-btn" onclick="copyCode('embedIframe',this)">Copy Code</button>
+          </div>
+        </div>
+
+        <div class="card" style="background:#f0fdf4;border:1px solid #bbf7d0">
+          <div class="card-title" style="color:#166534">✅ Panduan Penggunaan</div>
+          <div style="font-size:13px;line-height:2;color:#166534">
+            <strong>Opsi 1 — Inline (Termudah):</strong> Copy kode Embed Inline → paste ke editor HTML landing page → selesai!<br/>
+            <strong>Opsi 2 — iFrame:</strong> Upload file ke hosting → salin URL-nya → ganti <code>URL_FORM_DISINI</code> di kode iFrame<br/>
+            <strong>Tips:</strong> Letakkan form di bagian <em>above the fold</em> landing page untuk konversi tertinggi
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CLOUD SYNC (Firebase) ── -->
+      <div class="panel" id="panel-cloud">
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:8px">
+            <div>
+              <div class="card-title" style="margin-bottom:2px">☁️ Cloud Sync (Firebase)</div>
+              <div style="font-size:13px;color:var(--text-muted)">Sinkronkan data ke cloud supaya CS bisa login dari HP &amp; admin lihat real-time dari laptop</div>
+            </div>
+            <span class="cloud-badge cb-offline" id="cloudBadgeBig">
+              <span class="cb-dot"></span>
+              <span id="cloudBadgeBigText">Belum terhubung</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Setup guide -->
+        <div class="card" style="background:#eff6ff;border:1px solid #bfdbfe">
+          <div class="card-title" style="color:#1e40af">🛠️ Cara Setup Firebase (Sekali Aja, 5 Menit)</div>
+          <ol style="font-size:13px;color:#1e3a8a;line-height:2;padding-left:22px;margin-bottom:12px">
+            <li>Buka <a href="https://console.firebase.google.com" target="_blank" style="color:var(--primary);font-weight:600">console.firebase.google.com</a> → login pakai akun Google</li>
+            <li>Klik <strong>Add project</strong> → kasih nama (misal: <code>toko-saya</code>) → Continue → Continue → Create</li>
+            <li>Di project, klik <strong>Build → Firestore Database → Create database</strong></li>
+            <li>Pilih lokasi terdekat (misal <code>asia-southeast2</code>) → <strong>Start in test mode</strong> → Enable</li>
+            <li>Setelah Firestore aktif, kembali ke <strong>Project Overview</strong> (klik gear icon ⚙️)</li>
+            <li>Klik <strong>Project settings → General</strong> → scroll ke bawah → <strong>Your apps</strong> → klik ikon <code>&lt;/&gt;</code> (Web)</li>
+            <li>Kasih nama app → Register app → akan muncul <code>firebaseConfig</code></li>
+            <li>Copy nilai <code>apiKey</code> dan <code>projectId</code> dari <code>firebaseConfig</code> → paste ke form di bawah ⬇️</li>
+            <li>Klik <strong>Test Connection</strong> → kalau hijau, klik <strong>Save &amp; Enable Cloud Sync</strong></li>
+          </ol>
+          <div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:10px 14px;font-size:12px;color:#78350f">
+            ⚠️ <strong>Test mode</strong> = data bisa dibaca/ditulis oleh siapapun yang punya project ID — OK buat awal/testing. Untuk produksi, nanti Firestore Rules-nya bisa dikencengin (kontak gua kalau perlu bantu).
+          </div>
+        </div>
+
+        <!-- Config form -->
+        <div class="card">
+          <div class="card-title">🔑 Firebase Config</div>
+          <div class="card-sub">Tempel nilai dari <code>firebaseConfig</code> yang lo dapet dari Firebase Console</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="label">API Key *</label>
+              <input class="input" id="fbApiKey" type="text" placeholder="AIzaSy..." autocomplete="off"/>
+              <div class="hint">Dari <code>firebaseConfig.apiKey</code></div>
+            </div>
+            <div class="form-group">
+              <label class="label">Project ID *</label>
+              <input class="input" id="fbProjectId" type="text" placeholder="toko-saya-12345" autocomplete="off"/>
+              <div class="hint">Dari <code>firebaseConfig.projectId</code></div>
+            </div>
+          </div>
+          <div id="fbTestResult" style="margin-bottom:12px;display:none"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-outline" onclick="testFirebase()">🔌 Test Connection</button>
+            <button class="btn btn-primary" onclick="enableFirebaseSync()">💾 Save &amp; Enable Cloud Sync</button>
+            <button class="btn btn-danger" onclick="disableFirebaseSync()" id="fbDisableBtn" style="display:none">🔌 Disable Cloud Sync</button>
+          </div>
+        </div>
+
+        <!-- Manual migration & recovery -->
+        <div class="card" id="fbMigrationCard" style="display:none">
+          <div class="card-title">🛠️ Sinkronisasi &amp; Recovery</div>
+          <div class="card-sub">Tools buat diagnostik dan recovery kalau data kelihatan ilang.</div>
+          <div id="fbMigrationStatus" style="margin-bottom:12px;font-size:13px;color:var(--text-muted);background:#0d1117;color:#e6edf3;padding:12px 14px;border-radius:8px;min-height:36px;font-family:monospace;font-size:12px"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-outline" onclick="checkCloudData()">🔍 Cek Isi Cloud vs Local</button>
+            <button class="btn btn-primary" onclick="manualMigration()">📤 Force Upload Local → Cloud</button>
+            <button class="btn btn-danger" onclick="restoreFromBackup()">⏮️ Restore dari Backup Lokal</button>
+          </div>
+          <div style="margin-top:12px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;font-size:12px;color:#1e3a8a;line-height:1.7">
+            <strong>Cek Cloud vs Local</strong> — bandingin jumlah record di cloud sama di browser ini.<br/>
+            <strong>Force Upload</strong> — timpa cloud pakai data lokal (kalau cloud kosong padahal local punya).<br/>
+            <strong>Restore Backup</strong> — balikin data dari snapshot lokal terakhir (otomatis disimpan sebelum sync overwrite).
+          </div>
+        </div>
+
+        <!-- Info / debug -->
+        <div class="card" id="fbInfoCard" style="display:none">
+          <div class="card-title">📊 Status Sinkronisasi</div>
+          <div id="fbInfoBody" style="font-size:13px;color:var(--text)"></div>
+        </div>
+      </div>
+
+      <!-- ── SETTINGS ── -->
+      <div class="panel" id="panel-settings">
+        <div class="card">
+          <div class="card-title">🏪 Informasi Toko</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="label">Nama Toko / Brand</label>
+              <input class="input" id="stName" type="text" placeholder="Toko Kita"/>
+            </div>
+            <div class="form-group">
+              <label class="label">Tagline</label>
+              <input class="input" id="stTagline" type="text" placeholder="Produk terbaik, harga terjangkau"/>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="saveStoreInfo()">💾 Simpan Info Toko</button>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🔒 Keamanan</div>
+          <div class="card-sub">Ganti password admin. Kosongkan jika tidak ingin mengubah.</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="label">Password Baru</label>
+              <input class="input" id="stPassNew" type="password" placeholder="Password baru"/>
+            </div>
+            <div class="form-group">
+              <label class="label">Konfirmasi Password</label>
+              <input class="input" id="stPassConf" type="password" placeholder="Ulangi password baru"/>
+            </div>
+          </div>
+          <div class="err-msg" id="errPass">Password tidak cocok atau kosong</div>
+          <button class="btn btn-primary" onclick="savePassword()">🔐 Ubah Password</button>
+        </div>
+
+        <div class="card" style="border:1px solid #fca5a5;background:#fff5f5">
+          <div class="card-title" style="color:var(--red)">⚠️ Danger Zone</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px">Tindakan ini tidak dapat dibatalkan.</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-danger" onclick="clearAllLeads()">🗑️ Hapus Semua Leads</button>
+            <button class="btn btn-danger" onclick="resetAllData()">🔄 Reset Semua Data</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+    <div class="powered-by">Powered by <span class="pb-brand">Harstroong</span></div>
+  </div><!-- /main -->
+</div><!-- /dashboard -->
+
+<div class="toast" id="toast"></div>
+
+<!-- Notification popup untuk lead baru (CS + admin) -->
+<div class="notif-popup" id="notifPopup">
+  <div class="notif-popup-icon">🔔</div>
+  <div class="notif-popup-body">
+    <div class="notif-popup-title" id="notifPopupTitle">Lead baru!</div>
+    <div class="notif-popup-msg" id="notifPopupMsg"></div>
+  </div>
+  <button class="notif-popup-close" onclick="hideLeadNotif()" title="Tutup">✕</button>
+</div>
+
+<!-- ═══════════════════════════════════
+     FORM PREVIEW MODAL
+═══════════════════════════════════ -->
+<div id="formPreviewModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:16px;max-width:440px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.3)">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+      <div style="font-weight:700;font-size:15px">Preview Form Customer</div>
+      <button onclick="closePreview()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-muted)">✕</button>
+    </div>
+    <div id="formPreviewContent" style="padding:0"></div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════
+     CS VIEW (login CS — terpisah dari admin)
+═══════════════════════════════════ -->
+<div id="viewCS">
+  <div class="csv-topbar">
+    <div class="csv-brand">
+      <div class="csv-brand-icon">💬</div>
+      <div>
+        <div class="csv-brand-name">Panel CS — <span id="csViewName">CS</span></div>
+        <div class="csv-brand-sub" id="csViewStore">Toko Saya</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span class="badge badge-purple" id="csViewWa">📱 -</span>
+      <button class="btn btn-outline btn-sm" onclick="doCSLogout()">⏻ Keluar</button>
+    </div>
+  </div>
+
+  <div class="csv-content">
+
+    <!-- Stat -->
+    <div class="stat-grid">
+      <div class="stat-card stat-card-1">
+        <div class="stat-icon">📋</div>
+        <div class="stat-val" id="cs-total">0</div>
+        <div class="stat-label">Lead Saya (Total)</div>
+        <div class="stat-trend trend-neutral">Semua waktu</div>
+      </div>
+      <div class="stat-card stat-card-3">
+        <div class="stat-icon">🔴</div>
+        <div class="stat-val" id="cs-pending">0</div>
+        <div class="stat-label">Belum di-Follow Up</div>
+        <div class="stat-trend trend-neutral">Perlu dihubungi</div>
+      </div>
+      <div class="stat-card stat-card-2">
+        <div class="stat-icon">✅</div>
+        <div class="stat-val" id="cs-done">0</div>
+        <div class="stat-label">Sudah Diproses</div>
+        <div class="stat-trend trend-neutral">Dihubungi / Closing</div>
+      </div>
+      <div class="stat-card stat-card-4">
+        <div class="stat-icon">📅</div>
+        <div class="stat-val" id="cs-today">0</div>
+        <div class="stat-label">Lead Hari Ini</div>
+        <div class="stat-trend trend-neutral">24 jam terakhir</div>
+      </div>
+    </div>
+
+    <!-- Lead list -->
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+        <div>
+          <div class="card-title" style="margin-bottom:2px">📋 Lead untuk Follow-Up</div>
+          <div style="font-size:13px;color:var(--text-muted)">Customer yang sudah isi form. Hubungi via WA atau cara lain, lalu update statusnya.</div>
+        </div>
+        <input class="input" id="csLeadSearch" type="text" placeholder="🔍 Cari nama/WA..." oninput="renderCSLeads()" style="max-width:260px"/>
+      </div>
+
+      <div class="date-filter-bar">
+        <span class="dfb-label">📅 Periode:</span>
+        <select class="dfb-select" id="csDateSel" onchange="onDateFilterChange('cs')">
+          <option value="lifetime">Lifetime (Semua)</option>
+          <option value="today">Hari Ini</option>
+          <option value="yesterday">Kemarin</option>
+          <option value="3days">3 Hari Terakhir</option>
+          <option value="7days">7 Hari Terakhir</option>
+          <option value="30days">30 Hari Terakhir</option>
+          <option value="thismonth">Bulan Ini</option>
+          <option value="custom">Custom Range</option>
+        </select>
+        <span class="dfb-custom" id="csDateCustom">
+          <input type="date" class="dfb-date" id="csDateStart" onchange="onDateFilterChange('cs')"/>
+          <span style="color:var(--text-muted)">—</span>
+          <input type="date" class="dfb-date" id="csDateEnd" onchange="onDateFilterChange('cs')"/>
+        </span>
+        <span class="dfb-info" id="csDateInfo"></span>
+      </div>
+
+      <div class="cs-filter-tabs">
+        <button class="prod-tab active" id="csftab-all" onclick="setCSFilter('all')">Semua</button>
+        <button class="prod-tab" id="csftab-pending" onclick="setCSFilter('pending')">🔴 Belum</button>
+        <button class="prod-tab" id="csftab-contacted" onclick="setCSFilter('contacted')">📞 Dihubungi</button>
+        <button class="prod-tab" id="csftab-closed" onclick="setCSFilter('closed')">✅ Closing</button>
+        <button class="prod-tab" id="csftab-no_response" onclick="setCSFilter('no_response')">❌ Tidak Respon</button>
+      </div>
+
+      <div id="csLeadsList"></div>
+    </div>
+
+    <div class="powered-by">Powered by <span class="pb-brand">Harstroong</span></div>
+  </div>
+</div>
+
+
+<script>
+/* ═════════════════════════════════════════════
+   DEFAULTS & STORAGE
+═════════════════════════════════════════════ */
+const DEF = {
+  storeName:'Toko Saya',tagline:'',
+  waNum:'6281234567890',csName:'Tim CS',
+  headline:'Silahkan Isi Nama & No WhatsApp dibawah\nAgar Terhubung dengan CS kami :',
+  cta:'Beli Sekarang ➜',
+  btnColor:'#43a047',
+  trust:'✅ Respon Cepat, 🔒 Data Aman, ⭐ Terpercaya',
+  gtmId:'',convLabel:'',
+  adminPass:'admin123',
+  greeting:`Selamat datang di Toko kami {nama} ☺️
+Kami sudah terima pesanan anda dengan rincian sebagai berikut,
+
+Produk:  {produk}
+
+Dikirim ke:
+Nama: {nama}
+No WA: {wa}
+Alamat: {alamat}
+Kota: {kota}
+Kecamatan: {kecamatan}`
+};
+const DEF_PRODS=[
+  {id:1,name:'Produk A',price:'Rp 250.000',desc:''},
+  {id:2,name:'Produk B',price:'Rp 350.000',desc:''},
+  {id:3,name:'Produk C',price:'Rp 199.000',desc:''},
+];
+
+const LS={
+  g:(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}},
+  s:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+};
+const getCfg=()=>Object.assign({},DEF,LS.g('od_cfg',{}));
+const getProds=()=>{const p=LS.g('od_prods',null);return(p&&p.length)?p:DEF_PRODS};
+const getLeads=()=>LS.g('od_leads',[]);
+
+/* ═════════════════════════════════════════════
+   AUTH
+═════════════════════════════════════════════ */
+function doLogin(){
+  const pass=document.getElementById('loginPass').value;
+  const cfg=getCfg();
+  if(pass===cfg.adminPass){
+    document.getElementById('loginPass').value='';
+    document.getElementById('loginErr').classList.remove('show');
+    document.getElementById('loginPass').classList.remove('err');
+    showDashboard();
+  }else{
+    document.getElementById('loginErr').classList.add('show');
+    document.getElementById('loginPass').classList.add('err');
+    document.getElementById('loginPass').focus();
+  }
+}
+function doLogout(){
+  document.getElementById('viewDashboard').classList.remove('show');
+  document.getElementById('viewDashboard').style.display='none';
+  document.getElementById('viewLogin').style.display='flex';
+}
+function showDashboard(){
+  document.getElementById('viewLogin').style.display='none';
+  document.getElementById('viewDashboard').classList.add('show');
+  document.getElementById('viewDashboard').style.display='flex';
+  initDashboard();
+}
+
+/* ═════════════════════════════════════════════
+   SIDEBAR & PANELS
+═════════════════════════════════════════════ */
+const panelTitles={
+  overview:'📊 Overview',leads:'👥 Leads',produk:'📦 Produk',
+  form:'📋 Form Builder',cs:'💬 CS & Greeting',
+  csaccess:'🔐 Akses Login CS',
+  gtm:'📈 GTM Tracking',embed:'🔗 Embed HTML',
+  cloud:'☁️ Cloud Sync',settings:'⚙️ Pengaturan'
+};
+let activePanel='overview';
+function showPanel(name){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  // Highlight sidebar item
+  document.querySelectorAll('.sb-item').forEach(b=>{
+    if(b.getAttribute('onclick')===`showPanel('${name}')`)b.classList.add('active');
+  });
+  document.getElementById('topbarTitle').textContent=panelTitles[name]||name;
+  activePanel=name;
+  closeSidebar();
+  // Panel-specific init
+  if(name==='overview')renderOverview();
+  else if(name==='leads')renderLeads();
+  else if(name==='produk'){renderProdList();document.getElementById('prodListCard').style.display='block';document.getElementById('prodFormCard').style.display='none';}
+  else if(name==='form')initFormPanel();
+  else if(name==='cs')initCSPanel();
+  else if(name==='csaccess')initCSAccessPanel();
+  else if(name==='gtm')initGTMPanel();
+  else if(name==='embed')renderEmbedCodes();
+  else if(name==='cloud')initCloudPanel();
+  else if(name==='settings')initSettings();
+}
+function openSidebar(){
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sbOverlay').classList.add('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sbOverlay').classList.remove('show');
+}
+
+/* ═════════════════════════════════════════════
+   INIT
+═════════════════════════════════════════════ */
+function initDashboard(){
+  const cfg=getCfg();
+  document.getElementById('sbStoreName').textContent=cfg.storeName;
+  updateLeadsBadge();
+  renderOverview();
+}
+
+/* ═════════════════════════════════════════════
+   OVERVIEW
+═════════════════════════════════════════════ */
+function renderOverview(){
+  const leads=getLeads(),prods=getProds(),cfg=getCfg();
+  const today=new Date().toDateString();
+  const todayN=leads.filter(l=>new Date(l.ts).toDateString()===today).length;
+  document.getElementById('ov-total').textContent=leads.length;
+  document.getElementById('ov-today').textContent=todayN;
+  document.getElementById('ov-prods').textContent=prods.length;
+  // GTM status
+  if(cfg.gtmId){
+    document.getElementById('ov-gtm').textContent='✓';
+    document.getElementById('ov-gtm-t').textContent=cfg.gtmId;
+    document.getElementById('ov-gtm-t').className='stat-trend trend-up';
+  }
+  // Recent leads w/ date filter
+  const range = getDateFilterRange('ov');
+  const filtered = filterLeadsByDate(leads, range);
+  updateDateFilterInfo('ov', filtered.length, leads.length);
+  const el=document.getElementById('ov-recent-leads');
+  const recent = filtered.slice(0,5);
+  if(!recent.length){
+    const msg = range.preset==='lifetime' ? 'Belum ada leads' : 'Tidak ada lead di periode '+range.label;
+    el.innerHTML=`<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">${msg}</div><div class="empty-sub">${range.preset==='lifetime'?'Leads akan muncul di sini saat ada yang mengisi form':'Coba ganti periode di atas'}</div></div>`;
+    return;
+  }
+  el.innerHTML=recent.map(l=>leadCard(l,true)).join('');
+}
+
+/* ═════════════════════════════════════════════
+   LEADS
+═════════════════════════════════════════════ */
+function leadCard(l,compact=false){
+  const init=l.nama?l.nama[0].toUpperCase():'?';
+  const addrParts=[l.alamat,l.kota,l.kecamatan].filter(Boolean);
+  const addrHtml=addrParts.length?`<span>📍 ${esc(addrParts.join(', '))}</span>`:'';
+  const statusBadge=leadStatusBadge(l.followStatus);
+  const csList=getCSList();
+  const csInfo=l.csId?csList.find(c=>c.id===l.csId):null;
+  const csTag=csInfo?`<span class="badge badge-purple" title="CS: ${esc(csInfo.name)}">💬 ${esc(csInfo.name)}</span>`:'';
+  return`<div class="lead-item">
+    <div class="lead-avatar">${init}</div>
+    <div class="lead-info">
+      <div class="lead-name">${esc(l.nama)}</div>
+      <div class="lead-meta">
+        <span>📱 ${esc(l.wa)}</span>
+        <span class="badge badge-blue">${esc(l.produk)}</span>
+        ${csTag}
+        ${statusBadge}
+        ${addrHtml}
+        <span>${fmtDate(l.ts)}</span>
+      </div>
+      ${l.followNotes?`<div style="font-size:12px;color:#78350f;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:6px 10px;margin-top:6px"><strong>Catatan CS:</strong> ${esc(l.followNotes)}</div>`:''}
+    </div>
+    ${!compact?`<div class="lead-actions">
+      <a href="https://wa.me/${l.wa.replace(/\D/g,'')}" target="_blank" class="btn btn-success btn-sm">💬 WA</a>
+      <button class="btn btn-icon btn-sm" onclick="deleteLead('${l.id}')" title="Hapus">🗑️</button>
+    </div>`:''}
+  </div>`;
+}
+
+function leadStatusBadge(status){
+  if(!status||status==='pending') return '<span class="badge badge-orange" title="Belum di-follow-up">🔴 Belum FU</span>';
+  if(status==='contacted') return '<span class="badge badge-blue" title="Sudah dihubungi CS">📞 Dihubungi</span>';
+  if(status==='closed') return '<span class="badge badge-green" title="Closing / Deal">✅ Closing</span>';
+  if(status==='no_response') return '<span class="badge" style="background:#fee2e2;color:#991b1b" title="Customer tidak respon">❌ Tidak Respon</span>';
+  return '';
+}
+function renderLeads(){
+  const q=(document.getElementById('leadSearch')||{}).value||'';
+  const all = getLeads();
+  const range = getDateFilterRange('leads');
+  const inRange = filterLeadsByDate(all, range);
+  const leads = inRange.filter(l =>
+    !q || (l.nama||'').toLowerCase().includes(q.toLowerCase()) || (l.wa||'').includes(q)
+  );
+  updateDateFilterInfo('leads', inRange.length, all.length);
+  const el=document.getElementById('leadsList');
+  if(!leads.length){
+    let title, sub;
+    if(!all.length){ title='Belum ada leads'; sub='Belum ada yang mengisi form'; }
+    else if(!inRange.length){ title='Tidak ada lead di periode '+range.label; sub='Coba ganti periode di atas'; }
+    else { title='Tidak ada lead cocok'; sub='Coba kata kunci lain'; }
+    el.innerHTML=`<div class="empty"><div class="empty-icon">👥</div><div class="empty-title">${title}</div><div class="empty-sub">${sub}</div></div>`;
+    return;
+  }
+  el.innerHTML=leads.map(l=>leadCard(l)).join('');
+}
+function deleteLead(id){
+  LS.s('od_leads',getLeads().filter(l=>l.id!==id));
+  syncLeadDelete(id);
+  renderLeads();updateLeadsBadge();
+  if(activePanel==='overview')renderOverview();
+  toast('🗑️ Lead dihapus');
+}
+function clearLeads(){
+  if(confirm('Hapus semua leads?\n\nTindakan ini tidak bisa dibatalkan.'))
+  {LS.s('od_leads',[]);if(fb.configured)syncBulkDelete(FB_COLLECTIONS.leads);renderLeads();updateLeadsBadge();toast('🗑️ Semua leads dihapus');}
+}
+function clearAllLeads(){clearLeads();}
+function updateLeadsBadge(){
+  const n=getLeads().length;
+  document.getElementById('leadsBadge').textContent=n;
+  document.getElementById('leadsBadge').style.display=n?'':'none';
+}
+function exportCSV(){
+  const all = getLeads();
+  // Apply active date filter from leads panel (if present), else lifetime
+  const range = getDateFilterRange('leads');
+  const leads = filterLeadsByDate(all, range);
+  if(!leads.length){
+    toast(range.preset==='lifetime' ? '⚠️ Tidak ada data untuk di-export' : '⚠️ Tidak ada lead di periode '+range.label);
+    return;
+  }
+  const csList = getCSList();
+  const rows=[['ID','Tanggal','Nama','WhatsApp','Produk','CS','Status FU','Catatan CS','Alamat','Kota','Kecamatan']];
+  leads.forEach(l=>{
+    const cs = csList.find(c => c.id === l.csId);
+    rows.push([
+      l.id, fmtDate(l.ts), l.nama, l.wa, l.produk,
+      cs?cs.name:'-',
+      l.followStatus||'pending',
+      l.followNotes||'',
+      l.alamat||'', l.kota||'', l.kecamatan||''
+    ]);
+  });
+  const csv=rows.map(r=>r.map(c=>`"${String(c==null?'':c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,﻿'+encodeURIComponent(csv);
+  const dateSuffix = range.preset==='lifetime' ? 'lifetime' : range.preset.replace(/[^a-z0-9]/gi,'-');
+  a.download='leads-'+dateSuffix+'-'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+  toast('✅ '+leads.length+' lead di-export ('+range.label+')');
+}
+
+/* ═════════════════════════════════════════════
+   PRODUK CRUD
+═════════════════════════════════════════════ */
+let editProdId=null;
+let activeProdTab='info';
+
+function renderProdList(){
+  const prods=getProds();
+  const el=document.getElementById('prodList');
+  if(!prods.length){
+    el.innerHTML=`<div class="empty"><div class="empty-icon">📦</div><div class="empty-title">Belum ada produk</div><div class="empty-sub">Klik "Tambah Produk" untuk mulai</div></div>`;
+    return;
+  }
+  el.innerHTML=prods.map((p,i)=>{
+    const csList = getCSList();
+    const csIds = (p.csIds && p.csIds.length) ? p.csIds : (p.csId ? [p.csId] : []);
+    const assignedCSs = csIds.map(id => csList.find(c => c.id === id)).filter(Boolean);
+    const hasCS = assignedCSs.length > 0;
+    const csLabel = hasCS
+      ? (assignedCSs.length === 1 ? assignedCSs[0].name : `${assignedCSs.length} CS (round robin)`)
+      : 'Belum pilih CS';
+    const csTitle = hasCS ? assignedCSs.map(c=>c.name+' ('+c.waNum+')').join(', ') : 'Belum ada CS dipilih';
+    const hasGTM = !!(p.gtmId);
+    const hasGreeting = !!(p.greeting);
+    const hasConv = !!(p.convLabel);
+    return`<div class="prod-item" style="flex-wrap:wrap;gap:10px">
+      <div class="prod-num">${i+1}</div>
+      <div class="prod-info" style="flex:1;min-width:180px">
+        <div class="prod-name">${esc(p.name)}</div>
+        ${p.price?`<div class="prod-price">${esc(p.price)}</div>`:''}
+        ${p.desc?`<div class="prod-desc">${esc(p.desc)}</div>`:''}
+        <div class="prod-status-row">
+          <span class="badge ${hasCS?'badge-green':'badge-orange'}" title="${esc(csTitle)}">
+            💬 ${esc(csLabel)}
+          </span>
+          <span class="badge ${hasGreeting?'badge-green':'badge-orange'}">
+            ✍️ ${hasGreeting?'Greeting Custom':'Greeting Global'}
+          </span>
+          <span class="badge ${hasGTM?'badge-green':'badge-orange'}">
+            📊 ${hasGTM?'GTM Custom':'GTM Global'}
+          </span>
+          ${hasConv?`<span class="badge badge-blue">🎯 Conv Label</span>`:''}
+        </div>
+      </div>
+      <div class="prod-actions" style="flex-shrink:0">
+        <button class="btn btn-primary btn-sm" onclick="showProdForm(${p.id})">⚙️ Kelola</button>
+        <button class="btn btn-icon btn-sm" onclick="deleteProd(${p.id})" title="Hapus">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function showProdForm(id){
+  editProdId = id;
+  document.getElementById('prodListCard').style.display = 'none';
+  document.getElementById('prodFormCard').style.display = 'block';
+  switchProdTab('info');
+
+  if(id){
+    const p = getProds().find(x => x.id === id);
+    if(!p) return;
+    document.getElementById('prodFormTitle').textContent = '⚙️ Kelola Produk: ' + p.name;
+    document.getElementById('fName').value = p.name;
+    document.getElementById('fPrice').value = p.price || '';
+    document.getElementById('fDesc').value = p.desc || '';
+    document.getElementById('fProdWA').value = p.produkWA || p.name || '';
+    document.getElementById('fGreeting').value = p.greeting || '';
+    document.getElementById('fGTM').value = p.gtmId || '';
+    document.getElementById('fConv').value = p.convLabel || '';
+    // Backward compat: csIds (array) baru, csId (single) lama
+    const initial = (p.csIds && p.csIds.length) ? p.csIds : (p.csId ? [p.csId] : []);
+    renderCSSelectorForProd(initial);
+    updateProdGreetingPreview();
+    generateProdEmbed(p);
+  } else {
+    document.getElementById('prodFormTitle').textContent = '➕ Tambah Produk Baru';
+    ['fName','fPrice','fDesc','fProdWA','fGreeting','fGTM','fConv'].forEach(i => document.getElementById(i).value = '');
+    document.getElementById('prodEmbedInline').textContent = 'Simpan produk dulu untuk generate embed code...';
+    document.getElementById('prodEmbedIframe').textContent = 'Simpan produk dulu untuk generate embed code...';
+    renderCSSelectorForProd([]);
+    updateProdGreetingPreview();
+  }
+  document.getElementById('prodFormCard').scrollIntoView({behavior:'smooth'});
+}
+
+let selectedCSId = null;       // backward compat (= selectedCSIds[0])
+let selectedCSIds = [];        // multi-select
+
+function renderCSSelectorForProd(initialCSIds){
+  // Accept array (preferred) or single id (legacy)
+  if(Array.isArray(initialCSIds)){
+    selectedCSIds = initialCSIds.slice();
+  } else if(initialCSIds){
+    selectedCSIds = [initialCSIds];
+  } else {
+    selectedCSIds = [];
+  }
+  selectedCSId = selectedCSIds[0] || null;
+  const list = getCSList();
+  const el = document.getElementById('csSelectorList');
+  if(!list.length){
+    el.innerHTML = `<div style="padding:16px;border:1.5px dashed var(--border);border-radius:8px;text-align:center;font-size:13px;color:var(--text-muted)">
+      Belum ada CS.<br/>
+      <a onclick="showPanel('cs')" style="color:var(--primary);cursor:pointer;font-weight:600">Buat CS dulu di menu CS & Greeting →</a>
+    </div>`;
+    renderSelectedCSChips();
+    return;
+  }
+  el.innerHTML = list.map(cs => {
+    const active = selectedCSIds.includes(cs.id);
+    return `<div onclick="toggleCS(${cs.id})" style="
+      display:flex;align-items:center;gap:12px;padding:12px 14px;
+      border:2px solid ${active ? 'var(--primary)' : 'var(--border)'};
+      border-radius:var(--radius-sm);cursor:pointer;
+      background:${active ? 'var(--primary-light)' : '#fff'};
+      transition:all .15s;
+    ">
+      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--sb-accent),var(--sb-accent-2));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0">${cs.name[0].toUpperCase()}</div>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:700;color:var(--text)">${esc(cs.name)}</div>
+        <div style="font-size:12px;color:var(--text-muted)">📱 ${esc(cs.waNum)}</div>
+      </div>
+      <div style="width:22px;height:22px;border-radius:6px;border:2px solid ${active ? 'var(--primary)' : 'var(--border)'};background:${active ? 'var(--primary)' : '#fff'};display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;flex-shrink:0">
+        ${active ? '✓' : ''}
+      </div>
+    </div>`;
+  }).join('');
+  renderSelectedCSChips();
+}
+
+function renderSelectedCSChips(){
+  const el = document.getElementById('csSelectedChips');
+  if(!el) return;
+  const csList = getCSList();
+  if(!selectedCSIds.length){
+    el.innerHTML = '<span style="font-size:12px;color:var(--text-muted)">Belum ada CS dipilih</span>';
+    return;
+  }
+  el.innerHTML = '<span style="font-size:12px;color:var(--text-muted);margin-right:4px">Terpilih:</span>' +
+    selectedCSIds.map(id=>{
+      const cs = csList.find(c => c.id === id);
+      if(!cs) return '';
+      return `<span class="cs-chip">${esc(cs.name)} <button class="cs-chip-remove" onclick="toggleCS(${cs.id})" title="Hapus">✕</button></span>`;
+    }).join('');
+}
+
+function toggleCS(id){
+  const idx = selectedCSIds.indexOf(id);
+  if(idx >= 0) selectedCSIds.splice(idx, 1);
+  else selectedCSIds.push(id);
+  selectedCSId = selectedCSIds[0] || null;
+  document.getElementById('errCSSelect').style.display = 'none';
+  renderCSSelectorForProd(selectedCSIds);
+  updateProdGreetingPreview();
+}
+
+// Legacy alias — sebelumnya pakai selectCS(id) single-select
+function selectCS(id){ toggleCS(id); }
+
+function switchProdTab(tab){
+  activeProdTab=tab;
+  ['info','cs','gtm','embed'].forEach(t=>{
+    document.getElementById('ptab-'+t).classList.toggle('active',t===tab);
+    document.getElementById('ppanel-'+t).style.display=t===tab?'block':'none';
+  });
+}
+
+function updateProdGreetingPreview(){
+  const tpl = document.getElementById('fGreeting').value;
+  const cfg = getCfg();
+  const useTpl = tpl || cfg.greeting || '';
+  const produkWA = document.getElementById('fProdWA').value.trim() || document.getElementById('fName').value.trim() || 'Produk Kami';
+  const preview = applyVars(useTpl, {
+    nama:'Budi Santoso', wa:'081234567890',
+    produk:produkWA, toko:cfg.storeName,
+    alamat:'Jl. Merdeka No. 10', kota:'Jakarta', kecamatan:'Kebayoran Baru'
+  });
+  document.getElementById('prodGreetingPreview').textContent = preview || '(isi template greeting di menu CS & Greeting atau override di sini)';
+}
+
+function saveProd(){
+  const name = document.getElementById('fName').value.trim();
+  if(!name){ toast('⚠️ Nama produk wajib diisi'); switchProdTab('info'); return; }
+
+  // Validasi minimal 1 CS dipilih
+  if(!selectedCSIds.length){
+    switchProdTab('cs');
+    document.getElementById('errCSSelect').style.display = 'block';
+    toast('⚠️ Pilih minimal 1 CS di tab CS & Greeting'); return;
+  }
+
+  const price = document.getElementById('fPrice').value.trim();
+  const desc = document.getElementById('fDesc').value.trim();
+  const produkWA = document.getElementById('fProdWA').value.trim() || name;
+  const greeting = document.getElementById('fGreeting').value.trim();
+  const gtmId = document.getElementById('fGTM').value.trim();
+  const convLabel = document.getElementById('fConv').value.trim();
+  const csIds = selectedCSIds.slice();
+  const csId = csIds[0]; // backward compat — primary CS
+
+  // Ambil WA primary CS
+  const csList = getCSList();
+  const cs = csList.find(c => c.id === csId);
+  const waNum = cs ? cs.waNum : '';
+
+  const prods = getProds();
+  let savedProd;
+
+  if(editProdId){
+    const i = prods.findIndex(p => p.id === editProdId);
+    if(i > -1){
+      // Preserve existing csLeadCounts, hanya tambahin entry baru utk CS baru
+      const oldCounts = prods[i].csLeadCounts || {};
+      const newCounts = {};
+      csIds.forEach(id => { newCounts[id] = oldCounts[id] || 0; });
+      prods[i] = {...prods[i], name, price, desc, csId, csIds, csLeadCounts:newCounts, waNum, produkWA, greeting, gtmId, convLabel};
+      savedProd = prods[i];
+    }
+  } else {
+    const newCounts = {};
+    csIds.forEach(id => { newCounts[id] = 0; });
+    savedProd = {id: Date.now(), name, price, desc, csId, csIds, csLeadCounts:newCounts, waNum, produkWA, greeting, gtmId, convLabel};
+    prods.push(savedProd);
+    editProdId = savedProd.id;
+  }
+  LS.s('od_prods', prods);
+  if(savedProd) syncProdSave(savedProd);
+
+  if(savedProd) generateProdEmbed(savedProd);
+  switchProdTab('embed');
+  renderEmbedCodes();
+  updatePreview();
+  toast('✅ Produk tersimpan! Embed code sudah ter-update.');
+}
+
+function generateProdEmbed(p){
+  const cfg=getCfg();
+  const csList=getCSList();
+  const fbcfg=getFBConfig()||{};
+
+  // Multi-CS: prefer csIds (array), fallback ke csId (single legacy)
+  const csIds = (p.csIds && p.csIds.length) ? p.csIds : (p.csId ? [p.csId] : []);
+  const csMap = {};
+  csIds.forEach(id => {
+    const cs = csList.find(c => c.id === id);
+    if(cs) csMap[id] = { name: cs.name, waNum: cs.waNum };
+  });
+  const csCounts = {};
+  csIds.forEach(id => { csCounts[id] = (p.csLeadCounts && p.csLeadCounts[id]) || 0; });
+
+  // Merge: produk override > global
+  const fallbackWa=p.waNum||cfg.waNum;
+  const greeting=p.greeting||cfg.greeting;
+  const gtmId=p.gtmId||cfg.gtmId;
+  const convLabel=p.convLabel||cfg.convLabel;
+  const produkWA=p.produkWA||p.name;
+
+  const cfgJ=JSON.stringify({
+    storeName:cfg.storeName,
+    productId:p.id,
+    csIds, csMap, csCounts,
+    fallbackWa, greeting, gtmId, convLabel, produkWA,
+    csId:p.csId||null,
+    waNum:fallbackWa, // legacy field name kept
+    headline:cfg.headline,cta:cfg.cta,
+    btnColor:cfg.btnColor||'#43a047',
+    trust:cfg.trust||'',
+    fieldAlamat:!!cfg.fieldAlamat,fieldKota:!!cfg.fieldKota,fieldKecamatan:!!cfg.fieldKecamatan,
+    fbApiKey:fbcfg.apiKey||'',
+    fbProjectId:fbcfg.projectId||''
+  }).replace(/</g,'\\u003c');
+
+  const inlineCode=`<!-- ✅ Form Order — ${esc(p.name)} | Inline Embed -->
+<div id="oo-root-${p.id}"></div>
+<script>
+!function(){
+var cfg=${cfgJ};
+var waUrl='';
+var R=document.getElementById('oo-root-${p.id}');
+var c=cfg.btnColor||'#43a047';
+var trustHtml=(cfg.trust||'').split(',').map(function(t){return t.trim()?'<span style="font-size:11px;color:#888">'+t.trim()+'<\\/span>':'';}).join('');
+R.innerHTML='<div style="max-width:420px;margin:0 auto;font-family:Segoe UI,system-ui,sans-serif">'
++'<div style="background:#fff;border-radius:12px;padding:24px 20px;box-shadow:0 4px 24px rgba(0,0,0,.1)">'
++'<div id="oo-f${p.id}">'
++'<p style="font-size:15px;font-weight:600;margin-bottom:18px;line-height:1.5;color:#222">'+cfg.headline.replace(/\\n/g,'<br>').replace(/CS kami/g,'<span style="color:#1b5e20;font-weight:700">CS kami<\\/span>')+'<\\/p>'
++'<input id="oo-n${p.id}" type="text" placeholder="Nama Anda" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box">'
++'<p id="oo-en${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Nama wajib diisi<\\/p>'
++'<input id="oo-w${p.id}" type="tel" placeholder="No. WhatsApp Anda" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'
++'<p id="oo-ew${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Nomor WA wajib diisi<\\/p>'
+${cfg.fieldAlamat?`+'<textarea id="oo-al${p.id}" placeholder="Alamat Lengkap" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box;resize:none;height:80px"><\\/textarea>'`:''}
+${cfg.fieldKota?`+'<input id="oo-kt${p.id}" type="text" placeholder="Kota" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'`:''}
+${cfg.fieldKecamatan?`+'<input id="oo-kc${p.id}" type="text" placeholder="Kecamatan" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'`:''}
++'<button onclick="ooSub${p.id}()" style="width:100%;background:'+c+';color:#fff;border:none;border-radius:8px;padding:15px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit">'+cfg.cta+'<\\/button>'
++'<div style="display:flex;justify-content:center;gap:14px;margin-top:12px;flex-wrap:wrap">'+trustHtml+'<\\/div>'
++'<\\/div>'
++'<div id="oo-ok${p.id}" style="display:none;text-align:center;padding:16px 0">'
++'<div style="font-size:56px;margin-bottom:10px">🎉<\\/div>'
++'<div style="font-size:19px;font-weight:700;margin-bottom:6px">Terima Kasih!<\\/div>'
++'<div style="font-size:13px;color:#666;line-height:1.6;margin-bottom:20px">CS kami siap membantu!<br>Klik tombol di bawah untuk chat.<\\/div>'
++'<button onclick="window.open(waUrl,\\'_blank\\')" style="width:100%;background:#25D366;color:#fff;border:none;border-radius:8px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit">💬 Lanjut Chat WhatsApp<\\/button>'
++'<\\/div><\\/div><\\/div>';
+window['ooSub${p.id}']=async function(){
+  var nm=document.getElementById('oo-n${p.id}').value.trim();
+  var wa=document.getElementById('oo-w${p.id}').value.trim();
+  var al=${cfg.fieldAlamat?`(document.getElementById('oo-al${p.id}')||{value:''}).value.trim()`:`''`};
+  var kt=${cfg.fieldKota?`(document.getElementById('oo-kt${p.id}')||{value:''}).value.trim()`:`''`};
+  var kc=${cfg.fieldKecamatan?`(document.getElementById('oo-kc${p.id}')||{value:''}).value.trim()`:`''`};
+  var ok=true;
+  if(!nm){document.getElementById('oo-n${p.id}').style.borderColor='#e53935';document.getElementById('oo-en${p.id}').style.display='block';ok=false;}
+  else{document.getElementById('oo-n${p.id}').style.borderColor='#e0e0e0';document.getElementById('oo-en${p.id}').style.display='none';}
+  if(!wa){document.getElementById('oo-w${p.id}').style.borderColor='#e53935';document.getElementById('oo-ew${p.id}').style.display='block';ok=false;}
+  else{document.getElementById('oo-w${p.id}').style.borderColor='#e0e0e0';document.getElementById('oo-ew${p.id}').style.display='none';}
+  if(!ok)return;
+
+  /* ── ROUND ROBIN: pilih CS dengan count terendah ── */
+  var counts=Object.assign({},cfg.csCounts||{});
+  var chosenCsId=null, chosenWa=cfg.fallbackWa||cfg.waNum;
+  if(cfg.csIds&&cfg.csIds.length){
+    // Fetch fresh counts dari Firestore kalau dikonfigurasi
+    if(cfg.fbApiKey&&cfg.fbProjectId){
+      try{
+        var pUrl='https://firestore.googleapis.com/v1/projects/'+cfg.fbProjectId+'/databases/(default)/documents/od_prods/'+cfg.productId+'?key='+cfg.fbApiKey;
+        var pr=await fetch(pUrl);
+        if(pr.ok){
+          var pd=await pr.json();
+          var m=pd&&pd.fields&&pd.fields.csLeadCounts&&pd.fields.csLeadCounts.mapValue&&pd.fields.csLeadCounts.mapValue.fields;
+          if(m){counts={};for(var k in m){counts[k]=parseInt(m[k].integerValue||m[k].doubleValue||0,10);}}
+        }
+      }catch(e){}
+    }
+    // Pilih min
+    chosenCsId=cfg.csIds[0];
+    var minC=counts[chosenCsId]||0;
+    cfg.csIds.forEach(function(id){var c=counts[id]||0;if(c<minC){minC=c;chosenCsId=id;}});
+    var csm=cfg.csMap&&cfg.csMap[chosenCsId];
+    if(csm&&csm.waNum)chosenWa=csm.waNum;
+  }
+
+  /* ── Build lead ── */
+  var leadId='L'+Date.now()+Math.floor(Math.random()*1000);
+  var lead={id:leadId,ts:Date.now(),nama:nm,wa:wa,produk:cfg.produkWA,csId:chosenCsId,alamat:al,kota:kt,kecamatan:kc,followStatus:'pending'};
+
+  /* ── Save ke localStorage (tetap, sebagai cache/fallback) ── */
+  var leads=[];try{leads=JSON.parse(localStorage.getItem('od_leads')||'[]');}catch(e){}
+  leads.unshift(lead);
+  try{localStorage.setItem('od_leads',JSON.stringify(leads));}catch(e){}
+
+  /* ── POST ke Firestore + PATCH counter (jika cloud sync aktif) ── */
+  if(cfg.fbApiKey&&cfg.fbProjectId){
+    try{
+      var fsEnc=function(v){
+        if(v===null||v===undefined)return{nullValue:null};
+        if(typeof v==='boolean')return{booleanValue:v};
+        if(typeof v==='number')return Number.isInteger(v)?{integerValue:String(v)}:{doubleValue:v};
+        if(typeof v==='string')return{stringValue:v};
+        if(Array.isArray(v))return{arrayValue:{values:v.map(fsEnc)}};
+        if(typeof v==='object'){var f={};for(var k in v)f[k]=fsEnc(v[k]);return{mapValue:{fields:f}};}
+        return{stringValue:String(v)};
+      };
+      var leadFields={};for(var k in lead)leadFields[k]=fsEnc(lead[k]);
+      fetch('https://firestore.googleapis.com/v1/projects/'+cfg.fbProjectId+'/databases/(default)/documents/od_leads?documentId='+leadId+'&key='+cfg.fbApiKey,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:leadFields})});
+      if(chosenCsId){
+        counts[chosenCsId]=(counts[chosenCsId]||0)+1;
+        var cF={};for(var ck in counts)cF[ck]={integerValue:String(counts[ck])};
+        fetch('https://firestore.googleapis.com/v1/projects/'+cfg.fbProjectId+'/databases/(default)/documents/od_prods/'+cfg.productId+'?key='+cfg.fbApiKey+'&updateMask.fieldPaths=csLeadCounts',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{csLeadCounts:{mapValue:{fields:cF}}}})});
+      }
+    }catch(e){/* lead udah aman di LS */}
+  }
+
+  /* ── Build WA message & open ── */
+  var msg=cfg.greeting.replace(/{nama}/g,nm).replace(/{wa}/g,wa).replace(/{produk}/g,cfg.produkWA).replace(/{toko}/g,cfg.storeName).replace(/{alamat}/g,al||'-').replace(/{kota}/g,kt||'-').replace(/{kecamatan}/g,kc||'-');
+  waUrl='https://wa.me/'+chosenWa+'?text='+encodeURIComponent(msg);
+  if(window.dataLayer)window.dataLayer.push({event:'generate_lead',lead_name:nm,lead_product:cfg.produkWA});
+  if(cfg.convLabel&&typeof gtag==='function')gtag('event','conversion',{send_to:cfg.convLabel});
+  document.getElementById('oo-f${p.id}').style.display='none';
+  document.getElementById('oo-ok${p.id}').style.display='block';
+  setTimeout(function(){window.open(waUrl,'_blank');},400);
+};
+${gtmId?`if(!document.getElementById('oo-gtm-${p.id}')){var gs=document.createElement('script');gs.id='oo-gtm-${p.id}';gs.innerHTML='(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);})(window,document,"script","dataLayer","${gtmId}");';document.head.appendChild(gs);}`:``}}();
+<\/script>`;
+
+  const iframeCode=`<!-- iFrame — ${esc(p.name)} | Ganti URL_FORM_DISINI setelah upload -->
+<iframe src="URL_FORM_DISINI" width="100%" height="520"
+  frameborder="0" scrolling="no" loading="lazy"
+  style="max-width:440px;display:block;margin:0 auto;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.1);"
+  title="${esc(p.name)} — Order Form"></iframe>`;
+
+  document.getElementById('prodEmbedInline').textContent=inlineCode;
+  document.getElementById('prodEmbedIframe').textContent=iframeCode;
+}
+
+function deleteProd(id){
+  if(!confirm('Hapus produk ini? Semua konfigurasi CS, GTM, dan Greeting-nya akan ikut terhapus.'))return;
+  LS.s('od_prods',getProds().filter(p=>p.id!==id));
+  syncProdDelete(id);
+  renderProdList();updatePreview();toast('🗑️ Produk dihapus');
+}
+
+function cancelProd(){
+  editProdId=null;
+  document.getElementById('prodFormCard').style.display='none';
+  document.getElementById('prodListCard').style.display='block';
+}
+
+/* ═════════════════════════════════════════════
+   FORM BUILDER
+═════════════════════════════════════════════ */
+function initFormPanel(){
+  const cfg=getCfg();
+  document.getElementById('fHeadline').value=cfg.headline;
+  document.getElementById('fCTA').value=cfg.cta;
+  document.getElementById('fBtnColor').value=cfg.btnColor||'#43a047';
+  document.getElementById('fBtnColorHex').value=cfg.btnColor||'#43a047';
+  document.getElementById('fTrust').value=cfg.trust||'';
+  document.getElementById('fieldAlamat').checked=!!(cfg.fieldAlamat);
+  document.getElementById('fieldKota').checked=!!(cfg.fieldKota);
+  document.getElementById('fieldKecamatan').checked=!!(cfg.fieldKecamatan);
+  updatePreview();
+}
+function extraFieldsHTML(inline=false){
+  const cfg=getCfg();
+  const useAlamat=inline?cfg.fieldAlamat:document.getElementById('fieldAlamat')?.checked;
+  const useKota=inline?cfg.fieldKota:document.getElementById('fieldKota')?.checked;
+  const useKec=inline?cfg.fieldKecamatan:document.getElementById('fieldKecamatan')?.checked;
+  const s='width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box;background:#fff';
+  let html='';
+  if(useAlamat) html+=`<div class="preview-input-mock" style="color:#bbb;font-size:14px;padding:12px 14px;border:1.5px solid #e0e0e0;border-radius:8px;margin-bottom:10px">Alamat Lengkap</div>`;
+  if(useKota)   html+=`<div class="preview-input-mock" style="color:#bbb;font-size:14px;padding:12px 14px;border:1.5px solid #e0e0e0;border-radius:8px;margin-bottom:10px">Kota</div>`;
+  if(useKec)    html+=`<div class="preview-input-mock" style="color:#bbb;font-size:14px;padding:12px 14px;border:1.5px solid #e0e0e0;border-radius:8px;margin-bottom:10px">Kecamatan</div>`;
+  return html;
+}
+function updatePreview(){
+  const headline=document.getElementById('fHeadline')?document.getElementById('fHeadline').value:'';
+  const cta=document.getElementById('fCTA')?document.getElementById('fCTA').value:'Beli Sekarang ➜';
+  const color=document.getElementById('fBtnColor')?document.getElementById('fBtnColor').value:'#43a047';
+  const trust=(document.getElementById('fTrust')?document.getElementById('fTrust').value:'').split(',').map(s=>s.trim()).filter(Boolean);
+  document.getElementById('pvHeadline').innerHTML=headline.replace(/\n/g,'<br/>').replace(/CS kami/g,'<span style="color:#2e7d32;font-weight:700">CS kami</span>');
+  document.getElementById('pvProds').innerHTML=extraFieldsHTML(false);
+  document.getElementById('pvBtn').textContent=cta;
+  document.getElementById('pvBtn').style.background=color;
+  document.getElementById('pvTrust').innerHTML=trust.map(t=>`<span style="font-size:11px;color:#888">${esc(t)}</span>`).join('');
+}
+function syncColor(){
+  const hex=document.getElementById('fBtnColorHex').value;
+  if(/^#[0-9A-Fa-f]{6}$/.test(hex)){
+    document.getElementById('fBtnColor').value=hex;
+    updatePreview();
+  }
+}
+function saveFormConfig(){
+  const cfg=getCfg();
+  cfg.headline=document.getElementById('fHeadline').value;
+  cfg.cta=document.getElementById('fCTA').value.trim()||cfg.cta;
+  cfg.btnColor=document.getElementById('fBtnColor').value;
+  cfg.trust=document.getElementById('fTrust').value;
+  cfg.fieldAlamat=document.getElementById('fieldAlamat').checked;
+  cfg.fieldKota=document.getElementById('fieldKota').checked;
+  cfg.fieldKecamatan=document.getElementById('fieldKecamatan').checked;
+  LS.s('od_cfg',cfg);
+  syncCfgSave(cfg);
+  renderEmbedCodes();
+  toast('✅ Konfigurasi form tersimpan!');
+}
+
+/* ═════════════════════════════════════════════
+   CS LIST MANAGEMENT (Step 1)
+═════════════════════════════════════════════ */
+const getCSList = () => LS.g('od_cs', []);
+
+let editCSId = null;
+
+function initCSPanel(){
+  renderCSList();
+  const cfg = getCfg();
+  document.getElementById('csGreeting').value = cfg.greeting;
+  updateGreetingPreview();
+}
+
+function renderCSList(){
+  const list = getCSList();
+  const el = document.getElementById('csItemList');
+  if(!list.length){
+    el.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px;background:var(--bg);border-radius:8px">
+      Belum ada CS — tambahkan CS di atas dulu
+    </div>`;
+    return;
+  }
+  el.innerHTML = list.map((cs,i) => `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:#fff">
+      <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--sb-accent),var(--sb-accent-2));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;flex-shrink:0">${cs.name[0].toUpperCase()}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:700">${esc(cs.name)}</div>
+        <div style="font-size:12px;color:var(--text-muted)">📱 ${esc(cs.waNum)}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <a href="https://wa.me/${cs.waNum}" target="_blank" class="btn btn-success btn-sm">💬</a>
+        <button class="btn btn-icon btn-sm" onclick="editCSItem(${cs.id})" title="Edit">✏️</button>
+        <button class="btn btn-icon btn-sm" onclick="deleteCSItem(${cs.id})" title="Hapus">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+function saveCSItem(){
+  const name = document.getElementById('csItemName').value.trim();
+  const waNum = document.getElementById('csItemWA').value.trim();
+  if(!name || !waNum){ toast('⚠️ Nama dan nomor WA wajib diisi'); return; }
+  const list = getCSList();
+  let saved;
+  if(editCSId){
+    const i = list.findIndex(c => c.id === editCSId);
+    if(i > -1){ list[i] = {...list[i], name, waNum}; saved = list[i]; }
+    editCSId = null;
+  } else {
+    saved = { id: Date.now(), name, waNum };
+    list.push(saved);
+  }
+  LS.s('od_cs', list);
+  if(saved) syncCSSave(saved);
+  cancelCSItem();
+  renderCSList();
+  toast('✅ CS tersimpan!');
+}
+
+function editCSItem(id){
+  const cs = getCSList().find(c => c.id === id);
+  if(!cs) return;
+  editCSId = id;
+  document.getElementById('csItemName').value = cs.name;
+  document.getElementById('csItemWA').value = cs.waNum;
+  document.getElementById('csFormTitle').textContent = `✏️ Edit CS: ${cs.name}`;
+  document.getElementById('cancelCSBtn').style.display = 'inline-flex';
+  document.getElementById('csItemName').focus();
+}
+
+function cancelCSItem(){
+  editCSId = null;
+  document.getElementById('csItemName').value = '';
+  document.getElementById('csItemWA').value = '';
+  document.getElementById('csFormTitle').textContent = '➕ Tambah CS Baru';
+  document.getElementById('cancelCSBtn').style.display = 'none';
+}
+
+function deleteCSItem(id){
+  const cs = getCSList().find(c => c.id === id);
+  if(!confirm(`Hapus CS "${cs ? cs.name : ''}"?`)) return;
+  LS.s('od_cs', getCSList().filter(c => c.id !== id));
+  syncCSDelete(id);
+  renderCSList();
+  toast('🗑️ CS dihapus');
+}
+
+/* ═════════════════════════════════════════════
+   GREETING TEMPLATE (Global)
+═════════════════════════════════════════════ */
+function updateGreetingPreview(){
+  const tpl = document.getElementById('csGreeting').value;
+  const cfg = getCfg();
+  const preview = applyVars(tpl, {
+    nama:'Budi Santoso', wa:'081234567890',
+    produk:'Produk Contoh', toko:cfg.storeName,
+    alamat:'Jl. Merdeka No. 10', kota:'Jakarta', kecamatan:'Kebayoran Baru'
+  });
+  document.getElementById('greetingPreview').textContent = preview;
+}
+
+function applyVars(tpl, vars){
+  return tpl
+    .replace(/{nama}/g, vars.nama||'-')
+    .replace(/{wa}/g, vars.wa||'-')
+    .replace(/{produk}/g, vars.produk||'-')
+    .replace(/{toko}/g, vars.toko||'-')
+    .replace(/{alamat}/g, vars.alamat||'-')
+    .replace(/{kota}/g, vars.kota||'-')
+    .replace(/{kecamatan}/g, vars.kecamatan||'-');
+}
+function saveGreeting(){
+  const cfg = getCfg();
+  cfg.greeting = document.getElementById('csGreeting').value;
+  LS.s('od_cfg', cfg);
+  syncCfgSave(cfg);
+  renderEmbedCodes();
+  toast('✅ Template greeting tersimpan!');
+}
+function testGreeting(){
+  const tpl = document.getElementById('csGreeting').value;
+  const cfg = getCfg();
+  // Test with first CS in list or fallback
+  const csList = getCSList();
+  const waNum = csList.length ? csList[0].waNum : cfg.waNum;
+  const msg = tpl
+    .replace(/{nama}/g,'Test User')
+    .replace(/{wa}/g,'081234567890')
+    .replace(/{produk}/g,'Produk Test')
+    .replace(/{toko}/g, cfg.storeName);
+  window.open(`https://wa.me/${waNum}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+/* ═════════════════════════════════════════════
+   GTM
+═════════════════════════════════════════════ */
+function initGTMPanel(){
+  const cfg=getCfg();
+  document.getElementById('gtmId').value=cfg.gtmId||'';
+  document.getElementById('convLabel').value=cfg.convLabel||'';
+  updateGTMStatus(cfg.gtmId);
+}
+function updateGTMStatus(id){
+  const active=!!(id&&id.startsWith('GTM-'));
+  document.getElementById('gtmDot').className='status-dot '+(active?'active':'inactive');
+  document.getElementById('gtmStatusText').textContent=active?`GTM Terhubung: ${id}`:'GTM Belum Terhubung';
+  document.getElementById('gtmStatusSub').textContent=active?'Tracking aktif — events akan dikirim saat form disubmit':'Masukkan Container ID untuk mengaktifkan tracking';
+}
+function saveGTM(){
+  const cfg=getCfg();
+  cfg.gtmId=document.getElementById('gtmId').value.trim();
+  cfg.convLabel=document.getElementById('convLabel').value.trim();
+  LS.s('od_cfg',cfg);
+  syncCfgSave(cfg);
+  updateGTMStatus(cfg.gtmId);
+  renderEmbedCodes();
+  toast('✅ Pengaturan GTM tersimpan!');
+}
+
+/* ═════════════════════════════════════════════
+   SETTINGS
+═════════════════════════════════════════════ */
+function initSettings(){
+  const cfg=getCfg();
+  document.getElementById('stName').value=cfg.storeName;
+  document.getElementById('stTagline').value=cfg.tagline||'';
+}
+function saveStoreInfo(){
+  const cfg=getCfg();
+  cfg.storeName=document.getElementById('stName').value.trim()||cfg.storeName;
+  cfg.tagline=document.getElementById('stTagline').value.trim();
+  LS.s('od_cfg',cfg);
+  syncCfgSave(cfg);
+  document.getElementById('sbStoreName').textContent=cfg.storeName;
+  renderEmbedCodes();
+  toast('✅ Info toko tersimpan!');
+}
+function savePassword(){
+  const np=document.getElementById('stPassNew').value;
+  const cp=document.getElementById('stPassConf').value;
+  if(!np||np!==cp){document.getElementById('errPass').classList.add('show');return;}
+  document.getElementById('errPass').classList.remove('show');
+  const cfg=getCfg();cfg.adminPass=np;LS.s('od_cfg',cfg);
+  syncCfgSave(cfg);
+  document.getElementById('stPassNew').value='';document.getElementById('stPassConf').value='';
+  toast('✅ Password berhasil diubah!');
+}
+function resetAllData(){
+  if(confirm('RESET semua data?\n\nIni akan menghapus semua leads, produk, dan pengaturan (di local DAN cloud). Tidak bisa dibatalkan!')){
+    ['od_cfg','od_prods','od_leads'].forEach(k=>localStorage.removeItem(k));
+    if(fb.configured){
+      Promise.all([
+        syncBulkDelete(FB_COLLECTIONS.leads),
+        syncBulkDelete(FB_COLLECTIONS.prods),
+      ]).then(()=>{
+        // Reset cfg doc to defaults
+        dbWriteDoc(FB_COLLECTIONS.cfg, 'main', Object.assign({}, DEF));
+      });
+    }
+    toast('🔄 Semua data direset');
+    setTimeout(()=>location.reload(),1200);
+  }
+}
+
+/* ═════════════════════════════════════════════
+   EMBED CODE GENERATOR
+═════════════════════════════════════════════ */
+function renderEmbedCodes(){
+  const cfg=getCfg();
+  const prods=getProds();
+  const cfgJ=JSON.stringify({
+    storeName:cfg.storeName,waNum:cfg.waNum,headline:cfg.headline,
+    cta:cfg.cta,btnColor:cfg.btnColor||'#43a047',
+    trust:cfg.trust,gtmId:cfg.gtmId,convLabel:cfg.convLabel,
+    greeting:cfg.greeting,produkDefault:cfg.produkDefault||'',
+    fieldAlamat:!!cfg.fieldAlamat,fieldKota:!!cfg.fieldKota,fieldKecamatan:!!cfg.fieldKecamatan
+  }).replace(/</g,'\\u003c');
+  const prodsJ=JSON.stringify(prods).replace(/</g,'\\u003c');
+
+  // === INLINE EMBED ===
+  const inlineCode=`<!-- ✅ Form Order — ${cfg.storeName} | Embed Inline -->
+<div id="oo-root"></div>
+<script>
+!function(){
+var cfg=${cfgJ};
+var waUrl='';
+var R=document.getElementById('oo-root');
+var c=cfg.btnColor||'#43a047';
+var trustHtml=(cfg.trust||'').split(',').map(function(t){return'<span style="font-size:11px;color:#888">'+t.trim()+'<\\/span>';}).join('');
+R.innerHTML='<div style="max-width:420px;margin:0 auto;font-family:Segoe UI,system-ui,sans-serif">'
++'<div style="background:#fff;border-radius:12px;padding:24px 20px;box-shadow:0 4px 24px rgba(0,0,0,.1)">'
++'<div id="oo-form">'
++'<p style="font-size:15px;font-weight:600;margin-bottom:18px;line-height:1.5;color:#222">'+cfg.headline.replace(/\\n/g,'<br>').replace(/CS kami/g,'<span style="color:#1b5e20;font-weight:700">CS kami<\\/span>')+'<\\/p>'
++'<input id="oo-nm" type="text" placeholder="Nama Anda" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box">'
++'<p id="oo-en" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Nama wajib diisi<\\/p>'
++'<input id="oo-wa" type="tel" placeholder="No. WhatsApp Anda" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'
++'<p id="oo-ew" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Nomor WA wajib diisi<\\/p>'
+${cfg.fieldAlamat?`+'<textarea id="oo-al" placeholder="Alamat Lengkap" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box;resize:none;height:80px"><\\/textarea>'`:''}
+${cfg.fieldKota?`+'<input id="oo-kt" type="text" placeholder="Kota" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'`:''}
+${cfg.fieldKecamatan?`+'<input id="oo-kc" type="text" placeholder="Kecamatan" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'`:''}
++'<button id="oo-btn" onclick="ooSub()" style="width:100%;background:'+c+';color:#fff;border:none;border-radius:8px;padding:15px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit">'+cfg.cta+'<\\/button>'
++'<div style="display:flex;justify-content:center;gap:14px;margin-top:12px;flex-wrap:wrap">'+trustHtml+'<\\/div>'
++'<\\/div>'
++'<div id="oo-ok" style="display:none;text-align:center;padding:16px 0">'
++'<div style="font-size:56px;margin-bottom:10px">🎉<\\/div>'
++'<div style="font-size:19px;font-weight:700;margin-bottom:6px">Terima Kasih!</div>'
++'<div style="font-size:13px;color:#666;line-height:1.6;margin-bottom:20px">CS kami siap membantu!<br>Klik tombol di bawah untuk chat.</div>'
++'<button onclick="window.open(waUrl,\'_blank\')" style="width:100%;background:#25D366;color:#fff;border:none;border-radius:8px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px">💬 Lanjut Chat WhatsApp<\\/button>'
++'<\\/div>'
++'<\\/div><\\/div>';
+window.ooSub=function(){
+  var nm=document.getElementById('oo-nm').value.trim();
+  var wa=document.getElementById('oo-wa').value.trim();
+  var al=${cfg.fieldAlamat?`(document.getElementById('oo-al')||{value:''}).value.trim()`:`''`};
+  var kt=${cfg.fieldKota?`(document.getElementById('oo-kt')||{value:''}).value.trim()`:`''`};
+  var kc=${cfg.fieldKecamatan?`(document.getElementById('oo-kc')||{value:''}).value.trim()`:`''`};
+  var ok=true;
+  if(!nm){document.getElementById('oo-nm').style.borderColor='#e53935';document.getElementById('oo-en').style.display='block';ok=false;}
+  else{document.getElementById('oo-nm').style.borderColor='#e0e0e0';document.getElementById('oo-en').style.display='none';}
+  if(!wa){document.getElementById('oo-wa').style.borderColor='#e53935';document.getElementById('oo-ew').style.display='block';ok=false;}
+  else{document.getElementById('oo-wa').style.borderColor='#e0e0e0';document.getElementById('oo-ew').style.display='none';}
+  if(!ok)return;
+  var msg=cfg.greeting.replace(/{nama}/g,nm).replace(/{wa}/g,wa).replace(/{produk}/g,cfg.produkDefault||cfg.storeName).replace(/{toko}/g,cfg.storeName).replace(/{alamat}/g,al||'-').replace(/{kota}/g,kt||'-').replace(/{kecamatan}/g,kc||'-');
+  waUrl='https://wa.me/'+cfg.waNum+'?text='+encodeURIComponent(msg);
+  var leads=[];try{leads=JSON.parse(localStorage.getItem('od_leads')||'[]');}catch(e){}
+  leads.unshift({id:'L'+Date.now(),ts:Date.now(),nama:nm,wa:wa,produk:cfg.produkDefault||'-',alamat:al,kota:kt,kecamatan:kc});
+  try{localStorage.setItem('od_leads',JSON.stringify(leads));}catch(e){}
+  if(window.dataLayer)window.dataLayer.push({event:'generate_lead',lead_name:nm,lead_product:cfg.produkDefault||''});
+  if(cfg.convLabel&&typeof gtag==='function')gtag('event','conversion',{send_to:cfg.convLabel});
+  document.getElementById('oo-form').style.display='none';
+  document.getElementById('oo-ok').style.display='block';
+  setTimeout(function(){window.open(waUrl,'_blank');},400);
+};
+${cfg.gtmId?`if(!document.getElementById('oo-gtm')){var gs=document.createElement('script');gs.id='oo-gtm';gs.innerHTML='(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);})(window,document,"script","dataLayer","${cfg.gtmId}");';document.head.appendChild(gs);}`:``}}();
+<\/script>`;
+
+  const iframeCode=`<!-- iFrame Embed — ganti URL_FORM_DISINI setelah upload ke hosting -->
+<iframe
+  src="URL_FORM_DISINI"
+  width="100%"
+  height="620"
+  frameborder="0"
+  scrolling="no"
+  loading="lazy"
+  style="max-width:440px;display:block;margin:0 auto;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.1);"
+  title="${cfg.storeName} — Order Form">
+</iframe>`;
+
+  const iEl=document.getElementById('embedInline');
+  const ifEl=document.getElementById('embedIframe');
+  if(iEl)iEl.textContent=inlineCode;
+  if(ifEl)ifEl.textContent=iframeCode;
+}
+
+/* ═════════════════════════════════════════════
+   FORM PREVIEW
+═════════════════════════════════════════════ */
+function previewForm(){
+  const cfg=getCfg();
+  const prods=getProds();
+  const trust=(cfg.trust||'').split(',').map(s=>s.trim()).filter(Boolean);
+  const modal=document.getElementById('formPreviewModal');
+  const inS='width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;background:#fff;box-sizing:border-box;display:block';
+  document.getElementById('formPreviewContent').innerHTML=`
+    <div style="padding:24px 20px;max-width:380px;margin:0 auto">
+      <p style="font-size:15px;font-weight:600;margin-bottom:18px;line-height:1.5;color:#222">
+        ${cfg.headline.replace(/\n/g,'<br/>').replace(/CS kami/g,'<span style="color:#1b5e20;font-weight:700">CS kami</span>')}
+      </p>
+      <input type="text" placeholder="Nama Anda" disabled style="${inS}"/>
+      <input type="tel" placeholder="No. WhatsApp Anda" disabled style="${inS}"/>
+      ${cfg.fieldAlamat?`<textarea placeholder="Alamat Lengkap" disabled style="${inS};resize:none;height:72px"></textarea>`:''}
+      ${cfg.fieldKota?`<input type="text" placeholder="Kota" disabled style="${inS}"/>`:''}
+      ${cfg.fieldKecamatan?`<input type="text" placeholder="Kecamatan" disabled style="${inS}"/>`:''}
+      <button disabled style="width:100%;background:${cfg.btnColor||'#43a047'};color:#fff;border:none;border-radius:8px;padding:15px;font-size:17px;font-weight:700;cursor:default;font-family:inherit">${esc(cfg.cta)}</button>
+      <div style="display:flex;justify-content:center;gap:14px;margin-top:12px;flex-wrap:wrap">
+        ${trust.map(t=>`<span style="font-size:11px;color:#888">${esc(t)}</span>`).join('')}
+      </div>
+    </div>`;
+  modal.style.display='flex';
+}
+function closePreview(){document.getElementById('formPreviewModal').style.display='none';}
+
+/* ═════════════════════════════════════════════
+   COPY CODE
+═════════════════════════════════════════════ */
+function copyCode(id,btn){
+  const text=document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    if(btn){btn.textContent='✅ Copied!';btn.classList.add('copied');setTimeout(()=>{btn.textContent='Copy Code';btn.classList.remove('copied');},2000);}
+    toast('✅ Kode berhasil di-copy!');
+  }).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();
+    toast('✅ Kode berhasil di-copy!');
+  });
+}
+
+/* ═════════════════════════════════════════════
+   UTILS
+═════════════════════════════════════════════ */
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function fmtDate(ts){
+  const d=new Date(ts);
+  return d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})+' '+d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+}
+let toastTimer;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+/* ═════════════════════════════════════════════
+   CS USER ACCOUNTS (admin-only management)
+═════════════════════════════════════════════ */
+const getCSUsers = () => LS.g('od_cs_users', []);
+let editCSUserId = null;
+
+function initCSAccessPanel(){
+  renderCSUserProfileOptions();
+  renderCSUserList();
+  cancelCSUser();
+}
+
+function renderCSUserProfileOptions(){
+  const sel = document.getElementById('csAccProfile');
+  if(!sel) return;
+  const list = getCSList();
+  const cur = sel.value;
+  if(!list.length){
+    sel.innerHTML = '<option value="">(Buat profil CS dulu di menu CS & Greeting)</option>';
+    return;
+  }
+  sel.innerHTML = '<option value="">— Pilih CS —</option>' +
+    list.map(c => `<option value="${c.id}">${esc(c.name)} — ${esc(c.waNum)}</option>`).join('');
+  if(cur) sel.value = cur;
+}
+
+function renderCSUserList(){
+  const users = getCSUsers();
+  const csList = getCSList();
+  const el = document.getElementById('csUserList');
+  if(!el) return;
+  if(!users.length){
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🔐</div><div class="empty-title">Belum ada akun CS</div><div class="empty-sub">Tambah akun di form di atas — CS akan dapat akses login</div></div>`;
+    return;
+  }
+  el.innerHTML = users.map(u => {
+    const cs = csList.find(c => c.id === u.csId);
+    const initial = (cs ? cs.name : u.username)[0].toUpperCase();
+    const activeFlag = u.active !== false;
+    const statusBadge = activeFlag
+      ? '<span class="badge badge-green">Aktif</span>'
+      : '<span class="badge badge-orange">Nonaktif</span>';
+    const csInfo = cs
+      ? `👤 ${esc(cs.name)} • 📱 ${esc(cs.waNum)}`
+      : '<span style="color:var(--red)">⚠️ Profil CS sudah dihapus — edit / hapus akun ini</span>';
+    return `<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);background:#fff;margin-bottom:10px;flex-wrap:wrap">
+      <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--sb-accent),var(--sb-accent-2));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0">${esc(initial)}</div>
+      <div style="flex:1;min-width:200px">
+        <div style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>${esc(u.username)}</span>${statusBadge}
+        </div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:3px">${csInfo}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:3px">🔑 Password: <code style="font-family:monospace;background:#f0f2f8;padding:2px 8px;border-radius:4px;color:var(--primary)">${esc(u.password)}</code></div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap">
+        <button class="btn btn-outline btn-sm" onclick="toggleCSUser(${u.id})">${activeFlag?'🔒 Nonaktifkan':'✅ Aktifkan'}</button>
+        <button class="btn btn-icon btn-sm" onclick="editCSUser(${u.id})" title="Edit">✏️</button>
+        <button class="btn btn-icon btn-sm" onclick="deleteCSUser(${u.id})" title="Hapus">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function saveCSUser(){
+  const csIdVal = document.getElementById('csAccProfile').value;
+  const csId = csIdVal ? parseInt(csIdVal, 10) : null;
+  const username = document.getElementById('csAccUser').value.trim().toLowerCase();
+  const password = document.getElementById('csAccPass').value.trim();
+  if(!csId){ toast('⚠️ Pilih profil CS dulu'); return; }
+  if(!username){ toast('⚠️ Username wajib diisi'); return; }
+  if(!/^[a-z0-9._-]{3,}$/.test(username)){ toast('⚠️ Username minimal 3 karakter (a-z, 0-9, . _ -)'); return; }
+  if(!password || password.length < 4){ toast('⚠️ Password minimal 4 karakter'); return; }
+  const users = getCSUsers();
+  if(users.some(u => u.username === username && u.id !== editCSUserId)){
+    toast('⚠️ Username sudah dipakai'); return;
+  }
+  let savedUser;
+  if(editCSUserId){
+    const i = users.findIndex(u => u.id === editCSUserId);
+    if(i > -1){ users[i] = { ...users[i], csId, username, password }; savedUser = users[i]; }
+  } else {
+    savedUser = { id: Date.now(), csId, username, password, active: true };
+    users.push(savedUser);
+  }
+  LS.s('od_cs_users', users);
+  if(savedUser) syncCSUserSave(savedUser);
+  cancelCSUser();
+  renderCSUserList();
+  toast('✅ Akun CS tersimpan!');
+}
+
+function editCSUser(id){
+  const u = getCSUsers().find(x => x.id === id);
+  if(!u) return;
+  editCSUserId = id;
+  renderCSUserProfileOptions();
+  document.getElementById('csAccProfile').value = u.csId || '';
+  document.getElementById('csAccUser').value = u.username;
+  document.getElementById('csAccPass').value = u.password;
+  document.getElementById('csAccFormTitle').textContent = `✏️ Edit Akun: ${u.username}`;
+  document.getElementById('cancelCSUserBtn').style.display = 'inline-flex';
+  document.getElementById('csAccUser').focus();
+  document.getElementById('panel-csaccess').scrollIntoView({behavior:'smooth'});
+}
+
+function cancelCSUser(){
+  editCSUserId = null;
+  const sel = document.getElementById('csAccProfile');
+  if(sel) sel.value = '';
+  document.getElementById('csAccUser').value = '';
+  document.getElementById('csAccPass').value = '';
+  document.getElementById('csAccFormTitle').textContent = '➕ Tambah Akun CS';
+  document.getElementById('cancelCSUserBtn').style.display = 'none';
+}
+
+function toggleCSUser(id){
+  const users = getCSUsers();
+  const i = users.findIndex(u => u.id === id);
+  if(i < 0) return;
+  users[i].active = !(users[i].active !== false);
+  LS.s('od_cs_users', users);
+  syncCSUserSave(users[i]);
+  renderCSUserList();
+  toast(users[i].active ? '✅ Akun diaktifkan' : '🔒 Akun dinonaktifkan');
+}
+
+function deleteCSUser(id){
+  const u = getCSUsers().find(x => x.id === id);
+  if(!u) return;
+  if(!confirm(`Hapus akun login "${u.username}"?\n\nCS tidak bisa login lagi. Profil CS-nya di menu CS & Greeting tetap ada.`)) return;
+  LS.s('od_cs_users', getCSUsers().filter(x => x.id !== id));
+  syncCSUserDelete(id);
+  renderCSUserList();
+  toast('🗑️ Akun CS dihapus');
+}
+
+/* ═════════════════════════════════════════════
+   LOGIN ROLE TABS
+═════════════════════════════════════════════ */
+function switchLoginTab(tab){
+  document.getElementById('loginTabAdmin').classList.toggle('active', tab === 'admin');
+  document.getElementById('loginTabCS').classList.toggle('active', tab === 'cs');
+  document.getElementById('loginAdminForm').style.display = tab === 'admin' ? 'block' : 'none';
+  document.getElementById('loginCSForm').style.display = tab === 'cs' ? 'block' : 'none';
+  document.getElementById('loginErr').classList.remove('show');
+  document.getElementById('loginCSErr').classList.remove('show');
+  document.getElementById('loginPass').classList.remove('err');
+  document.getElementById('loginCSUser').classList.remove('err');
+  document.getElementById('loginCSPass').classList.remove('err');
+}
+
+/* ═════════════════════════════════════════════
+   CS LOGIN & VIEW
+═════════════════════════════════════════════ */
+let currentCSUser = null;
+let csLeadFilter = 'all';
+
+function doCSLogin(){
+  const u = document.getElementById('loginCSUser').value.trim().toLowerCase();
+  const p = document.getElementById('loginCSPass').value;
+  if(!u || !p){
+    document.getElementById('loginCSErr').classList.add('show');
+    return;
+  }
+  const users = getCSUsers();
+  const found = users.find(x => x.username === u && x.password === p && x.active !== false);
+  if(!found){
+    document.getElementById('loginCSErr').classList.add('show');
+    document.getElementById('loginCSUser').classList.add('err');
+    document.getElementById('loginCSPass').classList.add('err');
+    return;
+  }
+  document.getElementById('loginCSUser').value = '';
+  document.getElementById('loginCSPass').value = '';
+  document.getElementById('loginCSErr').classList.remove('show');
+  document.getElementById('loginCSUser').classList.remove('err');
+  document.getElementById('loginCSPass').classList.remove('err');
+  currentCSUser = found;
+  showCSView();
+}
+
+function showCSView(){
+  document.getElementById('viewLogin').style.display = 'none';
+  document.getElementById('viewDashboard').style.display = 'none';
+  document.getElementById('viewDashboard').classList.remove('show');
+  document.getElementById('viewCS').style.display = 'flex';
+  initCSView();
+}
+
+function doCSLogout(){
+  currentCSUser = null;
+  document.getElementById('viewCS').style.display = 'none';
+  document.getElementById('viewLogin').style.display = 'flex';
+  switchLoginTab('cs');
+}
+
+function initCSView(){
+  const cfg = getCfg();
+  const cs = getCSList().find(c => c.id === currentCSUser.csId);
+  document.getElementById('csViewName').textContent = cs ? cs.name : currentCSUser.username;
+  document.getElementById('csViewStore').textContent = cfg.storeName;
+  document.getElementById('csViewWa').textContent = cs ? ('📱 ' + cs.waNum) : '📱 -';
+  csLeadFilter = 'all';
+  ['all','pending','contacted','closed','no_response'].forEach(t=>{
+    const el = document.getElementById('csftab-'+t);
+    if(el) el.classList.toggle('active', t === 'all');
+  });
+  const s = document.getElementById('csLeadSearch'); if(s) s.value='';
+  // Reset date filter ke lifetime
+  const dSel = document.getElementById('csDateSel');
+  if(dSel){ dSel.value = 'lifetime'; }
+  const dC = document.getElementById('csDateCustom');
+  if(dC) dC.classList.remove('show');
+  renderCSLeads();
+}
+
+function setCSFilter(f){
+  csLeadFilter = f;
+  ['all','pending','contacted','closed','no_response'].forEach(t=>{
+    const el = document.getElementById('csftab-'+t);
+    if(el) el.classList.toggle('active', t === f);
+  });
+  renderCSLeads();
+}
+
+function getCSAssignedLeads(){
+  if(!currentCSUser) return [];
+  return getLeads().filter(l => l.csId === currentCSUser.csId);
+}
+
+function renderCSLeads(){
+  const allMine = getCSAssignedLeads();
+  const today = new Date().toDateString();
+  // Stat cards: tetap pakai semua leads CS (lifetime) — gak ikut filter date
+  const lifetimePendingN = allMine.filter(l => !l.followStatus || l.followStatus === 'pending').length;
+  const lifetimeDoneN = allMine.filter(l => l.followStatus === 'contacted' || l.followStatus === 'closed').length;
+  const lifetimeTodayN = allMine.filter(l => new Date(l.ts).toDateString() === today).length;
+  document.getElementById('cs-total').textContent = allMine.length;
+  document.getElementById('cs-pending').textContent = lifetimePendingN;
+  document.getElementById('cs-done').textContent = lifetimeDoneN;
+  document.getElementById('cs-today').textContent = lifetimeTodayN;
+
+  // Apply date filter
+  const range = getDateFilterRange('cs');
+  const inRange = filterLeadsByDate(allMine, range);
+  updateDateFilterInfo('cs', inRange.length, allMine.length);
+
+  const q = (document.getElementById('csLeadSearch') || {}).value || '';
+  let leads = inRange.slice();
+  if(csLeadFilter !== 'all'){
+    leads = leads.filter(l => (l.followStatus || 'pending') === csLeadFilter);
+  }
+  if(q){
+    const qq = q.toLowerCase();
+    leads = leads.filter(l => (l.nama||'').toLowerCase().includes(qq) || (l.wa||'').includes(q));
+  }
+  const el = document.getElementById('csLeadsList');
+  if(!leads.length){
+    let msg, sub;
+    if(!allMine.length){
+      msg = 'Belum ada lead masuk';
+      sub = 'Lead akan muncul di sini saat customer isi form produk yang ditugaskan ke kamu';
+    } else if(!inRange.length){
+      msg = 'Tidak ada lead di periode '+range.label;
+      sub = 'Coba ganti periode di atas';
+    } else if(csLeadFilter !== 'all'){
+      msg = 'Tidak ada lead di status ini';
+      sub = 'Coba filter lain';
+    } else {
+      msg = 'Tidak ada lead cocok';
+      sub = 'Coba kata kunci lain';
+    }
+    el.innerHTML = `<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">${msg}</div><div class="empty-sub">${sub}</div></div>`;
+    return;
+  }
+  el.innerHTML = leads.map(l => csLeadCard(l)).join('');
+}
+
+function csLeadCard(l){
+  const init = l.nama ? l.nama[0].toUpperCase() : '?';
+  const addrParts = [l.alamat, l.kota, l.kecamatan].filter(Boolean);
+  const addrHtml = addrParts.length
+    ? `<div style="font-size:12px;color:var(--text-muted);margin-top:6px">📍 ${esc(addrParts.join(', '))}</div>`
+    : '';
+  const status = l.followStatus || 'pending';
+  const statusBadges = {
+    pending: '<span class="badge badge-orange">🔴 Belum di-follow-up</span>',
+    contacted: '<span class="badge badge-blue">📞 Sudah dihubungi</span>',
+    closed: '<span class="badge badge-green">✅ Closing</span>',
+    no_response: '<span class="badge" style="background:#fee2e2;color:#991b1b">❌ Tidak respon</span>'
+  };
+  const followInfo = l.followAt
+    ? `<div style="font-size:11px;color:var(--text-muted);margin-top:6px">⏱️ Update terakhir: ${fmtDate(l.followAt)}${l.followBy?' oleh <strong>'+esc(l.followBy)+'</strong>':''}</div>`
+    : '';
+  const notes = l.followNotes
+    ? `<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:8px 12px;font-size:12px;color:#78350f;margin-top:8px"><strong>📝 Catatan:</strong> ${esc(l.followNotes)}</div>`
+    : '';
+  const waNumber = (l.wa||'').replace(/\D/g,'');
+  return `<div class="cs-lead-card">
+    <div style="display:flex;align-items:flex-start;gap:14px">
+      <div class="lead-avatar">${esc(init)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+          <div style="font-size:14px;font-weight:700">${esc(l.nama||'-')}</div>
+          ${statusBadges[status] || statusBadges.pending}
+        </div>
+        <div style="font-size:13px;color:var(--text-muted);display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <span>📱 ${esc(l.wa||'-')}</span>
+          <span class="badge badge-blue">${esc(l.produk||'-')}</span>
+          <span>${fmtDate(l.ts)}</span>
+        </div>
+        ${addrHtml}
+        ${notes}
+        ${followInfo}
+      </div>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap">
+      <a href="https://wa.me/${waNumber}" target="_blank" class="btn btn-success btn-sm">💬 Chat WA</a>
+      <button class="btn btn-outline btn-sm" onclick="setLeadStatus('${l.id}','contacted')">📞 Tandai Dihubungi</button>
+      <button class="btn btn-outline btn-sm" onclick="setLeadStatus('${l.id}','closed')">✅ Closing</button>
+      <button class="btn btn-outline btn-sm" onclick="setLeadStatus('${l.id}','no_response')">❌ Tidak Respon</button>
+      <button class="btn btn-outline btn-sm" onclick="setLeadStatus('${l.id}','pending')">🔴 Reset</button>
+      <button class="btn btn-outline btn-sm" onclick="editLeadNote('${l.id}')">📝 ${l.followNotes?'Edit':'Tambah'} Catatan</button>
+    </div>
+  </div>`;
+}
+
+function setLeadStatus(id, status){
+  const leads = getLeads();
+  const i = leads.findIndex(l => l.id === id);
+  if(i < 0) return;
+  // CS hanya boleh update lead yg di-assign ke csId-nya
+  if(currentCSUser && leads[i].csId !== currentCSUser.csId){
+    toast('⚠️ Lead ini bukan milik kamu'); return;
+  }
+  leads[i].followStatus = status;
+  leads[i].followAt = Date.now();
+  if(currentCSUser) leads[i].followBy = currentCSUser.username;
+  LS.s('od_leads', leads);
+  syncLeadSave(leads[i]);
+  renderCSLeads();
+  toast('✅ Status diperbarui');
+}
+
+function editLeadNote(id){
+  const leads = getLeads();
+  const i = leads.findIndex(l => l.id === id);
+  if(i < 0) return;
+  if(currentCSUser && leads[i].csId !== currentCSUser.csId){
+    toast('⚠️ Lead ini bukan milik kamu'); return;
+  }
+  const cur = leads[i].followNotes || '';
+  const note = prompt('Catatan follow-up untuk lead ini:\n(Kosongkan untuk hapus catatan)', cur);
+  if(note === null) return;
+  leads[i].followNotes = note.trim();
+  leads[i].followAt = Date.now();
+  if(currentCSUser) leads[i].followBy = currentCSUser.username;
+  LS.s('od_leads', leads);
+  syncLeadSave(leads[i]);
+  renderCSLeads();
+  toast('📝 Catatan tersimpan');
+}
+
+/* ═════════════════════════════════════════════
+   FIREBASE / CLOUD SYNC (db module)
+═════════════════════════════════════════════ */
+const FB_SDK_VERSION = '10.13.2';
+const FB_CDN = `https://www.gstatic.com/firebasejs/${FB_SDK_VERSION}`;
+const FB_COLLECTIONS = { cfg:'od_cfg', prods:'od_prods', leads:'od_leads', cs:'od_cs', cs_users:'od_cs_users' };
+
+let fb = {
+  app:null, db:null, ready:false, configured:false,
+  apiKey:null, projectId:null,
+  unsubs:[], lastLeadIds:new Set(), notifReady:false
+};
+
+function getFBConfig(){ return LS.g('od_fb_cfg', null); }
+
+async function loadFirebaseSDK(){
+  if(window.firebaseLoaded) return;
+  // Load modular SDK (app + firestore) via dynamic ESM import shim
+  await import(`${FB_CDN}/firebase-app.js`).then(m=>{ window._fbApp = m; });
+  await import(`${FB_CDN}/firebase-firestore.js`).then(m=>{ window._fbFs = m; });
+  window.firebaseLoaded = true;
+}
+
+async function initFirebase(cfg){
+  await loadFirebaseSDK();
+  const { initializeApp, getApps, getApp } = window._fbApp;
+  const fbCfg = { apiKey: cfg.apiKey, projectId: cfg.projectId, authDomain: cfg.projectId+'.firebaseapp.com' };
+  fb.app = (getApps().length ? getApp() : initializeApp(fbCfg));
+  fb.db = window._fbFs.getFirestore(fb.app);
+  fb.apiKey = cfg.apiKey;
+  fb.projectId = cfg.projectId;
+  fb.configured = true;
+  return fb;
+}
+
+async function testFirebase(){
+  const apiKey = document.getElementById('fbApiKey').value.trim();
+  const projectId = document.getElementById('fbProjectId').value.trim();
+  const el = document.getElementById('fbTestResult');
+  el.style.display = 'block';
+  if(!apiKey || !projectId){
+    el.innerHTML = `<div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:13px;color:#991b1b">⚠️ Isi API Key dan Project ID dulu</div>`;
+    return;
+  }
+  el.innerHTML = `<div style="background:#dbeafe;border:1px solid #93c5fd;border-radius:8px;padding:10px 14px;font-size:13px;color:#1e40af">⏳ Testing koneksi ke Firestore...</div>`;
+  try{
+    // Test via REST API (no SDK load needed)
+    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents?key=${apiKey}&pageSize=1`;
+    const r = await fetch(url);
+    if(r.ok || r.status === 404){
+      el.innerHTML = `<div style="background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:10px 14px;font-size:13px;color:#166534">✅ Koneksi berhasil! Project <code>${esc(projectId)}</code> bisa diakses. Klik <strong>Save &amp; Enable</strong> untuk aktifkan sync.</div>`;
+    } else {
+      const data = await r.json().catch(()=>({}));
+      const msg = (data.error && data.error.message) || ('HTTP '+r.status);
+      el.innerHTML = `<div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:13px;color:#991b1b">❌ Gagal konek: ${esc(msg)}<br/><span style="font-size:12px">Pastikan API Key &amp; Project ID benar, dan Firestore sudah enable di console.</span></div>`;
+    }
+  } catch(e){
+    el.innerHTML = `<div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:13px;color:#991b1b">❌ Error: ${esc(e.message)}</div>`;
+  }
+}
+
+async function enableFirebaseSync(){
+  const apiKey = document.getElementById('fbApiKey').value.trim();
+  const projectId = document.getElementById('fbProjectId').value.trim();
+  if(!apiKey || !projectId){ toast('⚠️ Isi API Key dan Project ID dulu'); return; }
+  setCloudBadge('offline','Menghubungkan...');
+  try{
+    // CRITICAL: backup dulu sebelum apa-apa, biar bisa restore kalau error
+    backupLocalData('before_enable_sync');
+    await initFirebase({apiKey, projectId});
+    LS.s('od_fb_cfg', {apiKey, projectId});
+    toast('☁️ Cloud Sync diaktifkan!');
+    setCloudBadge('online','Cloud Sync Aktif');
+    // First-time migration: per-collection check (FIX: bukan all-or-nothing)
+    await autoMigrate();
+    // Subscribe real-time listeners (cloud sudah dipastikan punya local data)
+    subscribeAllCollections();
+    refreshCloudPanelUI();
+  } catch(e){
+    toast('❌ Gagal aktifkan: '+e.message);
+    setCloudBadge('error','Error');
+  }
+}
+
+function disableFirebaseSync(){
+  if(!confirm('Nonaktifkan Cloud Sync?\n\nData di cloud TIDAK ikut terhapus. Dashboard akan kembali pakai localStorage doang.')) return;
+  // Unsubscribe listeners
+  fb.unsubs.forEach(u=>{ try{u()}catch(e){} });
+  fb.unsubs = [];
+  fb.configured = false;
+  fb.ready = false;
+  LS.s('od_fb_cfg', null);
+  setCloudBadge('offline','Local Only');
+  toast('🔌 Cloud Sync dinonaktifkan');
+  refreshCloudPanelUI();
+}
+
+function setCloudBadge(state, text){
+  ['cloudBadge','cloudBadgeBig'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.classList.remove('cb-online','cb-offline','cb-error');
+    el.classList.add('cb-'+state);
+  });
+  const t = document.getElementById('cloudBadgeText');
+  const tb = document.getElementById('cloudBadgeBigText');
+  if(t) t.textContent = text;
+  if(tb) tb.textContent = text;
+}
+
+function initCloudPanel(){
+  const cfg = getFBConfig();
+  if(cfg){
+    document.getElementById('fbApiKey').value = cfg.apiKey || '';
+    document.getElementById('fbProjectId').value = cfg.projectId || '';
+  }
+  refreshCloudPanelUI();
+}
+
+function refreshCloudPanelUI(){
+  const cfg = getFBConfig();
+  const on = !!(cfg && fb.configured);
+  document.getElementById('fbDisableBtn').style.display = on ? 'inline-flex' : 'none';
+  document.getElementById('fbMigrationCard').style.display = on ? 'block' : 'none';
+  document.getElementById('fbInfoCard').style.display = on ? 'block' : 'none';
+  if(on){
+    const info = document.getElementById('fbInfoBody');
+    info.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;font-size:13px">
+        <div><div style="color:var(--text-muted);font-size:11px;text-transform:uppercase;font-weight:600;margin-bottom:4px">Project ID</div><code>${esc(cfg.projectId)}</code></div>
+        <div><div style="color:var(--text-muted);font-size:11px;text-transform:uppercase;font-weight:600;margin-bottom:4px">Status</div><span class="cloud-badge cb-online"><span class="cb-dot"></span>Connected</span></div>
+        <div><div style="color:var(--text-muted);font-size:11px;text-transform:uppercase;font-weight:600;margin-bottom:4px">Leads di Cloud</div><span id="fbLeadCount">${getLeads().length}</span> lead</div>
+        <div><div style="color:var(--text-muted);font-size:11px;text-transform:uppercase;font-weight:600;margin-bottom:4px">CS Akun</div><span id="fbCSCount">${getCSUsers().length}</span> akun</div>
+      </div>`;
+  }
+}
+
+/* ── Firestore value encoding/decoding (REST format) ── */
+function fsEncode(v){
+  if(v===null||v===undefined) return {nullValue:null};
+  if(typeof v==='boolean') return {booleanValue:v};
+  if(typeof v==='number') return Number.isInteger(v) ? {integerValue:String(v)} : {doubleValue:v};
+  if(typeof v==='string') return {stringValue:v};
+  if(Array.isArray(v)) return {arrayValue:{values:v.map(fsEncode)}};
+  if(typeof v==='object'){
+    const fields={};
+    for(const k in v) fields[k]=fsEncode(v[k]);
+    return {mapValue:{fields}};
+  }
+  return {stringValue:String(v)};
+}
+function fsDecode(field){
+  if(!field) return null;
+  if('nullValue' in field) return null;
+  if('booleanValue' in field) return field.booleanValue;
+  if('integerValue' in field) return parseInt(field.integerValue,10);
+  if('doubleValue' in field) return field.doubleValue;
+  if('stringValue' in field) return field.stringValue;
+  if('arrayValue' in field) return (field.arrayValue.values||[]).map(fsDecode);
+  if('mapValue' in field){
+    const o={};
+    const fs=field.mapValue.fields||{};
+    for(const k in fs) o[k]=fsDecode(fs[k]);
+    return o;
+  }
+  return null;
+}
+function fsDocToObj(doc){
+  const o={};
+  const fs=doc.fields||{};
+  for(const k in fs) o[k]=fsDecode(fs[k]);
+  return o;
+}
+function fsObjToFields(o){
+  const fields={};
+  for(const k in o) fields[k]=fsEncode(o[k]);
+  return {fields};
+}
+
+/* ── Real-time subscribe semua koleksi ── */
+function subscribeAllCollections(){
+  if(!fb.db) return;
+  const { collection, onSnapshot, doc } = window._fbFs;
+  // Unsub previous
+  fb.unsubs.forEach(u=>{try{u()}catch(e){}});
+  fb.unsubs = [];
+
+  // cfg as single doc 'main'
+  const cfgRef = doc(fb.db, FB_COLLECTIONS.cfg, 'main');
+  fb.unsubs.push(onSnapshot(cfgRef, snap=>{
+    if(snap.exists()){
+      const data = snap.data();
+      LS.s('od_cfg', data);
+      // Re-render relevant panels if active
+      if(activePanel==='settings')initSettings();
+      const sn = document.getElementById('sbStoreName');
+      if(sn && data.storeName) sn.textContent = data.storeName;
+    }
+  }));
+
+  // Other collections
+  const collMap = {
+    prods:'od_prods', leads:'od_leads', cs:'od_cs', cs_users:'od_cs_users'
+  };
+  Object.keys(collMap).forEach(name=>{
+    const ref = collection(fb.db, FB_COLLECTIONS[name]);
+    fb.unsubs.push(onSnapshot(ref, snap=>{
+      const arr = [];
+      snap.forEach(d=>{ arr.push(d.data()); });
+      // Sort leads by ts desc
+      if(name==='leads') arr.sort((a,b)=> (b.ts||0)-(a.ts||0));
+      LS.s(collMap[name], arr);
+      onRemoteUpdate(name, arr);
+    }));
+  });
+  fb.ready = true;
+}
+
+function onRemoteUpdate(name, arr){
+  // Detect new leads for notification
+  if(name==='leads'){
+    if(fb.notifReady){
+      arr.forEach(l=>{
+        if(!fb.lastLeadIds.has(l.id)){
+          // Only notify for leads in the last 60s to avoid initial-load spam
+          if(l.ts && (Date.now()-l.ts) < 60000){
+            triggerLeadNotif(l);
+          }
+        }
+      });
+    }
+    fb.lastLeadIds = new Set(arr.map(l=>l.id));
+    fb.notifReady = true;
+  }
+  // Re-render active panels
+  if(name==='leads'){
+    if(activePanel==='leads') renderLeads();
+    if(activePanel==='overview') renderOverview();
+    updateLeadsBadge();
+    // CS view live update
+    if(currentCSUser && document.getElementById('viewCS').style.display==='flex') renderCSLeads();
+  }
+  if(name==='prods' && activePanel==='produk') renderProdList();
+  if(name==='cs'){
+    if(activePanel==='cs') renderCSList();
+    if(activePanel==='csaccess') renderCSUserProfileOptions();
+  }
+  if(name==='cs_users' && activePanel==='csaccess') renderCSUserList();
+}
+
+/* ── Sync writes (per-doc, granular) ── */
+async function dbWriteDoc(collName, docId, obj){
+  if(!fb.db) return;
+  const { doc, setDoc } = window._fbFs;
+  try{
+    await setDoc(doc(fb.db, collName, String(docId)), obj, {merge:true});
+  } catch(e){
+    console.warn('Sync write failed:', e);
+    toast('⚠️ Cloud sync error: '+e.message);
+  }
+}
+async function dbDeleteDoc(collName, docId){
+  if(!fb.db) return;
+  const { doc, deleteDoc } = window._fbFs;
+  try{
+    await deleteDoc(doc(fb.db, collName, String(docId)));
+  } catch(e){
+    console.warn('Sync delete failed:', e);
+  }
+}
+
+// Granular sync helpers used by CRUD
+function syncLeadSave(l){ if(fb.configured) dbWriteDoc(FB_COLLECTIONS.leads, l.id, l); }
+function syncLeadDelete(id){ if(fb.configured) dbDeleteDoc(FB_COLLECTIONS.leads, id); }
+function syncProdSave(p){ if(fb.configured) dbWriteDoc(FB_COLLECTIONS.prods, p.id, p); }
+function syncProdDelete(id){ if(fb.configured) dbDeleteDoc(FB_COLLECTIONS.prods, id); }
+function syncCSSave(c){ if(fb.configured) dbWriteDoc(FB_COLLECTIONS.cs, c.id, c); }
+function syncCSDelete(id){ if(fb.configured) dbDeleteDoc(FB_COLLECTIONS.cs, id); }
+function syncCSUserSave(u){ if(fb.configured) dbWriteDoc(FB_COLLECTIONS.cs_users, u.id, u); }
+function syncCSUserDelete(id){ if(fb.configured) dbDeleteDoc(FB_COLLECTIONS.cs_users, id); }
+function syncCfgSave(cfg){ if(fb.configured) dbWriteDoc(FB_COLLECTIONS.cfg, 'main', cfg); }
+async function syncBulkDelete(collName){
+  if(!fb.db) return;
+  const { collection, getDocs, doc, deleteDoc, writeBatch } = window._fbFs;
+  try{
+    const snap = await getDocs(collection(fb.db, collName));
+    const batch = writeBatch(fb.db);
+    snap.forEach(d=> batch.delete(d.ref));
+    await batch.commit();
+  } catch(e){ console.warn('Bulk delete fail',e); }
+}
+
+/* ── Backup localStorage data (safety net sebelum sync overwrite) ── */
+function backupLocalData(reason){
+  try {
+    const backup = {
+      ts: Date.now(),
+      reason: reason || 'auto',
+      cfg: LS.g('od_cfg', null),
+      prods: LS.g('od_prods', []),
+      leads: LS.g('od_leads', []),
+      cs: LS.g('od_cs', []),
+      cs_users: LS.g('od_cs_users', [])
+    };
+    LS.s('od_local_backup', backup);
+  } catch(e){ console.warn('Backup fail', e); }
+}
+
+function restoreFromBackup(){
+  const b = LS.g('od_local_backup', null);
+  if(!b){ toast('⚠️ Tidak ada backup tersedia'); return; }
+  const when = b.ts ? new Date(b.ts).toLocaleString('id-ID') : '?';
+  const counts = `${(b.prods||[]).length} produk, ${(b.leads||[]).length} lead, ${(b.cs||[]).length} CS, ${(b.cs_users||[]).length} akun CS`;
+  if(!confirm(`Restore data dari backup lokal?\n\nBackup: ${when}\nIsi: ${counts}\n\nIni akan menimpa data sekarang DAN mengupload ulang ke cloud.`)) return;
+  if(b.cfg) LS.s('od_cfg', b.cfg);
+  if(b.prods) LS.s('od_prods', b.prods);
+  if(b.leads) LS.s('od_leads', b.leads);
+  if(b.cs) LS.s('od_cs', b.cs);
+  if(b.cs_users) LS.s('od_cs_users', b.cs_users);
+  toast('⏮️ Backup di-restore. Re-upload ke cloud...');
+  if(fb.configured){
+    manualMigration(false).then(()=> setTimeout(()=>location.reload(), 1500));
+  } else {
+    setTimeout(()=>location.reload(), 1000);
+  }
+}
+
+/* ── Per-collection: upload local ke cloud jika cloud kosong (FIX: hindari overwrite) ── */
+async function ensureCloudHasLocalData(){
+  if(!fb.db) return 0;
+  const { collection, getDocs, doc, getDoc } = window._fbFs;
+  setMigrationStatus('⏳ Cek isi cloud per koleksi...');
+  let uploaded = 0;
+
+  // cfg (single doc)
+  try {
+    const cfgRef = doc(fb.db, FB_COLLECTIONS.cfg, 'main');
+    const cfgSnap = await getDoc(cfgRef);
+    if(!cfgSnap.exists()){
+      const localCfg = LS.g('od_cfg', null);
+      if(localCfg && Object.keys(localCfg).length){
+        await dbWriteDoc(FB_COLLECTIONS.cfg, 'main', localCfg);
+        uploaded++;
+      }
+    }
+  } catch(e){ console.warn('cfg check fail', e); }
+
+  // Multi-doc collections
+  const collMap = { prods:'od_prods', leads:'od_leads', cs:'od_cs', cs_users:'od_cs_users' };
+  for(const name of Object.keys(collMap)){
+    try {
+      const snap = await getDocs(collection(fb.db, FB_COLLECTIONS[name]));
+      if(snap.empty){
+        const localData = LS.g(collMap[name], []);
+        if(Array.isArray(localData) && localData.length){
+          for(const item of localData){
+            if(item.id != null){
+              await dbWriteDoc(FB_COLLECTIONS[name], item.id, item);
+              uploaded++;
+            }
+          }
+        }
+      }
+    } catch(e){ console.warn(name+' check fail', e); }
+  }
+  setMigrationStatus(uploaded > 0
+    ? `✅ ${uploaded} record lokal di-upload ke cloud (koleksi yang sebelumnya kosong di cloud).`
+    : '☁️ Cloud sudah lengkap di semua koleksi.');
+  return uploaded;
+}
+
+/* ── Auto migration wrapper: backup + ensure cloud has local ── */
+async function autoMigrate(){
+  if(!fb.db) return;
+  backupLocalData('before_first_sync');
+  await ensureCloudHasLocalData();
+}
+
+/* ── Force-upload semua data lokal ke cloud (manual recovery) ── */
+async function manualMigration(silent){
+  setMigrationStatus('⏳ Force-upload semua data lokal ke cloud...');
+  backupLocalData('manual_migration');
+  const tasks = [];
+  const cfg = getCfg(); tasks.push(dbWriteDoc(FB_COLLECTIONS.cfg, 'main', cfg));
+  getProds().forEach(p=> tasks.push(dbWriteDoc(FB_COLLECTIONS.prods, p.id, p)));
+  getLeads().forEach(l=> tasks.push(dbWriteDoc(FB_COLLECTIONS.leads, l.id, l)));
+  getCSList().forEach(c=> tasks.push(dbWriteDoc(FB_COLLECTIONS.cs, c.id, c)));
+  getCSUsers().forEach(u=> tasks.push(dbWriteDoc(FB_COLLECTIONS.cs_users, u.id, u)));
+  await Promise.all(tasks);
+  setMigrationStatus(`✅ Force-upload selesai. Total: ${tasks.length} record diupload (semua koleksi ditimpa di cloud).`);
+  if(!silent) toast('✅ Data lokal berhasil di-upload ulang ke cloud!');
+}
+
+/* ── Diagnostik: cek berapa banyak doc di tiap koleksi cloud ── */
+async function checkCloudData(){
+  if(!fb.db){ toast('⚠️ Cloud Sync belum aktif'); return; }
+  setMigrationStatus('⏳ Cek isi cloud...');
+  const { collection, getDocs, doc, getDoc } = window._fbFs;
+  const result = {};
+  const errors = [];
+  try {
+    const cfgSnap = await getDoc(doc(fb.db, FB_COLLECTIONS.cfg, 'main'));
+    result.cfg = cfgSnap.exists() ? 1 : 0;
+  } catch(e){
+    result.cfg = 'error';
+    errors.push('cfg: ['+(e.code||'?')+'] '+(e.message||String(e)).slice(0,140));
+  }
+  const collMap = { prods:'od_prods', leads:'od_leads', cs:'od_cs', cs_users:'od_cs_users' };
+  for(const name of Object.keys(collMap)){
+    try {
+      const snap = await getDocs(collection(fb.db, FB_COLLECTIONS[name]));
+      result[name] = snap.size;
+    } catch(e){
+      result[name] = 'error';
+      errors.push(name+': ['+(e.code||'?')+'] '+(e.message||String(e)).slice(0,140));
+    }
+  }
+  const localCounts = {
+    cfg: LS.g('od_cfg', null) ? 1 : 0,
+    prods: getProds().length, leads: getLeads().length,
+    cs: getCSList().length, cs_users: getCSUsers().length
+  };
+  const lines = Object.keys(result).map(k => {
+    const cloud = result[k], local = localCounts[k];
+    const mismatch = (cloud !== local) ? ' ⚠️' : ' ✓';
+    return `  ${k.padEnd(10)}: cloud=${String(cloud).padStart(4)} | local=${String(local).padStart(4)}${mismatch}`;
+  }).join('\n');
+  let out = `📊 Status cloud vs local:\n${lines}`;
+  if(errors.length) out += `\n\n❌ Error detail:\n` + errors.map(e=>'  '+e).join('\n');
+  // Backup info
+  const backup = LS.g('od_local_backup', null);
+  if(backup){
+    out += `\n\n💾 Backup tersedia (${new Date(backup.ts).toLocaleString('id-ID')}):\n`;
+    out += `  prods=${(backup.prods||[]).length}, leads=${(backup.leads||[]).length}, cs=${(backup.cs||[]).length}, cs_users=${(backup.cs_users||[]).length}`;
+  } else {
+    out += `\n\n💾 Backup: (belum ada)`;
+  }
+  setMigrationStatus(out);
+  console.table({result, localCounts, errors});
+}
+
+function setMigrationStatus(msg){
+  const el = document.getElementById('fbMigrationStatus');
+  if(el){ el.style.whiteSpace='pre-wrap'; el.style.fontFamily='monospace'; el.style.fontSize='12px'; el.textContent = msg; }
+}
+
+/* ═════════════════════════════════════════════
+   NOTIFICATION — LEAD BARU
+═════════════════════════════════════════════ */
+let _audioCtx = null;
+function playLeadBeep(){
+  try{
+    if(!_audioCtx) _audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    const ctx = _audioCtx;
+    if(ctx.state==='suspended') ctx.resume();
+    const playTone = (freq, start, dur) => {
+      const osc = ctx.createOscillator(); const gain = ctx.createGain();
+      osc.type='sine'; osc.frequency.value=freq;
+      gain.gain.setValueAtTime(0, ctx.currentTime+start);
+      gain.gain.linearRampToValueAtTime(.18, ctx.currentTime+start+.02);
+      gain.gain.linearRampToValueAtTime(0, ctx.currentTime+start+dur);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(ctx.currentTime+start); osc.stop(ctx.currentTime+start+dur+.05);
+    };
+    playTone(880, 0, .15);
+    playTone(1175, .14, .2);
+  } catch(e){ /* audio not available */ }
+}
+
+let _notifTimer = null;
+function showLeadNotif(title, msg){
+  const el = document.getElementById('notifPopup');
+  document.getElementById('notifPopupTitle').textContent = title;
+  document.getElementById('notifPopupMsg').textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_notifTimer);
+  _notifTimer = setTimeout(()=>el.classList.remove('show'), 6000);
+}
+function hideLeadNotif(){
+  document.getElementById('notifPopup').classList.remove('show');
+}
+
+function triggerLeadNotif(lead){
+  // For CS view: only show if lead is for current CS user
+  if(currentCSUser){
+    if(lead.csId !== currentCSUser.csId) return;
+    playLeadBeep();
+    showLeadNotif('🔔 Lead Baru Masuk!', `${lead.nama||'?'} • ${lead.wa||'-'} • ${lead.produk||'-'}`);
+    flashTitle('🔔 Lead baru!');
+    return;
+  }
+  // For admin: show all
+  if(document.getElementById('viewDashboard').classList.contains('show')){
+    playLeadBeep();
+    showLeadNotif('🔔 Lead Baru', `${lead.nama||'?'} • ${lead.produk||'-'}`);
+    flashTitle('🔔 Lead baru!');
+  }
+}
+
+let _titleFlashTimer = null;
+let _origTitle = null;
+function flashTitle(flashText){
+  if(_origTitle===null) _origTitle = document.title;
+  let on = true;
+  clearInterval(_titleFlashTimer);
+  _titleFlashTimer = setInterval(()=>{
+    document.title = on ? flashText : _origTitle;
+    on = !on;
+  }, 900);
+  setTimeout(()=>{ clearInterval(_titleFlashTimer); document.title = _origTitle; _origTitle=null; }, 8000);
+  // Stop on focus
+  const stop = ()=>{ clearInterval(_titleFlashTimer); if(_origTitle){document.title=_origTitle;_origTitle=null;} window.removeEventListener('focus', stop); };
+  window.addEventListener('focus', stop, {once:true});
+}
+
+/* ═════════════════════════════════════════════
+   DATE RANGE FILTER (Overview / Leads / CS view)
+═════════════════════════════════════════════ */
+function getDateRange(preset, customStart, customEnd){
+  const now = new Date();
+  const endOfToday = new Date(now); endOfToday.setHours(23,59,59,999);
+  const startOfToday = new Date(now); startOfToday.setHours(0,0,0,0);
+  const D = 86400000;
+  let from, to, label;
+  switch(preset){
+    case 'today':
+      from = startOfToday.getTime(); to = endOfToday.getTime();
+      label = 'Hari ini'; break;
+    case 'yesterday':
+      from = startOfToday.getTime() - D; to = startOfToday.getTime() - 1;
+      label = 'Kemarin'; break;
+    case '3days':
+      from = startOfToday.getTime() - 2*D; to = endOfToday.getTime();
+      label = '3 hari terakhir'; break;
+    case '7days':
+      from = startOfToday.getTime() - 6*D; to = endOfToday.getTime();
+      label = '7 hari terakhir'; break;
+    case '30days':
+      from = startOfToday.getTime() - 29*D; to = endOfToday.getTime();
+      label = '30 hari terakhir'; break;
+    case 'thismonth':
+      from = new Date(now.getFullYear(), now.getMonth(), 1, 0,0,0,0).getTime();
+      to = endOfToday.getTime();
+      label = 'Bulan ini'; break;
+    case 'custom':
+      from = customStart ? new Date(customStart+'T00:00:00').getTime() : 0;
+      to = customEnd ? new Date(customEnd+'T23:59:59').getTime() : endOfToday.getTime();
+      label = (customStart||'?')+' s/d '+(customEnd||'?'); break;
+    case 'lifetime':
+    default:
+      from = 0; to = endOfToday.getTime();
+      label = 'Semua waktu';
+  }
+  return {from, to, preset, label};
+}
+
+function getDateFilterRange(prefix){
+  const sel = document.getElementById(prefix+'DateSel');
+  if(!sel) return getDateRange('lifetime');
+  const preset = sel.value;
+  const s = document.getElementById(prefix+'DateStart');
+  const e = document.getElementById(prefix+'DateEnd');
+  return getDateRange(preset, s?s.value:'', e?e.value:'');
+}
+
+function onDateFilterChange(prefix){
+  const sel = document.getElementById(prefix+'DateSel');
+  const custom = document.getElementById(prefix+'DateCustom');
+  if(custom) custom.classList.toggle('show', sel && sel.value === 'custom');
+  if(prefix === 'leads') renderLeads();
+  else if(prefix === 'ov') renderOverview();
+  else if(prefix === 'cs') renderCSLeads();
+}
+
+function updateDateFilterInfo(prefix, count, total){
+  const el = document.getElementById(prefix+'DateInfo');
+  if(!el) return;
+  const range = getDateFilterRange(prefix);
+  if(range.preset === 'lifetime'){
+    el.innerHTML = `<b>${count}</b> dari ${total} lead`;
+  } else {
+    el.innerHTML = `<span title="${range.label}">${range.label}:</span> <b>${count}</b> / ${total} lead`;
+  }
+}
+
+function filterLeadsByDate(leads, range){
+  if(!range) return leads;
+  return leads.filter(l => {
+    const ts = l.ts || 0;
+    return ts >= range.from && ts <= range.to;
+  });
+}
+
+/* ═════════════════════════════════════════════
+   BOOT
+═════════════════════════════════════════════ */
+(function(){
+  document.getElementById('viewLogin').style.display='flex';
+  document.getElementById('viewDashboard').style.display='none';
+  document.getElementById('viewCS').style.display='none';
+  // Close preview on overlay click
+  document.getElementById('formPreviewModal').addEventListener('click',function(e){
+    if(e.target===this)closePreview();
+  });
+  // Live color sync
+  const pc=document.getElementById('fBtnColor');
+  if(pc)pc.addEventListener('input',function(){
+    document.getElementById('fBtnColorHex').value=this.value;
+    updatePreview();
+  });
+  // Auto-init Firebase kalau config sudah tersimpan
+  const fbcfg = getFBConfig();
+  if(fbcfg && fbcfg.apiKey && fbcfg.projectId){
+    setCloudBadge('offline','Menghubungkan...');
+    initFirebase(fbcfg).then(async ()=>{
+      setCloudBadge('online','Cloud Sync Aktif');
+      // CRITICAL FIX: backup + ensure cloud lengkap SEBELUM subscribe
+      // Tanpa ini, listener fire-pertama dengan cloud kosong bakal nge-wipe localStorage
+      backupLocalData('boot_pre_subscribe');
+      try { await ensureCloudHasLocalData(); } catch(e){ console.warn('ensure fail', e); }
+      subscribeAllCollections();
+    }).catch(e=>{
+      console.warn('Firebase init failed:', e);
+      setCloudBadge('error','Connection Error');
+    });
+  }
+  // Tutup notif popup pada klik di luar
+  // (button close sudah pakai onclick)
+})();
+</script>
+</body>
+</html>
