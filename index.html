@@ -879,7 +879,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-05-26-qr-sent-marker';
+window.__APP_VERSION = '2026-05-27-wa-norm-and-login-trim';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -1188,7 +1188,7 @@ document.addEventListener('DOMContentLoaded', function(){
     <!-- Admin form (original) -->
     <div id="loginAdminForm">
       <label class="login-label">Password Admin</label>
-      <input class="login-input" id="loginPass" type="password" placeholder="Masukkan password..." autocapitalize="off" autocorrect="off" spellcheck="false"/>
+      <input class="login-input" id="loginPass" type="password" placeholder="Masukkan password..." autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="new-password"/>
       <div class="login-err" id="loginErr">Password salah. Coba lagi.</div>
       <button type="button" class="login-btn" onclick="__safeAdminLogin()">Masuk ke Dashboard →</button>
       <div class="login-footer">Password default: <code style="color:rgba(255,255,255,.5)">admin123</code></div>
@@ -2226,7 +2226,8 @@ const getLeads=()=>LS.g('od_leads',[]);
    AUTH
 ═════════════════════════════════════════════ */
 async function doLogin(){
-  const pass=document.getElementById('loginPass').value;
+  // Trim biar trailing whitespace dari paste/autofill gak ngerusak compare
+  const pass=(document.getElementById('loginPass').value||'').trim();
   // ── CLOUD-FIRST: kalau Cloud Sync configured, SELALU fetch cfg dari cloud dulu ──
   // Ini bikin password PC & mobile konsisten. admin123 default cuma kerja kalau Cloud Sync gak ada.
   if(getFBConfig()){
@@ -2246,7 +2247,9 @@ async function doLogin(){
   }
   // Sekarang validasi pake cfg terbaru (cloud-sync atau LS local kalau cloud gak ada)
   const cfg = getCfg();
-  if(pass === cfg.adminPass){
+  // Trim juga di sisi expected (jaga2 kalau cfg yg ke-save di cloud kebawa whitespace)
+  const expected = ((cfg.adminPass || '') + '').trim();
+  if(pass === expected){
     document.getElementById('loginPass').value='';
     document.getElementById('loginErr').classList.remove('show');
     document.getElementById('loginPass').classList.remove('err');
@@ -2380,7 +2383,7 @@ function leadCard(l,compact=false){
       ${l.followNotes?`<div style="font-size:12px;color:#78350f;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:6px 10px;margin-top:6px"><strong>Catatan CS:</strong> ${esc(l.followNotes)}</div>`:''}
     </div>
     ${!compact?`<div class="lead-actions">
-      <a href="https://wa.me/${l.wa.replace(/\D/g,'')}" target="_blank" class="btn btn-success btn-sm">💬 WA</a>
+      <a href="https://wa.me/${normalizeWaID(l.wa)}" target="_blank" class="btn btn-success btn-sm">💬 WA</a>
       <button class="btn btn-icon btn-sm" onclick="deleteLead('${l.id}')" title="Hapus">🗑️</button>
     </div>`:''}
   </div>`;
@@ -2831,7 +2834,9 @@ window['ooSub${p.id}']=async function(){
 
   /* ── Build WA message & open ── */
   var msg=cfg.greeting.replace(/{nama}/g,nm).replace(/{wa}/g,wa).replace(/{produk}/g,cfg.produkWA).replace(/{toko}/g,cfg.storeName).replace(/{alamat}/g,al||'-').replace(/{kota}/g,kt||'-').replace(/{kecamatan}/g,kc||'-');
-  waUrl='https://wa.me/'+chosenWa+'?text='+encodeURIComponent(msg);
+  /* Normalize WA Indonesia (08xxx → 628xxx) — cegah salah country code */
+  var normWa=function(num){var n=(num||'').toString().replace(/\\D/g,'');if(!n)return '';n=n.replace(/^0+/,'');if(!n)return '';if(n.charAt(0)==='8')n='62'+n;return n;};
+  waUrl='https://wa.me/'+normWa(chosenWa)+'?text='+encodeURIComponent(msg);
   if(window.dataLayer)window.dataLayer.push({event:'generate_lead',lead_name:nm,lead_product:cfg.produkWA});
   if(cfg.convLabel&&typeof gtag==='function')gtag('event','conversion',{send_to:cfg.convLabel});
   document.getElementById('oo-f${p.id}').style.display='none';
@@ -2959,7 +2964,7 @@ function renderCSList(){
         <div style="font-size:12px;color:var(--text-muted)">📱 ${esc(cs.waNum)}</div>
       </div>
       <div style="display:flex;gap:6px;flex-shrink:0">
-        <a href="https://wa.me/${cs.waNum}" target="_blank" class="btn btn-success btn-sm">💬</a>
+        <a href="https://wa.me/${normalizeWaID(cs.waNum)}" target="_blank" class="btn btn-success btn-sm">💬</a>
         <button class="btn btn-icon btn-sm" onclick="editCSItem(${cs.id})" title="Edit">✏️</button>
         <button class="btn btn-icon btn-sm" onclick="deleteCSItem(${cs.id})" title="Hapus">🗑️</button>
       </div>
@@ -3058,7 +3063,7 @@ function testGreeting(){
     .replace(/{wa}/g,'081234567890')
     .replace(/{produk}/g,'Produk Test')
     .replace(/{toko}/g, cfg.storeName);
-  window.open(`https://wa.me/${waNum}?text=${encodeURIComponent(msg)}`, '_blank');
+  window.open(`https://wa.me/${normalizeWaID(waNum)}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
 /* ═════════════════════════════════════════════
@@ -3191,7 +3196,9 @@ window.ooSub=function(){
   else{document.getElementById('oo-wa').style.borderColor='#e0e0e0';document.getElementById('oo-ew').style.display='none';}
   if(!ok)return;
   var msg=cfg.greeting.replace(/{nama}/g,nm).replace(/{wa}/g,wa).replace(/{produk}/g,cfg.produkDefault||cfg.storeName).replace(/{toko}/g,cfg.storeName).replace(/{alamat}/g,al||'-').replace(/{kota}/g,kt||'-').replace(/{kecamatan}/g,kc||'-');
-  waUrl='https://wa.me/'+cfg.waNum+'?text='+encodeURIComponent(msg);
+  /* Normalize WA Indonesia (08xxx → 628xxx) — cegah salah country code */
+  var normWa=function(num){var n=(num||'').toString().replace(/\\D/g,'');if(!n)return '';n=n.replace(/^0+/,'');if(!n)return '';if(n.charAt(0)==='8')n='62'+n;return n;};
+  waUrl='https://wa.me/'+normWa(cfg.waNum)+'?text='+encodeURIComponent(msg);
   var leads=[];try{leads=JSON.parse(localStorage.getItem('od_leads')||'[]');}catch(e){}
   leads.unshift({id:'L'+Date.now(),ts:Date.now(),nama:nm,wa:wa,produk:cfg.produkDefault||'-',alamat:al,kota:kt,kecamatan:kc});
   try{localStorage.setItem('od_leads',JSON.stringify(leads));}catch(e){}
@@ -3268,6 +3275,23 @@ function copyCode(id,btn){
    UTILS
 ═════════════════════════════════════════════ */
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+/* ── Normalisasi nomor WA Indonesia untuk wa.me URL ──
+   Customer biasa ngetik "08xxx" (format lokal). WhatsApp wa.me butuh "628xxx".
+   Kalau ke-pass "08xxx" doang, WA salah interpret jadi country code +82 (Korea).
+   Fungsi ini convert ke format standar 62xxx tanpa "+". */
+function normalizeWaID(num){
+  let n = (num || '').toString().replace(/\D/g, '');
+  if(!n) return '';
+  // Hapus semua leading zeros (handle 08xxx, 0062xxx, 008xxx, dll)
+  n = n.replace(/^0+/, '');
+  if(!n) return '';
+  // Kalau setelah strip 0 mulai dgn '8' → Indonesian tanpa kode → prepend 62
+  if(n.charAt(0) === '8') n = '62' + n;
+  // Kalau udah 62xxx atau angka lain (international), biarin apa adanya
+  return n;
+}
+
 function fmtDate(ts){
   const d=new Date(ts);
   return d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})+' '+d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
@@ -3597,7 +3621,7 @@ function csLeadCard(l){
   const notes = l.followNotes
     ? `<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:8px 12px;font-size:12px;color:#78350f;margin-top:8px"><strong>📝 Catatan:</strong> ${esc(l.followNotes)}</div>`
     : '';
-  const waNumber = (l.wa||'').replace(/\D/g,'');
+  const waNumber = normalizeWaID(l.wa);
   // QR sent state — kalau udah ada template yg di-klik, kasih class & badge
   const qrSentCount = Array.isArray(l.qrSent) ? l.qrSent.length : 0;
   const touchedClass = qrSentCount > 0 ? 'cs-lead-touched' : '';
@@ -4584,7 +4608,7 @@ function sendQRToLead(qrId, leadId){
   if(i < 0){ toast('⚠️ Lead tidak ditemukan'); return; }
   const lead = leads[i];
   const msg = applyQRTemplate(t, lead);
-  const waNum = (lead.wa || '').replace(/\D/g, '');
+  const waNum = normalizeWaID(lead.wa);
   if(!waNum){ toast('⚠️ Nomor WA lead kosong'); return; }
 
   // Track QR yang udah di-klik di lead ini
