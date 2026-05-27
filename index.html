@@ -766,6 +766,47 @@ tr:hover td{background:#fafbff}
 .qr-btn:active{transform:translateY(0)}
 .qr-btn-icon{font-size:14px;line-height:1}
 
+/* QR button yang udah di-klik */
+.qr-btn-sent{
+  background:linear-gradient(135deg,#22c55e,#16a34a) !important;
+  border-color:#15803d !important;
+  color:#fff !important;
+  position:relative;
+  padding-right:24px !important;
+}
+.qr-btn-sent::after{
+  content:'✓';
+  position:absolute;
+  right:8px;top:50%;transform:translateY(-50%);
+  font-size:11px;font-weight:700;
+  color:#fff;
+}
+.qr-btn-sent:hover{
+  background:linear-gradient(135deg,#16a34a,#15803d) !important;
+  border-color:#14532d !important;
+  color:#fff !important;
+}
+
+/* Lead card yang udah di-touch (ada minimal 1 QR diklik) */
+.cs-lead-card.cs-lead-touched{
+  background:linear-gradient(to right, #f0fdf4 0%, #fff 60%);
+  border-left:4px solid #22c55e;
+  border-color:#86efac;
+}
+.cs-lead-card.cs-lead-touched:hover{
+  border-color:#22c55e;
+  box-shadow:0 0 0 3px rgba(34,197,94,.1);
+}
+
+/* Mini badge di lead card kalau ada QR sent */
+.cs-lead-touched-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  background:#22c55e;color:#fff;
+  padding:2px 8px;border-radius:50px;
+  font-size:10px;font-weight:700;
+  margin-left:6px;
+}
+
 /* Admin panel: list template */
 .qr-card{
   background:#fff;border:1px solid var(--border);
@@ -838,7 +879,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-05-26-quick-reply';
+window.__APP_VERSION = '2026-05-26-qr-sent-marker';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -3557,13 +3598,20 @@ function csLeadCard(l){
     ? `<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:8px 12px;font-size:12px;color:#78350f;margin-top:8px"><strong>📝 Catatan:</strong> ${esc(l.followNotes)}</div>`
     : '';
   const waNumber = (l.wa||'').replace(/\D/g,'');
-  return `<div class="cs-lead-card">
+  // QR sent state — kalau udah ada template yg di-klik, kasih class & badge
+  const qrSentCount = Array.isArray(l.qrSent) ? l.qrSent.length : 0;
+  const touchedClass = qrSentCount > 0 ? 'cs-lead-touched' : '';
+  const touchedBadge = qrSentCount > 0
+    ? `<span class="cs-lead-touched-badge" title="Sudah dikirim ${qrSentCount} quick reply">⚡ ${qrSentCount} FU terkirim</span>`
+    : '';
+  return `<div class="cs-lead-card ${touchedClass}">
     <div style="display:flex;align-items:flex-start;gap:14px">
       <div class="lead-avatar">${esc(init)}</div>
       <div style="flex:1;min-width:0">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
           <div style="font-size:14px;font-weight:700">${esc(l.nama||'-')}</div>
           ${statusBadges[status] || statusBadges.pending}
+          ${touchedBadge}
         </div>
         <div style="font-size:13px;color:var(--text-muted);display:flex;gap:10px;align-items:center;flex-wrap:wrap">
           <span>📱 ${esc(l.wa||'-')}</span>
@@ -3591,14 +3639,20 @@ function renderQRButtonsForLead(lead){
   const templates = getQRTemplates().filter(t => t.active !== false);
   templates.sort((a,b) => (a.order||0) - (b.order||0));
   if(!templates.length) return '';
-  const buttons = templates.map(t =>
-    `<button class="qr-btn" onclick="sendQRToLead(${t.id}, '${lead.id}')" title="${esc(t.label)}">
+  const sentIds = Array.isArray(lead.qrSent) ? lead.qrSent : [];
+  const buttons = templates.map(t => {
+    const isSent = sentIds.includes(t.id);
+    return `<button class="qr-btn ${isSent?'qr-btn-sent':''}" onclick="sendQRToLead(${t.id}, '${lead.id}')" title="${esc(t.label)}${isSent?' (sudah dikirim)':''}">
       <span class="qr-btn-icon">${esc(t.icon || '💬')}</span>
       <span>${esc(t.label)}</span>
-    </button>`
-  ).join('');
+    </button>`;
+  }).join('');
+  const sentCount = sentIds.length;
+  const labelExtra = sentCount > 0
+    ? `<span style="color:#15803d;font-weight:700">(${sentCount} terkirim)</span>`
+    : '';
   return `<div class="qr-row">
-    <div class="qr-row-label">⚡ Quick Reply</div>
+    <div class="qr-row-label">⚡ Quick Reply ${labelExtra}</div>
     ${buttons}
   </div>`;
 }
@@ -4525,13 +4579,32 @@ function applyQRTemplate(template, lead){
 function sendQRToLead(qrId, leadId){
   const t = getQRTemplates().find(x => x.id === qrId);
   if(!t){ toast('⚠️ Template tidak ditemukan'); return; }
-  const lead = getLeads().find(l => l.id === leadId);
-  if(!lead){ toast('⚠️ Lead tidak ditemukan'); return; }
+  const leads = getLeads();
+  const i = leads.findIndex(l => l.id === leadId);
+  if(i < 0){ toast('⚠️ Lead tidak ditemukan'); return; }
+  const lead = leads[i];
   const msg = applyQRTemplate(t, lead);
   const waNum = (lead.wa || '').replace(/\D/g, '');
   if(!waNum){ toast('⚠️ Nomor WA lead kosong'); return; }
+
+  // Track QR yang udah di-klik di lead ini
+  if(!Array.isArray(lead.qrSent)) lead.qrSent = [];
+  if(!lead.qrSent.includes(qrId)){
+    lead.qrSent.push(qrId);
+  }
+  lead.qrSentAt = Date.now();
+  if(currentCSUser) lead.qrSentBy = currentCSUser.username;
+  leads[i] = lead;
+  LS.s('od_leads', leads);
+  syncLeadSave(lead);
+
+  // Buka WA
   const url = 'https://wa.me/' + waNum + '?text=' + encodeURIComponent(msg);
   window.open(url, '_blank');
+
+  // Re-render biar tombol jadi ijo (sent state) + lead card berubah warna
+  if(currentCSUser && document.getElementById('viewCS').style.display==='flex') renderCSLeads();
+  if(activePanel==='leads') renderLeads();
 }
 
 /* ── Sync ke cloud ── */
