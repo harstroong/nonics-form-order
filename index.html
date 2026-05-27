@@ -744,7 +744,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-05-26-stale-error-fix';
+window.__APP_VERSION = '2026-05-26-mobile-autocorrect-fix';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -1053,7 +1053,7 @@ document.addEventListener('DOMContentLoaded', function(){
     <!-- Admin form (original) -->
     <div id="loginAdminForm">
       <label class="login-label">Password Admin</label>
-      <input class="login-input" id="loginPass" type="password" placeholder="Masukkan password..."/>
+      <input class="login-input" id="loginPass" type="password" placeholder="Masukkan password..." autocapitalize="off" autocorrect="off" spellcheck="false"/>
       <div class="login-err" id="loginErr">Password salah. Coba lagi.</div>
       <button type="button" class="login-btn" onclick="__safeAdminLogin()">Masuk ke Dashboard →</button>
       <div class="login-footer">Password default: <code style="color:rgba(255,255,255,.5)">admin123</code></div>
@@ -1062,9 +1062,9 @@ document.addEventListener('DOMContentLoaded', function(){
     <!-- CS form (baru) -->
     <div id="loginCSForm" style="display:none">
       <label class="login-label">Username CS</label>
-      <input class="login-input" id="loginCSUser" type="text" placeholder="Contoh: sari, budi" autocomplete="username"/>
+      <input class="login-input" id="loginCSUser" type="text" placeholder="Contoh: sari, budi" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="email"/>
       <label class="login-label">Password</label>
-      <input class="login-input" id="loginCSPass" type="password" placeholder="Password CS..." autocomplete="current-password"/>
+      <input class="login-input" id="loginCSPass" type="password" placeholder="Password CS..." autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false"/>
       <div class="login-err" id="loginCSErr">Username atau password salah, atau akun belum aktif.</div>
       <button type="button" class="login-btn" onclick="__safeCSLogin()">Masuk Panel CS →</button>
       <div class="login-footer">Akun CS dibuat oleh admin via menu <em>Akses Login CS</em></div>
