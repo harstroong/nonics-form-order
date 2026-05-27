@@ -435,6 +435,133 @@ tr:hover td{background:#fafbff}
 }
 
 /* ═══════════════════════════════════════════
+   MOBILE POLISH (≤640px) — fix tampilan HP
+═══════════════════════════════════════════ */
+@media(max-width:640px){
+  /* LOGIN — padding kecil, input 16px (cegah iOS auto-zoom) */
+  #viewLogin{padding:12px;min-height:100vh;min-height:100dvh}
+  .login-card{padding:28px 20px;border-radius:16px;max-width:none}
+  .login-logo{margin-bottom:24px}
+  .login-logo-icon{width:40px;height:40px;font-size:20px}
+  .login-logo-text{font-size:18px}
+  .login-title{font-size:21px}
+  .login-sub{font-size:13px;margin-bottom:22px;line-height:1.5}
+  .login-tabs{margin-bottom:18px}
+  .login-tab{font-size:13px;padding:10px 8px;min-height:42px}
+  .login-input{font-size:16px;padding:13px 14px;margin-bottom:12px}
+  .login-btn{padding:14px;font-size:15px;min-height:48px;font-weight:700}
+  .login-err{font-size:12px}
+  .login-footer{font-size:11px;margin-top:18px;line-height:1.5}
+
+  /* DASHBOARD TOPBAR */
+  .topbar{padding:0 12px;gap:8px}
+  .topbar-title{font-size:15px}
+  .topbar-right{gap:6px;flex-wrap:nowrap}
+  .topbar-preview-btn{padding:7px 10px;font-size:12px;white-space:nowrap}
+  .cloud-badge{padding:4px 8px;font-size:10px}
+
+  /* CONTENT */
+  .content{padding:14px 12px}
+  .card{padding:18px 16px}
+  .card-title{font-size:14px}
+  .card-sub{font-size:12px;line-height:1.6}
+
+  /* CS VIEW TOPBAR — stack rapi */
+  .csv-topbar{padding:10px 14px;height:auto;flex-wrap:wrap;gap:8px;min-height:60px}
+  .csv-brand{gap:10px;min-width:0;flex:1}
+  .csv-brand-icon{width:32px;height:32px;font-size:14px;flex-shrink:0}
+  .csv-brand-name{font-size:13px;line-height:1.3}
+  .csv-brand-sub{font-size:11px}
+  .csv-content{padding:14px 12px}
+
+  /* LEAD ITEMS — action buttons wrap nicely */
+  .lead-item{flex-wrap:wrap;padding:12px 14px;gap:10px}
+  .lead-info{min-width:0;width:100%}
+  .lead-actions{width:100%;justify-content:flex-end}
+  .lead-meta{font-size:11px;gap:6px}
+
+  /* CS LEAD CARD */
+  .cs-lead-card{padding:14px}
+  .cs-lead-card .btn-sm{padding:8px 12px;font-size:12px;min-height:36px}
+
+  /* DATE FILTER BAR */
+  .date-filter-bar{padding:10px 12px;gap:8px}
+  .date-filter-bar .dfb-select{flex:1;min-width:140px;font-size:13px;padding:8px 10px;min-height:38px}
+  .date-filter-bar .dfb-date{font-size:13px;padding:8px 10px;min-height:38px;min-width:130px}
+  .date-filter-bar .dfb-custom{width:100%;flex-wrap:wrap}
+  .date-filter-bar .dfb-info{width:100%;margin-left:0;justify-content:flex-end;font-size:11px}
+
+  /* CS FILTER TABS — scroll horizontal */
+  .cs-filter-tabs{gap:2px;padding-bottom:0;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .cs-filter-tabs .prod-tab{padding:9px 12px;font-size:12px;flex-shrink:0;min-height:38px}
+
+  /* PROD TABS in form */
+  .prod-tab{padding:9px 12px;font-size:12px;min-height:38px}
+
+  /* FORM ELEMENTS — bigger touch */
+  .input{font-size:16px;padding:12px 14px;min-height:42px}
+  textarea.input{min-height:90px;font-size:14px}
+  .form-row,.form-row-3{grid-template-columns:1fr;gap:12px}
+  .label{font-size:11px;margin-bottom:6px}
+
+  /* BUTTONS */
+  .btn{padding:11px 16px;font-size:13px;min-height:42px}
+  .btn-sm{padding:9px 12px;font-size:12px;min-height:36px}
+  .btn-lg{padding:14px 20px;font-size:15px;min-height:48px}
+  .btn-icon{padding:9px;min-width:36px;min-height:36px}
+
+  /* PRODUK LIST */
+  .prod-item{flex-wrap:wrap;padding:12px 14px;gap:10px}
+  .prod-info{min-width:0;width:100%}
+  .prod-actions{width:100%;justify-content:flex-end;gap:6px}
+
+  /* NOTIFICATION POPUP — slide dari atas, full width */
+  .notif-popup{top:64px;right:10px;left:10px;width:auto;max-width:none;transform:translateY(-120%)}
+  .notif-popup.show{transform:translateY(0)}
+
+  /* TOAST */
+  .toast{bottom:14px;right:14px;left:14px;text-align:center;font-size:12px}
+
+  /* MODAL */
+  #formPreviewModal>div{margin:8px;max-height:calc(100vh - 16px);border-radius:12px}
+
+  /* TABLE */
+  .table-wrap{font-size:12px}
+  th,td{padding:9px 10px}
+
+  /* SIDEBAR */
+  .sidebar{width:280px;min-width:280px}
+  .hamburger{font-size:22px;padding:8px;min-width:40px;min-height:40px}
+
+  /* STAT cards */
+  .stat-card{padding:16px 14px}
+  .stat-val{font-size:24px}
+  .stat-label{font-size:11px}
+  .stat-trend{font-size:10px}
+
+  /* CS chips */
+  .cs-chip{font-size:11px;padding:5px 8px}
+
+  /* CODE BLOCK */
+  .code-box{font-size:11px;padding:14px;max-height:240px}
+  .copy-btn{font-size:10px;padding:4px 10px}
+
+  /* EMBED PREVIEW */
+  .preview-wrapper{padding:20px 12px;min-height:260px}
+
+  /* CLOUD SYNC migration status — monospace lebih kecil */
+  #fbMigrationStatus{font-size:10px !important;padding:10px !important}
+}
+
+/* Touch device tweaks */
+@media(hover:none) and (pointer:coarse){
+  .lead-item:hover{box-shadow:none}
+  .prod-item:hover{border-color:var(--border)}
+  .sb-item{padding:14px 12px;min-height:48px}
+  .sb-logout{padding:8px;min-width:36px;min-height:36px}
+}
+
+/* ═══════════════════════════════════════════
    LOGIN ROLE TABS (Admin / CS)
 ═══════════════════════════════════════════ */
 .login-tabs{
@@ -613,6 +740,298 @@ tr:hover td{background:#fafbff}
 <body>
 
 <!-- ═══════════════════════════════════
+     EARLY ERROR HANDLER (sebelum script utama)
+     Buat catching error JS yang silent di iOS Safari
+═══════════════════════════════════ -->
+<script>
+window.__APP_VERSION = '2026-05-26-stale-error-fix';
+window.__JS_LOADED_AT = Date.now();
+window.__JS_ERRORS = [];
+window.addEventListener('error', function(e){
+  window.__JS_ERRORS.push({
+    msg: e.message || 'Unknown error',
+    src: e.filename || '(inline)',
+    line: e.lineno || '?',
+    col: e.colno || '?',
+    ts: Date.now()
+  });
+  var box = document.getElementById('errorBanner');
+  if(box){
+    box.style.display = 'block';
+    box.querySelector('#errorBannerMsg').textContent =
+      '⚠️ Error: ' + (e.message || 'Unknown') + ' @ ' + (e.lineno || '?');
+  }
+});
+window.addEventListener('unhandledrejection', function(e){
+  window.__JS_ERRORS.push({msg: 'Promise rejection: ' + (e.reason && e.reason.message ? e.reason.message : String(e.reason)), src: '(promise)', line:'?', col:'?', ts: Date.now()});
+});
+function __toggleDiag(){
+  var p = document.getElementById('diagPanel');
+  if(p){ p.style.display = (p.style.display === 'none' ? 'block' : 'none'); __renderDiag(); }
+}
+function __renderDiag(){
+  var el = document.getElementById('diagOut');
+  if(!el) return;
+  var ls = {};
+  try {
+    ['od_cfg','od_prods','od_leads','od_cs','od_cs_users','od_fb_cfg','od_local_backup'].forEach(function(k){
+      var v = localStorage.getItem(k);
+      ls[k] = v ? (v.length > 100 ? '['+v.length+' chars]' : v) : null;
+    });
+  } catch(e){ ls.__err = e.message; }
+  var info = {
+    version: window.__APP_VERSION,
+    js_loaded_ms_ago: Date.now() - window.__JS_LOADED_AT,
+    js_doLogin_exists: typeof window.doLogin === 'function',
+    js_doCSLogin_exists: typeof window.doCSLogin === 'function',
+    user_agent: navigator.userAgent.slice(0,180),
+    online: navigator.onLine,
+    errors: window.__JS_ERRORS.slice(-5),
+    localStorage: ls
+  };
+  el.textContent = JSON.stringify(info, null, 2);
+}
+function __resetAll(){
+  if(!confirm('Reset SEMUA data lokal di browser ini?\n\nIni akan hapus:\n- Firebase config (kalau ada)\n- Cache leads/produk/CS lokal\n- Settings\n\nData di cloud TIDAK terhapus. Setelah reset, password admin balik ke "admin123".')) return;
+  try {
+    ['od_cfg','od_prods','od_leads','od_cs','od_cs_users','od_fb_cfg','od_local_backup'].forEach(function(k){
+      localStorage.removeItem(k);
+    });
+    alert('✅ Local data direset. Halaman akan reload — pakai password "admin123" buat masuk.');
+    location.reload();
+  } catch(e){
+    alert('❌ Reset gagal: ' + e.message);
+  }
+}
+function __testJs(){
+  alert('✅ JavaScript jalan!\n\ndoLogin defined: ' + (typeof window.doLogin === 'function') + '\nuserAgent: ' + navigator.userAgent.slice(0,80));
+}
+
+/* ═════════════════════════════════════════════
+   BULLETPROOF LOGIN (pure ES5, no modern syntax)
+   Dijalankan di early script, sebelum script utama.
+   Fungsi ini ALWAYS available — jadi walaupun script utama
+   gagal parse di browser apapun, login tetep respond.
+═════════════════════════════════════════════ */
+function __setLoginLoading(btnId, on, originalText){
+  var btn = document.getElementById(btnId);
+  if(!btn) return;
+  if(on){
+    btn.dataset.origText = btn.dataset.origText || btn.textContent;
+    btn.textContent = '⏳ Loading...';
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+  } else {
+    if(btn.dataset.origText) btn.textContent = btn.dataset.origText;
+    btn.disabled = false;
+    btn.style.opacity = '';
+  }
+}
+
+function __doAdminLoginSuccess(cfg){
+  var pwEl = document.getElementById('loginPass');
+  var errEl = document.getElementById('loginErr');
+  if(pwEl) pwEl.value = '';
+  if(errEl) errEl.classList.remove('show');
+  if(pwEl) pwEl.classList.remove('err');
+  var v1 = document.getElementById('viewLogin');
+  var v2 = document.getElementById('viewDashboard');
+  if(v1) v1.style.display = 'none';
+  if(v2){
+    v2.style.display = 'flex';
+    if(v2.className.indexOf('show') === -1) v2.className = v2.className + ' show';
+  }
+  if(typeof window.initDashboard === 'function'){
+    try { window.initDashboard(); } catch(e){ console.warn('initDashboard fail:', e); }
+  }
+}
+
+function __doAdminLoginFail(){
+  var pwEl = document.getElementById('loginPass');
+  var errEl = document.getElementById('loginErr');
+  if(errEl) errEl.classList.add('show');
+  if(pwEl){ pwEl.classList.add('err'); pwEl.focus(); }
+}
+
+function __safeAdminLogin(){
+  // Coba modern doLogin dulu (full flow, cloud-first)
+  if(typeof window.doLogin === 'function'){
+    try { window.doLogin(); return; } catch(err){ console.error('doLogin error:', err); }
+  }
+  // Fallback path — main script crashed
+  var pwEl = document.getElementById('loginPass');
+  if(!pwEl) return;
+  var pw = pwEl.value || '';
+  // Cek apakah Cloud Sync configured (DEFAULT_FB_CONFIG ATAU LS)
+  var fbcfg = null;
+  try {
+    var lsFb = localStorage.getItem('od_fb_cfg');
+    if(lsFb){ var p = JSON.parse(lsFb); if(p && p.apiKey && p.projectId) fbcfg = p; }
+  } catch(e){}
+  // Catatan: DEFAULT_FB_CONFIG cuma ada di main script — di fallback ES5 ini gak bisa diakses.
+  // Tapi __fetchAndLoginAdmin dipanggil tetap, dan dia handle init firebase pakai DEFAULT_FB_CONFIG.
+  // CLOUD-FIRST: kalau bisa fetch cloud, fetch dulu — konsisten dengan PC.
+  if(typeof window.__fetchAndLoginAdmin === 'function'){
+    var btn = document.querySelector('#loginAdminForm button.login-btn');
+    if(btn) btn.id = 'btnLoginAdmin';
+    __setLoginLoading('btnLoginAdmin', true);
+    window.__fetchAndLoginAdmin(pw).then(function(ok){
+      __setLoginLoading('btnLoginAdmin', false);
+      if(ok){ __doAdminLoginSuccess(null); return; }
+      // Cloud fetch gagal/no-match — last resort cek LS
+      var cfg = null;
+      try { var raw = localStorage.getItem('od_cfg'); if(raw) cfg = JSON.parse(raw); } catch(e){}
+      if(cfg && cfg.adminPass && pw === cfg.adminPass){ __doAdminLoginSuccess(cfg); }
+      else { __doAdminLoginFail(); }
+    }).catch(function(){
+      __setLoginLoading('btnLoginAdmin', false);
+      __doAdminLoginFail();
+    });
+    return;
+  }
+  // No __fetchAndLoginAdmin — fallback ke LS-only (Cloud Sync gak available)
+  var cfg = null;
+  try { var raw = localStorage.getItem('od_cfg'); if(raw) cfg = JSON.parse(raw); } catch(e){}
+  var expected = (cfg && cfg.adminPass) ? cfg.adminPass : 'admin123';
+  if(pw === expected){ __doAdminLoginSuccess(cfg); } else { __doAdminLoginFail(); }
+}
+
+function __doCSLoginSuccess(user){
+  var userEl = document.getElementById('loginCSUser');
+  var pwEl = document.getElementById('loginCSPass');
+  var errEl = document.getElementById('loginCSErr');
+  if(userEl) userEl.value = '';
+  if(pwEl) pwEl.value = '';
+  if(errEl) errEl.classList.remove('show');
+  if(userEl) userEl.classList.remove('err');
+  if(pwEl) pwEl.classList.remove('err');
+  window.currentCSUser = user;
+  var v1 = document.getElementById('viewLogin');
+  var v2 = document.getElementById('viewDashboard');
+  var v3 = document.getElementById('viewCS');
+  if(v1) v1.style.display = 'none';
+  if(v2) v2.style.display = 'none';
+  if(v3) v3.style.display = 'flex';
+  if(typeof window.initCSView === 'function'){
+    try { window.initCSView(); } catch(e){ console.warn('initCSView fail:', e); }
+  }
+}
+
+function __doCSLoginFail(){
+  var userEl = document.getElementById('loginCSUser');
+  var pwEl = document.getElementById('loginCSPass');
+  var errEl = document.getElementById('loginCSErr');
+  if(errEl) errEl.classList.add('show');
+  if(userEl) userEl.classList.add('err');
+  if(pwEl) pwEl.classList.add('err');
+}
+
+function __safeCSLogin(){
+  if(typeof window.doCSLogin === 'function'){
+    try { window.doCSLogin(); return; } catch(err){ console.error('doCSLogin error:', err); }
+  }
+  var userEl = document.getElementById('loginCSUser');
+  var pwEl = document.getElementById('loginCSPass');
+  var errEl = document.getElementById('loginCSErr');
+  if(!userEl || !pwEl) return;
+  var u = (userEl.value || '').trim().toLowerCase();
+  var p = pwEl.value || '';
+  if(!u || !p){
+    if(errEl) errEl.classList.add('show');
+    return;
+  }
+  // CLOUD-FIRST: coba fetch cs_users dari cloud dulu — konsisten dengan PC
+  if(typeof window.__fetchAndLoginCS === 'function'){
+    var btn = document.querySelector('#loginCSForm button.login-btn');
+    if(btn) btn.id = 'btnLoginCS';
+    __setLoginLoading('btnLoginCS', true);
+    window.__fetchAndLoginCS(u, p).then(function(user){
+      __setLoginLoading('btnLoginCS', false);
+      if(user){ __doCSLoginSuccess(user); return; }
+      // Cloud no-match — last resort cek LS
+      var users = [];
+      try { var raw = localStorage.getItem('od_cs_users'); if(raw) users = JSON.parse(raw) || []; } catch(e){}
+      var found = null;
+      for(var i = 0; i < users.length; i++){
+        if(users[i].username === u && users[i].password === p && users[i].active !== false){
+          found = users[i]; break;
+        }
+      }
+      if(found){ __doCSLoginSuccess(found); } else { __doCSLoginFail(); }
+    }).catch(function(){
+      __setLoginLoading('btnLoginCS', false);
+      __doCSLoginFail();
+    });
+    return;
+  }
+  // No __fetchAndLoginCS — fallback ke LS-only
+  var users = [];
+  try { var raw = localStorage.getItem('od_cs_users'); if(raw) users = JSON.parse(raw) || []; } catch(e){}
+  var found = null;
+  for(var i = 0; i < users.length; i++){
+    if(users[i].username === u && users[i].password === p && users[i].active !== false){
+      found = users[i]; break;
+    }
+  }
+  if(found){ __doCSLoginSuccess(found); } else { __doCSLoginFail(); }
+}
+
+function __safeSwitchLoginTab(tab){
+  if(typeof window.switchLoginTab === 'function'){
+    try { window.switchLoginTab(tab); return; } catch(err){}
+  }
+  // Fallback ES5
+  var tA = document.getElementById('loginTabAdmin');
+  var tC = document.getElementById('loginTabCS');
+  var fA = document.getElementById('loginAdminForm');
+  var fC = document.getElementById('loginCSForm');
+  if(tA) tA.className = 'login-tab' + (tab === 'admin' ? ' active' : '');
+  if(tC) tC.className = 'login-tab' + (tab === 'cs' ? ' active' : '');
+  if(fA) fA.style.display = (tab === 'admin' ? 'block' : 'none');
+  if(fC) fC.style.display = (tab === 'cs' ? 'block' : 'none');
+}
+
+// Guard: cegah double-fire dari inline onclick + addEventListener
+window.__loginInFlight = false;
+function __guardedLogin(fn){
+  if(window.__loginInFlight) return;
+  window.__loginInFlight = true;
+  setTimeout(function(){ window.__loginInFlight = false; }, 600);
+  try { fn(); } catch(e){ console.error('Login error:', e); }
+}
+var __origSafeAdmin = __safeAdminLogin;
+var __origSafeCS = __safeCSLogin;
+__safeAdminLogin = function(){ __guardedLogin(__origSafeAdmin); };
+__safeCSLogin = function(){ __guardedLogin(__origSafeCS); };
+
+// Pasang Enter key listener (inline onkeydown udah dihapus dari HTML)
+document.addEventListener('DOMContentLoaded', function(){
+  try {
+    var pw1 = document.getElementById('loginPass');
+    if(pw1){
+      pw1.addEventListener('keydown', function(ev){
+        if(ev.key === 'Enter' || ev.keyCode === 13){ __safeAdminLogin(); }
+      }, false);
+    }
+    var pw2 = document.getElementById('loginCSPass');
+    if(pw2){
+      pw2.addEventListener('keydown', function(ev){
+        if(ev.key === 'Enter' || ev.keyCode === 13){ __safeCSLogin(); }
+      }, false);
+    }
+    var u2 = document.getElementById('loginCSUser');
+    if(u2){
+      u2.addEventListener('keydown', function(ev){
+        if(ev.key === 'Enter' || ev.keyCode === 13){
+          if(pw2) pw2.focus();
+        }
+      }, false);
+    }
+  } catch(e){ console.error('Login keydown setup error:', e); }
+});
+</script>
+
+<!-- ═══════════════════════════════════
      LOGIN
 ═══════════════════════════════════ -->
 <div id="viewLogin">
@@ -627,33 +1046,71 @@ tr:hover td{background:#fafbff}
 
     <!-- Role tabs -->
     <div class="login-tabs">
-      <button type="button" class="login-tab active" id="loginTabAdmin" onclick="switchLoginTab('admin')">👤 Admin</button>
-      <button type="button" class="login-tab" id="loginTabCS" onclick="switchLoginTab('cs')">💬 CS</button>
+      <button type="button" class="login-tab active" id="loginTabAdmin" onclick="__safeSwitchLoginTab('admin')">👤 Admin</button>
+      <button type="button" class="login-tab" id="loginTabCS" onclick="__safeSwitchLoginTab('cs')">💬 CS</button>
     </div>
 
     <!-- Admin form (original) -->
     <div id="loginAdminForm">
       <label class="login-label">Password Admin</label>
-      <input class="login-input" id="loginPass" type="password" placeholder="Masukkan password..." onkeydown="if(event.key==='Enter')doLogin()"/>
+      <input class="login-input" id="loginPass" type="password" placeholder="Masukkan password..."/>
       <div class="login-err" id="loginErr">Password salah. Coba lagi.</div>
-      <button class="login-btn" onclick="doLogin()">Masuk ke Dashboard →</button>
+      <button type="button" class="login-btn" onclick="__safeAdminLogin()">Masuk ke Dashboard →</button>
       <div class="login-footer">Password default: <code style="color:rgba(255,255,255,.5)">admin123</code></div>
     </div>
 
     <!-- CS form (baru) -->
     <div id="loginCSForm" style="display:none">
       <label class="login-label">Username CS</label>
-      <input class="login-input" id="loginCSUser" type="text" placeholder="Contoh: sari, budi" onkeydown="if(event.key==='Enter')document.getElementById('loginCSPass').focus()"/>
+      <input class="login-input" id="loginCSUser" type="text" placeholder="Contoh: sari, budi" autocomplete="username"/>
       <label class="login-label">Password</label>
-      <input class="login-input" id="loginCSPass" type="password" placeholder="Password CS..." onkeydown="if(event.key==='Enter')doCSLogin()"/>
+      <input class="login-input" id="loginCSPass" type="password" placeholder="Password CS..." autocomplete="current-password"/>
       <div class="login-err" id="loginCSErr">Username atau password salah, atau akun belum aktif.</div>
-      <button class="login-btn" onclick="doCSLogin()">Masuk Panel CS →</button>
+      <button type="button" class="login-btn" onclick="__safeCSLogin()">Masuk Panel CS →</button>
       <div class="login-footer">Akun CS dibuat oleh admin via menu <em>Akses Login CS</em></div>
     </div>
+
+    <!-- Error banner — muncul otomatis kalo ada JS error -->
+    <div id="errorBanner" style="display:none;margin-top:14px;padding:10px 12px;background:rgba(220,38,38,.15);border:1px solid rgba(220,38,38,.4);border-radius:8px;font-size:11px;color:#fca5a5;font-family:monospace;line-height:1.5">
+      <div id="errorBannerMsg" style="margin-bottom:4px"></div>
+      <div style="font-size:10px;color:rgba(252,165,165,.7)">Klik 🆘 di bawah untuk debug detail.</div>
+    </div>
+
+    <!-- Bantuan / debug link -->
+    <div style="text-align:center;margin-top:14px">
+      <button type="button" onclick="__toggleDiag()" style="background:none;border:none;color:rgba(255,255,255,.45);font-size:11px;cursor:pointer;text-decoration:underline;font-family:inherit;padding:6px 10px">
+        🆘 Bantuan login / Diagnostik
+      </button>
+    </div>
+
+    <!-- Diagnostic panel -->
+    <div id="diagPanel" style="display:none;margin-top:14px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:12px;font-family:monospace">
+      <div style="font-size:11px;color:rgba(255,255,255,.7);margin-bottom:8px;line-height:1.5">
+        Kalo tombol login gak respon, kemungkinan JS gagal load. Coba:<br/>
+        1️⃣ Klik <strong>Test JS</strong> di bawah — kalo gak muncul popup, JS-nya bermasalah<br/>
+        2️⃣ Kalo Test JS work tapi login tetep gak bisa, klik <strong>Reset</strong> buat balikin ke admin123<br/>
+        3️⃣ Kalo dua-duanya gagal, screenshot info di bawah dan kirim ke admin
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+        <button type="button" onclick="__testJs()" style="flex:1;min-width:90px;background:rgba(102,126,234,.3);border:1px solid rgba(102,126,234,.6);color:#fff;padding:8px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit">🧪 Test JS</button>
+        <button type="button" onclick="__resetAll()" style="flex:1;min-width:90px;background:rgba(220,38,38,.3);border:1px solid rgba(220,38,38,.6);color:#fff;padding:8px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit">🔄 Reset</button>
+        <button type="button" onclick="__renderDiag()" style="flex:1;min-width:90px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#fff;padding:8px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit">↻ Refresh</button>
+      </div>
+      <pre id="diagOut" style="background:#0d1117;color:#e6edf3;padding:10px;border-radius:6px;font-size:10px;line-height:1.5;overflow-x:auto;white-space:pre-wrap;word-break:break-word;max-height:300px;overflow-y:auto;margin:0">Klik "↻ Refresh" untuk render info...</pre>
+    </div>
+
   </div>
-  <div class="powered-by-dark">Powered by <span class="pb-brand">Harstroong</span></div>
+  <div class="powered-by-dark">Powered by <span class="pb-brand">Harstroong</span> · <span style="font-size:9px;opacity:.6" id="versionTag"></span></div>
   </div>
 </div>
+
+<script>
+// Set version tag di bawah Powered by — biar lo bisa pastiin browser load file terbaru
+document.addEventListener('DOMContentLoaded', function(){
+  var v = document.getElementById('versionTag');
+  if(v) v.textContent = 'v' + (window.__APP_VERSION || 'unknown');
+});
+</script>
 
 
 <!-- ═══════════════════════════════════
@@ -1556,8 +2013,8 @@ const DEF_PRODS=[
 ];
 
 const LS={
-  g:(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}},
-  s:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+  g:(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
+  s:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 };
 const getCfg=()=>Object.assign({},DEF,LS.g('od_cfg',{}));
 const getProds=()=>{const p=LS.g('od_prods',null);return(p&&p.length)?p:DEF_PRODS};
@@ -1566,10 +2023,28 @@ const getLeads=()=>LS.g('od_leads',[]);
 /* ═════════════════════════════════════════════
    AUTH
 ═════════════════════════════════════════════ */
-function doLogin(){
+async function doLogin(){
   const pass=document.getElementById('loginPass').value;
-  const cfg=getCfg();
-  if(pass===cfg.adminPass){
+  // ── CLOUD-FIRST: kalau Cloud Sync configured, SELALU fetch cfg dari cloud dulu ──
+  // Ini bikin password PC & mobile konsisten. admin123 default cuma kerja kalau Cloud Sync gak ada.
+  if(getFBConfig()){
+    const btn = document.querySelector('#loginAdminForm button.login-btn');
+    if(btn){ btn.id = 'btnLoginAdmin'; }
+    if(typeof __setLoginLoading === 'function') __setLoginLoading('btnLoginAdmin', true);
+    try {
+      if(!fb.configured) await initFirebase(getFBConfig());
+      const { doc, getDoc } = window._fbFs;
+      const snap = await getDoc(doc(fb.db, FB_COLLECTIONS.cfg, 'main'));
+      if(snap.exists()){
+        const cloudCfg = snap.data();
+        LS.s('od_cfg', cloudCfg);
+      }
+    } catch(e){ console.warn('Admin cloud fetch fail (fallback to local):', e); }
+    if(typeof __setLoginLoading === 'function') __setLoginLoading('btnLoginAdmin', false);
+  }
+  // Sekarang validasi pake cfg terbaru (cloud-sync atau LS local kalau cloud gak ada)
+  const cfg = getCfg();
+  if(pass === cfg.adminPass){
     document.getElementById('loginPass').value='';
     document.getElementById('loginErr').classList.remove('show');
     document.getElementById('loginPass').classList.remove('err');
@@ -2202,9 +2677,13 @@ function initFormPanel(){
 }
 function extraFieldsHTML(inline=false){
   const cfg=getCfg();
-  const useAlamat=inline?cfg.fieldAlamat:document.getElementById('fieldAlamat')?.checked;
-  const useKota=inline?cfg.fieldKota:document.getElementById('fieldKota')?.checked;
-  const useKec=inline?cfg.fieldKecamatan:document.getElementById('fieldKecamatan')?.checked;
+  // Hindari optional chaining (?.) — iOS Safari <13.4 parse fail, bikin seluruh script crash
+  const elAl=document.getElementById('fieldAlamat');
+  const elKt=document.getElementById('fieldKota');
+  const elKc=document.getElementById('fieldKecamatan');
+  const useAlamat=inline?cfg.fieldAlamat:(elAl?elAl.checked:false);
+  const useKota=inline?cfg.fieldKota:(elKt?elKt.checked:false);
+  const useKec=inline?cfg.fieldKecamatan:(elKc?elKc.checked:false);
   const s='width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box;background:#fff';
   let html='';
   if(useAlamat) html+=`<div class="preview-input-mock" style="color:#bbb;font-size:14px;padding:12px 14px;border:1.5px solid #e0e0e0;border-radius:8px;margin-bottom:10px">Alamat Lengkap</div>`;
@@ -2753,13 +3232,30 @@ function switchLoginTab(tab){
 let currentCSUser = null;
 let csLeadFilter = 'all';
 
-function doCSLogin(){
+async function doCSLogin(){
   const u = document.getElementById('loginCSUser').value.trim().toLowerCase();
   const p = document.getElementById('loginCSPass').value;
   if(!u || !p){
     document.getElementById('loginCSErr').classList.add('show');
     return;
   }
+  // ── CLOUD-FIRST: kalau Cloud Sync configured, SELALU fetch cs_users dari cloud dulu ──
+  // Konsisten: CS yang baru dibuat admin di PC bakal langsung kebaca di mobile tanpa delay.
+  if(getFBConfig()){
+    const btn = document.querySelector('#loginCSForm button.login-btn');
+    if(btn){ btn.id = 'btnLoginCS'; }
+    if(typeof __setLoginLoading === 'function') __setLoginLoading('btnLoginCS', true);
+    try {
+      if(!fb.configured) await initFirebase(getFBConfig());
+      const { collection, getDocs } = window._fbFs;
+      const snap = await getDocs(collection(fb.db, FB_COLLECTIONS.cs_users));
+      const cloudUsers = [];
+      snap.forEach(d => cloudUsers.push(d.data()));
+      LS.s('od_cs_users', cloudUsers);
+    } catch(e){ console.warn('CS cloud fetch fail (fallback to local):', e); }
+    if(typeof __setLoginLoading === 'function') __setLoginLoading('btnLoginCS', false);
+  }
+  // Validasi pake users terbaru (cloud atau LS local fallback)
   const users = getCSUsers();
   const found = users.find(x => x.username === u && x.password === p && x.active !== false);
   if(!found){
@@ -2960,11 +3456,66 @@ function editLeadNote(id){
 }
 
 /* ═════════════════════════════════════════════
+   SMART LOGIN — fetch dari cloud kalau LS kosong
+   Dipanggil oleh __safeAdminLogin / __safeCSLogin
+   sebagai fallback ke-3 (LS → cloud → fail)
+═════════════════════════════════════════════ */
+window.__fetchAndLoginAdmin = async function(pw){
+  // Pastikan Firebase ter-init
+  if(!fb.configured){
+    const cfg = getFBConfig();
+    if(!cfg) return false;
+    try { await initFirebase(cfg); } catch(e){ return false; }
+  }
+  try {
+    const { doc, getDoc } = window._fbFs;
+    const snap = await getDoc(doc(fb.db, FB_COLLECTIONS.cfg, 'main'));
+    if(!snap.exists()) return pw === 'admin123';
+    const cloudCfg = snap.data();
+    const expected = cloudCfg.adminPass || 'admin123';
+    if(pw === expected){
+      LS.s('od_cfg', cloudCfg);
+      return true;
+    }
+    return false;
+  } catch(e){ console.warn('cloud admin fetch fail:', e); return false; }
+};
+
+window.__fetchAndLoginCS = async function(username, password){
+  if(!fb.configured){
+    const cfg = getFBConfig();
+    if(!cfg) return null;
+    try { await initFirebase(cfg); } catch(e){ return null; }
+  }
+  try {
+    const { collection, getDocs } = window._fbFs;
+    const snap = await getDocs(collection(fb.db, FB_COLLECTIONS.cs_users));
+    const users = [];
+    snap.forEach(d => users.push(d.data()));
+    LS.s('od_cs_users', users); // cache lokal
+    const found = users.find(u =>
+      u.username === username && u.password === password && u.active !== false
+    );
+    return found || null;
+  } catch(e){ console.warn('cloud CS fetch fail:', e); return null; }
+};
+
+/* ═════════════════════════════════════════════
    FIREBASE / CLOUD SYNC (db module)
 ═════════════════════════════════════════════ */
 const FB_SDK_VERSION = '10.13.2';
 const FB_CDN = `https://www.gstatic.com/firebasejs/${FB_SDK_VERSION}`;
 const FB_COLLECTIONS = { cfg:'od_cfg', prods:'od_prods', leads:'od_leads', cs:'od_cs', cs_users:'od_cs_users' };
+
+/* ╔═══════════════════════════════════════════════════════════════╗
+   ║ FIREBASE CONFIG BAWAAN — auto-connect untuk semua user        ║
+   ║ Tanpa ini, setiap HP CS yg buka URL fresh gak akan kepull data║
+   ║ Edit dua nilai di bawah lalu deploy ulang ke Vercel.          ║
+   ╚═══════════════════════════════════════════════════════════════╝ */
+const DEFAULT_FB_CONFIG = {
+  apiKey: 'AIzaSyBs-_j02DnWXs6sCDr0J-VuYrQwaagMKSQ',
+  projectId: 'nonics-form-order'
+};
 
 let fb = {
   app:null, db:null, ready:false, configured:false,
@@ -2972,14 +3523,31 @@ let fb = {
   unsubs:[], lastLeadIds:new Set(), notifReady:false
 };
 
-function getFBConfig(){ return LS.g('od_fb_cfg', null); }
+function getFBConfig(){
+  // Prioritas: LS (override admin) → DEFAULT_FB_CONFIG (bake-in) → null
+  const ls = LS.g('od_fb_cfg', null);
+  if(ls && ls.apiKey && ls.projectId) return ls;
+  if(DEFAULT_FB_CONFIG.apiKey && DEFAULT_FB_CONFIG.projectId) return Object.assign({}, DEFAULT_FB_CONFIG);
+  return null;
+}
 
-async function loadFirebaseSDK(){
-  if(window.firebaseLoaded) return;
-  // Load modular SDK (app + firestore) via dynamic ESM import shim
-  await import(`${FB_CDN}/firebase-app.js`).then(m=>{ window._fbApp = m; });
-  await import(`${FB_CDN}/firebase-firestore.js`).then(m=>{ window._fbFs = m; });
-  window.firebaseLoaded = true;
+function loadFirebaseSDK(){
+  if(window.firebaseLoaded) return Promise.resolve();
+  // Pakai new Function biar dynamic import gak crash parser di browser lama.
+  // Function constructor evaluates string saat dipanggil, bukan saat script load.
+  var doImport;
+  try {
+    doImport = new Function('u', 'return import(u)');
+  } catch(e){
+    return Promise.reject(new Error('Browser tidak support dynamic import: ' + e.message));
+  }
+  return doImport(FB_CDN + '/firebase-app.js').then(function(m){
+    window._fbApp = m;
+    return doImport(FB_CDN + '/firebase-firestore.js');
+  }).then(function(m){
+    window._fbFs = m;
+    window.firebaseLoaded = true;
+  });
 }
 
 async function initFirebase(cfg){
@@ -3003,20 +3571,59 @@ async function testFirebase(){
     el.innerHTML = `<div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:13px;color:#991b1b">⚠️ Isi API Key dan Project ID dulu</div>`;
     return;
   }
+  // Shortcut: kalau Cloud Sync udah aktif & projectId sama, langsung confirm
+  if(fb.configured && fb.projectId === projectId){
+    el.innerHTML = `<div style="background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:10px 14px;font-size:13px;color:#166534">✅ <strong>Cloud Sync udah aktif</strong> untuk project <code>${esc(projectId)}</code> — data sedang sync real-time. Gak perlu test ulang.</div>`;
+    return;
+  }
   el.innerHTML = `<div style="background:#dbeafe;border:1px solid #93c5fd;border-radius:8px;padding:10px 14px;font-size:13px;color:#1e40af">⏳ Testing koneksi ke Firestore...</div>`;
+
+  // Strategi 1: REST API (cepat, no SDK load)
+  let restOk = false, restMsg = '';
   try{
-    // Test via REST API (no SDK load needed)
     const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents?key=${apiKey}&pageSize=1`;
     const r = await fetch(url);
-    if(r.ok || r.status === 404){
-      el.innerHTML = `<div style="background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:10px 14px;font-size:13px;color:#166534">✅ Koneksi berhasil! Project <code>${esc(projectId)}</code> bisa diakses. Klik <strong>Save &amp; Enable</strong> untuk aktifkan sync.</div>`;
-    } else {
+    if(r.ok || r.status === 404){ restOk = true; }
+    else {
       const data = await r.json().catch(()=>({}));
-      const msg = (data.error && data.error.message) || ('HTTP '+r.status);
-      el.innerHTML = `<div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:13px;color:#991b1b">❌ Gagal konek: ${esc(msg)}<br/><span style="font-size:12px">Pastikan API Key &amp; Project ID benar, dan Firestore sudah enable di console.</span></div>`;
+      restMsg = (data.error && data.error.message) || ('HTTP '+r.status);
     }
   } catch(e){
-    el.innerHTML = `<div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:13px;color:#991b1b">❌ Error: ${esc(e.message)}</div>`;
+    restMsg = e.message || String(e);
+  }
+
+  if(restOk){
+    el.innerHTML = `<div style="background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:10px 14px;font-size:13px;color:#166534">✅ Koneksi berhasil! Project <code>${esc(projectId)}</code> bisa diakses. Klik <strong>Save &amp; Enable</strong> untuk aktifkan sync.</div>`;
+    return;
+  }
+
+  // Strategi 2: REST gagal — coba SDK (mungkin ad-blocker block REST tapi SDK pakai WebChannel)
+  el.innerHTML = `<div style="background:#dbeafe;border:1px solid #93c5fd;border-radius:8px;padding:10px 14px;font-size:13px;color:#1e40af">⏳ REST API gagal, coba via SDK...</div>`;
+  try{
+    await loadFirebaseSDK();
+    const { initializeApp, getApps, getApp, deleteApp } = window._fbApp;
+    const { getFirestore, doc, getDoc } = window._fbFs;
+    // Gunakan nama app sementara biar gak conflict dengan session aktif
+    const tempName = '_test_'+Date.now();
+    const tempApp = initializeApp({apiKey, projectId, authDomain: projectId+'.firebaseapp.com'}, tempName);
+    const tempDb = getFirestore(tempApp);
+    await getDoc(doc(tempDb, 'od_cfg', 'main'));
+    el.innerHTML = `<div style="background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:10px 14px;font-size:13px;color:#166534">✅ Koneksi <strong>berhasil via SDK</strong>! Project <code>${esc(projectId)}</code> bisa diakses.<br/><span style="font-size:12px;color:#15803d">ℹ️ REST API ke-block (kemungkinan ad-blocker / privacy extension), tapi SDK jalan normal — Cloud Sync bakal tetap work. Klik <strong>Save &amp; Enable</strong> untuk lanjut.</span></div>`;
+    try { await deleteApp(tempApp); } catch(e){}
+  } catch(e2){
+    // Dua-duanya gagal — kasih hint diagnostik lengkap
+    const errMsg = restMsg || (e2.message||String(e2));
+    const isBlocked = /Failed to fetch|network|aborted|blocked/i.test(errMsg);
+    el.innerHTML = `<div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;padding:12px 14px;font-size:13px;color:#991b1b">
+      ❌ <strong>Gagal konek:</strong> ${esc(errMsg)}<br/><br/>
+      <span style="font-size:12px;line-height:1.7">
+      <strong>Cek satu-satu:</strong><br/>
+      ${isBlocked ? '• ⚠️ Kemungkinan besar <strong>ad-blocker / privacy extension</strong> (uBlock, Brave Shields, AdGuard, Privacy Badger) nge-block <code>googleapis.com</code>. Disable sementara atau coba browser lain (incognito juga sering mempan).<br/>':''}
+      • API Key dan Project ID udah bener? Cek lagi di Firebase Console → Project settings<br/>
+      • Firestore Database udah <strong>enable</strong>? Cek di Firebase Console → Build → Firestore Database<br/>
+      • Firestore Rules udah <strong>allow read/write</strong>? Default test mode expired setelah 30 hari
+      </span>
+    </div>`;
   }
 }
 
@@ -3074,6 +3681,16 @@ function initCloudPanel(){
   if(cfg){
     document.getElementById('fbApiKey').value = cfg.apiKey || '';
     document.getElementById('fbProjectId').value = cfg.projectId || '';
+  }
+  // Auto-clear stale error/result kalau Cloud Sync udah aktif
+  const resEl = document.getElementById('fbTestResult');
+  if(resEl && fb.configured){
+    resEl.style.display = 'block';
+    resEl.innerHTML = `<div style="background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:10px 14px;font-size:13px;color:#166534">✅ <strong>Cloud Sync sedang aktif</strong> untuk project <code>${esc(cfg.projectId)}</code> — data sync real-time. Tombol Test Connection cuma buat first-time setup, gak perlu lo klik kalau status sudah ijo.</div>`;
+  } else if(resEl){
+    // Clear any stale error if not configured
+    resEl.style.display = 'none';
+    resEl.innerHTML = '';
   }
   refreshCloudPanelUI();
 }
