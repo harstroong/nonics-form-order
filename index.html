@@ -737,6 +737,77 @@ tr:hover td{background:#fafbff}
 }
 
 /* ═══════════════════════════════════════════
+   QUICK REPLY TEMPLATES
+═══════════════════════════════════════════ */
+/* CS view: tombol-tombol quick reply di lead card */
+.qr-row{
+  display:flex;flex-wrap:wrap;gap:6px;
+  margin-top:10px;padding-top:10px;
+  border-top:1px dashed var(--border);
+}
+.qr-row-label{
+  font-size:11px;font-weight:700;color:var(--text-muted);
+  text-transform:uppercase;letter-spacing:.4px;
+  width:100%;margin-bottom:2px;display:flex;align-items:center;gap:6px;
+}
+.qr-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  background:linear-gradient(135deg,#f0fdf4,#ecfdf5);
+  border:1px solid #86efac;color:#166534;
+  border-radius:50px;padding:7px 14px;
+  font-size:12px;font-weight:600;cursor:pointer;
+  font-family:inherit;transition:all .15s;
+}
+.qr-btn:hover{
+  background:linear-gradient(135deg,#dcfce7,#d1fae5);
+  border-color:#22c55e;transform:translateY(-1px);
+  box-shadow:0 2px 6px rgba(34,197,94,.2);
+}
+.qr-btn:active{transform:translateY(0)}
+.qr-btn-icon{font-size:14px;line-height:1}
+
+/* Admin panel: list template */
+.qr-card{
+  background:#fff;border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:14px 16px;
+  margin-bottom:10px;
+  display:flex;gap:12px;align-items:flex-start;
+}
+.qr-card.inactive{opacity:.55;background:#f9fafb}
+.qr-card-icon{
+  width:40px;height:40px;border-radius:10px;flex-shrink:0;
+  background:linear-gradient(135deg,#10b981,#059669);
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+}
+.qr-card-body{flex:1;min-width:0}
+.qr-card-title-row{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:4px;flex-wrap:wrap;
+}
+.qr-card-title{font-size:14px;font-weight:700;color:var(--text)}
+.qr-card-preview{
+  font-size:12px;color:var(--text-muted);line-height:1.5;
+  white-space:pre-wrap;
+  max-height:60px;overflow:hidden;
+  background:#f7f8fc;padding:8px 12px;
+  border-radius:6px;
+  font-family:'Cascadia Code',Consolas,monospace;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;
+}
+.qr-card-actions{display:flex;gap:6px;flex-shrink:0;align-items:flex-start}
+
+/* Variable chips di hint */
+.var-chip{
+  display:inline-block;
+  background:var(--primary-light);color:var(--primary);
+  padding:2px 8px;border-radius:4px;font-size:11px;
+  font-family:monospace;margin:2px;
+  cursor:pointer;transition:all .15s;
+}
+.var-chip:hover{background:var(--primary);color:#fff}
+
+/* ═══════════════════════════════════════════
    POWERED BY HARSTROONG
 ═══════════════════════════════════════════ */
 .powered-by{
@@ -767,7 +838,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-05-26-cs-mobile-cleanup';
+window.__APP_VERSION = '2026-05-26-quick-reply';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -1173,6 +1244,9 @@ document.addEventListener('DOMContentLoaded', function(){
       </button>
       <button class="sb-item" onclick="showPanel('csaccess')">
         <span class="sb-icon">🔐</span> Akses Login CS
+      </button>
+      <button class="sb-item" onclick="showPanel('quickreply')">
+        <span class="sb-icon">💬</span> Quick Reply
       </button>
 
       <div class="sb-section">Integrasi</div>
@@ -1656,6 +1730,69 @@ document.addEventListener('DOMContentLoaded', function(){
         </div>
       </div>
 
+      <!-- ── QUICK REPLY TEMPLATES ── -->
+      <div class="panel" id="panel-quickreply">
+        <div class="card">
+          <div class="card-title">💬 Quick Reply Templates</div>
+          <div class="card-sub">
+            Bikin template pesan siap-pakai untuk CS. Pas ada lead masuk, CS tinggal klik tombol — langsung buka WhatsApp dengan pesan udah ke-isi otomatis (nama, produk, alamat lead di-substitute dari variabel).
+            <br/><strong>Cuma admin yang bisa edit.</strong> CS cuma bisa pakai.
+          </div>
+
+          <!-- Form tambah/edit -->
+          <div style="background:var(--bg);border-radius:var(--radius-sm);padding:16px;margin-bottom:16px">
+            <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text)" id="qrFormTitle">➕ Tambah Template Baru</div>
+            <input type="hidden" id="editQRId"/>
+            <div class="form-row">
+              <div class="form-group" style="margin-bottom:12px">
+                <label class="label">Emoji / Icon</label>
+                <input class="input" id="qrIcon" type="text" maxlength="4" placeholder="👋" style="max-width:80px;text-align:center;font-size:20px"/>
+                <div class="hint">Satu emoji buat tombol</div>
+              </div>
+              <div class="form-group" style="margin-bottom:12px">
+                <label class="label">Nama Template *</label>
+                <input class="input" id="qrLabel" type="text" placeholder="Sapaan Awal"/>
+                <div class="hint">Muncul di tombol CS</div>
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:8px">
+              <label class="label">Isi Pesan *</label>
+              <textarea class="input" id="qrContent" rows="6" style="font-family:monospace;font-size:13px;line-height:1.6" placeholder="Halo kak {nama}, terima kasih sudah pesan {produk} di {toko}..."></textarea>
+            </div>
+            <div class="hint" style="margin-bottom:12px;line-height:2">
+              <strong>Variabel yang bisa dipakai (klik untuk insert):</strong><br/>
+              <span class="var-chip" onclick="insertQRVar('{nama}')">{nama}</span>
+              <span class="var-chip" onclick="insertQRVar('{wa}')">{wa}</span>
+              <span class="var-chip" onclick="insertQRVar('{produk}')">{produk}</span>
+              <span class="var-chip" onclick="insertQRVar('{toko}')">{toko}</span>
+              <span class="var-chip" onclick="insertQRVar('{csName}')">{csName}</span>
+              <span class="var-chip" onclick="insertQRVar('{alamat}')">{alamat}</span>
+              <span class="var-chip" onclick="insertQRVar('{kota}')">{kota}</span>
+              <span class="var-chip" onclick="insertQRVar('{kecamatan}')">{kecamatan}</span>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn btn-primary btn-sm" onclick="saveQRTemplate()">💾 Simpan Template</button>
+              <button class="btn btn-outline btn-sm" onclick="cancelQREdit()" id="cancelQRBtn" style="display:none">Batal</button>
+              <button class="btn btn-outline btn-sm" onclick="seedDefaultQRTemplates()" id="seedQRBtn" style="margin-left:auto">📦 Reset ke Template Default</button>
+            </div>
+          </div>
+
+          <!-- List template -->
+          <div id="qrList"></div>
+        </div>
+
+        <div class="card" style="background:#eff6ff;border:1px solid #bfdbfe">
+          <div class="card-title" style="color:#1e40af">💡 Tips</div>
+          <ul style="font-size:13px;color:#1e3a8a;line-height:2;padding-left:22px;margin-bottom:0">
+            <li>Variabel <code>{csName}</code> = nama CS yang lagi login (bukan admin)</li>
+            <li>Bisa kombinasi multiple variabel: <code>"Halo kak {nama}, pesanan {produk} senilai {kota}..."</code></li>
+            <li>Kalau lead gak punya field tertentu (mis: alamat kosong), variabel-nya jadi <code>-</code></li>
+            <li>Template yang di-Nonaktifkan tetep tersimpan tapi gak muncul di CS</li>
+            <li>Urutan template di list = urutan tombol yang CS lihat (drag-drop coming soon)</li>
+          </ul>
+        </div>
+      </div>
+
       <!-- ── GTM TRACKING ── -->
       <div class="panel" id="panel-gtm">
         <div class="card">
@@ -2098,6 +2235,7 @@ const panelTitles={
   overview:'📊 Overview',leads:'👥 Leads',produk:'📦 Produk',
   form:'📋 Form Builder',cs:'💬 CS & Greeting',
   csaccess:'🔐 Akses Login CS',
+  quickreply:'💬 Quick Reply Templates',
   gtm:'📈 GTM Tracking',embed:'🔗 Embed HTML',
   cloud:'☁️ Cloud Sync',settings:'⚙️ Pengaturan'
 };
@@ -2120,6 +2258,7 @@ function showPanel(name){
   else if(name==='form')initFormPanel();
   else if(name==='cs')initCSPanel();
   else if(name==='csaccess')initCSAccessPanel();
+  else if(name==='quickreply')initQRPanel();
   else if(name==='gtm')initGTMPanel();
   else if(name==='embed')renderEmbedCodes();
   else if(name==='cloud')initCloudPanel();
@@ -3444,6 +3583,23 @@ function csLeadCard(l){
       <button class="btn btn-outline btn-sm" onclick="setLeadStatus('${l.id}','pending')">🔴 Reset</button>
       <button class="btn btn-outline btn-sm" onclick="editLeadNote('${l.id}')">📝 ${l.followNotes?'Edit':'Tambah'} Catatan</button>
     </div>
+    ${renderQRButtonsForLead(l)}
+  </div>`;
+}
+
+function renderQRButtonsForLead(lead){
+  const templates = getQRTemplates().filter(t => t.active !== false);
+  templates.sort((a,b) => (a.order||0) - (b.order||0));
+  if(!templates.length) return '';
+  const buttons = templates.map(t =>
+    `<button class="qr-btn" onclick="sendQRToLead(${t.id}, '${lead.id}')" title="${esc(t.label)}">
+      <span class="qr-btn-icon">${esc(t.icon || '💬')}</span>
+      <span>${esc(t.label)}</span>
+    </button>`
+  ).join('');
+  return `<div class="qr-row">
+    <div class="qr-row-label">⚡ Quick Reply</div>
+    ${buttons}
   </div>`;
 }
 
@@ -3533,7 +3689,7 @@ window.__fetchAndLoginCS = async function(username, password){
 ═════════════════════════════════════════════ */
 const FB_SDK_VERSION = '10.13.2';
 const FB_CDN = `https://www.gstatic.com/firebasejs/${FB_SDK_VERSION}`;
-const FB_COLLECTIONS = { cfg:'od_cfg', prods:'od_prods', leads:'od_leads', cs:'od_cs', cs_users:'od_cs_users' };
+const FB_COLLECTIONS = { cfg:'od_cfg', prods:'od_prods', leads:'od_leads', cs:'od_cs', cs_users:'od_cs_users', qr_templates:'od_qr_templates' };
 
 /* ╔═══════════════════════════════════════════════════════════════╗
    ║ FIREBASE CONFIG BAWAAN — auto-connect untuk semua user        ║
@@ -3806,7 +3962,7 @@ function subscribeAllCollections(){
 
   // Other collections
   const collMap = {
-    prods:'od_prods', leads:'od_leads', cs:'od_cs', cs_users:'od_cs_users'
+    prods:'od_prods', leads:'od_leads', cs:'od_cs', cs_users:'od_cs_users', qr_templates:'od_qr_templates'
   };
   Object.keys(collMap).forEach(name=>{
     const ref = collection(fb.db, FB_COLLECTIONS[name]);
@@ -3852,6 +4008,11 @@ function onRemoteUpdate(name, arr){
     if(activePanel==='csaccess') renderCSUserProfileOptions();
   }
   if(name==='cs_users' && activePanel==='csaccess') renderCSUserList();
+  if(name==='qr_templates'){
+    if(activePanel==='quickreply') renderQRList();
+    // Refresh CS view buat re-render tombol QR
+    if(currentCSUser && document.getElementById('viewCS').style.display==='flex') renderCSLeads();
+  }
 }
 
 /* ── Sync writes (per-doc, granular) ── */
@@ -3952,7 +4113,7 @@ async function ensureCloudHasLocalData(){
   } catch(e){ console.warn('cfg check fail', e); }
 
   // Multi-doc collections
-  const collMap = { prods:'od_prods', leads:'od_leads', cs:'od_cs', cs_users:'od_cs_users' };
+  const collMap = { prods:'od_prods', leads:'od_leads', cs:'od_cs', cs_users:'od_cs_users', qr_templates:'od_qr_templates' };
   for(const name of Object.keys(collMap)){
     try {
       const snap = await getDocs(collection(fb.db, FB_COLLECTIONS[name]));
@@ -3992,6 +4153,7 @@ async function manualMigration(silent){
   getLeads().forEach(l=> tasks.push(dbWriteDoc(FB_COLLECTIONS.leads, l.id, l)));
   getCSList().forEach(c=> tasks.push(dbWriteDoc(FB_COLLECTIONS.cs, c.id, c)));
   getCSUsers().forEach(u=> tasks.push(dbWriteDoc(FB_COLLECTIONS.cs_users, u.id, u)));
+  getQRTemplates().forEach(t=> tasks.push(dbWriteDoc(FB_COLLECTIONS.qr_templates, t.id, t)));
   await Promise.all(tasks);
   setMigrationStatus(`✅ Force-upload selesai. Total: ${tasks.length} record diupload (semua koleksi ditimpa di cloud).`);
   if(!silent) toast('✅ Data lokal berhasil di-upload ulang ke cloud!');
@@ -4011,7 +4173,7 @@ async function checkCloudData(){
     result.cfg = 'error';
     errors.push('cfg: ['+(e.code||'?')+'] '+(e.message||String(e)).slice(0,140));
   }
-  const collMap = { prods:'od_prods', leads:'od_leads', cs:'od_cs', cs_users:'od_cs_users' };
+  const collMap = { prods:'od_prods', leads:'od_leads', cs:'od_cs', cs_users:'od_cs_users', qr_templates:'od_qr_templates' };
   for(const name of Object.keys(collMap)){
     try {
       const snap = await getDocs(collection(fb.db, FB_COLLECTIONS[name]));
@@ -4024,7 +4186,8 @@ async function checkCloudData(){
   const localCounts = {
     cfg: LS.g('od_cfg', null) ? 1 : 0,
     prods: getProds().length, leads: getLeads().length,
-    cs: getCSList().length, cs_users: getCSUsers().length
+    cs: getCSList().length, cs_users: getCSUsers().length,
+    qr_templates: getQRTemplates().length
   };
   const lines = Object.keys(result).map(k => {
     const cloud = result[k], local = localCounts[k];
@@ -4118,6 +4281,262 @@ function flashTitle(flashText){
   const stop = ()=>{ clearInterval(_titleFlashTimer); if(_origTitle){document.title=_origTitle;_origTitle=null;} window.removeEventListener('focus', stop); };
   window.addEventListener('focus', stop, {once:true});
 }
+
+/* ═════════════════════════════════════════════
+   QUICK REPLY TEMPLATES (admin CRUD + CS apply)
+═════════════════════════════════════════════ */
+const DEF_QR_TEMPLATES = [
+  { id: 1, icon: '👋', label: 'Sapaan Awal', active: true, order: 0, content:
+`Halo kak {nama} 👋
+
+Terima kasih sudah isi form untuk *{produk}* di *{toko}*.
+Saya {csName} dari tim CS, siap bantu proses pesanannya ya 🙏
+
+Boleh saya konfirmasi datanya sebentar?` },
+  { id: 2, icon: '📦', label: 'Konfirmasi Order', active: true, order: 1, content:
+`Baik kak {nama}, saya konfirmasi pesanannya ya:
+
+📦 Produk: {produk}
+👤 Nama: {nama}
+📱 No WA: {wa}
+📍 Alamat: {alamat}, {kota}, {kecamatan}
+
+Mohon dicek dulu kak, kalau sudah benar saya lanjutkan ke proses pembayaran 🙏` },
+  { id: 3, icon: '💰', label: 'Info Pembayaran', active: true, order: 2, content:
+`Untuk pembayaran kak {nama}, silahkan transfer ke:
+
+🏦 BCA: 1234567890
+👤 a.n. Nama Pemilik
+
+Setelah transfer, mohon kirim foto bukti transfernya ya kak. Pesanan langsung kami proses & kirim resi pengiriman ke kakak 📦` },
+  { id: 4, icon: '🔔', label: 'Follow-up 1', active: true, order: 3, content:
+`Halo kak {nama},
+
+Mau cek nih pesanan *{produk}* yang kemarin, masih jadi kak? 😊
+Kalau ada yang mau ditanyakan, saya siap bantu ya.` },
+  { id: 5, icon: '⏰', label: 'Follow-up 2 (Reminder)', active: true, order: 4, content:
+`Permisi kak {nama} 🙏
+
+Ini reminder terakhir untuk pesanan *{produk}*.
+Kalau masih minat, langsung balas pesan ini ya. Kalau memang sudah tidak minat, gak apa-apa kak — kami arsipkan dulu.` },
+  { id: 6, icon: '✅', label: 'Closing / Order Selesai', active: true, order: 5, content:
+`Sudah saya proses pesanan kak {nama} ya 🎉
+Untuk update pengiriman, saya kirim resi nanti ke chat ini.
+
+Terima kasih sudah belanja di *{toko}*, salam hangat 🙏` },
+  { id: 7, icon: '❌', label: 'Tidak Respon', active: true, order: 6, content:
+`Halo kak {nama},
+
+Karena belum ada respon dari kakak, pesanan *{produk}* kami arsipkan dulu ya. Kalau lain waktu mau order lagi, langsung chat kami ya kak 🙏
+
+Salam dari tim {toko}.` },
+];
+
+const getQRTemplates = () => {
+  const list = LS.g('od_qr_templates', null);
+  if(list && Array.isArray(list)) return list;
+  // First-time: seed dengan default
+  LS.s('od_qr_templates', DEF_QR_TEMPLATES);
+  return DEF_QR_TEMPLATES.slice();
+};
+
+let editQRId = null;
+
+function initQRPanel(){
+  // Pastikan ada default kalau belum ada
+  if(!LS.g('od_qr_templates', null)){
+    LS.s('od_qr_templates', DEF_QR_TEMPLATES);
+    DEF_QR_TEMPLATES.forEach(t => syncQRSave(t));
+  }
+  renderQRList();
+  cancelQREdit();
+}
+
+function renderQRList(){
+  const list = getQRTemplates();
+  const el = document.getElementById('qrList');
+  if(!el) return;
+  if(!list.length){
+    el.innerHTML = `<div class="empty"><div class="empty-icon">💬</div><div class="empty-title">Belum ada template</div><div class="empty-sub">Bikin template pertama di form di atas, atau klik "Reset ke Template Default"</div></div>`;
+    return;
+  }
+  // Sort by order
+  list.sort((a,b) => (a.order||0) - (b.order||0));
+  el.innerHTML = list.map((t, idx) => {
+    const inactive = t.active === false;
+    return `<div class="qr-card ${inactive?'inactive':''}">
+      <div class="qr-card-icon">${esc(t.icon || '💬')}</div>
+      <div class="qr-card-body">
+        <div class="qr-card-title-row">
+          <div class="qr-card-title">${esc(t.label || 'Untitled')}</div>
+          ${inactive ? '<span class="badge badge-orange">Nonaktif</span>' : '<span class="badge badge-green">Aktif</span>'}
+        </div>
+        <div class="qr-card-preview">${esc(t.content || '')}</div>
+      </div>
+      <div class="qr-card-actions">
+        <button class="btn btn-outline btn-sm" onclick="toggleQRTemplate(${t.id})" title="${inactive?'Aktifkan':'Nonaktifkan'}">${inactive?'✅':'🔒'}</button>
+        <button class="btn btn-icon btn-sm" onclick="editQRTemplate(${t.id})" title="Edit">✏️</button>
+        <button class="btn btn-icon btn-sm" onclick="moveQRUp(${t.id})" title="Pindah ke atas" ${idx===0?'disabled':''}>⬆️</button>
+        <button class="btn btn-icon btn-sm" onclick="moveQRDown(${t.id})" title="Pindah ke bawah" ${idx===list.length-1?'disabled':''}>⬇️</button>
+        <button class="btn btn-icon btn-sm" onclick="deleteQRTemplate(${t.id})" title="Hapus">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function saveQRTemplate(){
+  const icon = (document.getElementById('qrIcon').value || '💬').trim().slice(0, 4) || '💬';
+  const label = document.getElementById('qrLabel').value.trim();
+  const content = document.getElementById('qrContent').value.trim();
+  if(!label){ toast('⚠️ Nama template wajib diisi'); return; }
+  if(!content){ toast('⚠️ Isi pesan wajib diisi'); return; }
+  const list = getQRTemplates();
+  let saved;
+  if(editQRId){
+    const i = list.findIndex(t => t.id === editQRId);
+    if(i > -1){ list[i] = { ...list[i], icon, label, content }; saved = list[i]; }
+  } else {
+    const maxOrder = list.reduce((m, t) => Math.max(m, t.order || 0), -1);
+    saved = { id: Date.now(), icon, label, content, active: true, order: maxOrder + 1 };
+    list.push(saved);
+  }
+  LS.s('od_qr_templates', list);
+  if(saved) syncQRSave(saved);
+  cancelQREdit();
+  renderQRList();
+  toast('✅ Template tersimpan!');
+}
+
+function editQRTemplate(id){
+  const t = getQRTemplates().find(x => x.id === id);
+  if(!t) return;
+  editQRId = id;
+  document.getElementById('qrIcon').value = t.icon || '';
+  document.getElementById('qrLabel').value = t.label || '';
+  document.getElementById('qrContent').value = t.content || '';
+  document.getElementById('qrFormTitle').textContent = `✏️ Edit: ${t.label}`;
+  document.getElementById('cancelQRBtn').style.display = 'inline-flex';
+  document.getElementById('qrLabel').focus();
+  document.getElementById('panel-quickreply').scrollIntoView({behavior:'smooth'});
+}
+
+function cancelQREdit(){
+  editQRId = null;
+  const fIcon = document.getElementById('qrIcon');
+  const fLabel = document.getElementById('qrLabel');
+  const fContent = document.getElementById('qrContent');
+  if(fIcon) fIcon.value = '';
+  if(fLabel) fLabel.value = '';
+  if(fContent) fContent.value = '';
+  const ft = document.getElementById('qrFormTitle');
+  if(ft) ft.textContent = '➕ Tambah Template Baru';
+  const cb = document.getElementById('cancelQRBtn');
+  if(cb) cb.style.display = 'none';
+}
+
+function toggleQRTemplate(id){
+  const list = getQRTemplates();
+  const i = list.findIndex(t => t.id === id);
+  if(i < 0) return;
+  list[i].active = !(list[i].active !== false);
+  LS.s('od_qr_templates', list);
+  syncQRSave(list[i]);
+  renderQRList();
+  toast(list[i].active ? '✅ Template diaktifkan' : '🔒 Template dinonaktifkan');
+}
+
+function deleteQRTemplate(id){
+  const t = getQRTemplates().find(x => x.id === id);
+  if(!t) return;
+  if(!confirm(`Hapus template "${t.label}"?\n\nGak bisa di-undo. Kalau cuma mau sembunyiin sementara, pakai tombol 🔒 Nonaktifkan.`)) return;
+  LS.s('od_qr_templates', getQRTemplates().filter(x => x.id !== id));
+  syncQRDelete(id);
+  renderQRList();
+  toast('🗑️ Template dihapus');
+}
+
+function moveQRUp(id){
+  const list = getQRTemplates();
+  list.sort((a,b) => (a.order||0) - (b.order||0));
+  const i = list.findIndex(t => t.id === id);
+  if(i <= 0) return;
+  const tmp = list[i].order || i;
+  list[i].order = list[i-1].order || (i-1);
+  list[i-1].order = tmp;
+  LS.s('od_qr_templates', list);
+  syncQRSave(list[i]); syncQRSave(list[i-1]);
+  renderQRList();
+}
+
+function moveQRDown(id){
+  const list = getQRTemplates();
+  list.sort((a,b) => (a.order||0) - (b.order||0));
+  const i = list.findIndex(t => t.id === id);
+  if(i < 0 || i >= list.length - 1) return;
+  const tmp = list[i].order || i;
+  list[i].order = list[i+1].order || (i+1);
+  list[i+1].order = tmp;
+  LS.s('od_qr_templates', list);
+  syncQRSave(list[i]); syncQRSave(list[i+1]);
+  renderQRList();
+}
+
+function insertQRVar(varName){
+  const ta = document.getElementById('qrContent');
+  if(!ta) return;
+  const start = ta.selectionStart || 0;
+  const end = ta.selectionEnd || 0;
+  const v = ta.value;
+  ta.value = v.slice(0, start) + varName + v.slice(end);
+  ta.focus();
+  ta.selectionStart = ta.selectionEnd = start + varName.length;
+}
+
+function seedDefaultQRTemplates(){
+  if(!confirm('Reset ke template default?\n\n7 template bawaan (Sapaan, Konfirmasi, Bayar, FU1, FU2, Closing, Tidak Respon) akan menggantikan semua template yang ada.')) return;
+  LS.s('od_qr_templates', DEF_QR_TEMPLATES.slice());
+  DEF_QR_TEMPLATES.forEach(t => syncQRSave(t));
+  renderQRList();
+  toast('✅ Template di-reset ke default');
+}
+
+/* ── Apply template: substitute variabel + buka wa.me ── */
+function applyQRTemplate(template, lead){
+  const cfg = getCfg();
+  const cs = currentCSUser ? getCSList().find(c => c.id === currentCSUser.csId) : null;
+  const csName = cs ? cs.name : (currentCSUser ? currentCSUser.username : 'CS');
+  const vars = {
+    nama: lead.nama || '-',
+    wa: lead.wa || '-',
+    produk: lead.produk || '-',
+    toko: cfg.storeName || 'Toko Kami',
+    csName: csName,
+    alamat: lead.alamat || '-',
+    kota: lead.kota || '-',
+    kecamatan: lead.kecamatan || '-'
+  };
+  let msg = template.content || '';
+  Object.keys(vars).forEach(k => {
+    msg = msg.replace(new RegExp('\\{' + k + '\\}', 'g'), vars[k]);
+  });
+  return msg;
+}
+
+function sendQRToLead(qrId, leadId){
+  const t = getQRTemplates().find(x => x.id === qrId);
+  if(!t){ toast('⚠️ Template tidak ditemukan'); return; }
+  const lead = getLeads().find(l => l.id === leadId);
+  if(!lead){ toast('⚠️ Lead tidak ditemukan'); return; }
+  const msg = applyQRTemplate(t, lead);
+  const waNum = (lead.wa || '').replace(/\D/g, '');
+  if(!waNum){ toast('⚠️ Nomor WA lead kosong'); return; }
+  const url = 'https://wa.me/' + waNum + '?text=' + encodeURIComponent(msg);
+  window.open(url, '_blank');
+}
+
+/* ── Sync ke cloud ── */
+function syncQRSave(t){ if(fb.configured) dbWriteDoc('od_qr_templates', t.id, t); }
+function syncQRDelete(id){ if(fb.configured) dbDeleteDoc('od_qr_templates', id); }
 
 /* ═════════════════════════════════════════════
    DATE RANGE FILTER (Overview / Leads / CS view)
