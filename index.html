@@ -879,7 +879,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-05-27-session-persist';
+window.__APP_VERSION = '2026-05-27-cs-prod-filter';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -2181,6 +2181,15 @@ document.addEventListener('DOMContentLoaded', function(){
           <input type="date" class="dfb-date" id="csDateEnd" onchange="onDateFilterChange('cs')"/>
         </span>
         <span class="dfb-info" id="csDateInfo"></span>
+      </div>
+
+      <!-- Filter Produk untuk CS -->
+      <div class="date-filter-bar">
+        <span class="dfb-label">📦 Produk:</span>
+        <select class="dfb-select" id="csProdFilter" onchange="renderCSLeads()">
+          <option value="">Semua Produk</option>
+        </select>
+        <button class="btn btn-outline btn-sm" onclick="resetCSFilters()" style="margin-left:auto;padding:6px 12px;font-size:12px">🔄 Reset Filter</button>
       </div>
 
       <div class="cs-filter-tabs">
@@ -3602,7 +3611,37 @@ function initCSView(){
   if(dSel){ dSel.value = 'lifetime'; }
   const dC = document.getElementById('csDateCustom');
   if(dC) dC.classList.remove('show');
+  // Populate dropdown Produk berdasarkan produk yang assigned ke CS ini saja
+  const prodSel = document.getElementById('csProdFilter');
+  if(prodSel){
+    const cur = prodSel.value;
+    // Cari produk yang assigned ke CS ini (via csIds atau csId)
+    const myProds = getProds().filter(p => {
+      const ids = (p.csIds && p.csIds.length) ? p.csIds : (p.csId ? [p.csId] : []);
+      return ids.includes(currentCSUser.csId);
+    });
+    prodSel.innerHTML = '<option value="">Semua Produk</option>' +
+      myProds.map(p => {
+        const v = p.produkWA || p.name;
+        return `<option value="${esc(v)}">${esc(p.name)}</option>`;
+      }).join('');
+    if(cur && prodSel.querySelector(`option[value="${esc(cur)}"]`)) prodSel.value = cur;
+  }
   renderCSLeads();
+}
+
+function resetCSFilters(){
+  const pr = document.getElementById('csProdFilter'); if(pr) pr.value = '';
+  const dt = document.getElementById('csDateSel'); if(dt) dt.value = 'lifetime';
+  const dtc = document.getElementById('csDateCustom'); if(dtc) dtc.classList.remove('show');
+  const sr = document.getElementById('csLeadSearch'); if(sr) sr.value = '';
+  csLeadFilter = 'all';
+  ['all','pending','contacted','closed','no_response'].forEach(t=>{
+    const el = document.getElementById('csftab-'+t);
+    if(el) el.classList.toggle('active', t === 'all');
+  });
+  renderCSLeads();
+  toast('🔄 Filter direset');
 }
 
 function setCSFilter(f){
@@ -3637,9 +3676,13 @@ function renderCSLeads(){
   updateDateFilterInfo('cs', inRange.length, allMine.length);
 
   const q = (document.getElementById('csLeadSearch') || {}).value || '';
+  const prodFilter = (document.getElementById('csProdFilter') || {}).value || '';
   let leads = inRange.slice();
   if(csLeadFilter !== 'all'){
     leads = leads.filter(l => (l.followStatus || 'pending') === csLeadFilter);
+  }
+  if(prodFilter){
+    leads = leads.filter(l => (l.produk||'') === prodFilter);
   }
   if(q){
     const qq = q.toLowerCase();
@@ -3654,6 +3697,9 @@ function renderCSLeads(){
     } else if(!inRange.length){
       msg = 'Tidak ada lead di periode '+range.label;
       sub = 'Coba ganti periode di atas';
+    } else if(prodFilter){
+      msg = 'Tidak ada lead untuk produk ini';
+      sub = 'Coba ganti pilihan Produk, atau klik 🔄 Reset Filter';
     } else if(csLeadFilter !== 'all'){
       msg = 'Tidak ada lead di status ini';
       sub = 'Coba filter lain';
