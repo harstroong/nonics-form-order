@@ -879,7 +879,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-05-27-leads-cs-prod-filter';
+window.__APP_VERSION = '2026-05-27-hide-default-pass-hint';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -1191,7 +1191,6 @@ document.addEventListener('DOMContentLoaded', function(){
       <input class="login-input" id="loginPass" type="password" placeholder="Masukkan password..." autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="new-password"/>
       <div class="login-err" id="loginErr">Password salah. Coba lagi.</div>
       <button type="button" class="login-btn" onclick="__safeAdminLogin()">Masuk ke Dashboard →</button>
-      <div class="login-footer">Password default: <code style="color:rgba(255,255,255,.5)">admin123</code></div>
     </div>
 
     <!-- CS form (baru) -->
