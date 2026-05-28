@@ -879,7 +879,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-05-27-wa-norm-and-login-trim';
+window.__APP_VERSION = '2026-05-27-leads-cs-prod-filter';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -1436,6 +1436,19 @@ document.addEventListener('DOMContentLoaded', function(){
               <input type="date" class="dfb-date" id="leadsDateEnd" onchange="onDateFilterChange('leads')"/>
             </span>
             <span class="dfb-info" id="leadsDateInfo"></span>
+          </div>
+
+          <!-- Filter Tambahan: CS & Produk -->
+          <div class="date-filter-bar">
+            <span class="dfb-label">💬 CS:</span>
+            <select class="dfb-select" id="leadsCSFilter" onchange="renderLeads()">
+              <option value="">Semua CS</option>
+            </select>
+            <span class="dfb-label" style="margin-left:8px">📦 Produk:</span>
+            <select class="dfb-select" id="leadsProdFilter" onchange="renderLeads()">
+              <option value="">Semua Produk</option>
+            </select>
+            <button class="btn btn-outline btn-sm" onclick="resetLeadsFilter()" style="margin-left:auto;padding:6px 12px;font-size:12px">🔄 Reset Filter</button>
           </div>
           <!-- Search Filter -->
           <div style="margin-bottom:16px">
@@ -2297,7 +2310,7 @@ function showPanel(name){
   closeSidebar();
   // Panel-specific init
   if(name==='overview')renderOverview();
-  else if(name==='leads')renderLeads();
+  else if(name==='leads'){initLeadsPanel();renderLeads();}
   else if(name==='produk'){renderProdList();document.getElementById('prodListCard').style.display='block';document.getElementById('prodFormCard').style.display='none';}
   else if(name==='form')initFormPanel();
   else if(name==='cs')initCSPanel();
@@ -2396,20 +2409,65 @@ function leadStatusBadge(status){
   if(status==='no_response') return '<span class="badge" style="background:#fee2e2;color:#991b1b" title="Customer tidak respon">❌ Tidak Respon</span>';
   return '';
 }
+function initLeadsPanel(){
+  // Populate dropdown CS & Produk berdasarkan data sekarang (refresh tiap buka panel)
+  const csSel = document.getElementById('leadsCSFilter');
+  if(csSel){
+    const cur = csSel.value;
+    const csList = getCSList();
+    csSel.innerHTML = '<option value="">Semua CS</option>' +
+      csList.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+    if(cur && csSel.querySelector(`option[value="${cur}"]`)) csSel.value = cur;
+  }
+  const prodSel = document.getElementById('leadsProdFilter');
+  if(prodSel){
+    const cur = prodSel.value;
+    const prodList = getProds();
+    prodSel.innerHTML = '<option value="">Semua Produk</option>' +
+      prodList.map(p => {
+        const v = p.produkWA || p.name;
+        return `<option value="${esc(v)}">${esc(p.name)}</option>`;
+      }).join('');
+    if(cur && prodSel.querySelector(`option[value="${esc(cur)}"]`)) prodSel.value = cur;
+  }
+}
+
+function resetLeadsFilter(){
+  const cs = document.getElementById('leadsCSFilter'); if(cs) cs.value = '';
+  const pr = document.getElementById('leadsProdFilter'); if(pr) pr.value = '';
+  const dt = document.getElementById('leadsDateSel'); if(dt) dt.value = 'lifetime';
+  const dtc = document.getElementById('leadsDateCustom'); if(dtc) dtc.classList.remove('show');
+  const sr = document.getElementById('leadSearch'); if(sr) sr.value = '';
+  renderLeads();
+  toast('🔄 Filter direset');
+}
+
 function renderLeads(){
   const q=(document.getElementById('leadSearch')||{}).value||'';
+  const csFilter = (document.getElementById('leadsCSFilter')||{}).value || '';
+  const prodFilter = (document.getElementById('leadsProdFilter')||{}).value || '';
   const all = getLeads();
   const range = getDateFilterRange('leads');
   const inRange = filterLeadsByDate(all, range);
-  const leads = inRange.filter(l =>
+  let leads = inRange.filter(l =>
     !q || (l.nama||'').toLowerCase().includes(q.toLowerCase()) || (l.wa||'').includes(q)
   );
+  // CS filter (cocokin berdasarkan csId di lead)
+  if(csFilter){
+    const csIdNum = parseInt(csFilter, 10);
+    leads = leads.filter(l => l.csId === csIdNum || String(l.csId||'') === csFilter);
+  }
+  // Produk filter (cocokin berdasarkan nama produk yg tersimpan di lead.produk)
+  if(prodFilter){
+    leads = leads.filter(l => (l.produk||'') === prodFilter);
+  }
   updateDateFilterInfo('leads', inRange.length, all.length);
   const el=document.getElementById('leadsList');
   if(!leads.length){
     let title, sub;
     if(!all.length){ title='Belum ada leads'; sub='Belum ada yang mengisi form'; }
     else if(!inRange.length){ title='Tidak ada lead di periode '+range.label; sub='Coba ganti periode di atas'; }
+    else if(csFilter || prodFilter){ title='Tidak ada lead cocok filter'; sub='Coba ganti CS atau Produk, atau klik 🔄 Reset Filter'; }
     else { title='Tidak ada lead cocok'; sub='Coba kata kunci lain'; }
     el.innerHTML=`<div class="empty"><div class="empty-icon">👥</div><div class="empty-title">${title}</div><div class="empty-sub">${sub}</div></div>`;
     return;
