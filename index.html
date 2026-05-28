@@ -88,6 +88,20 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
   margin-bottom:14px;
 }
 .login-input::placeholder{color:rgba(255,255,255,.25)}
+/* Eye toggle (show/hide password) */
+.pass-wrap{position:relative;margin-bottom:14px}
+.pass-wrap .login-input{margin-bottom:0;padding-right:48px}
+.pass-eye{
+  position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;
+  width:36px;height:36px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;color:rgba(255,255,255,.6);
+  transition:background .15s,color .15s;
+  font-family:inherit;padding:0;
+}
+.pass-eye:hover{background:rgba(255,255,255,.08);color:#fff}
+.pass-eye:active{transform:translateY(-50%) scale(.95)}
 .login-input:focus{border-color:var(--sb-accent);background:rgba(255,255,255,.09)}
 .login-input.err{border-color:#ef4444}
 .login-err{font-size:12px;color:#fc8181;margin:-8px 0 12px;display:none}
@@ -879,7 +893,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-05-27-cs-prod-filter';
+window.__APP_VERSION = '2026-05-27-login-eye-fresh-fetch';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -940,6 +954,19 @@ function __resetAll(){
 }
 function __testJs(){
   alert('✅ JavaScript jalan!\n\ndoLogin defined: ' + (typeof window.doLogin === 'function') + '\nuserAgent: ' + navigator.userAgent.slice(0,80));
+}
+
+/* Toggle show/hide password — biar user bisa verifikasi visual */
+function __togglePass(fieldId, btn){
+  var el = document.getElementById(fieldId);
+  if(!el) return;
+  if(el.type === 'password'){
+    el.type = 'text';
+    if(btn) btn.textContent = '🙈';
+  } else {
+    el.type = 'password';
+    if(btn) btn.textContent = '👁';
+  }
 }
 
 /* ═════════════════════════════════════════════
@@ -1151,11 +1178,28 @@ document.addEventListener('DOMContentLoaded', function(){
       pw1.addEventListener('keydown', function(ev){
         if(ev.key === 'Enter' || ev.keyCode === 13){ __safeAdminLogin(); }
       }, false);
+      // Auto-clear field saat fokus lagi setelah error — cegah autofill nyangkut
+      pw1.addEventListener('focus', function(){
+        if(this.classList.contains('err')){
+          this.value = '';
+          this.classList.remove('err');
+          var er = document.getElementById('loginErr');
+          if(er) er.classList.remove('show');
+        }
+      }, false);
     }
     var pw2 = document.getElementById('loginCSPass');
     if(pw2){
       pw2.addEventListener('keydown', function(ev){
         if(ev.key === 'Enter' || ev.keyCode === 13){ __safeCSLogin(); }
+      }, false);
+      pw2.addEventListener('focus', function(){
+        if(this.classList.contains('err')){
+          this.value = '';
+          this.classList.remove('err');
+          var er = document.getElementById('loginCSErr');
+          if(er) er.classList.remove('show');
+        }
       }, false);
     }
     var u2 = document.getElementById('loginCSUser');
@@ -1163,6 +1207,12 @@ document.addEventListener('DOMContentLoaded', function(){
       u2.addEventListener('keydown', function(ev){
         if(ev.key === 'Enter' || ev.keyCode === 13){
           if(pw2) pw2.focus();
+        }
+      }, false);
+      u2.addEventListener('focus', function(){
+        if(this.classList.contains('err')){
+          this.value = '';
+          this.classList.remove('err');
         }
       }, false);
     }
@@ -1192,7 +1242,10 @@ document.addEventListener('DOMContentLoaded', function(){
     <!-- Admin form (original) -->
     <div id="loginAdminForm">
       <label class="login-label">Password Admin</label>
-      <input class="login-input" id="loginPass" type="password" placeholder="Masukkan password..." autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="new-password"/>
+      <div class="pass-wrap">
+        <input class="login-input" id="loginPass" type="password" placeholder="Masukkan password..." autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="new-password"/>
+        <button type="button" class="pass-eye" onclick="__togglePass('loginPass', this)" title="Lihat password">👁</button>
+      </div>
       <div class="login-err" id="loginErr">Password salah. Coba lagi.</div>
       <button type="button" class="login-btn" onclick="__safeAdminLogin()">Masuk ke Dashboard →</button>
     </div>
@@ -1202,7 +1255,10 @@ document.addEventListener('DOMContentLoaded', function(){
       <label class="login-label">Username CS</label>
       <input class="login-input" id="loginCSUser" type="text" placeholder="Contoh: sari, budi" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="email"/>
       <label class="login-label">Password</label>
-      <input class="login-input" id="loginCSPass" type="password" placeholder="Password CS..." autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false"/>
+      <div class="pass-wrap">
+        <input class="login-input" id="loginCSPass" type="password" placeholder="Password CS..." autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false"/>
+        <button type="button" class="pass-eye" onclick="__togglePass('loginCSPass', this)" title="Lihat password">👁</button>
+      </div>
       <div class="login-err" id="loginCSErr">Username atau password salah, atau akun belum aktif.</div>
       <button type="button" class="login-btn" onclick="__safeCSLogin()">Masuk Panel CS →</button>
       <div class="login-footer">Akun CS dibuat oleh admin via menu <em>Akses Login CS</em></div>
@@ -2261,8 +2317,15 @@ async function doLogin(){
     if(typeof __setLoginLoading === 'function') __setLoginLoading('btnLoginAdmin', true);
     try {
       if(!fb.configured) await initFirebase(getFBConfig());
-      const { doc, getDoc } = window._fbFs;
-      const snap = await getDoc(doc(fb.db, FB_COLLECTIONS.cfg, 'main'));
+      const { doc, getDoc, getDocFromServer } = window._fbFs;
+      // Force fresh dari server biar gak ambil cache yang udah usang
+      let snap;
+      try {
+        snap = await getDocFromServer(doc(fb.db, FB_COLLECTIONS.cfg, 'main'));
+      } catch(e1){
+        // Kalau server fetch fail (offline), fallback ke cached
+        snap = await getDoc(doc(fb.db, FB_COLLECTIONS.cfg, 'main'));
+      }
       if(snap.exists()){
         const cloudCfg = snap.data();
         LS.s('od_cfg', cloudCfg);
@@ -3547,8 +3610,14 @@ async function doCSLogin(){
     if(typeof __setLoginLoading === 'function') __setLoginLoading('btnLoginCS', true);
     try {
       if(!fb.configured) await initFirebase(getFBConfig());
-      const { collection, getDocs } = window._fbFs;
-      const snap = await getDocs(collection(fb.db, FB_COLLECTIONS.cs_users));
+      const { collection, getDocs, getDocsFromServer } = window._fbFs;
+      // Force fresh dari server biar cs_users selalu terbaru
+      let snap;
+      try {
+        snap = await getDocsFromServer(collection(fb.db, FB_COLLECTIONS.cs_users));
+      } catch(e1){
+        snap = await getDocs(collection(fb.db, FB_COLLECTIONS.cs_users));
+      }
       const cloudUsers = [];
       snap.forEach(d => cloudUsers.push(d.data()));
       LS.s('od_cs_users', cloudUsers);
