@@ -879,7 +879,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-05-27-hide-default-pass-hint';
+window.__APP_VERSION = '2026-05-27-session-persist';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -969,6 +969,8 @@ function __doAdminLoginSuccess(cfg){
   if(pwEl) pwEl.value = '';
   if(errEl) errEl.classList.remove('show');
   if(pwEl) pwEl.classList.remove('err');
+  // Save session
+  try { localStorage.setItem('od_session', JSON.stringify({role:'admin',ts:Date.now()})); } catch(e){}
   var v1 = document.getElementById('viewLogin');
   var v2 = document.getElementById('viewDashboard');
   if(v1) v1.style.display = 'none';
@@ -1041,6 +1043,8 @@ function __doCSLoginSuccess(user){
   if(userEl) userEl.classList.remove('err');
   if(pwEl) pwEl.classList.remove('err');
   window.currentCSUser = user;
+  // Save session
+  try { localStorage.setItem('od_session', JSON.stringify({role:'cs',userId:user.id,ts:Date.now()})); } catch(e){}
   var v1 = document.getElementById('viewLogin');
   var v2 = document.getElementById('viewDashboard');
   var v3 = document.getElementById('viewCS');
@@ -2265,6 +2269,7 @@ async function doLogin(){
     document.getElementById('loginPass').value='';
     document.getElementById('loginErr').classList.remove('show');
     document.getElementById('loginPass').classList.remove('err');
+    setSession('admin');
     showDashboard();
   }else{
     document.getElementById('loginErr').classList.add('show');
@@ -2273,6 +2278,7 @@ async function doLogin(){
   }
 }
 function doLogout(){
+  clearSession();
   document.getElementById('viewDashboard').classList.remove('show');
   document.getElementById('viewDashboard').style.display='none';
   document.getElementById('viewLogin').style.display='flex';
@@ -3555,6 +3561,7 @@ async function doCSLogin(){
   document.getElementById('loginCSUser').classList.remove('err');
   document.getElementById('loginCSPass').classList.remove('err');
   currentCSUser = found;
+  setSession('cs', found.id);
   showCSView();
 }
 
@@ -3567,6 +3574,7 @@ function showCSView(){
 }
 
 function doCSLogout(){
+  clearSession();
   currentCSUser = null;
   document.getElementById('viewCS').style.display = 'none';
   document.getElementById('viewLogin').style.display = 'flex';
@@ -4771,6 +4779,57 @@ function filterLeadsByDate(leads, range){
 }
 
 /* ═════════════════════════════════════════════
+   SESSION PERSISTENCE
+   Save sesi login ke LS supaya reload halaman gak auto-logout
+═════════════════════════════════════════════ */
+function setSession(role, userId){
+  const session = { role: role, ts: Date.now() };
+  if(userId !== undefined && userId !== null) session.userId = userId;
+  LS.s('od_session', session);
+}
+function clearSession(){ LS.s('od_session', null); }
+function getSession(){ return LS.g('od_session', null); }
+
+async function restoreSession(){
+  const session = getSession();
+  if(!session || !session.role) return false;
+  if(session.role === 'admin'){
+    // Trust admin session — show dashboard langsung
+    document.getElementById('viewLogin').style.display = 'none';
+    showDashboard();
+    return true;
+  }
+  if(session.role === 'cs' && session.userId !== undefined){
+    // Cari CS user di LS
+    let user = getCSUsers().find(u => u.id === session.userId);
+    // Kalau gak ada di LS (mis. baru clear), fetch dari cloud
+    if(!user && getFBConfig()){
+      try {
+        if(!fb.configured) await initFirebase(getFBConfig());
+        const { collection, getDocs } = window._fbFs;
+        const snap = await getDocs(collection(fb.db, FB_COLLECTIONS.cs_users));
+        const cloudUsers = [];
+        snap.forEach(d => cloudUsers.push(d.data()));
+        LS.s('od_cs_users', cloudUsers);
+        user = cloudUsers.find(u => u.id === session.userId);
+      } catch(e){ console.warn('restoreSession CS fetch fail:', e); }
+    }
+    if(user && user.active !== false){
+      currentCSUser = user;
+      document.getElementById('viewLogin').style.display = 'none';
+      document.getElementById('viewDashboard').style.display = 'none';
+      document.getElementById('viewCS').style.display = 'flex';
+      initCSView();
+      return true;
+    } else {
+      // User udah dihapus atau dinonaktifkan — clear session
+      clearSession();
+    }
+  }
+  return false;
+}
+
+/* ═════════════════════════════════════════════
    BOOT
 ═════════════════════════════════════════════ */
 (function(){
@@ -4798,10 +4857,17 @@ function filterLeadsByDate(leads, range){
       backupLocalData('boot_pre_subscribe');
       try { await ensureCloudHasLocalData(); } catch(e){ console.warn('ensure fail', e); }
       subscribeAllCollections();
+      // Restore sesi setelah Firebase + sync siap (cs_users udah ada)
+      try { await restoreSession(); } catch(e){ console.warn('restoreSession fail:', e); }
     }).catch(e=>{
       console.warn('Firebase init failed:', e);
       setCloudBadge('error','Connection Error');
+      // Tetap coba restore sesi walaupun Firebase gagal (fallback ke LS)
+      restoreSession().catch(()=>{});
     });
+  } else {
+    // Tanpa Firebase, langsung restore dari LS
+    restoreSession().catch(()=>{});
   }
   // Tutup notif popup pada klik di luar
   // (button close sudah pakai onclick)
