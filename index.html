@@ -751,6 +751,39 @@ tr:hover td{background:#fafbff}
 }
 
 /* ═══════════════════════════════════════════
+   LEAD CARD 3-DOT MENU
+═══════════════════════════════════════════ */
+.lead-menu-wrap{position:relative;flex-shrink:0}
+.lead-menu-btn{
+  background:none;border:1px solid var(--border);cursor:pointer;
+  font-size:18px;color:var(--text-muted);
+  width:34px;height:34px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;font-family:inherit;padding:0;line-height:1;
+}
+.lead-menu-btn:hover{background:var(--bg);color:var(--text);border-color:var(--primary)}
+.lead-menu-btn:active{transform:scale(.95)}
+.lead-menu-dropdown{
+  position:absolute;right:0;top:calc(100% + 4px);
+  background:#fff;border:1px solid var(--border);
+  border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);
+  min-width:200px;z-index:50;
+  display:none;overflow:hidden;
+}
+.lead-menu-dropdown.show{display:block}
+.lead-menu-item{
+  display:flex;align-items:center;gap:10px;
+  padding:11px 14px;font-size:13px;cursor:pointer;
+  color:var(--text);border:none;background:none;
+  width:100%;text-align:left;font-family:inherit;
+  transition:background .12s;
+}
+.lead-menu-item:hover{background:var(--bg)}
+.lead-menu-item.danger{color:var(--red)}
+.lead-menu-item.danger:hover{background:var(--red-light)}
+.lead-menu-divider{height:1px;background:var(--border);margin:4px 0}
+
+/* ═══════════════════════════════════════════
    QUICK REPLY TEMPLATES
 ═══════════════════════════════════════════ */
 /* CS view: tombol-tombol quick reply di lead card */
@@ -893,7 +926,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-05-27-login-eye-fresh-fetch';
+window.__APP_VERSION = '2026-05-28-lead-card-3dot-menu';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -2472,9 +2505,14 @@ function leadCard(l,compact=false){
       </div>
       ${l.followNotes?`<div style="font-size:12px;color:#78350f;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:6px 10px;margin-top:6px"><strong>Catatan CS:</strong> ${esc(l.followNotes)}</div>`:''}
     </div>
-    ${!compact?`<div class="lead-actions">
+    ${!compact?`<div class="lead-actions" style="align-items:flex-start">
       <a href="https://wa.me/${normalizeWaID(l.wa)}" target="_blank" class="btn btn-success btn-sm">💬 WA</a>
-      <button class="btn btn-icon btn-sm" onclick="deleteLead('${l.id}')" title="Hapus">🗑️</button>
+      <div class="lead-menu-wrap">
+        <button class="lead-menu-btn" onclick="toggleLeadMenu('a-${l.id}')" title="Aksi lain">⋯</button>
+        <div class="lead-menu-dropdown" id="leadMenu-a-${l.id}">
+          <button class="lead-menu-item danger" onclick="deleteLead('${l.id}');toggleLeadMenu('a-${l.id}')">🗑️ Hapus Lead</button>
+        </div>
+      </div>
     </div>`:''}
   </div>`;
 }
@@ -3826,14 +3864,20 @@ function csLeadCard(l){
         ${notes}
         ${followInfo}
       </div>
+      <div class="lead-menu-wrap">
+        <button class="lead-menu-btn" onclick="toggleLeadMenu('${l.id}')" title="Aksi lain">⋯</button>
+        <div class="lead-menu-dropdown" id="leadMenu-${l.id}">
+          <button class="lead-menu-item" onclick="setLeadStatus('${l.id}','contacted');toggleLeadMenu('${l.id}')">📞 Tandai Dihubungi</button>
+          <button class="lead-menu-item" onclick="setLeadStatus('${l.id}','closed');toggleLeadMenu('${l.id}')">✅ Closing</button>
+          <button class="lead-menu-item" onclick="setLeadStatus('${l.id}','no_response');toggleLeadMenu('${l.id}')">❌ Tidak Respon</button>
+          <button class="lead-menu-item" onclick="setLeadStatus('${l.id}','pending');toggleLeadMenu('${l.id}')">🔴 Reset Status</button>
+          <div class="lead-menu-divider"></div>
+          <button class="lead-menu-item" onclick="editLeadNote('${l.id}');toggleLeadMenu('${l.id}')">📝 ${l.followNotes?'Edit':'Tambah'} Catatan</button>
+        </div>
+      </div>
     </div>
     <div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap">
       <a href="https://wa.me/${waNumber}" target="_blank" class="btn btn-success btn-sm">💬 Chat WA</a>
-      <button class="btn btn-outline btn-sm" onclick="setLeadStatus('${l.id}','contacted')">📞 Tandai Dihubungi</button>
-      <button class="btn btn-outline btn-sm" onclick="setLeadStatus('${l.id}','closed')">✅ Closing</button>
-      <button class="btn btn-outline btn-sm" onclick="setLeadStatus('${l.id}','no_response')">❌ Tidak Respon</button>
-      <button class="btn btn-outline btn-sm" onclick="setLeadStatus('${l.id}','pending')">🔴 Reset</button>
-      <button class="btn btn-outline btn-sm" onclick="editLeadNote('${l.id}')">📝 ${l.followNotes?'Edit':'Tambah'} Catatan</button>
     </div>
     ${renderQRButtonsForLead(l)}
   </div>`;
@@ -4539,6 +4583,25 @@ function flashTitle(flashText){
   const stop = ()=>{ clearInterval(_titleFlashTimer); if(_origTitle){document.title=_origTitle;_origTitle=null;} window.removeEventListener('focus', stop); };
   window.addEventListener('focus', stop, {once:true});
 }
+
+/* ═════════════════════════════════════════════
+   LEAD CARD 3-DOT MENU (dropdown actions)
+═════════════════════════════════════════════ */
+function toggleLeadMenu(id){
+  const menu = document.getElementById('leadMenu-'+id);
+  if(!menu) return;
+  // Tutup semua menu lain dulu
+  document.querySelectorAll('.lead-menu-dropdown.show').forEach(m=>{
+    if(m.id !== 'leadMenu-'+id) m.classList.remove('show');
+  });
+  menu.classList.toggle('show');
+}
+// Close on outside click
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.lead-menu-wrap')){
+    document.querySelectorAll('.lead-menu-dropdown.show').forEach(m=>m.classList.remove('show'));
+  }
+});
 
 /* ═════════════════════════════════════════════
    QUICK REPLY TEMPLATES (admin CRUD + CS apply)
