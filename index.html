@@ -926,7 +926,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-05-28-lead-card-3dot-menu';
+window.__APP_VERSION = '2026-05-30-wa-redirect-fix';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -2933,11 +2933,12 @@ ${cfg.fieldKecamatan?`+'<input id="oo-kc${p.id}" type="text" placeholder="Kecama
 +'<\\/div>'
 +'<div id="oo-ok${p.id}" style="display:none;text-align:center;padding:16px 0">'
 +'<div style="font-size:56px;margin-bottom:10px">🎉<\\/div>'
-+'<div style="font-size:19px;font-weight:700;margin-bottom:6px">Terima Kasih!<\\/div>'
-+'<div style="font-size:13px;color:#666;line-height:1.6;margin-bottom:20px">CS kami siap membantu!<br>Klik tombol di bawah untuk chat.<\\/div>'
-+'<button onclick="window.open(waUrl,\\'_blank\\')" style="width:100%;background:#25D366;color:#fff;border:none;border-radius:8px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit">💬 Lanjut Chat WhatsApp<\\/button>'
++'<div style="font-size:22px;font-weight:700;margin-bottom:8px;color:#1b5e20">Berhasil!<\\/div>'
++'<div style="font-size:14px;color:#666;line-height:1.6;margin-bottom:18px">Tinggal <b>1 langkah lagi<\\/b>: lanjut chat ke WhatsApp untuk konfirmasi pesanan kakak 👇<\\/div>'
++'<a id="oo-wa-btn-${p.id}" href="#" rel="noopener" style="display:block;background:#25D366;color:#fff;text-align:center;padding:18px;font-size:17px;font-weight:700;border-radius:8px;text-decoration:none;margin-bottom:12px;box-shadow:0 4px 12px rgba(37,211,102,.35)">💬 Lanjut ke WhatsApp →<\\/a>'
++'<div style="font-size:12px;color:#999">Otomatis dialihkan dalam <span id="oo-cd-${p.id}" style="font-weight:700;color:#25D366">3<\\/span> detik...<\\/div>'
 +'<\\/div><\\/div><\\/div>';
-window['ooSub${p.id}']=async function(){
+window['ooSub${p.id}']=function(){
   var nm=document.getElementById('oo-n${p.id}').value.trim();
   var wa=document.getElementById('oo-w${p.id}').value.trim();
   var al=${cfg.fieldAlamat?`(document.getElementById('oo-al${p.id}')||{value:''}).value.trim()`:`''`};
@@ -2950,23 +2951,10 @@ window['ooSub${p.id}']=async function(){
   else{document.getElementById('oo-w${p.id}').style.borderColor='#e0e0e0';document.getElementById('oo-ew${p.id}').style.display='none';}
   if(!ok)return;
 
-  /* ── ROUND ROBIN: pilih CS dengan count terendah ── */
+  /* ── ROUND ROBIN: pilih CS dari LOCAL cache (no await, preserve user gesture) ── */
   var counts=Object.assign({},cfg.csCounts||{});
   var chosenCsId=null, chosenWa=cfg.fallbackWa||cfg.waNum;
   if(cfg.csIds&&cfg.csIds.length){
-    // Fetch fresh counts dari Firestore kalau dikonfigurasi
-    if(cfg.fbApiKey&&cfg.fbProjectId){
-      try{
-        var pUrl='https://firestore.googleapis.com/v1/projects/'+cfg.fbProjectId+'/databases/(default)/documents/od_prods/'+cfg.productId+'?key='+cfg.fbApiKey;
-        var pr=await fetch(pUrl);
-        if(pr.ok){
-          var pd=await pr.json();
-          var m=pd&&pd.fields&&pd.fields.csLeadCounts&&pd.fields.csLeadCounts.mapValue&&pd.fields.csLeadCounts.mapValue.fields;
-          if(m){counts={};for(var k in m){counts[k]=parseInt(m[k].integerValue||m[k].doubleValue||0,10);}}
-        }
-      }catch(e){}
-    }
-    // Pilih min
     chosenCsId=cfg.csIds[0];
     var minC=counts[chosenCsId]||0;
     cfg.csIds.forEach(function(id){var c=counts[id]||0;if(c<minC){minC=c;chosenCsId=id;}});
@@ -2974,16 +2962,23 @@ window['ooSub${p.id}']=async function(){
     if(csm&&csm.waNum)chosenWa=csm.waNum;
   }
 
-  /* ── Build lead ── */
-  var leadId='L'+Date.now()+Math.floor(Math.random()*1000);
-  var lead={id:leadId,ts:Date.now(),nama:nm,wa:wa,produk:cfg.produkWA,csId:chosenCsId,alamat:al,kota:kt,kecamatan:kc,followStatus:'pending'};
+  /* ── Build WA message & URL ── */
+  var msg=cfg.greeting.replace(/{nama}/g,nm).replace(/{wa}/g,wa).replace(/{produk}/g,cfg.produkWA).replace(/{toko}/g,cfg.storeName).replace(/{alamat}/g,al||'-').replace(/{kota}/g,kt||'-').replace(/{kecamatan}/g,kc||'-');
+  var normWa=function(num){var n=(num||'').toString().replace(/\\D/g,'');if(!n)return '';n=n.replace(/^0+/,'');if(!n)return '';if(n.charAt(0)==='8')n='62'+n;return n;};
+  waUrl='https://wa.me/'+normWa(chosenWa)+'?text='+encodeURIComponent(msg);
 
-  /* ── Save ke localStorage (tetap, sebagai cache/fallback) ── */
+  /* ── Build lead + save to LS ── */
+  var leadId='L'+Date.now()+Math.floor(Math.random()*1000);
+  var lead={id:leadId,ts:Date.now(),nama:nm,wa:wa,produk:cfg.produkWA,csId:chosenCsId,alamat:al,kota:kt,kecamatan:kc,followStatus:'pending',waAttempted:true};
   var leads=[];try{leads=JSON.parse(localStorage.getItem('od_leads')||'[]');}catch(e){}
   leads.unshift(lead);
   try{localStorage.setItem('od_leads',JSON.stringify(leads));}catch(e){}
 
-  /* ── POST ke Firestore + PATCH counter (jika cloud sync aktif) ── */
+  /* ── GTM events ── */
+  if(window.dataLayer)window.dataLayer.push({event:'generate_lead',lead_name:nm,lead_product:cfg.produkWA});
+  if(cfg.convLabel&&typeof gtag==='function')gtag('event','conversion',{send_to:cfg.convLabel});
+
+  /* ── Fire-and-forget POST ke Firestore (keepalive supaya survive navigation) ── */
   if(cfg.fbApiKey&&cfg.fbProjectId){
     try{
       var fsEnc=function(v){
@@ -2996,25 +2991,32 @@ window['ooSub${p.id}']=async function(){
         return{stringValue:String(v)};
       };
       var leadFields={};for(var k in lead)leadFields[k]=fsEnc(lead[k]);
-      fetch('https://firestore.googleapis.com/v1/projects/'+cfg.fbProjectId+'/databases/(default)/documents/od_leads?documentId='+leadId+'&key='+cfg.fbApiKey,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:leadFields})});
+      fetch('https://firestore.googleapis.com/v1/projects/'+cfg.fbProjectId+'/databases/(default)/documents/od_leads?documentId='+leadId+'&key='+cfg.fbApiKey,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:leadFields}),keepalive:true});
       if(chosenCsId){
         counts[chosenCsId]=(counts[chosenCsId]||0)+1;
         var cF={};for(var ck in counts)cF[ck]={integerValue:String(counts[ck])};
-        fetch('https://firestore.googleapis.com/v1/projects/'+cfg.fbProjectId+'/databases/(default)/documents/od_prods/'+cfg.productId+'?key='+cfg.fbApiKey+'&updateMask.fieldPaths=csLeadCounts',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{csLeadCounts:{mapValue:{fields:cF}}}})});
+        fetch('https://firestore.googleapis.com/v1/projects/'+cfg.fbProjectId+'/databases/(default)/documents/od_prods/'+cfg.productId+'?key='+cfg.fbApiKey+'&updateMask.fieldPaths=csLeadCounts',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{csLeadCounts:{mapValue:{fields:cF}}}}),keepalive:true});
       }
     }catch(e){/* lead udah aman di LS */}
   }
 
-  /* ── Build WA message & open ── */
-  var msg=cfg.greeting.replace(/{nama}/g,nm).replace(/{wa}/g,wa).replace(/{produk}/g,cfg.produkWA).replace(/{toko}/g,cfg.storeName).replace(/{alamat}/g,al||'-').replace(/{kota}/g,kt||'-').replace(/{kecamatan}/g,kc||'-');
-  /* Normalize WA Indonesia (08xxx → 628xxx) — cegah salah country code */
-  var normWa=function(num){var n=(num||'').toString().replace(/\\D/g,'');if(!n)return '';n=n.replace(/^0+/,'');if(!n)return '';if(n.charAt(0)==='8')n='62'+n;return n;};
-  waUrl='https://wa.me/'+normWa(chosenWa)+'?text='+encodeURIComponent(msg);
-  if(window.dataLayer)window.dataLayer.push({event:'generate_lead',lead_name:nm,lead_product:cfg.produkWA});
-  if(cfg.convLabel&&typeof gtag==='function')gtag('event','conversion',{send_to:cfg.convLabel});
+  /* ── Show success screen ── */
   document.getElementById('oo-f${p.id}').style.display='none';
   document.getElementById('oo-ok${p.id}').style.display='block';
-  setTimeout(function(){window.open(waUrl,'_blank');},400);
+  var manualBtn=document.getElementById('oo-wa-btn-${p.id}');
+  if(manualBtn) manualBtn.href=waUrl;
+
+  /* ── Auto-redirect via window.location.href (same tab, work di YT in-app browser) ── */
+  var cd=3, cdEl=document.getElementById('oo-cd-${p.id}');
+  if(cdEl) cdEl.textContent=cd;
+  var cdTimer=setInterval(function(){
+    cd--;
+    if(cdEl) cdEl.textContent=Math.max(cd,0);
+    if(cd<=0){
+      clearInterval(cdTimer);
+      window.location.href=waUrl;
+    }
+  },1000);
 };
 ${gtmId?`if(!document.getElementById('oo-gtm-${p.id}')){var gs=document.createElement('script');gs.id='oo-gtm-${p.id}';gs.innerHTML='(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);})(window,document,"script","dataLayer","${gtmId}");';document.head.appendChild(gs);}`:``}}();
 <\/script>`;
@@ -3351,9 +3353,10 @@ ${cfg.fieldKecamatan?`+'<input id="oo-kc" type="text" placeholder="Kecamatan" st
 +'<\\/div>'
 +'<div id="oo-ok" style="display:none;text-align:center;padding:16px 0">'
 +'<div style="font-size:56px;margin-bottom:10px">🎉<\\/div>'
-+'<div style="font-size:19px;font-weight:700;margin-bottom:6px">Terima Kasih!</div>'
-+'<div style="font-size:13px;color:#666;line-height:1.6;margin-bottom:20px">CS kami siap membantu!<br>Klik tombol di bawah untuk chat.</div>'
-+'<button onclick="window.open(waUrl,\'_blank\')" style="width:100%;background:#25D366;color:#fff;border:none;border-radius:8px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px">💬 Lanjut Chat WhatsApp<\\/button>'
++'<div style="font-size:22px;font-weight:700;margin-bottom:8px;color:#1b5e20">Berhasil!</div>'
++'<div style="font-size:14px;color:#666;line-height:1.6;margin-bottom:18px">Tinggal <b>1 langkah lagi<\\/b>: lanjut chat ke WhatsApp untuk konfirmasi pesanan kakak 👇</div>'
++'<a id="oo-wa-btn" href="#" rel="noopener" style="display:block;background:#25D366;color:#fff;text-align:center;padding:18px;font-size:17px;font-weight:700;border-radius:8px;text-decoration:none;margin-bottom:12px;box-shadow:0 4px 12px rgba(37,211,102,.35)">💬 Lanjut ke WhatsApp →<\\/a>'
++'<div style="font-size:12px;color:#999">Otomatis dialihkan dalam <span id="oo-cd" style="font-weight:700;color:#25D366">3<\\/span> detik...</div>'
 +'<\\/div>'
 +'<\\/div><\\/div>';
 window.ooSub=function(){
@@ -3373,13 +3376,23 @@ window.ooSub=function(){
   var normWa=function(num){var n=(num||'').toString().replace(/\\D/g,'');if(!n)return '';n=n.replace(/^0+/,'');if(!n)return '';if(n.charAt(0)==='8')n='62'+n;return n;};
   waUrl='https://wa.me/'+normWa(cfg.waNum)+'?text='+encodeURIComponent(msg);
   var leads=[];try{leads=JSON.parse(localStorage.getItem('od_leads')||'[]');}catch(e){}
-  leads.unshift({id:'L'+Date.now(),ts:Date.now(),nama:nm,wa:wa,produk:cfg.produkDefault||'-',alamat:al,kota:kt,kecamatan:kc});
+  leads.unshift({id:'L'+Date.now(),ts:Date.now(),nama:nm,wa:wa,produk:cfg.produkDefault||'-',alamat:al,kota:kt,kecamatan:kc,waAttempted:true});
   try{localStorage.setItem('od_leads',JSON.stringify(leads));}catch(e){}
   if(window.dataLayer)window.dataLayer.push({event:'generate_lead',lead_name:nm,lead_product:cfg.produkDefault||''});
   if(cfg.convLabel&&typeof gtag==='function')gtag('event','conversion',{send_to:cfg.convLabel});
   document.getElementById('oo-form').style.display='none';
   document.getElementById('oo-ok').style.display='block';
-  setTimeout(function(){window.open(waUrl,'_blank');},400);
+  /* Anchor link buat klik manual */
+  var manualBtn=document.getElementById('oo-wa-btn');
+  if(manualBtn) manualBtn.href=waUrl;
+  /* Auto-redirect via location.href (same tab, work di YouTube in-app browser) */
+  var cd=3, cdEl=document.getElementById('oo-cd');
+  if(cdEl) cdEl.textContent=cd;
+  var cdTimer=setInterval(function(){
+    cd--;
+    if(cdEl) cdEl.textContent=Math.max(cd,0);
+    if(cd<=0){clearInterval(cdTimer);window.location.href=waUrl;}
+  },1000);
 };
 ${cfg.gtmId?`if(!document.getElementById('oo-gtm')){var gs=document.createElement('script');gs.id='oo-gtm';gs.innerHTML='(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);})(window,document,"script","dataLayer","${cfg.gtmId}");';document.head.appendChild(gs);}`:``}}();
 <\/script>`;
