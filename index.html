@@ -926,7 +926,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-05-30-advertisers-rename';
+window.__APP_VERSION = '2026-05-30-owner-badge-filter';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -1696,6 +1696,15 @@ document.addEventListener('DOMContentLoaded', function(){
               <div style="font-size:13px;color:var(--text-muted)">Setiap produk punya CS, Greeting, GTM & Embed sendiri</div>
             </div>
             <button class="btn btn-primary" onclick="showProdForm(null)">➕ Tambah Produk</button>
+          </div>
+          <!-- Filter owner (admin-only, hidden untuk advertiser) -->
+          <div class="date-filter-bar" id="prodOwnerFilterBar">
+            <span class="dfb-label">👥 Filter Owner:</span>
+            <select class="dfb-select" id="prodOwnerFilter" onchange="renderProdList()">
+              <option value="">Semua Owner</option>
+              <option value="admin">👤 Admin Only</option>
+            </select>
+            <span class="dfb-info" id="prodOwnerInfo"></span>
           </div>
           <div id="prodList"></div>
         </div>
@@ -2644,7 +2653,12 @@ function initDashboard(){
    OVERVIEW
 ═════════════════════════════════════════════ */
 function renderOverview(){
-  const leads=getLeads(),prods=getProds(),cfg=getCfg();
+  const leads=getLeads(),cfg=getCfg();
+  let prods=getProds();
+  // Advertiser: hitung cuma produk miliknya
+  if(currentAdUser){
+    prods = prods.filter(p => p.ownerRole === 'advertiser' && p.ownerId === currentAdUser.id);
+  }
   const today=new Date().toDateString();
   const todayN=leads.filter(l=>new Date(l.ts).toDateString()===today).length;
   document.getElementById('ov-total').textContent=leads.length;
@@ -2833,10 +2847,58 @@ let editProdId=null;
 let activeProdTab='info';
 
 function renderProdList(){
-  const prods=getProds();
+  let prods=getProds();
+  const filterBar = document.getElementById('prodOwnerFilterBar');
+  // Advertiser cuma liat produk yg dia bikin sendiri (ownerId match user.id)
+  if(currentAdUser){
+    if(filterBar) filterBar.style.display = 'none'; // hide owner filter buat advertiser
+    prods = prods.filter(p => p.ownerRole === 'advertiser' && p.ownerId === currentAdUser.id);
+  } else {
+    // Admin: tampilkan filter bar + populate option advertiser
+    if(filterBar) filterBar.style.display = '';
+    const ownerSel = document.getElementById('prodOwnerFilter');
+    if(ownerSel){
+      const cur = ownerSel.value;
+      // Auto-populate dengan daftar advertiser dari produk yang ada
+      const allProds = getProds();
+      const advOwners = new Map();
+      allProds.forEach(p => {
+        if(p.ownerRole === 'advertiser' && p.ownerId){
+          advOwners.set(p.ownerId, p.ownerName || ('Advertiser #'+p.ownerId));
+        }
+      });
+      // Re-build options
+      let opts = '<option value="">Semua Owner</option>';
+      opts += '<option value="admin">👤 Admin Only</option>';
+      advOwners.forEach((name, id) => {
+        opts += `<option value="ad:${id}">📊 ${esc(name)}</option>`;
+      });
+      ownerSel.innerHTML = opts;
+      if(cur && ownerSel.querySelector(`option[value="${cur}"]`)) ownerSel.value = cur;
+    }
+    // Apply filter kalau ada
+    if(ownerSel && ownerSel.value){
+      const v = ownerSel.value;
+      if(v === 'admin'){
+        prods = prods.filter(p => p.ownerRole === 'admin' || !p.ownerRole);
+      } else if(v.startsWith('ad:')){
+        const advId = parseInt(v.slice(3), 10);
+        prods = prods.filter(p => p.ownerRole === 'advertiser' && p.ownerId === advId);
+      }
+    }
+    // Update info counter
+    const infoEl = document.getElementById('prodOwnerInfo');
+    if(infoEl){
+      const total = getProds().length;
+      infoEl.innerHTML = `<b>${prods.length}</b> / ${total} produk`;
+    }
+  }
   const el=document.getElementById('prodList');
   if(!prods.length){
-    el.innerHTML=`<div class="empty"><div class="empty-icon">📦</div><div class="empty-title">Belum ada produk</div><div class="empty-sub">Klik "Tambah Produk" untuk mulai</div></div>`;
+    const emptyMsg = currentAdUser
+      ? `<div class="empty"><div class="empty-icon">📦</div><div class="empty-title">Belum ada produk lo</div><div class="empty-sub">Klik "Tambah Produk" untuk bikin produk pertama lo. Produk yg lo bikin cuma keliatan ke lo doang.</div></div>`
+      : `<div class="empty"><div class="empty-icon">📦</div><div class="empty-title">Belum ada produk</div><div class="empty-sub">Klik "Tambah Produk" untuk mulai</div></div>`;
+    el.innerHTML = emptyMsg;
     return;
   }
   el.innerHTML=prods.map((p,i)=>{
@@ -2851,9 +2913,25 @@ function renderProdList(){
     const hasGTM = !!(p.gtmId);
     const hasGreeting = !!(p.greeting);
     const hasConv = !!(p.convLabel);
+    // Owner badge prominent — admin liat siapa yg bikin (advertiser mana / admin)
+    let ownerHeader = '';
+    if(!currentAdUser){ // Admin view only
+      if(p.ownerRole === 'advertiser'){
+        ownerHeader = `<div style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#fef3c7,#fde68a);border:1px solid #f59e0b;padding:4px 10px;border-radius:50px;font-size:11px;font-weight:700;color:#78350f;margin-bottom:6px">
+          <span style="font-size:13px">📊</span>
+          <span>Advertiser: ${esc(p.ownerName || '(tanpa nama)')}</span>
+        </div>`;
+      } else if(p.ownerRole === 'admin' || !p.ownerRole){
+        ownerHeader = `<div style="display:inline-flex;align-items:center;gap:6px;background:#ebf4ff;border:1px solid #93c5fd;padding:4px 10px;border-radius:50px;font-size:11px;font-weight:700;color:#1e40af;margin-bottom:6px">
+          <span style="font-size:13px">👤</span>
+          <span>Admin</span>
+        </div>`;
+      }
+    }
     return`<div class="prod-item" style="flex-wrap:wrap;gap:10px">
       <div class="prod-num">${i+1}</div>
       <div class="prod-info" style="flex:1;min-width:180px">
+        ${ownerHeader}
         <div class="prod-name">${esc(p.name)}</div>
         ${p.price?`<div class="prod-price">${esc(p.price)}</div>`:''}
         ${p.desc?`<div class="prod-desc">${esc(p.desc)}</div>`:''}
@@ -2879,6 +2957,13 @@ function renderProdList(){
 }
 
 function showProdForm(id){
+  // Safety: advertiser gak bisa edit produk yang bukan miliknya
+  if(id && currentAdUser){
+    const p0 = getProds().find(x => x.id === id);
+    if(p0 && (p0.ownerRole !== 'advertiser' || p0.ownerId !== currentAdUser.id)){
+      toast('⚠️ Produk ini bukan milik lo'); return;
+    }
+  }
   editProdId = id;
   document.getElementById('prodListCard').style.display = 'none';
   document.getElementById('prodFormCard').style.display = 'block';
@@ -3048,6 +3133,14 @@ function saveProd(){
     const newCounts = {};
     csIds.forEach(id => { newCounts[id] = 0; });
     savedProd = {id: Date.now(), name, price, desc, csId, csIds, csLeadCounts:newCounts, waNum, produkWA, greeting, gtmId, convLabel};
+    // Tag ownership: kalau advertiser yang bikin, simpan owner info
+    if(currentAdUser){
+      savedProd.ownerRole = 'advertiser';
+      savedProd.ownerId = currentAdUser.id;
+      savedProd.ownerName = currentAdUser.name || currentAdUser.username;
+    } else {
+      savedProd.ownerRole = 'admin';
+    }
     prods.push(savedProd);
     editProdId = savedProd.id;
   }
@@ -3222,6 +3315,13 @@ ${gtmId?`if(!document.getElementById('oo-gtm-${p.id}')){var gs=document.createEl
 }
 
 function deleteProd(id){
+  // Safety: advertiser gak bisa hapus produk orang lain
+  if(currentAdUser){
+    const p0 = getProds().find(x => x.id === id);
+    if(p0 && (p0.ownerRole !== 'advertiser' || p0.ownerId !== currentAdUser.id)){
+      toast('⚠️ Produk ini bukan milik lo'); return;
+    }
+  }
   if(!confirm('Hapus produk ini? Semua konfigurasi CS, GTM, dan Greeting-nya akan ikut terhapus.'))return;
   LS.s('od_prods',getProds().filter(p=>p.id!==id));
   syncProdDelete(id);
