@@ -926,7 +926,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-05-30-wa-redirect-fix';
+window.__APP_VERSION = '2026-05-30-advertiser-role';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -1182,12 +1182,100 @@ function __safeSwitchLoginTab(tab){
   // Fallback ES5
   var tA = document.getElementById('loginTabAdmin');
   var tC = document.getElementById('loginTabCS');
+  var tAd = document.getElementById('loginTabAd');
   var fA = document.getElementById('loginAdminForm');
   var fC = document.getElementById('loginCSForm');
+  var fAd = document.getElementById('loginAdForm');
   if(tA) tA.className = 'login-tab' + (tab === 'admin' ? ' active' : '');
   if(tC) tC.className = 'login-tab' + (tab === 'cs' ? ' active' : '');
+  if(tAd) tAd.className = 'login-tab' + (tab === 'advertiser' ? ' active' : '');
   if(fA) fA.style.display = (tab === 'admin' ? 'block' : 'none');
   if(fC) fC.style.display = (tab === 'cs' ? 'block' : 'none');
+  if(fAd) fAd.style.display = (tab === 'advertiser' ? 'block' : 'none');
+}
+
+function __doAdLoginSuccess(user){
+  var uEl = document.getElementById('loginAdUser');
+  var pEl = document.getElementById('loginAdPass');
+  var errEl = document.getElementById('loginAdErr');
+  if(uEl) uEl.value = '';
+  if(pEl) pEl.value = '';
+  if(errEl) errEl.classList.remove('show');
+  if(uEl) uEl.classList.remove('err');
+  if(pEl) pEl.classList.remove('err');
+  window.currentAdUser = user;
+  try { localStorage.setItem('od_session', JSON.stringify({role:'advertiser',userId:user.id,ts:Date.now()})); } catch(e){}
+  var v1 = document.getElementById('viewLogin');
+  var v2 = document.getElementById('viewDashboard');
+  var v3 = document.getElementById('viewCS');
+  if(v1) v1.style.display = 'none';
+  if(v3) v3.style.display = 'none';
+  if(v2){
+    v2.style.display = 'flex';
+    if(v2.className.indexOf('show') === -1) v2.className = v2.className + ' show';
+  }
+  if(typeof window.initDashboard === 'function'){
+    try { window.initDashboard(); } catch(e){}
+  }
+  if(typeof window.applyRolePermissions === 'function'){
+    try { window.applyRolePermissions(); } catch(e){}
+  }
+}
+
+function __doAdLoginFail(){
+  var uEl = document.getElementById('loginAdUser');
+  var pEl = document.getElementById('loginAdPass');
+  var errEl = document.getElementById('loginAdErr');
+  if(errEl) errEl.classList.add('show');
+  if(uEl) uEl.classList.add('err');
+  if(pEl) pEl.classList.add('err');
+}
+
+function __safeAdLogin(){
+  if(typeof window.doAdLogin === 'function'){
+    try { window.doAdLogin(); return; } catch(err){ console.error('doAdLogin error:', err); }
+  }
+  var uEl = document.getElementById('loginAdUser');
+  var pEl = document.getElementById('loginAdPass');
+  var errEl = document.getElementById('loginAdErr');
+  if(!uEl || !pEl) return;
+  var u = (uEl.value || '').trim().toLowerCase();
+  var p = pEl.value || '';
+  if(!u || !p){ if(errEl) errEl.classList.add('show'); return; }
+  // Cloud-first: coba fetch ad_users dari cloud
+  if(typeof window.__fetchAndLoginAd === 'function'){
+    var btn = document.querySelector('#loginAdForm button.login-btn');
+    if(btn) btn.id = 'btnLoginAd';
+    if(typeof __setLoginLoading === 'function') __setLoginLoading('btnLoginAd', true);
+    window.__fetchAndLoginAd(u, p).then(function(user){
+      if(typeof __setLoginLoading === 'function') __setLoginLoading('btnLoginAd', false);
+      if(user){ __doAdLoginSuccess(user); return; }
+      // Fallback LS
+      var users = [];
+      try { var raw = localStorage.getItem('od_ad_users'); if(raw) users = JSON.parse(raw) || []; } catch(e){}
+      var found = null;
+      for(var i = 0; i < users.length; i++){
+        if(users[i].username === u && users[i].password === p && users[i].active !== false){
+          found = users[i]; break;
+        }
+      }
+      if(found){ __doAdLoginSuccess(found); } else { __doAdLoginFail(); }
+    }).catch(function(){
+      if(typeof __setLoginLoading === 'function') __setLoginLoading('btnLoginAd', false);
+      __doAdLoginFail();
+    });
+    return;
+  }
+  // No fetch helper — LS only
+  var users = [];
+  try { var raw = localStorage.getItem('od_ad_users'); if(raw) users = JSON.parse(raw) || []; } catch(e){}
+  var found = null;
+  for(var i = 0; i < users.length; i++){
+    if(users[i].username === u && users[i].password === p && users[i].active !== false){
+      found = users[i]; break;
+    }
+  }
+  if(found){ __doAdLoginSuccess(found); } else { __doAdLoginFail(); }
 }
 
 // Guard: cegah double-fire dari inline onclick + addEventListener
@@ -1249,6 +1337,35 @@ document.addEventListener('DOMContentLoaded', function(){
         }
       }, false);
     }
+    // Advertiser fields
+    var pwAd = document.getElementById('loginAdPass');
+    if(pwAd){
+      pwAd.addEventListener('keydown', function(ev){
+        if(ev.key === 'Enter' || ev.keyCode === 13){ __safeAdLogin(); }
+      }, false);
+      pwAd.addEventListener('focus', function(){
+        if(this.classList.contains('err')){
+          this.value = '';
+          this.classList.remove('err');
+          var er = document.getElementById('loginAdErr');
+          if(er) er.classList.remove('show');
+        }
+      }, false);
+    }
+    var uAd = document.getElementById('loginAdUser');
+    if(uAd){
+      uAd.addEventListener('keydown', function(ev){
+        if(ev.key === 'Enter' || ev.keyCode === 13){
+          if(pwAd) pwAd.focus();
+        }
+      }, false);
+      uAd.addEventListener('focus', function(){
+        if(this.classList.contains('err')){
+          this.value = '';
+          this.classList.remove('err');
+        }
+      }, false);
+    }
   } catch(e){ console.error('Login keydown setup error:', e); }
 });
 </script>
@@ -1270,6 +1387,7 @@ document.addEventListener('DOMContentLoaded', function(){
     <div class="login-tabs">
       <button type="button" class="login-tab active" id="loginTabAdmin" onclick="__safeSwitchLoginTab('admin')">👤 Admin</button>
       <button type="button" class="login-tab" id="loginTabCS" onclick="__safeSwitchLoginTab('cs')">💬 CS</button>
+      <button type="button" class="login-tab" id="loginTabAd" onclick="__safeSwitchLoginTab('advertiser')">📊 Iklan</button>
     </div>
 
     <!-- Admin form (original) -->
@@ -1295,6 +1413,20 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="login-err" id="loginCSErr">Username atau password salah, atau akun belum aktif.</div>
       <button type="button" class="login-btn" onclick="__safeCSLogin()">Masuk Panel CS →</button>
       <div class="login-footer">Akun CS dibuat oleh admin via menu <em>Akses Login CS</em></div>
+    </div>
+
+    <!-- Advertiser form -->
+    <div id="loginAdForm" style="display:none">
+      <label class="login-label">Username Iklan</label>
+      <input class="login-input" id="loginAdUser" type="text" placeholder="Contoh: andi, rina" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="email"/>
+      <label class="login-label">Password</label>
+      <div class="pass-wrap">
+        <input class="login-input" id="loginAdPass" type="password" placeholder="Password..." autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false"/>
+        <button type="button" class="pass-eye" onclick="__togglePass('loginAdPass', this)" title="Lihat password">👁</button>
+      </div>
+      <div class="login-err" id="loginAdErr">Username atau password salah, atau akun belum aktif.</div>
+      <button type="button" class="login-btn" onclick="__safeAdLogin()">Masuk Panel Iklan →</button>
+      <div class="login-footer">Akun Iklan dibuat oleh admin via menu <em>Akses Login Iklan</em></div>
     </div>
 
     <!-- Error banner — muncul otomatis kalo ada JS error -->
@@ -1377,6 +1509,9 @@ document.addEventListener('DOMContentLoaded', function(){
       </button>
       <button class="sb-item" onclick="showPanel('csaccess')">
         <span class="sb-icon">🔐</span> Akses Login CS
+      </button>
+      <button class="sb-item" onclick="showPanel('adaccess')">
+        <span class="sb-icon">📊</span> Akses Login Iklan
       </button>
       <button class="sb-item" onclick="showPanel('quickreply')">
         <span class="sb-icon">💬</span> Quick Reply
@@ -1504,9 +1639,9 @@ document.addEventListener('DOMContentLoaded', function(){
               <div class="card-title" style="margin-bottom:2px">👥 Semua Leads</div>
               <div style="font-size:13px;color:var(--text-muted)">Data customer yang mengisi form</div>
             </div>
-            <div style="display:flex;gap:8px">
+            <div style="display:flex;gap:8px" id="leadsTopActions">
               <button class="btn btn-success btn-sm" onclick="exportCSV()">⬇️ Export CSV</button>
-              <button class="btn btn-danger btn-sm" onclick="clearLeads()">🗑️ Hapus Semua</button>
+              <button class="btn btn-danger btn-sm" onclick="clearLeads()" id="btnClearLeads">🗑️ Hapus Semua</button>
             </div>
           </div>
           <!-- Date Range Filter -->
@@ -1872,6 +2007,56 @@ document.addEventListener('DOMContentLoaded', function(){
             <li>Buat akun login di sini, pilih profil CS-nya, kasih username &amp; password</li>
             <li>CS login lewat halaman login utama → tab <strong>CS</strong></li>
             <li>CS lihat lead yang masuk untuk produknya, tandai status follow-up &amp; catat hasilnya</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- ── AKSES LOGIN ADVERTISER ── -->
+      <div class="panel" id="panel-adaccess">
+        <div class="card">
+          <div class="card-title">📊 Akses Login Iklan (Advertiser)</div>
+          <div class="card-sub">
+            Akun login buat tim Iklan. Mereka bisa lihat overview, leads, kelola produk, GTM tracking, dan generate embed code.
+            <br/><strong>TIDAK bisa akses:</strong> CS profile/akun, Quick Reply, Cloud Sync, Pengaturan.
+          </div>
+
+          <div style="background:var(--bg);border-radius:var(--radius-sm);padding:16px;margin-bottom:16px">
+            <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text)" id="adAccFormTitle">➕ Tambah Akun Iklan</div>
+            <input type="hidden" id="editAdUserId"/>
+            <div class="form-row">
+              <div class="form-group" style="margin-bottom:12px">
+                <label class="label">Nama Lengkap *</label>
+                <input class="input" id="adAccName" type="text" placeholder="Contoh: Andi Pratama"/>
+                <div class="hint">Untuk display di dashboard mereka</div>
+              </div>
+              <div class="form-group" style="margin-bottom:12px">
+                <label class="label">Username *</label>
+                <input class="input" id="adAccUser" type="text" placeholder="contoh: andi, rina.ads" autocomplete="off"/>
+                <div class="hint">Huruf kecil, tanpa spasi</div>
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:12px">
+              <label class="label">Password *</label>
+              <input class="input" id="adAccPass" type="text" placeholder="Password untuk login Iklan" autocomplete="off"/>
+              <div class="hint">Min 4 karakter</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-primary btn-sm" onclick="saveAdUser()">💾 Simpan Akun</button>
+              <button class="btn btn-outline btn-sm" onclick="cancelAdUser()" id="cancelAdUserBtn" style="display:none">Batal</button>
+            </div>
+          </div>
+
+          <div id="adUserList"></div>
+        </div>
+
+        <div class="card" style="background:#fffbeb;border:1px solid #fde68a">
+          <div class="card-title" style="color:#92400e">💡 Cara Kerja Login Iklan</div>
+          <ol style="font-size:13px;color:#78350f;line-height:1.9;padding-left:20px">
+            <li>Buat akun login Iklan di sini (nama + username + password)</li>
+            <li>Kasih credential ke tim Iklan</li>
+            <li>Mereka buka link Vercel → pilih tab <strong>📊 Iklan</strong> → masukin credential</li>
+            <li>Mereka lihat Overview, Leads, Produk, GTM, Embed — sesuai izinnya</li>
+            <li>Tetap di-track Quick Reply / Catatan CS tidak terlihat oleh Advertiser</li>
           </ol>
         </div>
       </div>
@@ -2384,6 +2569,9 @@ async function doLogin(){
 }
 function doLogout(){
   clearSession();
+  currentAdUser = null;
+  // Restore admin sidebar visibility
+  document.querySelectorAll('.sb-item').forEach(b => b.style.display='');
   document.getElementById('viewDashboard').classList.remove('show');
   document.getElementById('viewDashboard').style.display='none';
   document.getElementById('viewLogin').style.display='flex';
@@ -2402,6 +2590,7 @@ const panelTitles={
   overview:'📊 Overview',leads:'👥 Leads',produk:'📦 Produk',
   form:'📋 Form Builder',cs:'💬 CS & Greeting',
   csaccess:'🔐 Akses Login CS',
+  adaccess:'📊 Akses Login Iklan',
   quickreply:'💬 Quick Reply Templates',
   gtm:'📈 GTM Tracking',embed:'🔗 Embed HTML',
   cloud:'☁️ Cloud Sync',settings:'⚙️ Pengaturan'
@@ -2425,6 +2614,7 @@ function showPanel(name){
   else if(name==='form')initFormPanel();
   else if(name==='cs')initCSPanel();
   else if(name==='csaccess')initCSAccessPanel();
+  else if(name==='adaccess')initAdAccessPanel();
   else if(name==='quickreply')initQRPanel();
   else if(name==='gtm')initGTMPanel();
   else if(name==='embed')renderEmbedCodes();
@@ -2507,12 +2697,12 @@ function leadCard(l,compact=false){
     </div>
     ${!compact?`<div class="lead-actions" style="align-items:flex-start">
       <a href="https://wa.me/${normalizeWaID(l.wa)}" target="_blank" class="btn btn-success btn-sm">💬 WA</a>
-      <div class="lead-menu-wrap">
+      ${currentAdUser ? '' : `<div class="lead-menu-wrap">
         <button class="lead-menu-btn" onclick="toggleLeadMenu('a-${l.id}')" title="Aksi lain">⋯</button>
         <div class="lead-menu-dropdown" id="leadMenu-a-${l.id}">
           <button class="lead-menu-item danger" onclick="deleteLead('${l.id}');toggleLeadMenu('a-${l.id}')">🗑️ Hapus Lead</button>
         </div>
-      </div>
+      </div>`}
     </div>`:''}
   </div>`;
 }
@@ -3631,13 +3821,21 @@ function deleteCSUser(id){
 function switchLoginTab(tab){
   document.getElementById('loginTabAdmin').classList.toggle('active', tab === 'admin');
   document.getElementById('loginTabCS').classList.toggle('active', tab === 'cs');
+  const tAd = document.getElementById('loginTabAd');
+  if(tAd) tAd.classList.toggle('active', tab === 'advertiser');
   document.getElementById('loginAdminForm').style.display = tab === 'admin' ? 'block' : 'none';
   document.getElementById('loginCSForm').style.display = tab === 'cs' ? 'block' : 'none';
+  const fAd = document.getElementById('loginAdForm');
+  if(fAd) fAd.style.display = tab === 'advertiser' ? 'block' : 'none';
   document.getElementById('loginErr').classList.remove('show');
   document.getElementById('loginCSErr').classList.remove('show');
+  const erAd = document.getElementById('loginAdErr');
+  if(erAd) erAd.classList.remove('show');
   document.getElementById('loginPass').classList.remove('err');
   document.getElementById('loginCSUser').classList.remove('err');
   document.getElementById('loginCSPass').classList.remove('err');
+  const uAd = document.getElementById('loginAdUser'); if(uAd) uAd.classList.remove('err');
+  const pAd = document.getElementById('loginAdPass'); if(pAd) pAd.classList.remove('err');
 }
 
 /* ═════════════════════════════════════════════
@@ -4004,7 +4202,7 @@ window.__fetchAndLoginCS = async function(username, password){
 ═════════════════════════════════════════════ */
 const FB_SDK_VERSION = '10.13.2';
 const FB_CDN = `https://www.gstatic.com/firebasejs/${FB_SDK_VERSION}`;
-const FB_COLLECTIONS = { cfg:'od_cfg', prods:'od_prods', leads:'od_leads', cs:'od_cs', cs_users:'od_cs_users', qr_templates:'od_qr_templates' };
+const FB_COLLECTIONS = { cfg:'od_cfg', prods:'od_prods', leads:'od_leads', cs:'od_cs', cs_users:'od_cs_users', qr_templates:'od_qr_templates', ad_users:'od_ad_users' };
 
 /* ╔═══════════════════════════════════════════════════════════════╗
    ║ FIREBASE CONFIG BAWAAN — auto-connect untuk semua user        ║
@@ -4277,7 +4475,7 @@ function subscribeAllCollections(){
 
   // Other collections
   const collMap = {
-    prods:'od_prods', leads:'od_leads', cs:'od_cs', cs_users:'od_cs_users', qr_templates:'od_qr_templates'
+    prods:'od_prods', leads:'od_leads', cs:'od_cs', cs_users:'od_cs_users', qr_templates:'od_qr_templates', ad_users:'od_ad_users'
   };
   Object.keys(collMap).forEach(name=>{
     const ref = collection(fb.db, FB_COLLECTIONS[name]);
@@ -4323,6 +4521,7 @@ function onRemoteUpdate(name, arr){
     if(activePanel==='csaccess') renderCSUserProfileOptions();
   }
   if(name==='cs_users' && activePanel==='csaccess') renderCSUserList();
+  if(name==='ad_users' && activePanel==='adaccess') renderAdUserList();
   if(name==='qr_templates'){
     if(activePanel==='quickreply') renderQRList();
     // Refresh CS view buat re-render tombol QR
@@ -4428,7 +4627,7 @@ async function ensureCloudHasLocalData(){
   } catch(e){ console.warn('cfg check fail', e); }
 
   // Multi-doc collections
-  const collMap = { prods:'od_prods', leads:'od_leads', cs:'od_cs', cs_users:'od_cs_users', qr_templates:'od_qr_templates' };
+  const collMap = { prods:'od_prods', leads:'od_leads', cs:'od_cs', cs_users:'od_cs_users', qr_templates:'od_qr_templates', ad_users:'od_ad_users' };
   for(const name of Object.keys(collMap)){
     try {
       const snap = await getDocs(collection(fb.db, FB_COLLECTIONS[name]));
@@ -4468,6 +4667,7 @@ async function manualMigration(silent){
   getLeads().forEach(l=> tasks.push(dbWriteDoc(FB_COLLECTIONS.leads, l.id, l)));
   getCSList().forEach(c=> tasks.push(dbWriteDoc(FB_COLLECTIONS.cs, c.id, c)));
   getCSUsers().forEach(u=> tasks.push(dbWriteDoc(FB_COLLECTIONS.cs_users, u.id, u)));
+  getAdUsers().forEach(u=> tasks.push(dbWriteDoc(FB_COLLECTIONS.ad_users, u.id, u)));
   getQRTemplates().forEach(t=> tasks.push(dbWriteDoc(FB_COLLECTIONS.qr_templates, t.id, t)));
   await Promise.all(tasks);
   setMigrationStatus(`✅ Force-upload selesai. Total: ${tasks.length} record diupload (semua koleksi ditimpa di cloud).`);
@@ -4488,7 +4688,7 @@ async function checkCloudData(){
     result.cfg = 'error';
     errors.push('cfg: ['+(e.code||'?')+'] '+(e.message||String(e)).slice(0,140));
   }
-  const collMap = { prods:'od_prods', leads:'od_leads', cs:'od_cs', cs_users:'od_cs_users', qr_templates:'od_qr_templates' };
+  const collMap = { prods:'od_prods', leads:'od_leads', cs:'od_cs', cs_users:'od_cs_users', qr_templates:'od_qr_templates', ad_users:'od_ad_users' };
   for(const name of Object.keys(collMap)){
     try {
       const snap = await getDocs(collection(fb.db, FB_COLLECTIONS[name]));
@@ -4502,7 +4702,8 @@ async function checkCloudData(){
     cfg: LS.g('od_cfg', null) ? 1 : 0,
     prods: getProds().length, leads: getLeads().length,
     cs: getCSList().length, cs_users: getCSUsers().length,
-    qr_templates: getQRTemplates().length
+    qr_templates: getQRTemplates().length,
+    ad_users: getAdUsers().length
   };
   const lines = Object.keys(result).map(k => {
     const cloud = result[k], local = localCounts[k];
@@ -4892,6 +5093,251 @@ function syncQRSave(t){ if(fb.configured) dbWriteDoc('od_qr_templates', t.id, t)
 function syncQRDelete(id){ if(fb.configured) dbDeleteDoc('od_qr_templates', id); }
 
 /* ═════════════════════════════════════════════
+   ADVERTISER USER ACCOUNTS (admin-only management)
+═════════════════════════════════════════════ */
+const getAdUsers = () => LS.g('od_ad_users', []);
+let editAdUserId = null;
+let currentAdUser = null; // Aktif kalau lagi login sebagai advertiser
+
+function initAdAccessPanel(){
+  renderAdUserList();
+  cancelAdUser();
+}
+
+function renderAdUserList(){
+  const users = getAdUsers();
+  const el = document.getElementById('adUserList');
+  if(!el) return;
+  if(!users.length){
+    el.innerHTML = `<div class="empty"><div class="empty-icon">📊</div><div class="empty-title">Belum ada akun Iklan</div><div class="empty-sub">Tambah akun di form di atas — advertiser akan dapat akses login</div></div>`;
+    return;
+  }
+  el.innerHTML = users.map(u => {
+    const initial = (u.name || u.username)[0].toUpperCase();
+    const activeFlag = u.active !== false;
+    const statusBadge = activeFlag
+      ? '<span class="badge badge-green">Aktif</span>'
+      : '<span class="badge badge-orange">Nonaktif</span>';
+    return `<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);background:#fff;margin-bottom:10px;flex-wrap:wrap">
+      <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0">${esc(initial)}</div>
+      <div style="flex:1;min-width:200px">
+        <div style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>${esc(u.username)}</span>${statusBadge}
+        </div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:3px">👤 ${esc(u.name || '(tanpa nama)')}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:3px">🔑 Password: <code style="font-family:monospace;background:#f0f2f8;padding:2px 8px;border-radius:4px;color:var(--primary)">${esc(u.password)}</code></div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap">
+        <button class="btn btn-outline btn-sm" onclick="toggleAdUser(${u.id})">${activeFlag?'🔒 Nonaktifkan':'✅ Aktifkan'}</button>
+        <button class="btn btn-icon btn-sm" onclick="editAdUser(${u.id})" title="Edit">✏️</button>
+        <button class="btn btn-icon btn-sm" onclick="deleteAdUser(${u.id})" title="Hapus">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function saveAdUser(){
+  const name = document.getElementById('adAccName').value.trim();
+  const username = document.getElementById('adAccUser').value.trim().toLowerCase();
+  const password = document.getElementById('adAccPass').value.trim();
+  if(!name){ toast('⚠️ Nama wajib diisi'); return; }
+  if(!username){ toast('⚠️ Username wajib diisi'); return; }
+  if(!/^[a-z0-9._-]{3,}$/.test(username)){ toast('⚠️ Username minimal 3 karakter (a-z, 0-9, . _ -)'); return; }
+  if(!password || password.length < 4){ toast('⚠️ Password minimal 4 karakter'); return; }
+  const users = getAdUsers();
+  if(users.some(u => u.username === username && u.id !== editAdUserId)){
+    toast('⚠️ Username sudah dipakai'); return;
+  }
+  let savedUser;
+  if(editAdUserId){
+    const i = users.findIndex(u => u.id === editAdUserId);
+    if(i > -1){ users[i] = { ...users[i], name, username, password }; savedUser = users[i]; }
+  } else {
+    savedUser = { id: Date.now(), name, username, password, active: true };
+    users.push(savedUser);
+  }
+  LS.s('od_ad_users', users);
+  if(savedUser) syncAdUserSave(savedUser);
+  cancelAdUser();
+  renderAdUserList();
+  toast('✅ Akun Iklan tersimpan!');
+}
+
+function editAdUser(id){
+  const u = getAdUsers().find(x => x.id === id);
+  if(!u) return;
+  editAdUserId = id;
+  document.getElementById('adAccName').value = u.name || '';
+  document.getElementById('adAccUser').value = u.username;
+  document.getElementById('adAccPass').value = u.password;
+  document.getElementById('adAccFormTitle').textContent = `✏️ Edit Akun: ${u.username}`;
+  document.getElementById('cancelAdUserBtn').style.display = 'inline-flex';
+  document.getElementById('adAccName').focus();
+  document.getElementById('panel-adaccess').scrollIntoView({behavior:'smooth'});
+}
+
+function cancelAdUser(){
+  editAdUserId = null;
+  const els = ['adAccName','adAccUser','adAccPass'];
+  els.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  const ft = document.getElementById('adAccFormTitle');
+  if(ft) ft.textContent = '➕ Tambah Akun Iklan';
+  const cb = document.getElementById('cancelAdUserBtn');
+  if(cb) cb.style.display = 'none';
+}
+
+function toggleAdUser(id){
+  const users = getAdUsers();
+  const i = users.findIndex(u => u.id === id);
+  if(i < 0) return;
+  users[i].active = !(users[i].active !== false);
+  LS.s('od_ad_users', users);
+  syncAdUserSave(users[i]);
+  renderAdUserList();
+  toast(users[i].active ? '✅ Akun diaktifkan' : '🔒 Akun dinonaktifkan');
+}
+
+function deleteAdUser(id){
+  const u = getAdUsers().find(x => x.id === id);
+  if(!u) return;
+  if(!confirm(`Hapus akun login "${u.username}"?\n\nAdvertiser tidak bisa login lagi.`)) return;
+  LS.s('od_ad_users', getAdUsers().filter(x => x.id !== id));
+  syncAdUserDelete(id);
+  renderAdUserList();
+  toast('🗑️ Akun Iklan dihapus');
+}
+
+function syncAdUserSave(u){ if(fb.configured) dbWriteDoc(FB_COLLECTIONS.ad_users, u.id, u); }
+function syncAdUserDelete(id){ if(fb.configured) dbDeleteDoc(FB_COLLECTIONS.ad_users, id); }
+
+/* ── Cloud-first login fetch buat Advertiser ── */
+window.__fetchAndLoginAd = async function(username, password){
+  if(!fb.configured){
+    const cfg = getFBConfig();
+    if(!cfg) return null;
+    try { await initFirebase(cfg); } catch(e){ return null; }
+  }
+  try {
+    const { collection, getDocs, getDocsFromServer } = window._fbFs;
+    let snap;
+    try { snap = await getDocsFromServer(collection(fb.db, FB_COLLECTIONS.ad_users)); }
+    catch(e1){ snap = await getDocs(collection(fb.db, FB_COLLECTIONS.ad_users)); }
+    const users = [];
+    snap.forEach(d => users.push(d.data()));
+    LS.s('od_ad_users', users);
+    const found = users.find(u =>
+      u.username === username && u.password === password && u.active !== false
+    );
+    return found || null;
+  } catch(e){ console.warn('Ad cloud fetch fail:', e); return null; }
+};
+
+/* ── Modern doAdLogin (mirip doCSLogin) ── */
+async function doAdLogin(){
+  const u = document.getElementById('loginAdUser').value.trim().toLowerCase();
+  const p = document.getElementById('loginAdPass').value;
+  if(!u || !p){
+    document.getElementById('loginAdErr').classList.add('show');
+    return;
+  }
+  if(getFBConfig()){
+    const btn = document.querySelector('#loginAdForm button.login-btn');
+    if(btn){ btn.id = 'btnLoginAd'; }
+    if(typeof __setLoginLoading === 'function') __setLoginLoading('btnLoginAd', true);
+    try {
+      if(!fb.configured) await initFirebase(getFBConfig());
+      const { collection, getDocsFromServer, getDocs } = window._fbFs;
+      let snap;
+      try { snap = await getDocsFromServer(collection(fb.db, FB_COLLECTIONS.ad_users)); }
+      catch(e1){ snap = await getDocs(collection(fb.db, FB_COLLECTIONS.ad_users)); }
+      const cloudUsers = [];
+      snap.forEach(d => cloudUsers.push(d.data()));
+      LS.s('od_ad_users', cloudUsers);
+    } catch(e){ console.warn('Ad cloud fetch fail (fallback to local):', e); }
+    if(typeof __setLoginLoading === 'function') __setLoginLoading('btnLoginAd', false);
+  }
+  const users = getAdUsers();
+  const found = users.find(x => x.username === u && x.password === p && x.active !== false);
+  if(!found){
+    document.getElementById('loginAdErr').classList.add('show');
+    document.getElementById('loginAdUser').classList.add('err');
+    document.getElementById('loginAdPass').classList.add('err');
+    return;
+  }
+  document.getElementById('loginAdUser').value = '';
+  document.getElementById('loginAdPass').value = '';
+  document.getElementById('loginAdErr').classList.remove('show');
+  document.getElementById('loginAdUser').classList.remove('err');
+  document.getElementById('loginAdPass').classList.remove('err');
+  currentAdUser = found;
+  setSession('advertiser', found.id);
+  showDashboard();
+  applyRolePermissions();
+}
+
+/* ── Permission system: hide menu + buttons based on role ── */
+function getCurrentRole(){
+  if(currentAdUser) return 'advertiser';
+  if(currentCSUser) return 'cs';
+  // Cek session sebagai fallback
+  const s = LS.g('od_session', null);
+  if(s && s.role) return s.role;
+  return 'admin';
+}
+
+function applyRolePermissions(){
+  const role = getCurrentRole();
+  // Sidebar items yang HIDDEN untuk advertiser
+  const adHiddenPanels = ['cs','csaccess','quickreply','cloud','settings'];
+  document.querySelectorAll('.sb-item').forEach(btn => {
+    const onclick = btn.getAttribute('onclick') || '';
+    const m = onclick.match(/showPanel\('(\w+)'\)/);
+    if(!m) return;
+    const panelName = m[1];
+    if(role === 'advertiser'){
+      btn.style.display = adHiddenPanels.includes(panelName) ? 'none' : '';
+    } else {
+      btn.style.display = ''; // restore for admin
+    }
+  });
+  // Quick action buttons di Overview yg link ke CS-related
+  if(role === 'advertiser'){
+    document.querySelectorAll('[onclick*="showPanel(\'cs\')"], [onclick*="showPanel(\'csaccess\')"], [onclick*="showPanel(\'quickreply\')"]').forEach(el => {
+      el.style.display = 'none';
+    });
+  }
+  // Update sidebar user info
+  const avatar = document.querySelector('.sb-avatar');
+  const nameEl = document.querySelector('.sb-user-name');
+  const roleEl = document.querySelector('.sb-user-role');
+  if(role === 'advertiser' && currentAdUser){
+    if(avatar){ avatar.textContent = (currentAdUser.name||'I')[0].toUpperCase(); avatar.style.background = 'linear-gradient(135deg,#f59e0b,#d97706)'; }
+    if(nameEl) nameEl.textContent = currentAdUser.name || currentAdUser.username;
+    if(roleEl) roleEl.textContent = '📊 Advertiser';
+  } else if(role === 'admin'){
+    if(avatar){ avatar.textContent = 'A'; avatar.style.background = ''; }
+    if(nameEl) nameEl.textContent = 'Administrator';
+    if(roleEl) roleEl.textContent = 'Super Admin';
+  }
+  // Hide tombol "Hapus Semua" lead untuk advertiser
+  const btnClear = document.getElementById('btnClearLeads');
+  if(btnClear) btnClear.style.display = (role === 'advertiser') ? 'none' : '';
+  // Re-render leads kalo lagi di leads panel (buat hide tombol delete)
+  if(activePanel === 'leads' && typeof renderLeads === 'function') renderLeads();
+  if(activePanel === 'overview' && typeof renderOverview === 'function') renderOverview();
+}
+
+function doAdLogout(){
+  clearSession();
+  currentAdUser = null;
+  document.getElementById('viewDashboard').classList.remove('show');
+  document.getElementById('viewDashboard').style.display='none';
+  document.getElementById('viewLogin').style.display='flex';
+  // Restore admin permissions
+  document.querySelectorAll('.sb-item').forEach(b => b.style.display='');
+}
+
+/* ═════════════════════════════════════════════
    DATE RANGE FILTER (Overview / Leads / CS view)
 ═════════════════════════════════════════════ */
 function getDateRange(preset, customStart, customEnd){
@@ -4989,6 +5435,30 @@ async function restoreSession(){
     document.getElementById('viewLogin').style.display = 'none';
     showDashboard();
     return true;
+  }
+  if(session.role === 'advertiser' && session.userId !== undefined){
+    // Cari Advertiser user di LS
+    let user = getAdUsers().find(u => u.id === session.userId);
+    if(!user && getFBConfig()){
+      try {
+        if(!fb.configured) await initFirebase(getFBConfig());
+        const { collection, getDocs } = window._fbFs;
+        const snap = await getDocs(collection(fb.db, FB_COLLECTIONS.ad_users));
+        const cloudUsers = [];
+        snap.forEach(d => cloudUsers.push(d.data()));
+        LS.s('od_ad_users', cloudUsers);
+        user = cloudUsers.find(u => u.id === session.userId);
+      } catch(e){ console.warn('restoreSession Ad fetch fail:', e); }
+    }
+    if(user && user.active !== false){
+      currentAdUser = user;
+      document.getElementById('viewLogin').style.display = 'none';
+      showDashboard();
+      applyRolePermissions();
+      return true;
+    } else {
+      clearSession();
+    }
   }
   if(session.role === 'cs' && session.userId !== undefined){
     // Cari CS user di LS
