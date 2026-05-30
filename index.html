@@ -465,8 +465,8 @@ tr:hover td{background:#fafbff}
   .login-logo-text{font-size:18px}
   .login-title{font-size:21px}
   .login-sub{font-size:13px;margin-bottom:22px;line-height:1.5}
-  .login-tabs{margin-bottom:18px}
-  .login-tab{font-size:13px;padding:10px 8px;min-height:42px}
+  .login-tabs{margin-bottom:18px;gap:2px;padding:3px}
+  .login-tab{font-size:12px;padding:9px 4px;min-height:42px;line-height:1.2;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .login-input{font-size:16px;padding:13px 14px;margin-bottom:12px}
   .login-btn{padding:14px;font-size:15px;min-height:48px;font-weight:700}
   .login-err{font-size:12px}
@@ -926,7 +926,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-05-30-shared-cs-pool';
+window.__APP_VERSION = '2026-05-30-mobile-3tab-fix';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -2590,6 +2590,10 @@ function showDashboard(){
   document.getElementById('viewDashboard').classList.add('show');
   document.getElementById('viewDashboard').style.display='flex';
   initDashboard();
+  // Apply role-based permissions (admin restore semua, advertiser hide menu tertentu)
+  if(typeof applyRolePermissions === 'function'){
+    try { applyRolePermissions(); } catch(e){ console.warn('applyRolePermissions fail:', e); }
+  }
 }
 
 /* ═════════════════════════════════════════════
