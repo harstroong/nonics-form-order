@@ -441,7 +441,8 @@ tr:hover td{background:#fafbff}
   .stat-grid{grid-template-columns:1fr 1fr}
   .form-row{grid-template-columns:1fr}
   .form-row-3{grid-template-columns:1fr}
-  .sb-overlay{display:block}
+  /* PENTING: overlay HANYA muncul saat sidebar dibuka (class .show), bukan default
+     Sebelumnya .sb-overlay{display:block} bikin overlay selalu nutupin layar mobile */
   .sb-overlay.show{display:block;opacity:1}
 }
 @media(max-width:480px){
@@ -926,7 +927,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-05-30-mobile-3tab-fix';
+window.__APP_VERSION = '2026-05-30-sb-overlay-fix';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
