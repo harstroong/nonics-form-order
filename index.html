@@ -926,7 +926,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-05-30-advertiser-full-scope';
+window.__APP_VERSION = '2026-05-30-shared-cs-pool';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -2738,7 +2738,8 @@ function initLeadsPanel(){
     const cur = csSel.value;
     let csList = getCSList();
     if(currentAdUser){
-      // CS yang muncul cuma yang di-assign ke produk milik advertiser
+      // CS yang muncul: cuma yang di-assign ke produk milik advertiser
+      // (boleh CS admin atau CS advertiser sendiri — asal udah di-assign ke produknya)
       const myProds = getProds().filter(p => p.ownerRole === 'advertiser' && p.ownerId === currentAdUser.id);
       const myCSIds = new Set();
       myProds.forEach(p => {
@@ -3032,9 +3033,12 @@ function renderCSSelectorForProd(initialCSIds){
   }
   selectedCSId = selectedCSIds[0] || null;
   let list = getCSList();
-  // Advertiser: cuma liat CS miliknya
+  // Advertiser: liat CS admin (shared) + CS miliknya
   if(currentAdUser){
-    list = list.filter(c => c.ownerRole === 'advertiser' && c.ownerId === currentAdUser.id);
+    list = list.filter(c =>
+      c.ownerRole === 'admin' || !c.ownerRole
+      || (c.ownerRole === 'advertiser' && c.ownerId === currentAdUser.id)
+    );
   }
   const el = document.getElementById('csSelectorList');
   if(!list.length){
@@ -3440,9 +3444,12 @@ function initCSPanel(){
 
 function renderCSList(){
   let list = getCSList();
-  // Advertiser: cuma liat CS miliknya
+  // Advertiser: liat CS admin (shared pool) + CS miliknya sendiri
   if(currentAdUser){
-    list = list.filter(c => c.ownerRole === 'advertiser' && c.ownerId === currentAdUser.id);
+    list = list.filter(c =>
+      c.ownerRole === 'admin' || !c.ownerRole // CS milik admin / CS lama tanpa owner
+      || (c.ownerRole === 'advertiser' && c.ownerId === currentAdUser.id) // CS miliknya
+    );
   }
   const el = document.getElementById('csItemList');
   if(!list.length){
@@ -3451,19 +3458,44 @@ function renderCSList(){
     </div>`;
     return;
   }
-  el.innerHTML = list.map((cs,i) => `
-    <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:#fff">
+  el.innerHTML = list.map((cs,i) => {
+    // Tentukan ownership badge + apakah user bisa edit/hapus
+    const isOwnedByCurrentAdvertiser = currentAdUser && cs.ownerRole === 'advertiser' && cs.ownerId === currentAdUser.id;
+    const isAdminOwned = cs.ownerRole === 'admin' || !cs.ownerRole;
+    let ownerBadge = '';
+    if(currentAdUser){
+      // Advertiser view: kasih badge "Admin" buat CS yang dari admin (read-only)
+      if(isAdminOwned){
+        ownerBadge = `<span class="badge badge-blue" style="font-size:10px" title="CS dari admin, shared pool">👤 Admin</span>`;
+      } else if(isOwnedByCurrentAdvertiser){
+        ownerBadge = `<span class="badge badge-green" style="font-size:10px" title="CS milik lo">📊 Milik Lo</span>`;
+      }
+    } else {
+      // Admin view: kasih badge owner siapa
+      if(cs.ownerRole === 'advertiser'){
+        ownerBadge = `<span class="badge badge-purple" style="font-size:10px" title="Dibuat advertiser">📊 ${esc(cs.ownerName||'Advertiser')}</span>`;
+      } else if(isAdminOwned){
+        ownerBadge = `<span class="badge badge-blue" style="font-size:10px" title="Dibuat admin">👤 Admin</span>`;
+      }
+    }
+    // Advertiser cuma bisa edit/hapus CS miliknya. CS admin = read-only buat dia.
+    const canEditDelete = !currentAdUser || isOwnedByCurrentAdvertiser;
+    return `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:#fff;margin-bottom:10px">
       <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--sb-accent),var(--sb-accent-2));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;flex-shrink:0">${cs.name[0].toUpperCase()}</div>
       <div style="flex:1;min-width:0">
-        <div style="font-size:14px;font-weight:700">${esc(cs.name)}</div>
+        <div style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap">${esc(cs.name)} ${ownerBadge}</div>
         <div style="font-size:12px;color:var(--text-muted)">📱 ${esc(cs.waNum)}</div>
       </div>
       <div style="display:flex;gap:6px;flex-shrink:0">
         <a href="https://wa.me/${normalizeWaID(cs.waNum)}" target="_blank" class="btn btn-success btn-sm">💬</a>
+        ${canEditDelete ? `
         <button class="btn btn-icon btn-sm" onclick="editCSItem(${cs.id})" title="Edit">✏️</button>
         <button class="btn btn-icon btn-sm" onclick="deleteCSItem(${cs.id})" title="Hapus">🗑️</button>
+        ` : ''}
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function saveCSItem(){
