@@ -926,7 +926,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-05-30-owner-badge-filter';
+window.__APP_VERSION = '2026-05-30-advertiser-full-scope';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -2653,11 +2653,14 @@ function initDashboard(){
    OVERVIEW
 ═════════════════════════════════════════════ */
 function renderOverview(){
-  const leads=getLeads(),cfg=getCfg();
+  let leads=getLeads();
+  const cfg=getCfg();
   let prods=getProds();
-  // Advertiser: hitung cuma produk miliknya
+  // Advertiser: hitung cuma produk + leads miliknya
   if(currentAdUser){
     prods = prods.filter(p => p.ownerRole === 'advertiser' && p.ownerId === currentAdUser.id);
+    const myProdNames = new Set(prods.map(p => p.produkWA || p.name));
+    leads = leads.filter(l => myProdNames.has(l.produk));
   }
   const today=new Date().toDateString();
   const todayN=leads.filter(l=>new Date(l.ts).toDateString()===today).length;
@@ -2729,11 +2732,21 @@ function leadStatusBadge(status){
   return '';
 }
 function initLeadsPanel(){
-  // Populate dropdown CS & Produk berdasarkan data sekarang (refresh tiap buka panel)
+  // Untuk advertiser: filter CS list & produk list berdasarkan owner
   const csSel = document.getElementById('leadsCSFilter');
   if(csSel){
     const cur = csSel.value;
-    const csList = getCSList();
+    let csList = getCSList();
+    if(currentAdUser){
+      // CS yang muncul cuma yang di-assign ke produk milik advertiser
+      const myProds = getProds().filter(p => p.ownerRole === 'advertiser' && p.ownerId === currentAdUser.id);
+      const myCSIds = new Set();
+      myProds.forEach(p => {
+        const ids = (p.csIds && p.csIds.length) ? p.csIds : (p.csId ? [p.csId] : []);
+        ids.forEach(id => myCSIds.add(id));
+      });
+      csList = csList.filter(c => myCSIds.has(c.id));
+    }
     csSel.innerHTML = '<option value="">Semua CS</option>' +
       csList.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
     if(cur && csSel.querySelector(`option[value="${cur}"]`)) csSel.value = cur;
@@ -2741,7 +2754,10 @@ function initLeadsPanel(){
   const prodSel = document.getElementById('leadsProdFilter');
   if(prodSel){
     const cur = prodSel.value;
-    const prodList = getProds();
+    let prodList = getProds();
+    if(currentAdUser){
+      prodList = prodList.filter(p => p.ownerRole === 'advertiser' && p.ownerId === currentAdUser.id);
+    }
     prodSel.innerHTML = '<option value="">Semua Produk</option>' +
       prodList.map(p => {
         const v = p.produkWA || p.name;
@@ -2765,7 +2781,13 @@ function renderLeads(){
   const q=(document.getElementById('leadSearch')||{}).value||'';
   const csFilter = (document.getElementById('leadsCSFilter')||{}).value || '';
   const prodFilter = (document.getElementById('leadsProdFilter')||{}).value || '';
-  const all = getLeads();
+  let all = getLeads();
+  // ADVERTISER SCOPE: cuma liat lead dari produk yang dia bikin
+  if(currentAdUser){
+    const myProds = getProds().filter(p => p.ownerRole === 'advertiser' && p.ownerId === currentAdUser.id);
+    const myProdNames = new Set(myProds.map(p => p.produkWA || p.name));
+    all = all.filter(l => myProdNames.has(l.produk));
+  }
   const range = getDateFilterRange('leads');
   const inRange = filterLeadsByDate(all, range);
   let leads = inRange.filter(l =>
@@ -3009,7 +3031,11 @@ function renderCSSelectorForProd(initialCSIds){
     selectedCSIds = [];
   }
   selectedCSId = selectedCSIds[0] || null;
-  const list = getCSList();
+  let list = getCSList();
+  // Advertiser: cuma liat CS miliknya
+  if(currentAdUser){
+    list = list.filter(c => c.ownerRole === 'advertiser' && c.ownerId === currentAdUser.id);
+  }
   const el = document.getElementById('csSelectorList');
   if(!list.length){
     el.innerHTML = `<div style="padding:16px;border:1.5px dashed var(--border);border-radius:8px;text-align:center;font-size:13px;color:var(--text-muted)">
@@ -3413,7 +3439,11 @@ function initCSPanel(){
 }
 
 function renderCSList(){
-  const list = getCSList();
+  let list = getCSList();
+  // Advertiser: cuma liat CS miliknya
+  if(currentAdUser){
+    list = list.filter(c => c.ownerRole === 'advertiser' && c.ownerId === currentAdUser.id);
+  }
   const el = document.getElementById('csItemList');
   if(!list.length){
     el.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px;background:var(--bg);border-radius:8px">
@@ -3444,10 +3474,24 @@ function saveCSItem(){
   let saved;
   if(editCSId){
     const i = list.findIndex(c => c.id === editCSId);
-    if(i > -1){ list[i] = {...list[i], name, waNum}; saved = list[i]; }
+    if(i > -1){
+      // Safety: advertiser gak bisa edit CS bukan miliknya
+      if(currentAdUser && (list[i].ownerRole !== 'advertiser' || list[i].ownerId !== currentAdUser.id)){
+        toast('⚠️ CS ini bukan milik lo'); return;
+      }
+      list[i] = {...list[i], name, waNum}; saved = list[i];
+    }
     editCSId = null;
   } else {
     saved = { id: Date.now(), name, waNum };
+    // Tag ownership kalau advertiser yang bikin
+    if(currentAdUser){
+      saved.ownerRole = 'advertiser';
+      saved.ownerId = currentAdUser.id;
+      saved.ownerName = currentAdUser.name || currentAdUser.username;
+    } else {
+      saved.ownerRole = 'admin';
+    }
     list.push(saved);
   }
   LS.s('od_cs', list);
@@ -3460,6 +3504,10 @@ function saveCSItem(){
 function editCSItem(id){
   const cs = getCSList().find(c => c.id === id);
   if(!cs) return;
+  // Safety advertiser
+  if(currentAdUser && (cs.ownerRole !== 'advertiser' || cs.ownerId !== currentAdUser.id)){
+    toast('⚠️ CS ini bukan milik lo'); return;
+  }
   editCSId = id;
   document.getElementById('csItemName').value = cs.name;
   document.getElementById('csItemWA').value = cs.waNum;
@@ -3478,7 +3526,12 @@ function cancelCSItem(){
 
 function deleteCSItem(id){
   const cs = getCSList().find(c => c.id === id);
-  if(!confirm(`Hapus CS "${cs ? cs.name : ''}"?`)) return;
+  if(!cs) return;
+  // Safety advertiser
+  if(currentAdUser && (cs.ownerRole !== 'advertiser' || cs.ownerId !== currentAdUser.id)){
+    toast('⚠️ CS ini bukan milik lo'); return;
+  }
+  if(!confirm(`Hapus CS "${cs.name}"?`)) return;
   LS.s('od_cs', getCSList().filter(c => c.id !== id));
   syncCSDelete(id);
   renderCSList();
@@ -5387,8 +5440,12 @@ function getCurrentRole(){
 
 function applyRolePermissions(){
   const role = getCurrentRole();
-  // Sidebar items yang HIDDEN untuk advertiser
-  const adHiddenPanels = ['cs','csaccess','quickreply','cloud','settings'];
+  // Sidebar items yang HIDDEN untuk advertiser:
+  // - csaccess: cuma admin yang bisa kelola akun CS
+  // - adaccess: cuma admin yang bisa kelola akun Advertiser
+  // - quickreply: kelola template, admin doang
+  // - cloud + settings: infra & danger zone
+  const adHiddenPanels = ['csaccess','adaccess','quickreply','cloud','settings'];
   document.querySelectorAll('.sb-item').forEach(btn => {
     const onclick = btn.getAttribute('onclick') || '';
     const m = onclick.match(/showPanel\('(\w+)'\)/);
