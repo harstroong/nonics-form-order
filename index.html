@@ -926,7 +926,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-05-30-advertiser-role';
+window.__APP_VERSION = '2026-05-30-advertisers-rename';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -1387,7 +1387,7 @@ document.addEventListener('DOMContentLoaded', function(){
     <div class="login-tabs">
       <button type="button" class="login-tab active" id="loginTabAdmin" onclick="__safeSwitchLoginTab('admin')">👤 Admin</button>
       <button type="button" class="login-tab" id="loginTabCS" onclick="__safeSwitchLoginTab('cs')">💬 CS</button>
-      <button type="button" class="login-tab" id="loginTabAd" onclick="__safeSwitchLoginTab('advertiser')">📊 Iklan</button>
+      <button type="button" class="login-tab" id="loginTabAd" onclick="__safeSwitchLoginTab('advertiser')">📊 Advertisers</button>
     </div>
 
     <!-- Admin form (original) -->
@@ -1417,7 +1417,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
     <!-- Advertiser form -->
     <div id="loginAdForm" style="display:none">
-      <label class="login-label">Username Iklan</label>
+      <label class="login-label">Username Advertisers</label>
       <input class="login-input" id="loginAdUser" type="text" placeholder="Contoh: andi, rina" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="email"/>
       <label class="login-label">Password</label>
       <div class="pass-wrap">
@@ -1425,8 +1425,8 @@ document.addEventListener('DOMContentLoaded', function(){
         <button type="button" class="pass-eye" onclick="__togglePass('loginAdPass', this)" title="Lihat password">👁</button>
       </div>
       <div class="login-err" id="loginAdErr">Username atau password salah, atau akun belum aktif.</div>
-      <button type="button" class="login-btn" onclick="__safeAdLogin()">Masuk Panel Iklan →</button>
-      <div class="login-footer">Akun Iklan dibuat oleh admin via menu <em>Akses Login Iklan</em></div>
+      <button type="button" class="login-btn" onclick="__safeAdLogin()">Masuk Panel Advertisers →</button>
+      <div class="login-footer">Akun Advertisers dibuat oleh admin via menu <em>Akses Login Advertisers</em></div>
     </div>
 
     <!-- Error banner — muncul otomatis kalo ada JS error -->
@@ -1511,7 +1511,7 @@ document.addEventListener('DOMContentLoaded', function(){
         <span class="sb-icon">🔐</span> Akses Login CS
       </button>
       <button class="sb-item" onclick="showPanel('adaccess')">
-        <span class="sb-icon">📊</span> Akses Login Iklan
+        <span class="sb-icon">📊</span> Akses Login Advertisers
       </button>
       <button class="sb-item" onclick="showPanel('quickreply')">
         <span class="sb-icon">💬</span> Quick Reply
@@ -2014,14 +2014,14 @@ document.addEventListener('DOMContentLoaded', function(){
       <!-- ── AKSES LOGIN ADVERTISER ── -->
       <div class="panel" id="panel-adaccess">
         <div class="card">
-          <div class="card-title">📊 Akses Login Iklan (Advertiser)</div>
+          <div class="card-title">📊 Akses Login Advertisers (Advertiser)</div>
           <div class="card-sub">
-            Akun login buat tim Iklan. Mereka bisa lihat overview, leads, kelola produk, GTM tracking, dan generate embed code.
+            Akun login buat tim Advertisers. Mereka bisa lihat overview, leads, kelola produk, GTM tracking, dan generate embed code.
             <br/><strong>TIDAK bisa akses:</strong> CS profile/akun, Quick Reply, Cloud Sync, Pengaturan.
           </div>
 
           <div style="background:var(--bg);border-radius:var(--radius-sm);padding:16px;margin-bottom:16px">
-            <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text)" id="adAccFormTitle">➕ Tambah Akun Iklan</div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text)" id="adAccFormTitle">➕ Tambah Akun Advertisers</div>
             <input type="hidden" id="editAdUserId"/>
             <div class="form-row">
               <div class="form-group" style="margin-bottom:12px">
@@ -2037,7 +2037,7 @@ document.addEventListener('DOMContentLoaded', function(){
             </div>
             <div class="form-group" style="margin-bottom:12px">
               <label class="label">Password *</label>
-              <input class="input" id="adAccPass" type="text" placeholder="Password untuk login Iklan" autocomplete="off"/>
+              <input class="input" id="adAccPass" type="text" placeholder="Password untuk login Advertisers" autocomplete="off"/>
               <div class="hint">Min 4 karakter</div>
             </div>
             <div style="display:flex;gap:8px">
@@ -2050,11 +2050,11 @@ document.addEventListener('DOMContentLoaded', function(){
         </div>
 
         <div class="card" style="background:#fffbeb;border:1px solid #fde68a">
-          <div class="card-title" style="color:#92400e">💡 Cara Kerja Login Iklan</div>
+          <div class="card-title" style="color:#92400e">💡 Cara Kerja Login Advertisers</div>
           <ol style="font-size:13px;color:#78350f;line-height:1.9;padding-left:20px">
-            <li>Buat akun login Iklan di sini (nama + username + password)</li>
-            <li>Kasih credential ke tim Iklan</li>
-            <li>Mereka buka link Vercel → pilih tab <strong>📊 Iklan</strong> → masukin credential</li>
+            <li>Buat akun login Advertisers di sini (nama + username + password)</li>
+            <li>Kasih credential ke tim Advertisers</li>
+            <li>Mereka buka link Vercel → pilih tab <strong>📊 Advertisers</strong> → masukin credential</li>
             <li>Mereka lihat Overview, Leads, Produk, GTM, Embed — sesuai izinnya</li>
             <li>Tetap di-track Quick Reply / Catatan CS tidak terlihat oleh Advertiser</li>
           </ol>
@@ -2590,7 +2590,7 @@ const panelTitles={
   overview:'📊 Overview',leads:'👥 Leads',produk:'📦 Produk',
   form:'📋 Form Builder',cs:'💬 CS & Greeting',
   csaccess:'🔐 Akses Login CS',
-  adaccess:'📊 Akses Login Iklan',
+  adaccess:'📊 Akses Login Advertisers',
   quickreply:'💬 Quick Reply Templates',
   gtm:'📈 GTM Tracking',embed:'🔗 Embed HTML',
   cloud:'☁️ Cloud Sync',settings:'⚙️ Pengaturan'
@@ -5109,7 +5109,7 @@ function renderAdUserList(){
   const el = document.getElementById('adUserList');
   if(!el) return;
   if(!users.length){
-    el.innerHTML = `<div class="empty"><div class="empty-icon">📊</div><div class="empty-title">Belum ada akun Iklan</div><div class="empty-sub">Tambah akun di form di atas — advertiser akan dapat akses login</div></div>`;
+    el.innerHTML = `<div class="empty"><div class="empty-icon">📊</div><div class="empty-title">Belum ada akun Advertisers</div><div class="empty-sub">Tambah akun di form di atas — advertiser akan dapat akses login</div></div>`;
     return;
   }
   el.innerHTML = users.map(u => {
@@ -5160,7 +5160,7 @@ function saveAdUser(){
   if(savedUser) syncAdUserSave(savedUser);
   cancelAdUser();
   renderAdUserList();
-  toast('✅ Akun Iklan tersimpan!');
+  toast('✅ Akun Advertisers tersimpan!');
 }
 
 function editAdUser(id){
@@ -5181,7 +5181,7 @@ function cancelAdUser(){
   const els = ['adAccName','adAccUser','adAccPass'];
   els.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   const ft = document.getElementById('adAccFormTitle');
-  if(ft) ft.textContent = '➕ Tambah Akun Iklan';
+  if(ft) ft.textContent = '➕ Tambah Akun Advertisers';
   const cb = document.getElementById('cancelAdUserBtn');
   if(cb) cb.style.display = 'none';
 }
@@ -5204,7 +5204,7 @@ function deleteAdUser(id){
   LS.s('od_ad_users', getAdUsers().filter(x => x.id !== id));
   syncAdUserDelete(id);
   renderAdUserList();
-  toast('🗑️ Akun Iklan dihapus');
+  toast('🗑️ Akun Advertisers dihapus');
 }
 
 function syncAdUserSave(u){ if(fb.configured) dbWriteDoc(FB_COLLECTIONS.ad_users, u.id, u); }
