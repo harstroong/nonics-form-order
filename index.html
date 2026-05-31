@@ -211,7 +211,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 .card-divider{height:1px;background:var(--border);margin:20px 0}
 
 /* STAT CARDS */
-.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:24px}
 .stat-card{
   background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);
   padding:20px;display:flex;flex-direction:column;gap:6px;position:relative;overflow:hidden;
@@ -438,20 +438,16 @@ tr:hover td{background:#fafbff}
   .topbar{padding:0 16px}
   .content{padding:16px}
   .hamburger{display:flex}
-  .stat-grid{grid-template-columns:1fr 1fr}
+  /* stat-grid auto-fit otomatis adjust — gak perlu override eksplisit di sini */
   .form-row{grid-template-columns:1fr}
   .form-row-3{grid-template-columns:1fr}
   /* PENTING: overlay HANYA muncul saat sidebar dibuka (class .show), bukan default
      Sebelumnya .sb-overlay{display:block} bikin overlay selalu nutupin layar mobile */
   .sb-overlay.show{display:block;opacity:1}
 }
-@media(max-width:480px){
-  /* Stat grid tetap 2x2 di mobile biar gak boros vertikal — lebih ringkas */
-  .stat-grid{grid-template-columns:1fr 1fr;gap:10px}
-}
-@media(max-width:340px){
-  /* Cuma di HP super kecil baru fallback 1 kolom */
-  .stat-grid{grid-template-columns:1fr}
+@media(max-width:540px){
+  /* Di bawah 540px: force 1 kolom biar 3 card stack rapi (tanpa baris ke-2 lonely) */
+  .stat-grid{grid-template-columns:1fr;gap:10px}
 }
 
 /* ═══════════════════════════════════════════
@@ -927,7 +923,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-05-30-sb-overlay-fix';
+window.__APP_VERSION = '2026-05-30-merge-cards-mobile-fix';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -1569,14 +1565,8 @@ document.addEventListener('DOMContentLoaded', function(){
           <div class="stat-card stat-card-1">
             <div class="stat-icon">👥</div>
             <div class="stat-val" id="ov-total">0</div>
-            <div class="stat-label">Total Leads</div>
+            <div class="stat-label" id="ov-total-label">Total Leads</div>
             <div class="stat-trend trend-neutral" id="ov-total-t">Semua waktu</div>
-          </div>
-          <div class="stat-card stat-card-2">
-            <div class="stat-icon">📅</div>
-            <div class="stat-val" id="ov-today">0</div>
-            <div class="stat-label">Leads Hari Ini</div>
-            <div class="stat-trend trend-neutral" id="ov-today-t">—</div>
           </div>
           <div class="stat-card stat-card-3">
             <div class="stat-icon">📦</div>
@@ -2414,8 +2404,8 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="stat-card stat-card-1">
         <div class="stat-icon">📋</div>
         <div class="stat-val" id="cs-total">0</div>
-        <div class="stat-label">Lead Saya (Total)</div>
-        <div class="stat-trend trend-neutral">Semua waktu</div>
+        <div class="stat-label" id="cs-total-label">Lead Saya (Total)</div>
+        <div class="stat-trend trend-neutral" id="cs-total-trend">Semua waktu</div>
       </div>
       <div class="stat-card stat-card-3">
         <div class="stat-icon">🔴</div>
@@ -2428,12 +2418,6 @@ document.addEventListener('DOMContentLoaded', function(){
         <div class="stat-val" id="cs-done">0</div>
         <div class="stat-label">Sudah Diproses</div>
         <div class="stat-trend trend-neutral">Dihubungi / Closing</div>
-      </div>
-      <div class="stat-card stat-card-4">
-        <div class="stat-icon">📅</div>
-        <div class="stat-val" id="cs-today">0</div>
-        <div class="stat-label">Lead Hari Ini</div>
-        <div class="stat-trend trend-neutral">24 jam terakhir</div>
       </div>
     </div>
 
@@ -2667,10 +2651,15 @@ function renderOverview(){
     const myProdNames = new Set(prods.map(p => p.produkWA || p.name));
     leads = leads.filter(l => myProdNames.has(l.produk));
   }
-  const today=new Date().toDateString();
-  const todayN=leads.filter(l=>new Date(l.ts).toDateString()===today).length;
-  document.getElementById('ov-total').textContent=leads.length;
-  document.getElementById('ov-today').textContent=todayN;
+  // Card "Total Leads" sekarang dinamis — ikuti filter periode di "Leads Terbaru" di bawah
+  const range = getDateFilterRange('ov');
+  const filteredByRange = filterLeadsByDate(leads, range);
+  document.getElementById('ov-total').textContent = filteredByRange.length;
+  // Update label + trend agar jelas periode mana
+  const labelEl = document.getElementById('ov-total-label');
+  const trendEl = document.getElementById('ov-total-t');
+  if(labelEl) labelEl.textContent = (range.preset === 'lifetime') ? 'Total Leads' : 'Leads (' + range.label + ')';
+  if(trendEl) trendEl.textContent = (range.preset === 'lifetime') ? 'Semua waktu' : range.label;
   document.getElementById('ov-prods').textContent=prods.length;
   // GTM status
   if(cfg.gtmId){
@@ -2678,12 +2667,10 @@ function renderOverview(){
     document.getElementById('ov-gtm-t').textContent=cfg.gtmId;
     document.getElementById('ov-gtm-t').className='stat-trend trend-up';
   }
-  // Recent leads w/ date filter
-  const range = getDateFilterRange('ov');
-  const filtered = filterLeadsByDate(leads, range);
-  updateDateFilterInfo('ov', filtered.length, leads.length);
+  // Recent leads w/ date filter (reuse range & filteredByRange dari atas)
+  updateDateFilterInfo('ov', filteredByRange.length, leads.length);
   const el=document.getElementById('ov-recent-leads');
-  const recent = filtered.slice(0,5);
+  const recent = filteredByRange.slice(0,5);
   if(!recent.length){
     const msg = range.preset==='lifetime' ? 'Belum ada leads' : 'Tidak ada lead di periode '+range.label;
     el.innerHTML=`<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">${msg}</div><div class="empty-sub">${range.preset==='lifetime'?'Leads akan muncul di sini saat ada yang mengisi form':'Coba ganti periode di atas'}</div></div>`;
@@ -4168,19 +4155,20 @@ function getCSAssignedLeads(){
 
 function renderCSLeads(){
   const allMine = getCSAssignedLeads();
-  const today = new Date().toDateString();
-  // Stat cards: tetap pakai semua leads CS (lifetime) — gak ikut filter date
-  const lifetimePendingN = allMine.filter(l => !l.followStatus || l.followStatus === 'pending').length;
-  const lifetimeDoneN = allMine.filter(l => l.followStatus === 'contacted' || l.followStatus === 'closed').length;
-  const lifetimeTodayN = allMine.filter(l => new Date(l.ts).toDateString() === today).length;
-  document.getElementById('cs-total').textContent = allMine.length;
-  document.getElementById('cs-pending').textContent = lifetimePendingN;
-  document.getElementById('cs-done').textContent = lifetimeDoneN;
-  document.getElementById('cs-today').textContent = lifetimeTodayN;
-
-  // Apply date filter
+  // Apply date filter (counter & list semua ikut filter sekarang)
   const range = getDateFilterRange('cs');
   const inRange = filterLeadsByDate(allMine, range);
+  // Stat cards: hitung berdasarkan PERIODE TERPILIH
+  const pendingN = inRange.filter(l => !l.followStatus || l.followStatus === 'pending').length;
+  const doneN = inRange.filter(l => l.followStatus === 'contacted' || l.followStatus === 'closed').length;
+  document.getElementById('cs-total').textContent = inRange.length;
+  document.getElementById('cs-pending').textContent = pendingN;
+  document.getElementById('cs-done').textContent = doneN;
+  // Update label dinamis sesuai periode
+  const labelEl = document.getElementById('cs-total-label');
+  const trendEl = document.getElementById('cs-total-trend');
+  if(labelEl) labelEl.textContent = (range.preset === 'lifetime') ? 'Lead Saya (Total)' : 'Lead Saya';
+  if(trendEl) trendEl.textContent = (range.preset === 'lifetime') ? 'Semua waktu' : range.label;
   updateDateFilterInfo('cs', inRange.length, allMine.length);
 
   const q = (document.getElementById('csLeadSearch') || {}).value || '';
