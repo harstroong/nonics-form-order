@@ -923,7 +923,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-05-30-merge-cards-mobile-fix';
+window.__APP_VERSION = '2026-05-30-loud-notif-vibrate';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -1028,6 +1028,9 @@ function __doAdminLoginSuccess(cfg){
   if(pwEl) pwEl.classList.remove('err');
   // Save session
   try { localStorage.setItem('od_session', JSON.stringify({role:'admin',ts:Date.now()})); } catch(e){}
+  // Unlock audio + ask notif permission (user-gesture context)
+  if(typeof unlockAudio === 'function'){ try { unlockAudio(); } catch(e){} }
+  if(typeof askNotifPermission === 'function'){ try { askNotifPermission(); } catch(e){} }
   var v1 = document.getElementById('viewLogin');
   var v2 = document.getElementById('viewDashboard');
   if(v1) v1.style.display = 'none';
@@ -1102,6 +1105,10 @@ function __doCSLoginSuccess(user){
   window.currentCSUser = user;
   // Save session
   try { localStorage.setItem('od_session', JSON.stringify({role:'cs',userId:user.id,ts:Date.now()})); } catch(e){}
+  // Unlock audio for future beep notifications (user-gesture context)
+  if(typeof unlockAudio === 'function'){ try { unlockAudio(); } catch(e){} }
+  // Request browser notification permission (so OS notif works when tab in background)
+  if(typeof askNotifPermission === 'function'){ try { askNotifPermission(); } catch(e){} }
   var v1 = document.getElementById('viewLogin');
   var v2 = document.getElementById('viewDashboard');
   var v3 = document.getElementById('viewCS');
@@ -1202,6 +1209,9 @@ function __doAdLoginSuccess(user){
   if(pEl) pEl.classList.remove('err');
   window.currentAdUser = user;
   try { localStorage.setItem('od_session', JSON.stringify({role:'advertiser',userId:user.id,ts:Date.now()})); } catch(e){}
+  // Unlock audio + ask notif permission
+  if(typeof unlockAudio === 'function'){ try { unlockAudio(); } catch(e){} }
+  if(typeof askNotifPermission === 'function'){ try { askNotifPermission(); } catch(e){} }
   var v1 = document.getElementById('viewLogin');
   var v2 = document.getElementById('viewDashboard');
   var v3 = document.getElementById('viewCS');
@@ -2554,6 +2564,8 @@ async function doLogin(){
     document.getElementById('loginErr').classList.remove('show');
     document.getElementById('loginPass').classList.remove('err');
     setSession('admin');
+    if(typeof unlockAudio === 'function') unlockAudio();
+    if(typeof askNotifPermission === 'function') askNotifPermission();
     showDashboard();
   }else{
     document.getElementById('loginErr').classList.add('show');
@@ -4066,6 +4078,8 @@ async function doCSLogin(){
   document.getElementById('loginCSPass').classList.remove('err');
   currentCSUser = found;
   setSession('cs', found.id);
+  if(typeof unlockAudio === 'function') unlockAudio();
+  if(typeof askNotifPermission === 'function') askNotifPermission();
   showCSView();
 }
 
@@ -4911,23 +4925,82 @@ function setMigrationStatus(msg){
    NOTIFICATION — LEAD BARU
 ═════════════════════════════════════════════ */
 let _audioCtx = null;
+
+/* Unlock AudioContext lewat user-gesture (login button, dll)
+   iOS Safari & beberapa Android browser butuh ini sebelum audio bisa play */
+function unlockAudio(){
+  try {
+    if(!_audioCtx) _audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    const ctx = _audioCtx;
+    if(ctx.state === 'suspended') ctx.resume();
+    // Play 1-sample silent buffer untuk unlock
+    const buf = ctx.createBuffer(1, 1, 22050);
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(ctx.destination);
+    src.start(0);
+  } catch(e){}
+}
+
 function playLeadBeep(){
+  // Audio: 3x beep cepat berurutan, suara kenceng
   try{
     if(!_audioCtx) _audioCtx = new (window.AudioContext||window.webkitAudioContext)();
     const ctx = _audioCtx;
     if(ctx.state==='suspended') ctx.resume();
-    const playTone = (freq, start, dur) => {
+    const playTone = (freq, start, dur, vol) => {
       const osc = ctx.createOscillator(); const gain = ctx.createGain();
       osc.type='sine'; osc.frequency.value=freq;
       gain.gain.setValueAtTime(0, ctx.currentTime+start);
-      gain.gain.linearRampToValueAtTime(.18, ctx.currentTime+start+.02);
+      gain.gain.linearRampToValueAtTime(vol||.35, ctx.currentTime+start+.02);
       gain.gain.linearRampToValueAtTime(0, ctx.currentTime+start+dur);
       osc.connect(gain); gain.connect(ctx.destination);
       osc.start(ctx.currentTime+start); osc.stop(ctx.currentTime+start+dur+.05);
     };
-    playTone(880, 0, .15);
-    playTone(1175, .14, .2);
+    // Pattern: ding-dong-ding cepat, lebih attention-grabbing
+    playTone(880, 0, .15, .4);
+    playTone(1175, .18, .15, .4);
+    playTone(880, 0.36, .2, .4);
   } catch(e){ /* audio not available */ }
+  // Vibrate (Android support, iOS Safari ignore aja)
+  try {
+    if(navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 300]);
+  } catch(e){}
+}
+
+/* Ask browser notification permission (run after user interaction) */
+function askNotifPermission(){
+  if(!('Notification' in window)) return Promise.resolve(false);
+  if(Notification.permission === 'granted') return Promise.resolve(true);
+  if(Notification.permission === 'denied') return Promise.resolve(false);
+  try {
+    return Notification.requestPermission().then(p => p === 'granted');
+  } catch(e){
+    // Safari fallback (older)
+    return new Promise(resolve => Notification.requestPermission(p => resolve(p === 'granted')));
+  }
+}
+
+/* Show OS-level notification (works walau tab background) */
+function showOSNotification(title, body){
+  if(!('Notification' in window)) return;
+  if(Notification.permission !== 'granted') return;
+  try {
+    const notif = new Notification(title, {
+      body: body,
+      icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect width="64" height="64" rx="14" fill="%23667eea"/><text x="32" y="44" font-size="32" text-anchor="middle">🔔</text></svg>',
+      tag: 'lead-notif',
+      requireInteraction: false,
+      vibrate: [200, 100, 200, 100, 300]
+    });
+    // Click notification → focus window
+    notif.onclick = function(){
+      window.focus();
+      notif.close();
+    };
+    // Auto-close after 8 detik
+    setTimeout(() => { try { notif.close(); } catch(e){} }, 8000);
+  } catch(e){ console.warn('OS notif fail:', e); }
 }
 
 let _notifTimer = null;
@@ -4948,15 +5021,20 @@ function triggerLeadNotif(lead){
   if(currentCSUser){
     if(lead.csId !== currentCSUser.csId) return;
     playLeadBeep();
-    showLeadNotif('🔔 Lead Baru Masuk!', `${lead.nama||'?'} • ${lead.wa||'-'} • ${lead.produk||'-'}`);
+    const body = `${lead.nama||'?'} • ${lead.wa||'-'} • ${lead.produk||'-'}`;
+    showLeadNotif('🔔 Lead Baru Masuk!', body);
     flashTitle('🔔 Lead baru!');
+    // OS notification (muncul di panel notif HP walau tab background)
+    showOSNotification('🔔 Lead Baru Masuk!', body);
     return;
   }
   // For admin: show all
   if(document.getElementById('viewDashboard').classList.contains('show')){
     playLeadBeep();
-    showLeadNotif('🔔 Lead Baru', `${lead.nama||'?'} • ${lead.produk||'-'}`);
+    const body = `${lead.nama||'?'} • ${lead.produk||'-'}`;
+    showLeadNotif('🔔 Lead Baru', body);
     flashTitle('🔔 Lead baru!');
+    showOSNotification('🔔 Lead Baru', body);
   }
 }
 
@@ -5449,6 +5527,8 @@ async function doAdLogin(){
   document.getElementById('loginAdPass').classList.remove('err');
   currentAdUser = found;
   setSession('advertiser', found.id);
+  if(typeof unlockAudio === 'function') unlockAudio();
+  if(typeof askNotifPermission === 'function') askNotifPermission();
   showDashboard();
   applyRolePermissions();
 }
