@@ -923,7 +923,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-05-30-instant-wa-redirect';
+window.__APP_VERSION = '2026-06-02-overview-analytics';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -1592,12 +1592,9 @@ document.addEventListener('DOMContentLoaded', function(){
           </div>
         </div>
 
-        <!-- Recent Leads -->
+        <!-- Filter Periode utk semua analytics di Overview -->
         <div class="card">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-            <div class="card-title" style="margin-bottom:0">🕐 Leads Terbaru</div>
-            <button class="btn btn-outline btn-sm" onclick="showPanel('leads')">Lihat Semua →</button>
-          </div>
+          <div class="card-title" style="margin-bottom:12px">📊 Insights & Analytics</div>
           <div class="date-filter-bar">
             <span class="dfb-label">📅 Periode:</span>
             <select class="dfb-select" id="ovDateSel" onchange="onDateFilterChange('ov')">
@@ -1617,7 +1614,25 @@ document.addEventListener('DOMContentLoaded', function(){
             </span>
             <span class="dfb-info" id="ovDateInfo"></span>
           </div>
-          <div id="ov-recent-leads"></div>
+          <!-- Funnel Status -->
+          <div style="margin-top:8px">
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px">🎯 Funnel Status Lead</div>
+            <div id="ov-funnel"></div>
+          </div>
+        </div>
+
+        <!-- Top Produk + Top CS side by side -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:20px">
+          <div class="card" style="margin-bottom:0">
+            <div class="card-title">📦 Top Produk</div>
+            <div class="card-sub">Produk dengan lead terbanyak</div>
+            <div id="ov-top-produk"></div>
+          </div>
+          <div class="card" style="margin-bottom:0">
+            <div class="card-title">🏆 Top CS</div>
+            <div class="card-sub">CS dengan closing rate tertinggi</div>
+            <div id="ov-top-cs"></div>
+          </div>
         </div>
 
         <!-- Quick Actions -->
@@ -2679,16 +2694,121 @@ function renderOverview(){
     document.getElementById('ov-gtm-t').textContent=cfg.gtmId;
     document.getElementById('ov-gtm-t').className='stat-trend trend-up';
   }
-  // Recent leads w/ date filter (reuse range & filteredByRange dari atas)
+  // Update info filter
   updateDateFilterInfo('ov', filteredByRange.length, leads.length);
-  const el=document.getElementById('ov-recent-leads');
-  const recent = filteredByRange.slice(0,5);
-  if(!recent.length){
-    const msg = range.preset==='lifetime' ? 'Belum ada leads' : 'Tidak ada lead di periode '+range.label;
-    el.innerHTML=`<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">${msg}</div><div class="empty-sub">${range.preset==='lifetime'?'Leads akan muncul di sini saat ada yang mengisi form':'Coba ganti periode di atas'}</div></div>`;
+
+  // ── FUNNEL STATUS ──
+  renderOverviewFunnel(filteredByRange);
+  // ── TOP PRODUK ──
+  renderOverviewTopProduk(filteredByRange);
+  // ── TOP CS ──
+  renderOverviewTopCS(filteredByRange);
+}
+
+function renderOverviewFunnel(leads){
+  const el = document.getElementById('ov-funnel');
+  if(!el) return;
+  if(!leads.length){
+    el.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px">Belum ada lead di periode ini</div>`;
     return;
   }
-  el.innerHTML=recent.map(l=>leadCard(l,true)).join('');
+  const total = leads.length;
+  const buckets = {
+    pending: leads.filter(l => !l.followStatus || l.followStatus === 'pending').length,
+    contacted: leads.filter(l => l.followStatus === 'contacted').length,
+    closed: leads.filter(l => l.followStatus === 'closed').length,
+    no_response: leads.filter(l => l.followStatus === 'no_response').length,
+  };
+  const rows = [
+    { key:'pending', label:'🔴 Belum di-Follow Up', count:buckets.pending, color:'#f59e0b' },
+    { key:'contacted', label:'📞 Sudah Dihubungi', count:buckets.contacted, color:'#3b82f6' },
+    { key:'closed', label:'✅ Closing / Deal', count:buckets.closed, color:'#10b981' },
+    { key:'no_response', label:'❌ Tidak Respon', count:buckets.no_response, color:'#ef4444' },
+  ];
+  el.innerHTML = rows.map(r => {
+    const pct = total > 0 ? Math.round(r.count / total * 100) : 0;
+    return `<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+        <span style="color:var(--text)">${r.label}</span>
+        <span style="font-weight:700;color:${r.color}">${r.count} <span style="color:var(--text-muted);font-weight:500">(${pct}%)</span></span>
+      </div>
+      <div style="background:#f1f3f8;border-radius:6px;height:8px;overflow:hidden">
+        <div style="background:${r.color};height:100%;width:${pct}%;transition:width .3s"></div>
+      </div>
+    </div>`;
+  }).join('') + `<div style="margin-top:14px;padding:10px 14px;background:#f7f8fc;border-radius:8px;font-size:13px;color:var(--text-muted)">
+    📊 Total: <strong style="color:var(--text)">${total}</strong> lead di periode ini · Closing rate: <strong style="color:#10b981">${total > 0 ? Math.round(buckets.closed / total * 100) : 0}%</strong>
+  </div>`;
+}
+
+function renderOverviewTopProduk(leads){
+  const el = document.getElementById('ov-top-produk');
+  if(!el) return;
+  if(!leads.length){
+    el.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px">Belum ada data</div>`;
+    return;
+  }
+  // Group by produk
+  const groups = {};
+  leads.forEach(l => {
+    const k = l.produk || '(tanpa produk)';
+    if(!groups[k]) groups[k] = { name:k, total:0, closed:0 };
+    groups[k].total++;
+    if(l.followStatus === 'closed') groups[k].closed++;
+  });
+  const arr = Object.values(groups).sort((a,b) => b.total - a.total).slice(0, 5);
+  el.innerHTML = arr.map((p, i) => {
+    const closingRate = p.total > 0 ? Math.round(p.closed / p.total * 100) : 0;
+    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="width:28px;height:28px;border-radius:8px;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">${i+1}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.name)}</div>
+        <div style="font-size:11px;color:var(--text-muted)">${p.total} lead · ${p.closed} closing (${closingRate}%)</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderOverviewTopCS(leads){
+  const el = document.getElementById('ov-top-cs');
+  if(!el) return;
+  if(!leads.length){
+    el.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px">Belum ada data</div>`;
+    return;
+  }
+  const csList = getCSList();
+  // Group by CS
+  const groups = {};
+  leads.forEach(l => {
+    const k = l.csId || 0;
+    if(!groups[k]) groups[k] = { csId:k, total:0, closed:0 };
+    groups[k].total++;
+    if(l.followStatus === 'closed') groups[k].closed++;
+  });
+  const arr = Object.values(groups).map(g => {
+    const cs = csList.find(c => c.id === g.csId);
+    return { name: cs ? cs.name : '(tidak ada CS)', total: g.total, closed: g.closed };
+  }).filter(g => g.name !== '(tidak ada CS)' || g.total >= 3)
+    .sort((a,b) => {
+      const rateA = a.total > 0 ? a.closed / a.total : 0;
+      const rateB = b.total > 0 ? b.closed / b.total : 0;
+      if(rateB !== rateA) return rateB - rateA;
+      return b.closed - a.closed; // tie-break by closing count
+    }).slice(0, 5);
+  if(!arr.length){
+    el.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px">Belum ada data CS</div>`;
+    return;
+  }
+  el.innerHTML = arr.map((c, i) => {
+    const rate = c.total > 0 ? Math.round(c.closed / c.total * 100) : 0;
+    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">${i+1}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.name)}</div>
+        <div style="font-size:11px;color:var(--text-muted)">${c.total} lead · ${c.closed} closing (<strong style="color:#10b981">${rate}%</strong>)</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 /* ═════════════════════════════════════════════
@@ -2834,8 +2954,9 @@ function clearLeads(){
 function clearAllLeads(){clearLeads();}
 function updateLeadsBadge(){
   const n=getLeads().length;
-  document.getElementById('leadsBadge').textContent=n;
-  document.getElementById('leadsBadge').style.display=n?'':'none';
+  // Badge angka di sidebar Leads di-hide permanent (user request)
+  const badge = document.getElementById('leadsBadge');
+  if(badge){ badge.style.display='none'; badge.textContent=''; }
 }
 function exportCSV(){
   const all = getLeads();
