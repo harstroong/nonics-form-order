@@ -923,7 +923,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-05-30-loud-notif-vibrate';
+window.__APP_VERSION = '2026-05-30-instant-wa-redirect';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -3252,8 +3252,8 @@ ${cfg.fieldKecamatan?`+'<input id="oo-kc${p.id}" type="text" placeholder="Kecama
 +'<div style="font-size:56px;margin-bottom:10px">🎉<\\/div>'
 +'<div style="font-size:22px;font-weight:700;margin-bottom:8px;color:#1b5e20">Berhasil!<\\/div>'
 +'<div style="font-size:14px;color:#666;line-height:1.6;margin-bottom:18px">Tinggal <b>1 langkah lagi<\\/b>: lanjut chat ke WhatsApp untuk konfirmasi pesanan kakak 👇<\\/div>'
-+'<a id="oo-wa-btn-${p.id}" href="#" rel="noopener" style="display:block;background:#25D366;color:#fff;text-align:center;padding:18px;font-size:17px;font-weight:700;border-radius:8px;text-decoration:none;margin-bottom:12px;box-shadow:0 4px 12px rgba(37,211,102,.35)">💬 Lanjut ke WhatsApp →<\\/a>'
-+'<div style="font-size:12px;color:#999">Otomatis dialihkan dalam <span id="oo-cd-${p.id}" style="font-weight:700;color:#25D366">3<\\/span> detik...<\\/div>'
++'<a id="oo-wa-btn-${p.id}" href="#" rel="noopener" style="display:block;background:#25D366;color:#fff;text-align:center;padding:18px;font-size:17px;font-weight:700;border-radius:8px;text-decoration:none;margin-bottom:6px;box-shadow:0 4px 12px rgba(37,211,102,.35)">💬 Lanjut ke WhatsApp →<\\/a>'
++'<div style="font-size:12px;color:#999;margin-top:8px">Kalau WhatsApp tidak terbuka otomatis, tap tombol hijau di atas<\\/div>'
 +'<\\/div><\\/div><\\/div>';
 window['ooSub${p.id}']=function(){
   var nm=document.getElementById('oo-n${p.id}').value.trim();
@@ -3317,23 +3317,17 @@ window['ooSub${p.id}']=function(){
     }catch(e){/* lead udah aman di LS */}
   }
 
-  /* ── Show success screen ── */
-  document.getElementById('oo-f${p.id}').style.display='none';
-  document.getElementById('oo-ok${p.id}').style.display='block';
+  /* ── Set anchor href dulu sebagai fallback (kalau redirect ke-block) ── */
   var manualBtn=document.getElementById('oo-wa-btn-${p.id}');
   if(manualBtn) manualBtn.href=waUrl;
-
-  /* ── Auto-redirect via window.location.href (same tab, work di YT in-app browser) ── */
-  var cd=3, cdEl=document.getElementById('oo-cd-${p.id}');
-  if(cdEl) cdEl.textContent=cd;
-  var cdTimer=setInterval(function(){
-    cd--;
-    if(cdEl) cdEl.textContent=Math.max(cd,0);
-    if(cd<=0){
-      clearInterval(cdTimer);
-      window.location.href=waUrl;
-    }
-  },1000);
+  /* ── Show success screen sebagai fallback (kalau redirect ke-block) ── */
+  document.getElementById('oo-f${p.id}').style.display='none';
+  document.getElementById('oo-ok${p.id}').style.display='block';
+  /* ── INSTANT redirect — multi-fallback biar work di semua browser ── */
+  // Method 1: anchor click — paling reliable buat in-app browser (FB/IG/YouTube)
+  try { if(manualBtn && manualBtn.click) manualBtn.click(); } catch(e){}
+  // Method 2: location.href — fallback paling universal
+  try { window.location.href=waUrl; } catch(e){}
 };
 ${gtmId?`if(!document.getElementById('oo-gtm-${p.id}')){var gs=document.createElement('script');gs.id='oo-gtm-${p.id}';gs.innerHTML='(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);})(window,document,"script","dataLayer","${gtmId}");';document.head.appendChild(gs);}`:``}}();
 <\/script>`;
@@ -3734,8 +3728,8 @@ ${cfg.fieldKecamatan?`+'<input id="oo-kc" type="text" placeholder="Kecamatan" st
 +'<div style="font-size:56px;margin-bottom:10px">🎉<\\/div>'
 +'<div style="font-size:22px;font-weight:700;margin-bottom:8px;color:#1b5e20">Berhasil!</div>'
 +'<div style="font-size:14px;color:#666;line-height:1.6;margin-bottom:18px">Tinggal <b>1 langkah lagi<\\/b>: lanjut chat ke WhatsApp untuk konfirmasi pesanan kakak 👇</div>'
-+'<a id="oo-wa-btn" href="#" rel="noopener" style="display:block;background:#25D366;color:#fff;text-align:center;padding:18px;font-size:17px;font-weight:700;border-radius:8px;text-decoration:none;margin-bottom:12px;box-shadow:0 4px 12px rgba(37,211,102,.35)">💬 Lanjut ke WhatsApp →<\\/a>'
-+'<div style="font-size:12px;color:#999">Otomatis dialihkan dalam <span id="oo-cd" style="font-weight:700;color:#25D366">3<\\/span> detik...</div>'
++'<a id="oo-wa-btn" href="#" rel="noopener" style="display:block;background:#25D366;color:#fff;text-align:center;padding:18px;font-size:17px;font-weight:700;border-radius:8px;text-decoration:none;margin-bottom:6px;box-shadow:0 4px 12px rgba(37,211,102,.35)">💬 Lanjut ke WhatsApp →<\\/a>'
++'<div style="font-size:12px;color:#999;margin-top:8px">Kalau WhatsApp tidak terbuka otomatis, tap tombol hijau di atas</div>'
 +'<\\/div>'
 +'<\\/div><\\/div>';
 window.ooSub=function(){
@@ -3761,17 +3755,12 @@ window.ooSub=function(){
   if(cfg.convLabel&&typeof gtag==='function')gtag('event','conversion',{send_to:cfg.convLabel});
   document.getElementById('oo-form').style.display='none';
   document.getElementById('oo-ok').style.display='block';
-  /* Anchor link buat klik manual */
+  /* Anchor link buat fallback klik manual */
   var manualBtn=document.getElementById('oo-wa-btn');
   if(manualBtn) manualBtn.href=waUrl;
-  /* Auto-redirect via location.href (same tab, work di YouTube in-app browser) */
-  var cd=3, cdEl=document.getElementById('oo-cd');
-  if(cdEl) cdEl.textContent=cd;
-  var cdTimer=setInterval(function(){
-    cd--;
-    if(cdEl) cdEl.textContent=Math.max(cd,0);
-    if(cd<=0){clearInterval(cdTimer);window.location.href=waUrl;}
-  },1000);
+  /* INSTANT redirect — multi-fallback */
+  try { if(manualBtn && manualBtn.click) manualBtn.click(); } catch(e){}
+  try { window.location.href=waUrl; } catch(e){}
 };
 ${cfg.gtmId?`if(!document.getElementById('oo-gtm')){var gs=document.createElement('script');gs.id='oo-gtm';gs.innerHTML='(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);})(window,document,"script","dataLayer","${cfg.gtmId}");';document.head.appendChild(gs);}`:``}}();
 <\/script>`;
