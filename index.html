@@ -923,7 +923,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-02-overview-analytics';
+window.__APP_VERSION = '2026-06-02-produk-search-name';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -1721,6 +1721,10 @@ document.addEventListener('DOMContentLoaded', function(){
               <option value="admin">👤 Admin Only</option>
             </select>
             <span class="dfb-info" id="prodOwnerInfo"></span>
+          </div>
+          <!-- Search produk by nama -->
+          <div style="margin-bottom:16px">
+            <input class="input" id="prodSearch" type="text" placeholder="🔍  Cari nama produk..." oninput="renderProdList()" style="max-width:420px"/>
           </div>
           <div id="prodList"></div>
         </div>
@@ -3034,7 +3038,15 @@ function renderProdList(){
         prods = prods.filter(p => p.ownerRole === 'advertiser' && p.ownerId === advId);
       }
     }
-    // Update info counter
+  }
+  // SEARCH filter — cari di nama produk (case-insensitive)
+  const searchEl = document.getElementById('prodSearch');
+  const q = searchEl ? (searchEl.value || '').trim().toLowerCase() : '';
+  if(q){
+    prods = prods.filter(p => (p.name||'').toLowerCase().includes(q));
+  }
+  // Update info counter (admin only) — termasuk hasil search
+  if(!currentAdUser){
     const infoEl = document.getElementById('prodOwnerInfo');
     if(infoEl){
       const total = getProds().length;
@@ -3043,9 +3055,14 @@ function renderProdList(){
   }
   const el=document.getElementById('prodList');
   if(!prods.length){
-    const emptyMsg = currentAdUser
-      ? `<div class="empty"><div class="empty-icon">📦</div><div class="empty-title">Belum ada produk lo</div><div class="empty-sub">Klik "Tambah Produk" untuk bikin produk pertama lo. Produk yg lo bikin cuma keliatan ke lo doang.</div></div>`
-      : `<div class="empty"><div class="empty-icon">📦</div><div class="empty-title">Belum ada produk</div><div class="empty-sub">Klik "Tambah Produk" untuk mulai</div></div>`;
+    let emptyMsg;
+    if(q){
+      emptyMsg = `<div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">Tidak ada produk cocok "${esc(q)}"</div><div class="empty-sub">Coba kata kunci lain atau kosongkan kotak search</div></div>`;
+    } else if(currentAdUser){
+      emptyMsg = `<div class="empty"><div class="empty-icon">📦</div><div class="empty-title">Belum ada produk lo</div><div class="empty-sub">Klik "Tambah Produk" untuk bikin produk pertama lo. Produk yg lo bikin cuma keliatan ke lo doang.</div></div>`;
+    } else {
+      emptyMsg = `<div class="empty"><div class="empty-icon">📦</div><div class="empty-title">Belum ada produk</div><div class="empty-sub">Klik "Tambah Produk" untuk mulai</div></div>`;
+    }
     el.innerHTML = emptyMsg;
     return;
   }
