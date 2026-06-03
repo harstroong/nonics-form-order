@@ -446,8 +446,15 @@ tr:hover td{background:#fafbff}
   .sb-overlay.show{display:block;opacity:1}
 }
 @media(max-width:540px){
-  /* Di bawah 540px: force 1 kolom biar 3 card stack rapi (tanpa baris ke-2 lonely) */
-  .stat-grid{grid-template-columns:1fr;gap:10px}
+  /* HP: 3 card side-by-side (compact) biar gak makan space vertikal */
+  .stat-grid{grid-template-columns:repeat(3,1fr);gap:6px}
+  .stat-grid .stat-card{padding:10px 8px;gap:2px}
+  .stat-grid .stat-icon{font-size:14px;margin-bottom:0}
+  .stat-grid .stat-val{font-size:18px;letter-spacing:-.5px}
+  .stat-grid .stat-label{font-size:10px;line-height:1.2;font-weight:600}
+  .stat-grid .stat-trend{font-size:9px;line-height:1.2;display:none}
+  /* Circle decoration di card lebih kecil supaya tidak overflow */
+  .stat-grid .stat-card::before{width:48px;height:48px;transform:translate(15px,-15px)}
 }
 
 /* ═══════════════════════════════════════════
@@ -640,10 +647,38 @@ tr:hover td{background:#fafbff}
 .csv-content{flex:1;padding:24px;max-width:1200px;width:100%;margin:0 auto;box-sizing:border-box}
 .cs-lead-card{
   border:1px solid var(--border);border-radius:var(--radius-sm);
-  padding:16px;margin-bottom:12px;background:#fff;
+  margin-bottom:8px;background:#fff;
   transition:border-color .15s,box-shadow .15s;
+  overflow:hidden;
 }
-.cs-lead-card:hover{border-color:var(--primary);box-shadow:0 0 0 3px rgba(102,126,234,.06)}
+.cs-lead-card:hover{border-color:var(--primary)}
+.cs-lead-card.expanded{border-color:var(--primary);box-shadow:0 0 0 3px rgba(102,126,234,.08)}
+
+.cs-lead-header{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 14px;cursor:pointer;user-select:none;
+}
+.cs-lead-header:hover{background:rgba(0,0,0,.02)}
+.cs-lead-header-info{flex:1;min-width:0}
+.cs-lead-header-name{font-size:13px;font-weight:700;color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cs-lead-header-meta{font-size:11px;color:var(--text-muted);margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cs-lead-chevron{
+  color:var(--text-muted);flex-shrink:0;font-size:18px;
+  transition:transform .2s;line-height:1;
+}
+.cs-lead-card.expanded .cs-lead-chevron{transform:rotate(180deg)}
+
+.cs-lead-body{
+  display:none;padding:0 14px 14px;
+  border-top:1px solid var(--border);
+}
+.cs-lead-card.expanded .cs-lead-body{display:block;padding-top:12px}
+.cs-lead-body-meta{font-size:12px;color:var(--text-muted);margin-bottom:8px;line-height:1.6}
+.cs-lead-body-section{margin-bottom:10px}
+.cs-lead-body-section-label{font-size:10px;color:var(--text-muted);
+  text-transform:uppercase;letter-spacing:.4px;font-weight:700;margin-bottom:6px}
 .cs-filter-tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--border);overflow-x:auto;padding-bottom:0}
 @media(max-width:768px){
   .csv-topbar{padding:0 16px}
@@ -923,7 +958,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-02-produk-search-name';
+window.__APP_VERSION = '2026-06-03-cs-tap-expand';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -4159,6 +4194,16 @@ function switchLoginTab(tab){
 ═════════════════════════════════════════════ */
 let currentCSUser = null;
 let csLeadFilter = 'all';
+let expandedLeadId = null; // ID lead yang lagi di-expand (Opsi C — tap to expand)
+
+function toggleLeadExpand(id){
+  expandedLeadId = (expandedLeadId === id) ? null : id;
+  // Update DOM langsung tanpa re-render full (cepat)
+  document.querySelectorAll('.cs-lead-card').forEach(c => {
+    const cId = c.getAttribute('data-lead-id');
+    c.classList.toggle('expanded', cId === expandedLeadId);
+  });
+}
 
 async function doCSLogin(){
   const u = document.getElementById('loginCSUser').value.trim().toLowerCase();
@@ -4376,40 +4421,38 @@ function csLeadCard(l){
   const touchedBadge = qrSentCount > 0
     ? `<span class="cs-lead-touched-badge" title="Sudah dikirim ${qrSentCount} quick reply">⚡ ${qrSentCount} FU terkirim</span>`
     : '';
-  return `<div class="cs-lead-card ${touchedClass}">
-    <div style="display:flex;align-items:flex-start;gap:14px">
-      <div class="lead-avatar">${esc(init)}</div>
-      <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
-          <div style="font-size:14px;font-weight:700">${esc(l.nama||'-')}</div>
-          ${statusBadges[status] || statusBadges.pending}
-          ${touchedBadge}
-        </div>
-        <div style="font-size:13px;color:var(--text-muted);display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-          <span>📱 ${esc(l.wa||'-')}</span>
-          <span class="badge badge-blue">${esc(l.produk||'-')}</span>
-          <span>${fmtDate(l.ts)}</span>
-        </div>
-        ${addrHtml}
-        ${notes}
-        ${followInfo}
+  const isExpanded = (expandedLeadId === l.id);
+  return `<div class="cs-lead-card ${touchedClass} ${isExpanded?'expanded':''}" id="leadCard-${l.id}" data-lead-id="${l.id}">
+    <!-- HEADER (collapsed view) — klik untuk expand/collapse -->
+    <div class="cs-lead-header" onclick="toggleLeadExpand('${l.id}')">
+      <div class="lead-avatar" style="width:32px;height:32px;font-size:13px">${esc(init)}</div>
+      <div class="cs-lead-header-info">
+        <div class="cs-lead-header-name">${esc(l.nama||'-')} ${touchedBadge}</div>
+        <div class="cs-lead-header-meta">📱 ${esc(l.wa||'-')} · ${esc(l.produk||'-')} · ${fmtDate(l.ts)}</div>
       </div>
-      <div class="lead-menu-wrap">
-        <button class="lead-menu-btn" onclick="toggleLeadMenu('${l.id}')" title="Aksi lain">⋯</button>
-        <div class="lead-menu-dropdown" id="leadMenu-${l.id}">
-          <button class="lead-menu-item" onclick="setLeadStatus('${l.id}','contacted');toggleLeadMenu('${l.id}')">📞 Tandai Dihubungi</button>
-          <button class="lead-menu-item" onclick="setLeadStatus('${l.id}','closed');toggleLeadMenu('${l.id}')">✅ Closing</button>
-          <button class="lead-menu-item" onclick="setLeadStatus('${l.id}','no_response');toggleLeadMenu('${l.id}')">❌ Tidak Respon</button>
-          <button class="lead-menu-item" onclick="setLeadStatus('${l.id}','pending');toggleLeadMenu('${l.id}')">🔴 Reset Status</button>
-          <div class="lead-menu-divider"></div>
-          <button class="lead-menu-item" onclick="editLeadNote('${l.id}');toggleLeadMenu('${l.id}')">📝 ${l.followNotes?'Edit':'Tambah'} Catatan</button>
+      ${statusBadges[status] || statusBadges.pending}
+      <div class="cs-lead-chevron">⌄</div>
+    </div>
+    <!-- BODY (expanded view) — all detail + action -->
+    <div class="cs-lead-body">
+      ${addrParts.length ? `<div class="cs-lead-body-meta">📍 ${esc(addrParts.join(', '))}</div>` : ''}
+      ${notes}
+      ${followInfo}
+
+      ${renderQRButtonsForLead(l)}
+
+      <div style="margin-top:12px">
+        <div class="cs-lead-body-section-label">⚙️ Update status</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <a href="https://wa.me/${waNumber}" target="_blank" class="btn btn-success btn-sm" onclick="event.stopPropagation()">💬 Chat WA</a>
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();setLeadStatus('${l.id}','contacted')">📞 Dihubungi</button>
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();setLeadStatus('${l.id}','closed')">✅ Closing</button>
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();setLeadStatus('${l.id}','no_response')">❌ No Respon</button>
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();setLeadStatus('${l.id}','pending')">🔴 Reset</button>
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();editLeadNote('${l.id}')">📝 ${l.followNotes?'Edit':'Tambah'} Catatan</button>
         </div>
       </div>
     </div>
-    <div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap">
-      <a href="https://wa.me/${waNumber}" target="_blank" class="btn btn-success btn-sm">💬 Chat WA</a>
-    </div>
-    ${renderQRButtonsForLead(l)}
   </div>`;
 }
 
