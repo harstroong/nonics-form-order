@@ -966,7 +966,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-04-cs-card-header-fix';
+window.__APP_VERSION = '2026-06-04-reassign-lead';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -2449,6 +2449,32 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 </div>
 
+<!-- ═══════════════════════════════════
+     REASSIGN LEAD MODAL — pindahin lead dari CS A ke CS B
+═══════════════════════════════════ -->
+<div id="reassignModal" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.6);align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:16px;max-width:440px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.3)">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+      <div style="font-weight:700;font-size:15px">🔄 Pindahkan Lead ke CS Lain</div>
+      <button onclick="closeReassignModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-muted)">✕</button>
+    </div>
+    <div style="padding:18px 20px">
+      <div id="reassignLeadInfo" style="background:#f7f8fc;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:13px"></div>
+      <div style="margin-bottom:6px;font-size:12px;color:var(--text-muted);font-weight:600">CS saat ini</div>
+      <div id="reassignCurrentCS" style="padding:8px 12px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;font-size:13px;color:#9a3412;margin-bottom:14px"></div>
+      <div style="margin-bottom:6px;font-size:12px;color:var(--text-muted);font-weight:600">Pindahkan ke CS</div>
+      <select id="reassignTargetCS" class="input" style="width:100%;margin-bottom:14px"></select>
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:8px 12px;font-size:11px;color:#1e3a8a;margin-bottom:14px;line-height:1.5">
+        💡 Daftar CS otomatis terisi dari CS yang ter-assign ke produk lead ini. Round-robin counter juga ikut di-update.
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn btn-outline" onclick="closeReassignModal()">Batal</button>
+        <button class="btn btn-primary" id="reassignConfirmBtn" onclick="confirmReassign()">🔄 Pindahkan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <!-- ═══════════════════════════════════
      CS VIEW (login CS — terpisah dari admin)
@@ -2885,6 +2911,7 @@ function leadCard(l,compact=false){
     </div>
     ${!compact?`<div class="lead-actions" style="align-items:flex-start">
       <a href="https://wa.me/${normalizeWaID(l.wa)}" target="_blank" class="btn btn-success btn-sm">💬 WA</a>
+      <button class="btn btn-outline btn-sm" onclick="openReassignModal('${l.id}')" title="Pindahkan lead ke CS lain">🔄 Reassign</button>
       ${currentAdUser ? '' : `<div class="lead-menu-wrap">
         <button class="lead-menu-btn" onclick="toggleLeadMenu('a-${l.id}')" title="Aksi lain">⋯</button>
         <div class="lead-menu-dropdown" id="leadMenu-a-${l.id}">
@@ -4522,6 +4549,135 @@ function editLeadNote(id){
   syncLeadSave(leads[i]);
   renderCSLeads();
   toast('📝 Catatan tersimpan');
+}
+
+/* ═════════════════════════════════════════════
+   REASSIGN LEAD — admin/advertiser pindahin lead
+   dari CS A ke CS B (mis. CS off / cuti / overload)
+═════════════════════════════════════════════ */
+let reassignLeadId = null;
+
+function openReassignModal(leadId){
+  const leads = getLeads();
+  const lead = leads.find(function(l){ return l.id === leadId; });
+  if(!lead){ toast('⚠️ Lead tidak ditemukan'); return; }
+
+  // Advertiser scope: cuma boleh reassign lead dari produknya sendiri
+  if(currentAdUser){
+    const myProds = getProds().filter(function(p){
+      return p.ownerRole === 'advertiser' && p.ownerId === currentAdUser.id;
+    });
+    const myProdNames = myProds.map(function(p){ return p.produkWA || p.name; });
+    if(myProdNames.indexOf(lead.produk) < 0){
+      toast('⚠️ Lead ini bukan dari produk lo'); return;
+    }
+  }
+
+  reassignLeadId = leadId;
+  const csList = getCSList();
+  const curCS = lead.csId ? csList.find(function(c){ return c.id === lead.csId; }) : null;
+
+  // Info lead
+  const infoEl = document.getElementById('reassignLeadInfo');
+  if(infoEl){
+    infoEl.innerHTML =
+      '<div style="font-weight:700;margin-bottom:3px">' + esc(lead.nama || '-') + '</div>' +
+      '<div style="color:var(--text-muted);font-size:12px">📱 ' + esc(lead.wa || '-') +
+      ' · ' + esc(lead.produk || '-') + '</div>';
+  }
+
+  // CS sekarang
+  const curEl = document.getElementById('reassignCurrentCS');
+  if(curEl){
+    curEl.textContent = curCS
+      ? '💬 ' + curCS.name + (curCS.waNum ? ' (' + curCS.waNum + ')' : '')
+      : '(Belum ada CS / unassigned)';
+  }
+
+  // Populate dropdown: ambil CS yang assigned ke produk ini
+  const prods = getProds();
+  const prod = prods.find(function(p){
+    return (p.produkWA || p.name) === lead.produk;
+  });
+  let candidateIds = [];
+  if(prod){
+    candidateIds = (prod.csIds && prod.csIds.length)
+      ? prod.csIds.slice()
+      : (prod.csId ? [prod.csId] : []);
+  }
+  // Fallback: kalau produk gak ketemu / gak ada CS, tampilkan SEMUA CS
+  let candidates = candidateIds.map(function(id){
+    return csList.find(function(c){ return c.id === id; });
+  }).filter(Boolean);
+  if(!candidates.length) candidates = csList.slice();
+
+  const sel = document.getElementById('reassignTargetCS');
+  if(sel){
+    sel.innerHTML = candidates.map(function(c){
+      const isCur = (lead.csId === c.id);
+      const label = c.name + (c.waNum ? ' — ' + c.waNum : '') + (isCur ? ' (sekarang)' : '');
+      return '<option value="' + c.id + '"' + (isCur ? ' disabled' : '') + '>' + esc(label) + '</option>';
+    }).join('');
+    // default ke CS pertama yg bukan current
+    const firstNonCur = candidates.find(function(c){ return c.id !== lead.csId; });
+    if(firstNonCur) sel.value = firstNonCur.id;
+  }
+
+  const modal = document.getElementById('reassignModal');
+  if(modal) modal.style.display = 'flex';
+}
+
+function closeReassignModal(){
+  const modal = document.getElementById('reassignModal');
+  if(modal) modal.style.display = 'none';
+  reassignLeadId = null;
+}
+
+function confirmReassign(){
+  if(!reassignLeadId){ closeReassignModal(); return; }
+  const sel = document.getElementById('reassignTargetCS');
+  if(!sel || !sel.value){ toast('⚠️ Pilih CS tujuan dulu'); return; }
+  const newCsId = parseInt(sel.value, 10);
+  if(isNaN(newCsId)){ toast('⚠️ CS tujuan tidak valid'); return; }
+
+  const leads = getLeads();
+  const i = leads.findIndex(function(l){ return l.id === reassignLeadId; });
+  if(i < 0){ toast('⚠️ Lead tidak ditemukan'); closeReassignModal(); return; }
+
+  const oldCsId = leads[i].csId;
+  if(oldCsId === newCsId){ toast('ℹ️ CS sama, gak ada perubahan'); closeReassignModal(); return; }
+
+  const csList = getCSList();
+  const newCS = csList.find(function(c){ return c.id === newCsId; });
+  if(!newCS){ toast('⚠️ CS tujuan tidak ditemukan'); return; }
+  const oldCS = oldCsId ? csList.find(function(c){ return c.id === oldCsId; }) : null;
+
+  // Update lead
+  leads[i].csId = newCsId;
+  leads[i].reassignedAt = Date.now();
+  leads[i].reassignedFrom = oldCsId || null;
+  leads[i].reassignedBy = currentAdUser ? (currentAdUser.name || currentAdUser.username) : 'admin';
+  LS.s('od_leads', leads);
+  syncLeadSave(leads[i]);
+
+  // Update round-robin counter di produk
+  const prods = getProds();
+  const pi = prods.findIndex(function(p){
+    return (p.produkWA || p.name) === leads[i].produk;
+  });
+  if(pi >= 0){
+    const p = prods[pi];
+    const counts = Object.assign({}, p.csLeadCounts || {});
+    if(oldCsId && counts[oldCsId] > 0) counts[oldCsId] = counts[oldCsId] - 1;
+    counts[newCsId] = (counts[newCsId] || 0) + 1;
+    prods[pi] = Object.assign({}, p, { csLeadCounts: counts });
+    LS.s('od_prods', prods);
+    syncProdSave(prods[pi]);
+  }
+
+  closeReassignModal();
+  renderLeads();
+  toast('✅ Lead dipindah ke ' + newCS.name + (oldCS ? ' (dari ' + oldCS.name + ')' : ''));
 }
 
 /* ═════════════════════════════════════════════
