@@ -659,14 +659,22 @@ tr:hover td{background:#fafbff}
   padding:12px 14px;cursor:pointer;user-select:none;
 }
 .cs-lead-header:hover{background:rgba(0,0,0,.02)}
-.cs-lead-header-info{flex:1;min-width:0}
-.cs-lead-header-name{font-size:13px;font-weight:700;color:var(--text);
+.cs-lead-header-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.cs-lead-header-row1{display:flex;align-items:center;gap:8px;min-width:0}
+.cs-lead-header-name{font-size:14px;font-weight:700;color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.cs-lead-header-meta{font-size:12px;color:var(--text-muted);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cs-lead-header-meta{font-size:11px;color:var(--text-muted);margin-top:2px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cs-lead-header .badge{flex-shrink:0;font-size:10px;padding:3px 7px;white-space:nowrap}
 .cs-lead-chevron{
   color:var(--text-muted);flex-shrink:0;font-size:18px;
   transition:transform .2s;line-height:1;
+}
+@media(max-width:480px){
+  .cs-lead-header{padding:10px 12px;gap:8px}
+  .cs-lead-header .badge{font-size:9px;padding:2px 6px}
+  .cs-lead-header-name{font-size:13px}
+  .cs-lead-header-meta{font-size:11px}
 }
 .cs-lead-card.expanded .cs-lead-chevron{transform:rotate(180deg)}
 
@@ -958,7 +966,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-03-cs-tap-expand';
+window.__APP_VERSION = '2026-06-04-cs-card-header-fix';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -4427,10 +4435,12 @@ function csLeadCard(l){
     <div class="cs-lead-header" onclick="toggleLeadExpand('${l.id}')">
       <div class="lead-avatar" style="width:32px;height:32px;font-size:13px">${esc(init)}</div>
       <div class="cs-lead-header-info">
-        <div class="cs-lead-header-name">${esc(l.nama||'-')} ${touchedBadge}</div>
+        <div class="cs-lead-header-row1">
+          <div class="cs-lead-header-name">${esc(l.nama||'-')} ${touchedBadge}</div>
+          ${statusBadges[status] || statusBadges.pending}
+        </div>
         <div class="cs-lead-header-meta">📱 ${esc(l.wa||'-')} · ${esc(l.produk||'-')} · ${fmtDate(l.ts)}</div>
       </div>
-      ${statusBadges[status] || statusBadges.pending}
       <div class="cs-lead-chevron">⌄</div>
     </div>
     <!-- BODY (expanded view) — all detail + action -->
