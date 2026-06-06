@@ -311,6 +311,28 @@ tr:hover td{background:#fafbff}
 .lead-meta{font-size:12px;color:var(--text-muted);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .lead-actions{display:flex;gap:6px;flex-shrink:0}
 
+/* Bulk-select: checkbox kiri + state highlight */
+.lead-select{width:18px;height:18px;flex-shrink:0;cursor:pointer;accent-color:#7F77DD;margin:0}
+.lead-item.is-selected{border-color:#7F77DD;background:#FAF9FE;box-shadow:0 0 0 2px rgba(127,119,221,.18)}
+
+/* Selection header bar — di atas leads list */
+.lead-selbar{display:flex;align-items:center;gap:10px;padding:10px 14px;
+  background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);
+  margin-bottom:10px;font-size:13px}
+.lead-selbar.is-active{background:#EEEDFE;border-color:#AFA9EC;color:#26215C}
+.lead-selbar-label{flex:1;color:var(--text-muted)}
+.lead-selbar.is-active .lead-selbar-label{color:#26215C;font-weight:600}
+.lead-selbar-btn{background:#534AB7;color:#fff;border:none;font-size:12px;
+  padding:6px 12px;border-radius:6px;font-weight:600;cursor:pointer}
+.lead-selbar-btn:hover{background:#3C3489}
+.lead-selbar-cancel{background:transparent;color:#3C3489;border:1px solid #AFA9EC;
+  font-size:12px;padding:5px 10px;border-radius:6px;cursor:pointer}
+.lead-selbar-cancel:hover{background:rgba(127,119,221,.1)}
+@media(max-width:768px){
+  .lead-selbar{flex-wrap:wrap;gap:8px}
+  .lead-selbar-label{flex:1 0 100%;order:-1}
+}
+
 /* PRODUCT ITEMS */
 .prod-item{
   border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;
@@ -966,7 +988,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-04-reassign-lead';
+window.__APP_VERSION = '2026-06-04-bulk-reassign';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -1740,6 +1762,8 @@ document.addEventListener('DOMContentLoaded', function(){
           <div style="margin-bottom:16px">
             <input class="input" id="leadSearch" type="text" placeholder="🔍  Cari nama atau nomor WA..." oninput="renderLeads()" style="max-width:320px"/>
           </div>
+          <!-- Bulk select header bar -->
+          <div id="leadsSelbar" class="lead-selbar" style="display:none"></div>
           <div id="leadsList"></div>
         </div>
       </div>
@@ -2450,6 +2474,31 @@ document.addEventListener('DOMContentLoaded', function(){
 </div>
 
 <!-- ═══════════════════════════════════
+     BULK REASSIGN MODAL — pindahin N lead ke 1 CS sekaligus
+═══════════════════════════════════ -->
+<div id="bulkReassignModal" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.6);align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:16px;max-width:480px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.3)">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+      <div style="font-weight:700;font-size:15px">🔄 Reassign <span id="bulkCount">0</span> lead</div>
+      <button onclick="closeBulkReassignModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-muted)">✕</button>
+    </div>
+    <div style="padding:18px 20px">
+      <div id="bulkLeadList" style="background:#f7f8fc;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--text-muted);max-height:140px;overflow-y:auto;line-height:1.7"></div>
+      <div id="bulkWarn" style="display:none;background:#fef3c7;border:1px solid #fbbf24;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:#78350f;line-height:1.5"></div>
+      <div style="margin-bottom:6px;font-size:12px;color:var(--text-muted);font-weight:600">Pindahkan ke CS</div>
+      <select id="bulkTargetCS" class="input" style="width:100%;margin-bottom:14px"></select>
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:8px 12px;font-size:11px;color:#1e3a8a;margin-bottom:14px;line-height:1.5">
+        💡 Counter round-robin di tiap produk akan ikut di-update otomatis.
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn btn-outline" onclick="closeBulkReassignModal()">Batal</button>
+        <button class="btn btn-primary" id="bulkConfirmBtn" onclick="confirmBulkReassign()">🔄 Pindahkan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
      REASSIGN LEAD MODAL — pindahin lead dari CS A ke CS B
 ═══════════════════════════════════ -->
 <div id="reassignModal" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.6);align-items:center;justify-content:center;padding:20px">
@@ -2460,6 +2509,7 @@ document.addEventListener('DOMContentLoaded', function(){
     </div>
     <div style="padding:18px 20px">
       <div id="reassignLeadInfo" style="background:#f7f8fc;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:13px"></div>
+      <div id="reassignWarn" style="display:none;background:#fef3c7;border:1px solid #fbbf24;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:#78350f;line-height:1.5"></div>
       <div style="margin-bottom:6px;font-size:12px;color:var(--text-muted);font-weight:600">CS saat ini</div>
       <div id="reassignCurrentCS" style="padding:8px 12px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;font-size:13px;color:#9a3412;margin-bottom:14px"></div>
       <div style="margin-bottom:6px;font-size:12px;color:var(--text-muted);font-weight:600">Pindahkan ke CS</div>
@@ -2887,6 +2937,74 @@ function renderOverviewTopCS(leads){
 /* ═════════════════════════════════════════════
    LEADS
 ═════════════════════════════════════════════ */
+/* ═════════════════════════════════════════════
+   BULK SELECT STATE — admin/advertiser only
+═════════════════════════════════════════════ */
+let selectedLeadIds = new Set();
+
+function toggleLeadSelect(id, ev){
+  if(ev) ev.stopPropagation();
+  if(selectedLeadIds.has(id)) selectedLeadIds.delete(id);
+  else selectedLeadIds.add(id);
+  updateSelectionUI();
+}
+
+function toggleSelectAllLeads(){
+  // Ambil lead yang lagi ke-render di list (sesuai filter)
+  const rendered = getRenderedLeadIds();
+  // Kalau semua udah ke-pilih → unselect all. Kalau ada yang belum → select all
+  const allSelected = rendered.length > 0 && rendered.every(id => selectedLeadIds.has(id));
+  if(allSelected){
+    rendered.forEach(id => selectedLeadIds.delete(id));
+  } else {
+    rendered.forEach(id => selectedLeadIds.add(id));
+  }
+  updateSelectionUI();
+}
+
+function clearLeadSelection(){
+  selectedLeadIds.clear();
+  updateSelectionUI();
+}
+
+function getRenderedLeadIds(){
+  // Ambil dari DOM — semua lead-item yang punya data-lead-id
+  const nodes = document.querySelectorAll('#leadsList .lead-item[data-lead-id]');
+  return Array.from(nodes).map(n => n.getAttribute('data-lead-id'));
+}
+
+function updateSelectionUI(){
+  const rendered = getRenderedLeadIds();
+  const n = selectedLeadIds.size;
+
+  // Update tiap card styling + checkbox state
+  document.querySelectorAll('#leadsList .lead-item[data-lead-id]').forEach(node => {
+    const id = node.getAttribute('data-lead-id');
+    const cb = node.querySelector('.lead-select');
+    const selected = selectedLeadIds.has(id);
+    node.classList.toggle('is-selected', selected);
+    if(cb) cb.checked = selected;
+  });
+
+  // Update selection header bar
+  const bar = document.getElementById('leadsSelbar');
+  if(!bar) return;
+  if(n > 0){
+    bar.classList.add('is-active');
+    bar.innerHTML =
+      '<i style="font-size:16px">✓</i>' +
+      '<div class="lead-selbar-label">'+n+' lead dipilih</div>' +
+      '<button class="lead-selbar-btn" onclick="openBulkReassignModal()">🔄 Reassign ke CS lain</button>' +
+      '<button class="lead-selbar-cancel" onclick="clearLeadSelection()">Batal pilih</button>';
+  } else {
+    bar.classList.remove('is-active');
+    const allChecked = rendered.length > 0 && rendered.every(id => selectedLeadIds.has(id));
+    bar.innerHTML =
+      '<input type="checkbox" class="lead-select" id="leadsSelectAll" '+(allChecked?'checked':'')+' onchange="toggleSelectAllLeads()" />' +
+      '<label for="leadsSelectAll" class="lead-selbar-label" style="cursor:pointer">Pilih semua ('+rendered.length+' lead)</label>';
+  }
+}
+
 function leadCard(l,compact=false){
   const init=l.nama?l.nama[0].toUpperCase():'?';
   const addrParts=[l.alamat,l.kota,l.kecamatan].filter(Boolean);
@@ -2895,7 +3013,10 @@ function leadCard(l,compact=false){
   const csList=getCSList();
   const csInfo=l.csId?csList.find(c=>c.id===l.csId):null;
   const csTag=csInfo?`<span class="badge badge-purple" title="CS: ${esc(csInfo.name)}">💬 ${esc(csInfo.name)}</span>`:'';
-  return`<div class="lead-item">
+  const isSelected=selectedLeadIds.has(l.id);
+  const showCheckbox=!compact; // checkbox cuma di full view (admin/advertiser leads tab)
+  return`<div class="lead-item ${isSelected?'is-selected':''}" data-lead-id="${l.id}">
+    ${showCheckbox?`<input type="checkbox" class="lead-select" ${isSelected?'checked':''} onclick="event.stopPropagation()" onchange="toggleLeadSelect('${l.id}',event)" />`:''}
     <div class="lead-avatar">${init}</div>
     <div class="lead-info">
       <div class="lead-name">${esc(l.nama)}</div>
@@ -3003,6 +3124,7 @@ function renderLeads(){
   }
   updateDateFilterInfo('leads', inRange.length, all.length);
   const el=document.getElementById('leadsList');
+  const selbar=document.getElementById('leadsSelbar');
   if(!leads.length){
     let title, sub;
     if(!all.length){ title='Belum ada leads'; sub='Belum ada yang mengisi form'; }
@@ -3010,9 +3132,15 @@ function renderLeads(){
     else if(csFilter || prodFilter){ title='Tidak ada lead cocok filter'; sub='Coba ganti CS atau Produk, atau klik 🔄 Reset Filter'; }
     else { title='Tidak ada lead cocok'; sub='Coba kata kunci lain'; }
     el.innerHTML=`<div class="empty"><div class="empty-icon">👥</div><div class="empty-title">${title}</div><div class="empty-sub">${sub}</div></div>`;
+    if(selbar) selbar.style.display='none';
     return;
   }
   el.innerHTML=leads.map(l=>leadCard(l)).join('');
+  // Prune selectedLeadIds: buang ID yang udah gak ke-render (mis. lead di-delete atau filter berubah)
+  const renderedSet = new Set(leads.map(l=>l.id));
+  Array.from(selectedLeadIds).forEach(id=>{ if(!renderedSet.has(id)) selectedLeadIds.delete(id); });
+  // Show selbar + sync UI
+  if(selbar){ selbar.style.display='flex'; updateSelectionUI(); }
 }
 function deleteLead(id){
   LS.s('od_leads',getLeads().filter(l=>l.id!==id));
@@ -3446,14 +3574,14 @@ R.innerHTML='<div style="max-width:420px;margin:0 auto;font-family:Segoe UI,syst
 +'<div style="background:#fff;border-radius:12px;padding:24px 20px;box-shadow:0 4px 24px rgba(0,0,0,.1)">'
 +'<div id="oo-f${p.id}">'
 +'<p style="font-size:15px;font-weight:600;margin-bottom:18px;line-height:1.5;color:#222">'+cfg.headline.replace(/\\n/g,'<br>').replace(/CS kami/g,'<span style="color:#1b5e20;font-weight:700">CS kami<\\/span>')+'<\\/p>'
-+'<input id="oo-n${p.id}" type="text" placeholder="Nama Anda" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box">'
++'<input id="oo-n${p.id}" type="text" autocomplete="name" placeholder="Nama Anda" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box">'
 +'<p id="oo-en${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Nama wajib diisi<\\/p>'
-+'<input id="oo-w${p.id}" type="tel" placeholder="No. WhatsApp Anda" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'
++'<input id="oo-w${p.id}" type="tel" inputmode="numeric" autocomplete="tel" placeholder="No. WhatsApp Anda" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'
 +'<p id="oo-ew${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Nomor WA wajib diisi<\\/p>'
-${cfg.fieldAlamat?`+'<textarea id="oo-al${p.id}" placeholder="Alamat Lengkap" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box;resize:none;height:80px"><\\/textarea>'`:''}
-${cfg.fieldKota?`+'<input id="oo-kt${p.id}" type="text" placeholder="Kota" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'`:''}
-${cfg.fieldKecamatan?`+'<input id="oo-kc${p.id}" type="text" placeholder="Kecamatan" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'`:''}
-+'<button onclick="ooSub${p.id}()" style="width:100%;background:'+c+';color:#fff;border:none;border-radius:8px;padding:15px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit">'+cfg.cta+'<\\/button>'
+${cfg.fieldAlamat?`+'<textarea id="oo-al${p.id}" autocomplete="street-address" placeholder="Alamat Lengkap" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box;resize:none;height:80px"><\\/textarea>'`:''}
+${cfg.fieldKota?`+'<input id="oo-kt${p.id}" type="text" autocomplete="address-level2" placeholder="Kota" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'`:''}
+${cfg.fieldKecamatan?`+'<input id="oo-kc${p.id}" type="text" autocomplete="address-level3" placeholder="Kecamatan" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'`:''}
++'<button id="oo-btn-${p.id}" onclick="ooSub${p.id}()" style="width:100%;background:'+c+';color:#fff;border:none;border-radius:8px;padding:15px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit">'+cfg.cta+'<\\/button>'
 +'<div style="display:flex;justify-content:center;gap:14px;margin-top:12px;flex-wrap:wrap">'+trustHtml+'<\\/div>'
 +'<\\/div>'
 +'<div id="oo-ok${p.id}" style="display:none;text-align:center;padding:16px 0">'
@@ -3463,7 +3591,13 @@ ${cfg.fieldKecamatan?`+'<input id="oo-kc${p.id}" type="text" placeholder="Kecama
 +'<a id="oo-wa-btn-${p.id}" href="#" rel="noopener" style="display:block;background:#25D366;color:#fff;text-align:center;padding:18px;font-size:17px;font-weight:700;border-radius:8px;text-decoration:none;margin-bottom:6px;box-shadow:0 4px 12px rgba(37,211,102,.35)">💬 Lanjut ke WhatsApp →<\\/a>'
 +'<div style="font-size:12px;color:#999;margin-top:8px">Kalau WhatsApp tidak terbuka otomatis, tap tombol hijau di atas<\\/div>'
 +'<\\/div><\\/div><\\/div>';
+var ooSubmitting${p.id}=false;
 window['ooSub${p.id}']=function(){
+  if(ooSubmitting${p.id}) return; /* anti double-tap */
+
+  /* ── Normalize WA (08xxx → 628xxx) — shared util defined upfront ── */
+  var normWa=function(num){var n=(num||'').toString().replace(/\\D/g,'');if(!n)return '';n=n.replace(/^0+/,'');if(!n)return '';if(n.charAt(0)==='8')n='62'+n;return n;};
+
   var nm=document.getElementById('oo-n${p.id}').value.trim();
   var wa=document.getElementById('oo-w${p.id}').value.trim();
   var al=${cfg.fieldAlamat?`(document.getElementById('oo-al${p.id}')||{value:''}).value.trim()`:`''`};
@@ -3472,9 +3606,18 @@ window['ooSub${p.id}']=function(){
   var ok=true;
   if(!nm){document.getElementById('oo-n${p.id}').style.borderColor='#e53935';document.getElementById('oo-en${p.id}').style.display='block';ok=false;}
   else{document.getElementById('oo-n${p.id}').style.borderColor='#e0e0e0';document.getElementById('oo-en${p.id}').style.display='none';}
-  if(!wa){document.getElementById('oo-w${p.id}').style.borderColor='#e53935';document.getElementById('oo-ew${p.id}').style.display='block';ok=false;}
-  else{document.getElementById('oo-w${p.id}').style.borderColor='#e0e0e0';document.getElementById('oo-ew${p.id}').style.display='none';}
+  /* WA validation — min 9 digit max 15 (E.164) setelah strip non-numeric */
+  var waDigits=(wa||'').replace(/\\D/g,'');
+  var waErrEl=document.getElementById('oo-ew${p.id}');
+  var waInpEl=document.getElementById('oo-w${p.id}');
+  if(!wa){if(waErrEl)waErrEl.textContent='Nomor WA wajib diisi';if(waInpEl)waInpEl.style.borderColor='#e53935';if(waErrEl)waErrEl.style.display='block';ok=false;}
+  else if(waDigits.length<9||waDigits.length>15){if(waErrEl)waErrEl.textContent='Nomor WA tidak valid (min 9 digit, contoh 081234567890)';if(waInpEl)waInpEl.style.borderColor='#e53935';if(waErrEl)waErrEl.style.display='block';ok=false;}
+  else{if(waInpEl)waInpEl.style.borderColor='#e0e0e0';if(waErrEl)waErrEl.style.display='none';}
   if(!ok)return;
+
+  /* ── Build WA message & URL — fallback chain biar gak ada "undefined" ── */
+  var prodLabel=cfg.produkWA||cfg.storeName||'produk';
+  var storeLabel=cfg.storeName||'';
 
   /* ── ROUND ROBIN: pilih CS dari LOCAL cache (no await, preserve user gesture) ── */
   var counts=Object.assign({},cfg.csCounts||{});
@@ -3487,17 +3630,38 @@ window['ooSub${p.id}']=function(){
     if(csm&&csm.waNum)chosenWa=csm.waNum;
   }
 
-  /* ── Build WA message & URL ── */
-  var msg=cfg.greeting.replace(/{nama}/g,nm).replace(/{wa}/g,wa).replace(/{produk}/g,cfg.produkWA).replace(/{toko}/g,cfg.storeName).replace(/{alamat}/g,al||'-').replace(/{kota}/g,kt||'-').replace(/{kecamatan}/g,kc||'-');
-  var normWa=function(num){var n=(num||'').toString().replace(/\\D/g,'');if(!n)return '';n=n.replace(/^0+/,'');if(!n)return '';if(n.charAt(0)==='8')n='62'+n;return n;};
+  var msg=cfg.greeting.replace(/{nama}/g,nm).replace(/{wa}/g,wa).replace(/{produk}/g,prodLabel).replace(/{toko}/g,storeLabel).replace(/{alamat}/g,al||'-').replace(/{kota}/g,kt||'-').replace(/{kecamatan}/g,kc||'-');
   waUrl='https://wa.me/'+normWa(chosenWa)+'?text='+encodeURIComponent(msg);
 
-  /* ── Build lead + save to LS ── */
+  /* Duplicate detector — kalau WA sama submit < 5 menit lalu, skip create lead baru */
+  var dupKey='oo_last_'+cfg.productId+'_'+waDigits;
+  var isDupe=false;
+  try{
+    var lastTs=parseInt(sessionStorage.getItem(dupKey)||'0',10);
+    if(lastTs && (Date.now()-lastTs)<300000) isDupe=true;
+  }catch(e){}
+
+  /* lock submit + disable button */
+  ooSubmitting${p.id}=true;
+  var subBtn=document.getElementById('oo-btn-${p.id}');
+  if(subBtn){subBtn.disabled=true;subBtn.style.opacity='0.7';subBtn.style.cursor='wait';}
+
+  if(isDupe){
+    /* Skip create lead, langsung redirect aja */
+    document.getElementById('oo-f${p.id}').style.display='none';
+    document.getElementById('oo-ok${p.id}').style.display='block';
+    var dupBtn=document.getElementById('oo-wa-btn-${p.id}');
+    if(dupBtn){dupBtn.href=waUrl; try{dupBtn.click();}catch(e){}}
+    try{window.location.href=waUrl;}catch(e){}
+    return;
+  }
+
+  /* Mark dupe — supaya retry < 5 menit kena throttle */
+  try{sessionStorage.setItem(dupKey,String(Date.now()));}catch(e){}
+
+  /* ── Build lead (gak save ke localStorage embed — useless, customer's LS) ── */
   var leadId='L'+Date.now()+Math.floor(Math.random()*1000);
   var lead={id:leadId,ts:Date.now(),nama:nm,wa:wa,produk:cfg.produkWA,csId:chosenCsId,alamat:al,kota:kt,kecamatan:kc,followStatus:'pending',waAttempted:true};
-  var leads=[];try{leads=JSON.parse(localStorage.getItem('od_leads')||'[]');}catch(e){}
-  leads.unshift(lead);
-  try{localStorage.setItem('od_leads',JSON.stringify(leads));}catch(e){}
 
   /* ── GTM events ── */
   if(window.dataLayer)window.dataLayer.push({event:'generate_lead',lead_name:nm,lead_product:cfg.produkWA});
@@ -3516,13 +3680,17 @@ window['ooSub${p.id}']=function(){
         return{stringValue:String(v)};
       };
       var leadFields={};for(var k in lead)leadFields[k]=fsEnc(lead[k]);
-      fetch('https://firestore.googleapis.com/v1/projects/'+cfg.fbProjectId+'/databases/(default)/documents/od_leads?documentId='+leadId+'&key='+cfg.fbApiKey,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:leadFields}),keepalive:true});
+      fetch('https://firestore.googleapis.com/v1/projects/'+cfg.fbProjectId+'/databases/(default)/documents/od_leads?documentId='+leadId+'&key='+cfg.fbApiKey,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:leadFields}),keepalive:true}).catch(function(err){
+        if(window.dataLayer)window.dataLayer.push({event:'lead_sync_fail',lead_id:leadId,err:String(err&&err.message||err)});
+      });
       if(chosenCsId){
         counts[chosenCsId]=(counts[chosenCsId]||0)+1;
         var cF={};for(var ck in counts)cF[ck]={integerValue:String(counts[ck])};
-        fetch('https://firestore.googleapis.com/v1/projects/'+cfg.fbProjectId+'/databases/(default)/documents/od_prods/'+cfg.productId+'?key='+cfg.fbApiKey+'&updateMask.fieldPaths=csLeadCounts',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{csLeadCounts:{mapValue:{fields:cF}}}}),keepalive:true});
+        fetch('https://firestore.googleapis.com/v1/projects/'+cfg.fbProjectId+'/databases/(default)/documents/od_prods/'+cfg.productId+'?key='+cfg.fbApiKey+'&updateMask.fieldPaths=csLeadCounts',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{csLeadCounts:{mapValue:{fields:cF}}}}),keepalive:true}).catch(function(){});
       }
-    }catch(e){/* lead udah aman di LS */}
+    }catch(e){
+      if(window.dataLayer)window.dataLayer.push({event:'lead_sync_fail',lead_id:leadId,err:String(e&&e.message||e)});
+    }
   }
 
   /* ── Set anchor href dulu sebagai fallback (kalau redirect ke-block) ── */
@@ -3769,10 +3937,107 @@ function deleteCSItem(id){
   if(currentAdUser && (cs.ownerRole !== 'advertiser' || cs.ownerId !== currentAdUser.id)){
     toast('⚠️ CS ini bukan milik lo'); return;
   }
-  if(!confirm(`Hapus CS "${cs.name}"?`)) return;
+
+  // Cek orphan leads: berapa lead yang lagi assigned ke CS ini?
+  const allLeads = getLeads();
+  const orphanLeads = allLeads.filter(l => l.csId === id);
+
+  if(orphanLeads.length > 0){
+    // Tawarkan reassign atau unassign
+    const otherCS = getCSList().filter(c => c.id !== id);
+    if(!otherCS.length){
+      if(!confirm(`⚠️ CS "${cs.name}" punya ${orphanLeads.length} lead aktif.\n\nGak ada CS lain buat reassign. Kalau dihapus, lead-lead ini jadi unassigned (csId = null).\n\nLanjut hapus?`)) return;
+      // Unassign semua lead
+      const updated = allLeads.map(l => l.csId === id ? Object.assign({}, l, {csId:null, reassignedAt:Date.now(), reassignedFrom:id, reassignedBy:'system-delete'}) : l);
+      LS.s('od_leads', updated);
+      updated.filter(l => l.reassignedFrom === id).forEach(l => syncLeadSave(l));
+    } else {
+      const list = otherCS.map((c,i) => `  ${i+1}. ${c.name}${c.waNum?' ('+c.waNum+')':''}`).join('\n');
+      const choice = prompt(
+        `⚠️ CS "${cs.name}" punya ${orphanLeads.length} lead aktif.\n\n` +
+        `Pindahkan semua ke CS mana? (ketik nomor)\n\n` +
+        list + `\n\n0. SKIP — biarkan lead jadi unassigned\n\nKosongkan untuk batal hapus.`,
+        '1'
+      );
+      if(choice === null) return; // user cancel
+      const num = parseInt(choice, 10);
+      if(isNaN(num) || num < 0 || num > otherCS.length){
+        toast('⚠️ Pilihan tidak valid, hapus dibatalkan'); return;
+      }
+      let targetCsId = null;
+      if(num > 0){
+        targetCsId = otherCS[num-1].id;
+      }
+      // Reassign semua lead orphan
+      const updated = allLeads.map(l => {
+        if(l.csId !== id) return l;
+        return Object.assign({}, l, {
+          csId: targetCsId,
+          reassignedAt: Date.now(),
+          reassignedFrom: id,
+          reassignedBy: currentAdUser ? (currentAdUser.name||currentAdUser.username) : 'admin'
+        });
+      });
+      LS.s('od_leads', updated);
+      updated.filter(l => l.reassignedFrom === id).forEach(l => syncLeadSave(l));
+
+      // Update round-robin counter di produk
+      if(targetCsId){
+        const prods = getProds();
+        let counterChanged = false;
+        prods.forEach((p, pi) => {
+          if(!p.csLeadCounts) return;
+          const fromCount = p.csLeadCounts[id] || 0;
+          if(fromCount > 0){
+            const newCounts = Object.assign({}, p.csLeadCounts);
+            newCounts[targetCsId] = (newCounts[targetCsId]||0) + fromCount;
+            delete newCounts[id];
+            prods[pi] = Object.assign({}, p, {csLeadCounts:newCounts});
+            counterChanged = true;
+          }
+        });
+        if(counterChanged){
+          LS.s('od_prods', prods);
+          prods.forEach(p => syncProdSave(p));
+        }
+      }
+
+      const targetName = targetCsId ? (otherCS.find(c => c.id === targetCsId)||{}).name : 'UNASSIGNED';
+      toast('✅ '+orphanLeads.length+' lead dipindah ke '+targetName);
+    }
+  } else {
+    if(!confirm(`Hapus CS "${cs.name}"?`)) return;
+  }
+
+  // Cleanup: hapus CS dari prods.csIds & csLeadCounts
+  const prods = getProds();
+  let prodsChanged = false;
+  prods.forEach((p, pi) => {
+    let modified = false;
+    const np = Object.assign({}, p);
+    if(Array.isArray(np.csIds) && np.csIds.indexOf(id) >= 0){
+      np.csIds = np.csIds.filter(x => x !== id);
+      modified = true;
+    }
+    if(np.csId === id){ np.csId = (np.csIds && np.csIds[0]) || null; modified = true; }
+    if(np.csLeadCounts && np.csLeadCounts[id] !== undefined){
+      const nc = Object.assign({}, np.csLeadCounts);
+      delete nc[id];
+      np.csLeadCounts = nc;
+      modified = true;
+    }
+    if(modified){ prods[pi] = np; prodsChanged = true; }
+  });
+  if(prodsChanged){
+    LS.s('od_prods', prods);
+    prods.forEach(p => syncProdSave(p));
+  }
+
   LS.s('od_cs', getCSList().filter(c => c.id !== id));
   syncCSDelete(id);
   renderCSList();
+  if(typeof renderProdList === 'function') renderProdList();
+  if(typeof renderLeads === 'function') renderLeads();
   toast('🗑️ CS dihapus');
 }
 
@@ -3899,12 +4164,14 @@ function resetAllData(){
 function renderEmbedCodes(){
   const cfg=getCfg();
   const prods=getProds();
+  const fbcfg=getFBConfig()||{};
   const cfgJ=JSON.stringify({
     storeName:cfg.storeName,waNum:cfg.waNum,headline:cfg.headline,
     cta:cfg.cta,btnColor:cfg.btnColor||'#43a047',
     trust:cfg.trust,gtmId:cfg.gtmId,convLabel:cfg.convLabel,
     greeting:cfg.greeting,produkDefault:cfg.produkDefault||'',
-    fieldAlamat:!!cfg.fieldAlamat,fieldKota:!!cfg.fieldKota,fieldKecamatan:!!cfg.fieldKecamatan
+    fieldAlamat:!!cfg.fieldAlamat,fieldKota:!!cfg.fieldKota,fieldKecamatan:!!cfg.fieldKecamatan,
+    fbApiKey:fbcfg.apiKey||'',fbProjectId:fbcfg.projectId||''
   }).replace(/</g,'\\u003c');
   const prodsJ=JSON.stringify(prods).replace(/</g,'\\u003c');
 
@@ -3922,13 +4189,13 @@ R.innerHTML='<div style="max-width:420px;margin:0 auto;font-family:Segoe UI,syst
 +'<div style="background:#fff;border-radius:12px;padding:24px 20px;box-shadow:0 4px 24px rgba(0,0,0,.1)">'
 +'<div id="oo-form">'
 +'<p style="font-size:15px;font-weight:600;margin-bottom:18px;line-height:1.5;color:#222">'+cfg.headline.replace(/\\n/g,'<br>').replace(/CS kami/g,'<span style="color:#1b5e20;font-weight:700">CS kami<\\/span>')+'<\\/p>'
-+'<input id="oo-nm" type="text" placeholder="Nama Anda" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box">'
++'<input id="oo-nm" type="text" autocomplete="name" placeholder="Nama Anda" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box">'
 +'<p id="oo-en" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Nama wajib diisi<\\/p>'
-+'<input id="oo-wa" type="tel" placeholder="No. WhatsApp Anda" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'
++'<input id="oo-wa" type="tel" inputmode="numeric" autocomplete="tel" placeholder="No. WhatsApp Anda" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'
 +'<p id="oo-ew" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Nomor WA wajib diisi<\\/p>'
-${cfg.fieldAlamat?`+'<textarea id="oo-al" placeholder="Alamat Lengkap" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box;resize:none;height:80px"><\\/textarea>'`:''}
-${cfg.fieldKota?`+'<input id="oo-kt" type="text" placeholder="Kota" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'`:''}
-${cfg.fieldKecamatan?`+'<input id="oo-kc" type="text" placeholder="Kecamatan" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'`:''}
+${cfg.fieldAlamat?`+'<textarea id="oo-al" autocomplete="street-address" placeholder="Alamat Lengkap" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box;resize:none;height:80px"><\\/textarea>'`:''}
+${cfg.fieldKota?`+'<input id="oo-kt" type="text" autocomplete="address-level2" placeholder="Kota" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'`:''}
+${cfg.fieldKecamatan?`+'<input id="oo-kc" type="text" autocomplete="address-level3" placeholder="Kecamatan" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'`:''}
 +'<button id="oo-btn" onclick="ooSub()" style="width:100%;background:'+c+';color:#fff;border:none;border-radius:8px;padding:15px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit">'+cfg.cta+'<\\/button>'
 +'<div style="display:flex;justify-content:center;gap:14px;margin-top:12px;flex-wrap:wrap">'+trustHtml+'<\\/div>'
 +'<\\/div>'
@@ -3940,7 +4207,13 @@ ${cfg.fieldKecamatan?`+'<input id="oo-kc" type="text" placeholder="Kecamatan" st
 +'<div style="font-size:12px;color:#999;margin-top:8px">Kalau WhatsApp tidak terbuka otomatis, tap tombol hijau di atas</div>'
 +'<\\/div>'
 +'<\\/div><\\/div>';
+var ooSubmittingSingle=false;
 window.ooSub=function(){
+  if(ooSubmittingSingle) return; /* anti double-tap */
+
+  /* Normalize WA Indonesia (08xxx → 628xxx) — cegah salah country code */
+  var normWa=function(num){var n=(num||'').toString().replace(/\\D/g,'');if(!n)return '';n=n.replace(/^0+/,'');if(!n)return '';if(n.charAt(0)==='8')n='62'+n;return n;};
+
   var nm=document.getElementById('oo-nm').value.trim();
   var wa=document.getElementById('oo-wa').value.trim();
   var al=${cfg.fieldAlamat?`(document.getElementById('oo-al')||{value:''}).value.trim()`:`''`};
@@ -3949,23 +4222,69 @@ window.ooSub=function(){
   var ok=true;
   if(!nm){document.getElementById('oo-nm').style.borderColor='#e53935';document.getElementById('oo-en').style.display='block';ok=false;}
   else{document.getElementById('oo-nm').style.borderColor='#e0e0e0';document.getElementById('oo-en').style.display='none';}
-  if(!wa){document.getElementById('oo-wa').style.borderColor='#e53935';document.getElementById('oo-ew').style.display='block';ok=false;}
-  else{document.getElementById('oo-wa').style.borderColor='#e0e0e0';document.getElementById('oo-ew').style.display='none';}
+  /* WA validation — min 9 max 15 digit */
+  var waDigits=(wa||'').replace(/\\D/g,'');
+  var waEl=document.getElementById('oo-wa');
+  var weEl=document.getElementById('oo-ew');
+  if(!wa){if(weEl)weEl.textContent='Nomor WA wajib diisi';if(waEl)waEl.style.borderColor='#e53935';if(weEl)weEl.style.display='block';ok=false;}
+  else if(waDigits.length<9||waDigits.length>15){if(weEl)weEl.textContent='Nomor WA tidak valid (min 9 digit, contoh 081234567890)';if(waEl)waEl.style.borderColor='#e53935';if(weEl)weEl.style.display='block';ok=false;}
+  else{if(waEl)waEl.style.borderColor='#e0e0e0';if(weEl)weEl.style.display='none';}
   if(!ok)return;
-  var msg=cfg.greeting.replace(/{nama}/g,nm).replace(/{wa}/g,wa).replace(/{produk}/g,cfg.produkDefault||cfg.storeName).replace(/{toko}/g,cfg.storeName).replace(/{alamat}/g,al||'-').replace(/{kota}/g,kt||'-').replace(/{kecamatan}/g,kc||'-');
-  /* Normalize WA Indonesia (08xxx → 628xxx) — cegah salah country code */
-  var normWa=function(num){var n=(num||'').toString().replace(/\\D/g,'');if(!n)return '';n=n.replace(/^0+/,'');if(!n)return '';if(n.charAt(0)==='8')n='62'+n;return n;};
+
+  /* Build message — fallback chain biar gak ada "undefined" */
+  var prodLabel=cfg.produkDefault||cfg.storeName||'produk';
+  var storeLabel=cfg.storeName||'';
+  var msg=cfg.greeting.replace(/{nama}/g,nm).replace(/{wa}/g,wa).replace(/{produk}/g,prodLabel).replace(/{toko}/g,storeLabel).replace(/{alamat}/g,al||'-').replace(/{kota}/g,kt||'-').replace(/{kecamatan}/g,kc||'-');
   waUrl='https://wa.me/'+normWa(cfg.waNum)+'?text='+encodeURIComponent(msg);
-  var leads=[];try{leads=JSON.parse(localStorage.getItem('od_leads')||'[]');}catch(e){}
-  leads.unshift({id:'L'+Date.now(),ts:Date.now(),nama:nm,wa:wa,produk:cfg.produkDefault||'-',alamat:al,kota:kt,kecamatan:kc,waAttempted:true});
-  try{localStorage.setItem('od_leads',JSON.stringify(leads));}catch(e){}
-  if(window.dataLayer)window.dataLayer.push({event:'generate_lead',lead_name:nm,lead_product:cfg.produkDefault||''});
-  if(cfg.convLabel&&typeof gtag==='function')gtag('event','conversion',{send_to:cfg.convLabel});
+
+  /* Duplicate detector — sessionStorage scope = tab */
+  var dupKey='oo_last_single_'+waDigits;
+  var isDupe=false;
+  try{var t=parseInt(sessionStorage.getItem(dupKey)||'0',10);if(t&&(Date.now()-t)<300000)isDupe=true;}catch(e){}
+
+  ooSubmittingSingle=true;
+  var sBtn=document.getElementById('oo-btn');
+  if(sBtn){sBtn.disabled=true;sBtn.style.opacity='0.7';sBtn.style.cursor='wait';}
+
   document.getElementById('oo-form').style.display='none';
   document.getElementById('oo-ok').style.display='block';
-  /* Anchor link buat fallback klik manual */
   var manualBtn=document.getElementById('oo-wa-btn');
   if(manualBtn) manualBtn.href=waUrl;
+
+  if(isDupe){
+    /* skip create lead — langsung redirect */
+    try{if(manualBtn&&manualBtn.click)manualBtn.click();}catch(e){}
+    try{window.location.href=waUrl;}catch(e){}
+    return;
+  }
+  try{sessionStorage.setItem(dupKey,String(Date.now()));}catch(e){}
+
+  if(window.dataLayer)window.dataLayer.push({event:'generate_lead',lead_name:nm,lead_product:cfg.produkDefault||''});
+  if(cfg.convLabel&&typeof gtag==='function')gtag('event','conversion',{send_to:cfg.convLabel});
+
+  /* Build lead + push to Firestore (sebelumnya gak ada — lead generic embed sebelumnya gak nyampe dashboard!) */
+  var leadId='L'+Date.now()+Math.floor(Math.random()*1000);
+  var lead={id:leadId,ts:Date.now(),nama:nm,wa:wa,produk:prodLabel,csId:null,alamat:al,kota:kt,kecamatan:kc,followStatus:'pending',waAttempted:true};
+  if(cfg.fbApiKey&&cfg.fbProjectId){
+    try{
+      var fsEnc=function(v){
+        if(v===null||v===undefined)return{nullValue:null};
+        if(typeof v==='boolean')return{booleanValue:v};
+        if(typeof v==='number')return Number.isInteger(v)?{integerValue:String(v)}:{doubleValue:v};
+        if(typeof v==='string')return{stringValue:v};
+        if(Array.isArray(v))return{arrayValue:{values:v.map(fsEnc)}};
+        if(typeof v==='object'){var f={};for(var k in v)f[k]=fsEnc(v[k]);return{mapValue:{fields:f}};}
+        return{stringValue:String(v)};
+      };
+      var lf={};for(var lk in lead)lf[lk]=fsEnc(lead[lk]);
+      fetch('https://firestore.googleapis.com/v1/projects/'+cfg.fbProjectId+'/databases/(default)/documents/od_leads?documentId='+leadId+'&key='+cfg.fbApiKey,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:lf}),keepalive:true}).catch(function(err){
+        if(window.dataLayer)window.dataLayer.push({event:'lead_sync_fail',lead_id:leadId,err:String(err&&err.message||err)});
+      });
+    }catch(e){
+      if(window.dataLayer)window.dataLayer.push({event:'lead_sync_fail',lead_id:leadId,err:String(e&&e.message||e)});
+    }
+  }
+
   /* INSTANT redirect — multi-fallback */
   try { if(manualBtn && manualBtn.click) manualBtn.click(); } catch(e){}
   try { window.location.href=waUrl; } catch(e){}
@@ -4605,11 +4924,34 @@ function openReassignModal(leadId){
       ? prod.csIds.slice()
       : (prod.csId ? [prod.csId] : []);
   }
-  // Fallback: kalau produk gak ketemu / gak ada CS, tampilkan SEMUA CS
   let candidates = candidateIds.map(function(id){
     return csList.find(function(c){ return c.id === id; });
   }).filter(Boolean);
-  if(!candidates.length) candidates = csList.slice();
+
+  // Warning state: produk gak ketemu atau gak ada CS assigned
+  const warnEl = document.getElementById('reassignWarn');
+  let warnMsg = '';
+  let fallbackUsed = false;
+  if(!prod){
+    warnMsg = '⚠️ Produk "'+esc(lead.produk||'?')+'" gak ada lagi di database. Reassign akan menampilkan SEMUA CS — pilih hati-hati, round-robin counter bisa jadi inkonsisten.';
+    candidates = csList.slice();
+    fallbackUsed = true;
+  } else if(!candidates.length){
+    warnMsg = '⚠️ Produk ini belum ada CS yang di-assign. Buka Produk → tab CS & Greeting buat assign CS dulu, atau pilih CS apapun di bawah (lead akan masuk ke CS tsb tapi gak ikut round-robin).';
+    candidates = csList.slice();
+    fallbackUsed = true;
+  }
+  if(warnEl){
+    if(warnMsg){
+      warnEl.innerHTML = warnMsg;
+      warnEl.style.display = 'block';
+    } else {
+      warnEl.style.display = 'none';
+    }
+  }
+  // Store fallback flag on the modal for later check
+  const modalRoot = document.getElementById('reassignModal');
+  if(modalRoot) modalRoot.setAttribute('data-fallback', fallbackUsed ? '1' : '0');
 
   const sel = document.getElementById('reassignTargetCS');
   if(sel){
@@ -4660,24 +5002,242 @@ function confirmReassign(){
   LS.s('od_leads', leads);
   syncLeadSave(leads[i]);
 
-  // Update round-robin counter di produk
-  const prods = getProds();
-  const pi = prods.findIndex(function(p){
-    return (p.produkWA || p.name) === leads[i].produk;
-  });
-  if(pi >= 0){
-    const p = prods[pi];
-    const counts = Object.assign({}, p.csLeadCounts || {});
-    if(oldCsId && counts[oldCsId] > 0) counts[oldCsId] = counts[oldCsId] - 1;
-    counts[newCsId] = (counts[newCsId] || 0) + 1;
-    prods[pi] = Object.assign({}, p, { csLeadCounts: counts });
-    LS.s('od_prods', prods);
-    syncProdSave(prods[pi]);
+  // Update round-robin counter di produk — skip kalau fallback (produk hilang)
+  const modalRoot = document.getElementById('reassignModal');
+  const isFallback = modalRoot && modalRoot.getAttribute('data-fallback') === '1';
+  if(!isFallback){
+    const prods = getProds();
+    const pi = prods.findIndex(function(p){
+      return (p.produkWA || p.name) === leads[i].produk;
+    });
+    if(pi >= 0){
+      const p = prods[pi];
+      const counts = Object.assign({}, p.csLeadCounts || {});
+      if(oldCsId && counts[oldCsId] > 0) counts[oldCsId] = counts[oldCsId] - 1;
+      counts[newCsId] = (counts[newCsId] || 0) + 1;
+      prods[pi] = Object.assign({}, p, { csLeadCounts: counts });
+      LS.s('od_prods', prods);
+      syncProdSave(prods[pi]);
+    }
   }
 
   closeReassignModal();
   renderLeads();
   toast('✅ Lead dipindah ke ' + newCS.name + (oldCS ? ' (dari ' + oldCS.name + ')' : ''));
+}
+
+/* ═════════════════════════════════════════════
+   BULK REASSIGN — pindahin N lead ke 1 CS sekaligus
+═════════════════════════════════════════════ */
+function openBulkReassignModal(){
+  if(selectedLeadIds.size === 0){ toast('⚠️ Pilih lead dulu'); return; }
+  if(selectedLeadIds.size > 100){
+    if(!confirm('⚠️ Lo mau reassign '+selectedLeadIds.size+' lead sekaligus?\nIni bisa lambat & ngirim banyak request ke Firestore. Lanjut?')) return;
+  }
+
+  const leads = getLeads();
+  const csList = getCSList();
+  const selectedLeads = leads.filter(function(l){ return selectedLeadIds.has(l.id); });
+
+  if(!selectedLeads.length){ toast('⚠️ Lead terpilih tidak ditemukan'); return; }
+
+  // Advertiser scope check: semua lead harus dari produk milik dia
+  if(currentAdUser){
+    const myProds = getProds().filter(function(p){
+      return p.ownerRole === 'advertiser' && p.ownerId === currentAdUser.id;
+    });
+    const myProdNames = myProds.map(function(p){ return p.produkWA || p.name; });
+    const outOfScope = selectedLeads.filter(function(l){ return myProdNames.indexOf(l.produk) < 0; });
+    if(outOfScope.length){
+      toast('⚠️ '+outOfScope.length+' lead bukan dari produk lo — batal');
+      return;
+    }
+  }
+
+  // Update count + list di modal
+  document.getElementById('bulkCount').textContent = selectedLeads.length;
+  const listEl = document.getElementById('bulkLeadList');
+  if(listEl){
+    listEl.innerHTML = selectedLeads.slice(0, 20).map(function(l){
+      const cs = l.csId ? csList.find(function(c){return c.id===l.csId;}) : null;
+      const csName = cs ? cs.name : '(unassigned)';
+      return '<div>• <strong>'+esc(l.nama||'-')+'</strong> · '+esc(l.produk||'-')+' · <span style="color:#9a3412">'+esc(csName)+'</span></div>';
+    }).join('') + (selectedLeads.length > 20 ? '<div style="margin-top:4px;color:var(--text);font-weight:600">...dan '+(selectedLeads.length-20)+' lead lainnya</div>' : '');
+  }
+
+  // Cari CS yang valid untuk SEMUA produk yang terpilih (intersection)
+  const uniqueProducts = Array.from(new Set(selectedLeads.map(function(l){ return l.produk; })));
+  const prods = getProds();
+  let csCandidateIds = null; // null = belum di-init
+  let productNotFoundCount = 0;
+  uniqueProducts.forEach(function(prodName){
+    const prod = prods.find(function(p){ return (p.produkWA || p.name) === prodName; });
+    if(!prod){
+      productNotFoundCount++;
+      return; // skip — produk ini gak ada, jangan filter berdasarkan dia
+    }
+    const ids = (prod.csIds && prod.csIds.length) ? prod.csIds : (prod.csId ? [prod.csId] : []);
+    if(csCandidateIds === null){
+      csCandidateIds = ids.slice();
+    } else {
+      // Intersect
+      csCandidateIds = csCandidateIds.filter(function(id){ return ids.indexOf(id) >= 0; });
+    }
+  });
+
+  let candidates = [];
+  let warnMsg = '';
+  let fallbackUsed = false;
+
+  if(csCandidateIds === null || csCandidateIds.length === 0){
+    // Gak ada CS yang assigned ke semua produk — fallback ke all CS dengan warning
+    candidates = csList.slice();
+    fallbackUsed = true;
+    if(uniqueProducts.length > 1){
+      warnMsg = '⚠️ Lead terpilih dari <strong>'+uniqueProducts.length+' produk berbeda</strong> dan gak ada 1 CS pun yang ter-assign ke semuanya. Round-robin counter mungkin jadi inkonsisten. Pilih CS hati-hati.';
+    } else {
+      warnMsg = '⚠️ Produk ini belum punya CS yang ter-assign. Pilih CS apapun di bawah — tapi lead tsb gak akan ikut round-robin produk ini.';
+    }
+  } else {
+    candidates = csCandidateIds.map(function(id){
+      return csList.find(function(c){ return c.id === id; });
+    }).filter(Boolean);
+    if(productNotFoundCount > 0){
+      warnMsg = '⚠️ '+productNotFoundCount+' produk hilang dari database. CS dropdown di-filter cuma dari produk yang masih ada.';
+    } else if(uniqueProducts.length > 1){
+      warnMsg = '💡 Lead terpilih dari '+uniqueProducts.length+' produk. CS di dropdown adalah CS yang ter-assign ke <strong>semua</strong> produk tersebut.';
+    }
+  }
+
+  const warnEl = document.getElementById('bulkWarn');
+  if(warnEl){
+    if(warnMsg){
+      warnEl.innerHTML = warnMsg;
+      warnEl.style.display = 'block';
+      // Info (💡) pake biru, warning (⚠️) kuning
+      if(warnMsg.indexOf('💡') === 0){
+        warnEl.style.background = '#eff6ff';
+        warnEl.style.borderColor = '#bfdbfe';
+        warnEl.style.color = '#1e3a8a';
+      } else {
+        warnEl.style.background = '#fef3c7';
+        warnEl.style.borderColor = '#fbbf24';
+        warnEl.style.color = '#78350f';
+      }
+    } else {
+      warnEl.style.display = 'none';
+    }
+  }
+
+  const sel = document.getElementById('bulkTargetCS');
+  if(sel){
+    if(candidates.length){
+      sel.innerHTML = candidates.map(function(c){
+        return '<option value="'+c.id+'">'+esc(c.name + (c.waNum?' — '+c.waNum:''))+'</option>';
+      }).join('');
+    } else {
+      sel.innerHTML = '<option value="">(Belum ada CS terdaftar)</option>';
+    }
+  }
+
+  const modal = document.getElementById('bulkReassignModal');
+  if(modal){
+    modal.style.display = 'flex';
+    modal.setAttribute('data-fallback', fallbackUsed ? '1' : '0');
+  }
+}
+
+function closeBulkReassignModal(){
+  const modal = document.getElementById('bulkReassignModal');
+  if(modal) modal.style.display = 'none';
+}
+
+function confirmBulkReassign(){
+  const sel = document.getElementById('bulkTargetCS');
+  if(!sel || !sel.value){ toast('⚠️ Pilih CS tujuan dulu'); return; }
+  const newCsId = parseInt(sel.value, 10);
+  if(isNaN(newCsId)){ toast('⚠️ CS tujuan tidak valid'); return; }
+
+  const csList = getCSList();
+  const newCS = csList.find(function(c){ return c.id === newCsId; });
+  if(!newCS){ toast('⚠️ CS tujuan tidak ditemukan'); return; }
+
+  const modal = document.getElementById('bulkReassignModal');
+  const isFallback = modal && modal.getAttribute('data-fallback') === '1';
+
+  const btn = document.getElementById('bulkConfirmBtn');
+  if(btn){ btn.disabled = true; btn.textContent = '⏳ Memindahkan...'; }
+
+  const leads = getLeads();
+  const stamp = Date.now();
+  const byLabel = currentAdUser ? (currentAdUser.name || currentAdUser.username) : 'admin';
+
+  // Track count perubahan counter per (productName, oldCsId)
+  const counterDelta = {}; // key: produkName, value: {oldId: -N, newId: +N}
+  let movedCount = 0;
+  let skippedSame = 0;
+
+  const updatedLeads = leads.map(function(l){
+    if(!selectedLeadIds.has(l.id)) return l;
+    const oldCsId = l.csId;
+    if(oldCsId === newCsId){ skippedSame++; return l; } // skip sama
+    // Track delta untuk counter update (skip kalau fallback)
+    if(!isFallback){
+      const pname = l.produk;
+      if(!counterDelta[pname]) counterDelta[pname] = {};
+      if(oldCsId){
+        counterDelta[pname][oldCsId] = (counterDelta[pname][oldCsId] || 0) - 1;
+      }
+      counterDelta[pname][newCsId] = (counterDelta[pname][newCsId] || 0) + 1;
+    }
+    movedCount++;
+    return Object.assign({}, l, {
+      csId: newCsId,
+      reassignedAt: stamp,
+      reassignedFrom: oldCsId || null,
+      reassignedBy: byLabel
+    });
+  });
+
+  LS.s('od_leads', updatedLeads);
+  // Sync tiap lead yg berubah
+  updatedLeads.forEach(function(l){
+    if(l.reassignedAt === stamp){ syncLeadSave(l); }
+  });
+
+  // Update round-robin counter di produk
+  if(!isFallback && Object.keys(counterDelta).length){
+    const prods = getProds();
+    let prodsChanged = false;
+    Object.keys(counterDelta).forEach(function(pname){
+      const pi = prods.findIndex(function(p){ return (p.produkWA || p.name) === pname; });
+      if(pi < 0) return;
+      const p = prods[pi];
+      const counts = Object.assign({}, p.csLeadCounts || {});
+      const delta = counterDelta[pname];
+      Object.keys(delta).forEach(function(cid){
+        const cur = counts[cid] || 0;
+        const next = cur + delta[cid];
+        counts[cid] = next < 0 ? 0 : next;
+      });
+      prods[pi] = Object.assign({}, p, { csLeadCounts: counts });
+      prodsChanged = true;
+    });
+    if(prodsChanged){
+      LS.s('od_prods', prods);
+      prods.forEach(function(p){ syncProdSave(p); });
+    }
+  }
+
+  closeBulkReassignModal();
+  clearLeadSelection();
+  renderLeads();
+
+  if(btn){ btn.disabled = false; btn.textContent = '🔄 Pindahkan'; }
+
+  let msg = '✅ '+movedCount+' lead dipindah ke '+newCS.name;
+  if(skippedSame > 0) msg += ' ('+skippedSame+' lead di-skip — sudah di CS itu)';
+  toast(msg);
 }
 
 /* ═════════════════════════════════════════════
@@ -6024,6 +6584,39 @@ function setSession(role, userId){
 }
 function clearSession(){ LS.s('od_session', null); }
 function getSession(){ return LS.g('od_session', null); }
+
+/* ─── Multi-tab session sync ───
+   Kalau session di-clear di tab lain (logout), tab ini juga ikut logout.
+   Pakai 'storage' event — fires di OTHER tabs only (bukan tab yg trigger).
+*/
+window.addEventListener('storage', function(e){
+  if(e.key !== 'od_session') return;
+  const newVal = e.newValue;
+  // Session cleared (logout di tab lain)
+  if(!newVal || newVal === 'null'){
+    // Reset state lokal & balik ke login screen
+    window.currentCSUser = null;
+    window.currentAdUser = null;
+    const v1 = document.getElementById('viewLogin');
+    const v2 = document.getElementById('viewDashboard');
+    const v3 = document.getElementById('viewCS');
+    if(v2) v2.style.display = 'none';
+    if(v3) v3.style.display = 'none';
+    if(v1) v1.style.display = 'flex';
+    if(typeof toast === 'function') toast('🚪 Logout dari tab lain — silakan login lagi');
+    return;
+  }
+  // Session changed to different user (login di tab lain dengan user lain)
+  try {
+    const newSess = JSON.parse(newVal);
+    const curSess = getSession();
+    // Kalau role/userId berubah, reload biar konsisten
+    if(newSess && curSess && (newSess.role !== curSess.role || newSess.userId !== curSess.userId)){
+      if(typeof toast === 'function') toast('🔄 Session berubah, reload...');
+      setTimeout(function(){ location.reload(); }, 800);
+    }
+  } catch(err){}
+});
 
 async function restoreSession(){
   const session = getSession();
