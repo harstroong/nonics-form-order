@@ -617,7 +617,7 @@ tr:hover td{background:var(--surface-2)}
 [data-theme="dark"] .prod-table tbody tr.is-alt{background:rgba(255,255,255,.015)}
 .prod-table td{padding:10px 14px;color:var(--text);vertical-align:middle}
 .prod-cell-name{color:var(--text);font-weight:500}
-.prod-cell-owner{font-size:9px;padding:1px 6px;border-radius:50px;margin-left:6px;font-weight:500}
+.prod-cell-owner{font-size:10px;padding:2px 8px;border-radius:50px;font-weight:500;display:inline-flex;align-items:center;gap:3px}
 .prod-cell-owner.admin{background:var(--blue-light);color:var(--blue)}
 .prod-cell-owner.advertiser{background:var(--orange-light);color:var(--orange)}
 [data-theme="dark"] .prod-cell-owner.admin{color:#93C5FD}
@@ -648,7 +648,9 @@ tr:hover td{background:var(--surface-2)}
 @media(max-width:768px){
   .prod-table th,.prod-table td{padding:8px 10px;font-size:11px}
   .prod-table th{font-size:9px}
-  .prod-cell-owner{display:none}
+  .prod-cell-owner{font-size:9px;padding:1px 6px}
+  .prod-cell-owner i{display:none}
+  .prod-cell-cs-label{display:none}
   .prod-header{padding:14px 16px}
   .prod-filter-strip{padding:0 16px 12px 16px}
 }
@@ -1311,7 +1313,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-05-produk-table';
+window.__APP_VERSION = '2026-06-05-produk-owner-col';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -3971,6 +3973,7 @@ function renderProdList(){
     '<th>Produk</th>' +
     '<th>Harga</th>' +
     '<th>CS</th>' +
+    '<th>Owner</th>' +
     '<th class="col-action">Aksi</th>' +
     '</tr></thead><tbody>';
 
@@ -3983,14 +3986,12 @@ function renderProdList(){
       (distMode === 'custom' ? 'Custom' :
         (distMode === 'solo' ? 'Solo' : 'Rata'));
 
-    // Owner badge
-    let ownerBadge = '';
-    if(!currentAdUser){
-      if(p.ownerRole === 'advertiser'){
-        ownerBadge = '<span class="prod-cell-owner advertiser">' + esc(p.ownerName || 'Advertiser') + '</span>';
-      } else {
-        ownerBadge = '<span class="prod-cell-owner admin">Admin</span>';
-      }
+    // Owner cell (sebagai kolom sendiri)
+    let ownerCell = '';
+    if(p.ownerRole === 'advertiser'){
+      ownerCell = '<span class="prod-cell-owner advertiser"><i class="ti ti-user" style="font-size:11px;vertical-align:-1px;margin-right:3px" aria-hidden="true"></i>' + esc(p.ownerName || 'Advertiser') + '</span>';
+    } else {
+      ownerCell = '<span class="prod-cell-owner admin"><i class="ti ti-shield-check" style="font-size:11px;vertical-align:-1px;margin-right:3px" aria-hidden="true"></i>Admin</span>';
     }
 
     // CS cell
@@ -4019,14 +4020,15 @@ function renderProdList(){
         '<button class="prod-context-item danger" onclick="deleteProd('+p.id+');closeProdContextMenu()"><i class="ti ti-trash"></i>Hapus Produk</button>' +
       '</div>';
 
-    // Warning icon kalau no CS
+    // Warning icon kalau no CS — kasih di kolom Produk biar tetap visible
     const warnIcon = !hasCS ? '<i class="ti ti-alert-circle prod-cell-warn" title="Belum ada CS — embed gak akan jalan"></i>' : '';
 
     const altClass = (i % 2 === 1) ? 'is-alt' : '';
     html += '<tr class="'+altClass+'" onclick="showProdForm('+p.id+')">' +
-      '<td><span class="prod-cell-name">'+esc(p.name)+'</span>'+ownerBadge+warnIcon+'</td>' +
+      '<td><span class="prod-cell-name">'+esc(p.name)+'</span>'+warnIcon+'</td>' +
       '<td>'+(p.price ? '<span class="prod-cell-price">Rp '+esc(p.price)+'</span>' : '<span style="color:var(--text-muted)">—</span>')+'</td>' +
       '<td>'+csCell+'</td>' +
+      '<td>'+ownerCell+'</td>' +
       '<td style="text-align:right;position:relative">'+action+'</td>' +
     '</tr>';
   });
