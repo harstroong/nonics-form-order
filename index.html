@@ -100,6 +100,45 @@
   --blue-light:rgba(59,130,246,.15);
   --blue-soft:rgba(59,130,246,.08);
 }
+
+/* ═══════════════════════════════════════════
+   CS VIEW — selalu light theme, gak follow toggle admin
+   (CS staff kerja lama-lama di sini, light lebih enak di mata)
+═══════════════════════════════════════════ */
+#viewCS{
+  --bg:#FAFAFA;
+  --surface:#FFFFFF;
+  --surface-2:#F3F4F6;
+  --border:#E5E5E5;
+  --border-strong:#D4D4D4;
+  --text:#0F0F0F;
+  --text-secondary:#4B5563;
+  --text-muted:#6B7280;
+  --text-tertiary:#9CA3AF;
+  --primary:#534AB7;
+  --primary-dark:#3C3489;
+  --primary-light:#EEEDFE;
+  --primary-soft:rgba(83,74,183,.1);
+  --green:#16A34A;
+  --green-light:#DCFCE7;
+  --green-soft:rgba(34,197,94,.1);
+  --orange:#D97706;
+  --orange-light:#FEF3C7;
+  --orange-soft:rgba(251,191,36,.1);
+  --red:#DC2626;
+  --red-light:#FEE2E2;
+  --red-soft:rgba(239,68,68,.1);
+  --blue:#2563EB;
+  --blue-light:#DBEAFE;
+  --blue-soft:rgba(59,130,246,.1);
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-lg:0 4px 16px rgba(0,0,0,.08);
+  background:#FAFAFA;color:#0F0F0F;
+}
+/* Pas CS view aktif, paksa body bg light juga (dua approach buat backward compat) */
+body.is-cs-view{background:#FAFAFA!important;color:#0F0F0F!important}
+body:has(#viewCS[style*="flex"]){background:#FAFAFA!important;color:#0F0F0F!important}
+
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
@@ -1313,7 +1352,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-05-produk-owner-col';
+window.__APP_VERSION = '2026-06-05-cs-light-only';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -1559,6 +1598,7 @@ function __doCSLoginSuccess(user){
   if(v1) v1.style.display = 'none';
   if(v2) v2.style.display = 'none';
   if(v3) v3.style.display = 'flex';
+  if(document.body) document.body.classList.add('is-cs-view'); /* paksa light theme di CS view */
   if(typeof window.initCSView === 'function'){
     try { window.initCSView(); } catch(e){ console.warn('initCSView fail:', e); }
   }
@@ -5640,6 +5680,7 @@ function showCSView(){
   document.getElementById('viewDashboard').style.display = 'none';
   document.getElementById('viewDashboard').classList.remove('show');
   document.getElementById('viewCS').style.display = 'flex';
+  document.body.classList.add('is-cs-view'); /* paksa light theme di CS view */
   initCSView();
 }
 
@@ -5647,6 +5688,7 @@ function doCSLogout(){
   clearSession();
   currentCSUser = null;
   document.getElementById('viewCS').style.display = 'none';
+  document.body.classList.remove('is-cs-view');
   document.getElementById('viewLogin').style.display = 'flex';
   switchLoginTab('cs');
 }
@@ -7759,6 +7801,7 @@ async function restoreSession(){
       document.getElementById('viewLogin').style.display = 'none';
       document.getElementById('viewDashboard').style.display = 'none';
       document.getElementById('viewCS').style.display = 'flex';
+      document.body.classList.add('is-cs-view'); /* paksa light theme di CS view */
       initCSView();
       return true;
     } else {
