@@ -1466,7 +1466,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-05-login-themed';
+window.__APP_VERSION = '2026-06-05-hide-diag';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -1598,6 +1598,20 @@ function __toggleDiag(){
   var p = document.getElementById('diagPanel');
   if(p){ p.style.display = (p.style.display === 'none' ? 'block' : 'none'); __renderDiag(); }
 }
+/* Show diagnostic link cuma kalau URL ada ?debug=true (cara owner buka: tambah ?debug=true di URL) */
+(function(){
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var isDebug = params.get('debug') === 'true' || params.get('debug') === '1';
+    if(isDebug){
+      // Sembunyikan default panel display:none — tapi link wrap tampilin
+      document.addEventListener('DOMContentLoaded', function(){
+        var w = document.getElementById('diagLinkWrap');
+        if(w) w.style.display = 'block';
+      });
+    }
+  } catch(e){}
+})();
 function __renderDiag(){
   var el = document.getElementById('diagOut');
   if(!el) return;
@@ -2112,14 +2126,14 @@ document.addEventListener('DOMContentLoaded', function(){
       <div style="font-size:10px;color:rgba(252,165,165,.7)">Klik 🆘 di bawah untuk debug detail.</div>
     </div>
 
-    <!-- Bantuan / debug link -->
-    <div style="text-align:center;margin-top:14px">
+    <!-- Bantuan / debug link — hidden by default, hanya muncul kalau URL ?debug=true -->
+    <div id="diagLinkWrap" style="display:none;text-align:center;margin-top:14px">
       <button type="button" onclick="__toggleDiag()" style="background:none;border:none;color:rgba(255,255,255,.45);font-size:11px;cursor:pointer;text-decoration:underline;font-family:inherit;padding:6px 10px">
         🆘 Bantuan login / Diagnostik
       </button>
     </div>
 
-    <!-- Diagnostic panel -->
+    <!-- Diagnostic panel — hidden by default -->
     <div id="diagPanel" style="display:none;margin-top:14px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:12px;font-family:monospace">
       <div style="font-size:11px;color:rgba(255,255,255,.7);margin-bottom:8px;line-height:1.5">
         Kalo tombol login gak respon, kemungkinan JS gagal load. Coba:<br/>
