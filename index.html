@@ -4,42 +4,101 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Admin Dashboard</title>
+<!-- Tabler Icons (outline only) — pakai webfont biar gampang via class -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.0/dist/tabler-icons.min.css"/>
 <!-- Firebase SDK loaded dynamically via initFirebaseSDK() saat user enable Cloud Sync -->
 <style>
 /* ═══════════════════════════════════════════
-   VARIABLES & RESET
+   VARIABLES & RESET — Light theme default
 ═══════════════════════════════════════════ */
 :root{
-  --sb-bg:#141c2e;
-  --sb-surface:#1a2540;
+  /* Sidebar — tetap dark di both modes (always-dark sidebar pattern) */
+  --sb-bg:#0E0E0E;
+  --sb-surface:#1A1A1A;
   --sb-border:rgba(255,255,255,.07);
   --sb-text:rgba(255,255,255,.55);
   --sb-text-active:#fff;
-  --sb-accent:#667eea;
-  --sb-accent-2:#764ba2;
+  --sb-accent:#8B7CF6;
+  --sb-accent-2:#5B4FD6;
   --sb-w:240px;
 
-  --bg:#f0f2f8;
-  --surface:#fff;
-  --border:#e8eaf0;
-  --text:#1a202c;
-  --text-muted:#718096;
+  /* Main area — light theme */
+  --bg:#FAFAFA;
+  --surface:#FFFFFF;
+  --surface-2:#F3F4F6;
+  --border:#E5E5E5;
+  --border-strong:#D4D4D4;
+  --text:#0F0F0F;
+  --text-secondary:#4B5563;
+  --text-muted:#6B7280;
+  --text-tertiary:#9CA3AF;
+
   --radius:12px;
   --radius-sm:8px;
-  --shadow:0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.06);
-  --shadow-lg:0 8px 32px rgba(0,0,0,.12);
+  --radius-lg:14px;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-lg:0 4px 16px rgba(0,0,0,.08);
 
-  --primary:#667eea;
-  --primary-dark:#5a67d8;
-  --primary-light:#ebf4ff;
-  --green:#10b981;
-  --green-light:#d1fae5;
-  --orange:#f59e0b;
-  --orange-light:#fef3c7;
-  --red:#ef4444;
-  --red-light:#fee2e2;
-  --purple:#8b5cf6;
-  --purple-light:#ede9fe;
+  /* Accent + semantic */
+  --primary:#534AB7;
+  --primary-dark:#3C3489;
+  --primary-light:#EEEDFE;
+  --primary-soft:rgba(83,74,183,.1);
+  --accent:#8B7CF6;
+  --accent-soft:rgba(139,124,246,.1);
+
+  --green:#16A34A;
+  --green-light:#DCFCE7;
+  --green-soft:rgba(34,197,94,.1);
+  --orange:#D97706;
+  --orange-light:#FEF3C7;
+  --orange-soft:rgba(251,191,36,.1);
+  --red:#DC2626;
+  --red-light:#FEE2E2;
+  --red-soft:rgba(239,68,68,.1);
+  --blue:#2563EB;
+  --blue-light:#DBEAFE;
+  --blue-soft:rgba(59,130,246,.1);
+  --purple:#7C3AED;
+  --purple-light:#EDE9FE;
+}
+
+/* ═══════════════════════════════════════════
+   DARK THEME OVERRIDES
+═══════════════════════════════════════════ */
+[data-theme="dark"]{
+  --bg:#0A0A0A;
+  --surface:#111111;
+  --surface-2:#1A1A1A;
+  --border:rgba(255,255,255,.06);
+  --border-strong:rgba(255,255,255,.12);
+  --text:#FFFFFF;
+  --text-secondary:#D1D5DB;
+  --text-muted:#888888;
+  --text-tertiary:#666666;
+
+  --shadow:0 1px 3px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2);
+  --shadow-lg:0 10px 30px rgba(0,0,0,.4);
+
+  --primary:#8B7CF6;
+  --primary-dark:#5B4FD6;
+  --primary-light:rgba(139,124,246,.15);
+  --primary-soft:rgba(139,124,246,.08);
+  --accent:#8B7CF6;
+  --accent-soft:rgba(139,124,246,.1);
+
+  --green:#22C55E;
+  --green-light:rgba(34,197,94,.15);
+  --green-soft:rgba(34,197,94,.08);
+  --orange:#FBBF24;
+  --orange-light:rgba(251,191,36,.15);
+  --orange-soft:rgba(251,191,36,.08);
+  --red:#EF4444;
+  --red-light:rgba(239,68,68,.15);
+  --red-soft:rgba(239,68,68,.08);
+  --blue:#3B82F6;
+  --blue-light:rgba(59,130,246,.15);
+  --blue-soft:rgba(59,130,246,.08);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
@@ -171,6 +230,24 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 .sb-user-role{font-size:11px;color:rgba(255,255,255,.35);margin-top:1px}
 .sb-logout{background:none;border:none;color:rgba(255,255,255,.35);cursor:pointer;padding:4px;border-radius:6px;font-size:14px;transition:color .15s}
 .sb-logout:hover{color:#fc8181}
+
+/* Theme toggle di sidebar */
+.sb-theme{padding:10px 14px 4px;border-top:1px solid var(--sb-border)}
+.sb-theme-label{font-size:9px;font-weight:600;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;padding:0 2px}
+.sb-theme-toggle{
+  display:flex;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);
+  border-radius:7px;padding:3px;gap:1px;
+}
+.sb-theme-toggle button{
+  flex:1;background:none;border:none;color:rgba(255,255,255,.5);
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  padding:6px 4px;border-radius:5px;cursor:pointer;
+  font-size:10px;font-weight:500;font-family:inherit;
+  transition:all .15s;
+}
+.sb-theme-toggle button:hover{color:rgba(255,255,255,.85)}
+.sb-theme-toggle button.active{background:rgba(139,124,246,.18);color:#C7BFFA;font-weight:600}
+.sb-theme-toggle button i{font-size:12px}
 
 /* MAIN */
 .main{
@@ -988,9 +1065,63 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-04-live-fetch';
+window.__APP_VERSION = '2026-06-05-theme-system';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
+
+/* ═══════════════════════════════════
+   THEME SYSTEM — Light / Dark / Auto
+   Apply ASAP biar gak flicker.
+═══════════════════════════════════ */
+(function(){
+  var THEME_KEY = 'od_theme';
+  function applyResolvedTheme(setting){
+    var resolved = setting;
+    if(setting === 'auto'){
+      try {
+        resolved = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+      } catch(e){ resolved = 'light'; }
+    }
+    document.documentElement.setAttribute('data-theme', resolved);
+    document.documentElement.setAttribute('data-theme-pref', setting);
+  }
+  // Read saved or default
+  var saved = 'auto';
+  try { var v = localStorage.getItem(THEME_KEY); if(v === 'light' || v === 'dark' || v === 'auto') saved = v; } catch(e){}
+  applyResolvedTheme(saved);
+
+  // Listen for system pref changes (cuma berpengaruh kalau mode auto)
+  try {
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    var onMQ = function(){
+      var pref = localStorage.getItem(THEME_KEY) || 'auto';
+      if(pref === 'auto') applyResolvedTheme('auto');
+    };
+    if(mq.addEventListener) mq.addEventListener('change', onMQ);
+    else if(mq.addListener) mq.addListener(onMQ); // older Safari
+  } catch(e){}
+
+  // Expose setter ke window
+  window.setTheme = function(value){
+    if(value !== 'light' && value !== 'dark' && value !== 'auto') return;
+    try { localStorage.setItem(THEME_KEY, value); } catch(e){}
+    applyResolvedTheme(value);
+    // Update toggle UI active state
+    var btns = document.querySelectorAll('.sb-theme-toggle button[data-theme-value]');
+    btns.forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-theme-value') === value);
+    });
+  };
+  // Sync UI when DOM ready
+  document.addEventListener('DOMContentLoaded', function(){
+    var pref = document.documentElement.getAttribute('data-theme-pref') || 'auto';
+    var btns = document.querySelectorAll('.sb-theme-toggle button[data-theme-value]');
+    btns.forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-theme-value') === pref);
+    });
+  });
+})();
+
 window.addEventListener('error', function(e){
   window.__JS_ERRORS.push({
     msg: e.message || 'Unknown error',
@@ -1604,6 +1735,15 @@ document.addEventListener('DOMContentLoaded', function(){
       <button class="sb-item" onclick="showPanel('settings')">
         <span class="sb-icon">⚙️</span> Pengaturan
       </button>
+    </div>
+
+    <div class="sb-theme">
+      <div class="sb-theme-label">Appearance</div>
+      <div class="sb-theme-toggle" role="group" aria-label="Theme">
+        <button type="button" data-theme-value="light" title="Light mode" onclick="setTheme('light')"><i class="ti ti-sun"></i><span>Light</span></button>
+        <button type="button" data-theme-value="dark" title="Dark mode" onclick="setTheme('dark')"><i class="ti ti-moon"></i><span>Dark</span></button>
+        <button type="button" data-theme-value="auto" title="Auto (ngikut sistem)" onclick="setTheme('auto')"><i class="ti ti-device-laptop"></i><span>Auto</span></button>
+      </div>
     </div>
 
     <div class="sb-user">
