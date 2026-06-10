@@ -988,7 +988,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-04-bulk-reassign';
+window.__APP_VERSION = '2026-06-04-live-fetch';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 window.addEventListener('error', function(e){
@@ -1855,6 +1855,25 @@ document.addEventListener('DOMContentLoaded', function(){
               <a onclick="showPanel('cs')" style="font-size:13px;color:var(--primary);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px">
                 ➕ Tambah CS baru di menu CS & Greeting
               </a>
+            </div>
+
+            <!-- Step 2b: Distribusi Lead (muncul kalau >=2 CS dipilih) -->
+            <div id="distribSection" style="margin-bottom:20px;display:none">
+              <div class="label" style="margin-bottom:4px">Step 2b — Distribusi Lead</div>
+              <div style="font-size:13px;color:var(--text-muted);margin-bottom:10px">Atur cara lead dibagi ke CS yang dipilih.</div>
+
+              <div id="distribModeCards" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px"></div>
+
+              <div id="distribCustomBox" style="display:none;background:#f7f8fc;border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px">
+                <div style="font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.4px">Set persentase per CS</div>
+                <div id="distribCustomList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
+                <div id="distribTotal" style="padding:8px 12px;border-radius:6px;font-size:12px;display:flex;align-items:center;gap:6px"></div>
+              </div>
+
+              <div id="distribSoloBox" style="display:none;background:#f7f8fc;border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px">
+                <div style="font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.4px">Pilih 1 CS yang dapat semua lead</div>
+                <div id="distribSoloList" style="display:flex;flex-direction:column;gap:8px"></div>
+              </div>
             </div>
 
             <div class="card-divider"></div>
@@ -3346,6 +3365,11 @@ function showProdForm(id){
     // Backward compat: csIds (array) baru, csId (single) lama
     const initial = (p.csIds && p.csIds.length) ? p.csIds : (p.csId ? [p.csId] : []);
     renderCSSelectorForProd(initial);
+    // Load distribusi setting (default = equal kalau gak ada)
+    distribMode = p.distribMode || 'equal';
+    distribWeights = Object.assign({}, p.csWeights || {});
+    distribSoloId = p.distribSoloId || null;
+    renderDistribSection();
     updateProdGreetingPreview();
     generateProdEmbed(p);
   } else {
@@ -3354,6 +3378,11 @@ function showProdForm(id){
     document.getElementById('prodEmbedInline').textContent = 'Simpan produk dulu untuk generate embed code...';
     document.getElementById('prodEmbedIframe').textContent = 'Simpan produk dulu untuk generate embed code...';
     renderCSSelectorForProd([]);
+    // Reset distribusi ke equal
+    distribMode = 'equal';
+    distribWeights = {};
+    distribSoloId = null;
+    renderDistribSection();
     updateProdGreetingPreview();
   }
   document.getElementById('prodFormCard').scrollIntoView({behavior:'smooth'});
@@ -3434,11 +3463,161 @@ function toggleCS(id){
   selectedCSId = selectedCSIds[0] || null;
   document.getElementById('errCSSelect').style.display = 'none';
   renderCSSelectorForProd(selectedCSIds);
+  // Selalu re-render distribusi section saat CS list berubah
+  renderDistribSection();
   updateProdGreetingPreview();
 }
 
 // Legacy alias — sebelumnya pakai selectCS(id) single-select
 function selectCS(id){ toggleCS(id); }
+
+/* ═════════════════════════════════════════════
+   DISTRIBUSI LEAD — Opsi C: preset mode card
+   Mode: equal (default) | custom | solo
+═════════════════════════════════════════════ */
+let distribMode = 'equal';    // 'equal' | 'custom' | 'solo'
+let distribWeights = {};      // {csId: percent} — cuma dipake kalau mode = custom
+let distribSoloId = null;     // csId — cuma dipake kalau mode = solo
+
+function setDistribMode(mode){
+  distribMode = mode;
+  // Re-init weights kalau switch ke custom & belum ada
+  if(mode === 'custom'){
+    const n = selectedCSIds.length;
+    if(n > 0){
+      // Distribusi default = bagi rata, tapi assign ke 100 di total
+      const base = Math.floor(100 / n);
+      const remainder = 100 - (base * n);
+      const newWeights = {};
+      selectedCSIds.forEach(function(id, i){
+        newWeights[id] = base + (i === 0 ? remainder : 0); // sisa lemparin ke CS pertama
+      });
+      distribWeights = newWeights;
+    }
+  }
+  if(mode === 'solo' && !distribSoloId){
+    distribSoloId = selectedCSIds[0] || null;
+  }
+  renderDistribSection();
+}
+
+function renderDistribSection(){
+  const section = document.getElementById('distribSection');
+  if(!section) return;
+
+  // Cuma muncul kalau ada >= 2 CS dipilih
+  if(selectedCSIds.length < 2){
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = 'block';
+
+  // Pastikan distribWeights & soloId valid (CS bisa di-uncheck setelah set)
+  Object.keys(distribWeights).forEach(function(k){
+    if(selectedCSIds.indexOf(parseInt(k,10)) < 0) delete distribWeights[k];
+  });
+  if(distribSoloId && selectedCSIds.indexOf(distribSoloId) < 0) distribSoloId = selectedCSIds[0];
+
+  // Mode card buttons
+  const modes = [
+    { id:'equal',  icon:'🔄', label:'Bagi rata',   desc:'Round-robin equal',  color:'#534AB7' },
+    { id:'custom', icon:'⚖️', label:'Custom %',    desc:'Set per CS manual',  color:'#534AB7' },
+    { id:'solo',   icon:'🎯', label:'Solo CS',     desc:'Semua ke 1 CS',      color:'#534AB7' }
+  ];
+  const modeEl = document.getElementById('distribModeCards');
+  if(modeEl){
+    modeEl.innerHTML = modes.map(function(m){
+      const active = (distribMode === m.id);
+      return '<div onclick="setDistribMode(\''+m.id+'\')" style="' +
+        'background:'+(active?'#EEEDFE':'#fff')+';' +
+        'border:'+(active?'2px':'1px')+' solid '+(active?'#534AB7':'var(--border)')+';' +
+        'border-radius:8px;padding:12px 10px;cursor:pointer;text-align:center;transition:all .15s">' +
+        '<div style="font-size:20px;margin-bottom:4px">'+m.icon+'</div>' +
+        '<div style="font-size:12px;font-weight:600;color:'+(active?'#26215C':'var(--text)')+';margin-bottom:2px">'+m.label+'</div>' +
+        '<div style="font-size:10px;color:'+(active?'#3C3489':'var(--text-muted)')+'">'+m.desc+'</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  // Mode-specific UI
+  document.getElementById('distribCustomBox').style.display = (distribMode === 'custom') ? 'block' : 'none';
+  document.getElementById('distribSoloBox').style.display = (distribMode === 'solo') ? 'block' : 'none';
+
+  if(distribMode === 'custom'){
+    renderDistribCustomList();
+  } else if(distribMode === 'solo'){
+    renderDistribSoloList();
+  }
+}
+
+function renderDistribCustomList(){
+  const csList = getCSList();
+  const el = document.getElementById('distribCustomList');
+  if(!el) return;
+  el.innerHTML = selectedCSIds.map(function(id){
+    const cs = csList.find(function(c){ return c.id === id; });
+    if(!cs) return '';
+    const w = distribWeights[id] || 0;
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:#fff;border-radius:6px">' +
+      '<div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--sb-accent),var(--sb-accent-2));color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">'+esc(cs.name[0].toUpperCase())+'</div>' +
+      '<div style="flex:1;font-size:13px;font-weight:600">'+esc(cs.name)+'</div>' +
+      '<input type="number" min="0" max="100" value="'+w+'" oninput="onDistribWeightChange('+id+',this.value)" style="width:70px;text-align:center;font-weight:600;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:13px" />' +
+      '<div style="font-size:13px;color:var(--text-muted);font-weight:600;width:18px">%</div>' +
+    '</div>';
+  }).join('');
+  updateDistribTotal();
+}
+
+function renderDistribSoloList(){
+  const csList = getCSList();
+  const el = document.getElementById('distribSoloList');
+  if(!el) return;
+  el.innerHTML = selectedCSIds.map(function(id){
+    const cs = csList.find(function(c){ return c.id === id; });
+    if(!cs) return '';
+    const active = (distribSoloId === id);
+    return '<div onclick="distribSoloId='+id+';renderDistribSoloList()" style="' +
+      'display:flex;align-items:center;gap:10px;padding:10px 12px;' +
+      'background:'+(active?'#EEEDFE':'#fff')+';' +
+      'border:'+(active?'2px':'1px')+' solid '+(active?'#534AB7':'var(--border)')+';' +
+      'border-radius:6px;cursor:pointer;transition:all .15s">' +
+      '<div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--sb-accent),var(--sb-accent-2));color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">'+esc(cs.name[0].toUpperCase())+'</div>' +
+      '<div style="flex:1"><div style="font-size:13px;font-weight:700">'+esc(cs.name)+'</div><div style="font-size:11px;color:var(--text-muted)">📱 '+esc(cs.waNum||'')+'</div></div>' +
+      '<div style="width:20px;height:20px;border-radius:50%;border:2px solid '+(active?'#534AB7':'var(--border)')+';background:'+(active?'#534AB7':'#fff')+';display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700">'+(active?'✓':'')+'</div>' +
+    '</div>';
+  }).join('');
+}
+
+function onDistribWeightChange(csId, val){
+  let v = parseInt(val, 10);
+  if(isNaN(v) || v < 0) v = 0;
+  if(v > 100) v = 100;
+  distribWeights[csId] = v;
+  updateDistribTotal();
+}
+
+function updateDistribTotal(){
+  const el = document.getElementById('distribTotal');
+  if(!el) return;
+  let total = 0;
+  selectedCSIds.forEach(function(id){ total += (distribWeights[id] || 0); });
+  if(total === 100){
+    el.style.background = '#EAF3DE';
+    el.style.border = '1px solid #97C459';
+    el.style.color = '#3B6D11';
+    el.innerHTML = '✓ Total 100% — distribusi siap pakai';
+  } else if(total < 100){
+    el.style.background = '#FAEEDA';
+    el.style.border = '1px solid #EF9F27';
+    el.style.color = '#854F0B';
+    el.innerHTML = '⚠️ Total '+total+'% — kurang '+(100-total)+'%. Sesuaikan supaya total 100%.';
+  } else {
+    el.style.background = '#FCEBEB';
+    el.style.border = '1px solid #F09595';
+    el.style.color = '#A32D2D';
+    el.innerHTML = '⚠️ Total '+total+'% — kelebihan '+(total-100)+'%. Kurangin supaya total 100%.';
+  }
+}
 
 function switchProdTab(tab){
   activeProdTab=tab;
@@ -3472,6 +3651,26 @@ function saveProd(){
     toast('⚠️ Pilih minimal 1 CS di tab CS & Greeting'); return;
   }
 
+  // Validasi distribusi (cuma kalau >= 2 CS)
+  if(selectedCSIds.length >= 2){
+    if(distribMode === 'custom'){
+      let total = 0;
+      selectedCSIds.forEach(function(id){ total += (distribWeights[id] || 0); });
+      if(total !== 100){
+        switchProdTab('cs');
+        toast('⚠️ Distribusi custom total harus 100% (sekarang '+total+'%)');
+        return;
+      }
+    }
+    if(distribMode === 'solo'){
+      if(!distribSoloId || selectedCSIds.indexOf(distribSoloId) < 0){
+        switchProdTab('cs');
+        toast('⚠️ Pilih 1 CS di mode Solo');
+        return;
+      }
+    }
+  }
+
   const price = document.getElementById('fPrice').value.trim();
   const desc = document.getElementById('fDesc').value.trim();
   const produkWA = document.getElementById('fProdWA').value.trim() || name;
@@ -3480,6 +3679,18 @@ function saveProd(){
   const convLabel = document.getElementById('fConv').value.trim();
   const csIds = selectedCSIds.slice();
   const csId = csIds[0]; // backward compat — primary CS
+
+  // Build distribusi fields — di-bake ke produk
+  let saveMode = distribMode;
+  let saveWeights = {};
+  let saveSoloId = null;
+  if(csIds.length < 2){
+    saveMode = 'equal'; // satu CS = equal aja, irrelevant mode-nya
+  } else if(distribMode === 'custom'){
+    csIds.forEach(function(id){ saveWeights[id] = distribWeights[id] || 0; });
+  } else if(distribMode === 'solo'){
+    saveSoloId = distribSoloId;
+  }
 
   // Ambil WA primary CS
   const csList = getCSList();
@@ -3496,13 +3707,13 @@ function saveProd(){
       const oldCounts = prods[i].csLeadCounts || {};
       const newCounts = {};
       csIds.forEach(id => { newCounts[id] = oldCounts[id] || 0; });
-      prods[i] = {...prods[i], name, price, desc, csId, csIds, csLeadCounts:newCounts, waNum, produkWA, greeting, gtmId, convLabel};
+      prods[i] = {...prods[i], name, price, desc, csId, csIds, csLeadCounts:newCounts, waNum, produkWA, greeting, gtmId, convLabel, distribMode:saveMode, csWeights:saveWeights, distribSoloId:saveSoloId};
       savedProd = prods[i];
     }
   } else {
     const newCounts = {};
     csIds.forEach(id => { newCounts[id] = 0; });
-    savedProd = {id: Date.now(), name, price, desc, csId, csIds, csLeadCounts:newCounts, waNum, produkWA, greeting, gtmId, convLabel};
+    savedProd = {id: Date.now(), name, price, desc, csId, csIds, csLeadCounts:newCounts, waNum, produkWA, greeting, gtmId, convLabel, distribMode:saveMode, csWeights:saveWeights, distribSoloId:saveSoloId};
     // Tag ownership: kalau advertiser yang bikin, simpan owner info
     if(currentAdUser){
       savedProd.ownerRole = 'advertiser';
@@ -3550,6 +3761,9 @@ function generateProdEmbed(p){
     storeName:cfg.storeName,
     productId:p.id,
     csIds, csMap, csCounts,
+    distribMode: p.distribMode || 'equal',
+    csWeights: p.csWeights || {},
+    distribSoloId: p.distribSoloId || null,
     fallbackWa, greeting, gtmId, convLabel, produkWA,
     csId:p.csId||null,
     waNum:fallbackWa, // legacy field name kept
@@ -3595,9 +3809,31 @@ var ooSubmitting${p.id}=false;
 window['ooSub${p.id}']=function(){
   if(ooSubmitting${p.id}) return; /* anti double-tap */
 
-  /* ── Normalize WA (08xxx → 628xxx) — shared util defined upfront ── */
+  /* ── Util ── */
   var normWa=function(num){var n=(num||'').toString().replace(/\\D/g,'');if(!n)return '';n=n.replace(/^0+/,'');if(!n)return '';if(n.charAt(0)==='8')n='62'+n;return n;};
+  var fsParseValue=function(v){
+    if(!v) return null;
+    if('stringValue' in v) return v.stringValue;
+    if('integerValue' in v) return parseInt(v.integerValue,10);
+    if('doubleValue' in v) return v.doubleValue;
+    if('booleanValue' in v) return v.booleanValue;
+    if('nullValue' in v) return null;
+    if('arrayValue' in v) return (v.arrayValue.values||[]).map(fsParseValue);
+    if('mapValue' in v){var o={};var f=v.mapValue.fields||{};for(var k in f)o[k]=fsParseValue(f[k]);return o;}
+    return null;
+  };
+  var fsParseDoc=function(d){if(!d||!d.fields)return null;var o={};for(var k in d.fields)o[k]=fsParseValue(d.fields[k]);return o;};
+  var fsEnc=function(v){
+    if(v===null||v===undefined)return{nullValue:null};
+    if(typeof v==='boolean')return{booleanValue:v};
+    if(typeof v==='number')return Number.isInteger(v)?{integerValue:String(v)}:{doubleValue:v};
+    if(typeof v==='string')return{stringValue:v};
+    if(Array.isArray(v))return{arrayValue:{values:v.map(fsEnc)}};
+    if(typeof v==='object'){var f={};for(var k in v)f[k]=fsEnc(v[k]);return{mapValue:{fields:f}};}
+    return{stringValue:String(v)};
+  };
 
+  /* ── Read inputs ── */
   var nm=document.getElementById('oo-n${p.id}').value.trim();
   var wa=document.getElementById('oo-w${p.id}').value.trim();
   var al=${cfg.fieldAlamat?`(document.getElementById('oo-al${p.id}')||{value:''}).value.trim()`:`''`};
@@ -3615,95 +3851,142 @@ window['ooSub${p.id}']=function(){
   else{if(waInpEl)waInpEl.style.borderColor='#e0e0e0';if(waErrEl)waErrEl.style.display='none';}
   if(!ok)return;
 
-  /* ── Build WA message & URL — fallback chain biar gak ada "undefined" ── */
-  var prodLabel=cfg.produkWA||cfg.storeName||'produk';
-  var storeLabel=cfg.storeName||'';
-
-  /* ── ROUND ROBIN: pilih CS dari LOCAL cache (no await, preserve user gesture) ── */
-  var counts=Object.assign({},cfg.csCounts||{});
-  var chosenCsId=null, chosenWa=cfg.fallbackWa||cfg.waNum;
-  if(cfg.csIds&&cfg.csIds.length){
-    chosenCsId=cfg.csIds[0];
-    var minC=counts[chosenCsId]||0;
-    cfg.csIds.forEach(function(id){var c=counts[id]||0;if(c<minC){minC=c;chosenCsId=id;}});
-    var csm=cfg.csMap&&cfg.csMap[chosenCsId];
-    if(csm&&csm.waNum)chosenWa=csm.waNum;
-  }
-
-  var msg=cfg.greeting.replace(/{nama}/g,nm).replace(/{wa}/g,wa).replace(/{produk}/g,prodLabel).replace(/{toko}/g,storeLabel).replace(/{alamat}/g,al||'-').replace(/{kota}/g,kt||'-').replace(/{kecamatan}/g,kc||'-');
-  waUrl='https://wa.me/'+normWa(chosenWa)+'?text='+encodeURIComponent(msg);
-
-  /* Duplicate detector — kalau WA sama submit < 5 menit lalu, skip create lead baru */
+  /* ── Dupe check (sync, sessionStorage) ── */
   var dupKey='oo_last_'+cfg.productId+'_'+waDigits;
   var isDupe=false;
-  try{
-    var lastTs=parseInt(sessionStorage.getItem(dupKey)||'0',10);
-    if(lastTs && (Date.now()-lastTs)<300000) isDupe=true;
-  }catch(e){}
+  try{var lastTs=parseInt(sessionStorage.getItem(dupKey)||'0',10);if(lastTs && (Date.now()-lastTs)<300000) isDupe=true;}catch(e){}
 
-  /* lock submit + disable button */
+  /* lock submit + show success screen instantly */
   ooSubmitting${p.id}=true;
   var subBtn=document.getElementById('oo-btn-${p.id}');
   if(subBtn){subBtn.disabled=true;subBtn.style.opacity='0.7';subBtn.style.cursor='wait';}
-
-  if(isDupe){
-    /* Skip create lead, langsung redirect aja */
-    document.getElementById('oo-f${p.id}').style.display='none';
-    document.getElementById('oo-ok${p.id}').style.display='block';
-    var dupBtn=document.getElementById('oo-wa-btn-${p.id}');
-    if(dupBtn){dupBtn.href=waUrl; try{dupBtn.click();}catch(e){}}
-    try{window.location.href=waUrl;}catch(e){}
-    return;
-  }
-
-  /* Mark dupe — supaya retry < 5 menit kena throttle */
-  try{sessionStorage.setItem(dupKey,String(Date.now()));}catch(e){}
-
-  /* ── Build lead (gak save ke localStorage embed — useless, customer's LS) ── */
-  var leadId='L'+Date.now()+Math.floor(Math.random()*1000);
-  var lead={id:leadId,ts:Date.now(),nama:nm,wa:wa,produk:cfg.produkWA,csId:chosenCsId,alamat:al,kota:kt,kecamatan:kc,followStatus:'pending',waAttempted:true};
-
-  /* ── GTM events ── */
-  if(window.dataLayer)window.dataLayer.push({event:'generate_lead',lead_name:nm,lead_product:cfg.produkWA});
-  if(cfg.convLabel&&typeof gtag==='function')gtag('event','conversion',{send_to:cfg.convLabel});
-
-  /* ── Fire-and-forget POST ke Firestore (keepalive supaya survive navigation) ── */
-  if(cfg.fbApiKey&&cfg.fbProjectId){
-    try{
-      var fsEnc=function(v){
-        if(v===null||v===undefined)return{nullValue:null};
-        if(typeof v==='boolean')return{booleanValue:v};
-        if(typeof v==='number')return Number.isInteger(v)?{integerValue:String(v)}:{doubleValue:v};
-        if(typeof v==='string')return{stringValue:v};
-        if(Array.isArray(v))return{arrayValue:{values:v.map(fsEnc)}};
-        if(typeof v==='object'){var f={};for(var k in v)f[k]=fsEnc(v[k]);return{mapValue:{fields:f}};}
-        return{stringValue:String(v)};
-      };
-      var leadFields={};for(var k in lead)leadFields[k]=fsEnc(lead[k]);
-      fetch('https://firestore.googleapis.com/v1/projects/'+cfg.fbProjectId+'/databases/(default)/documents/od_leads?documentId='+leadId+'&key='+cfg.fbApiKey,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:leadFields}),keepalive:true}).catch(function(err){
-        if(window.dataLayer)window.dataLayer.push({event:'lead_sync_fail',lead_id:leadId,err:String(err&&err.message||err)});
-      });
-      if(chosenCsId){
-        counts[chosenCsId]=(counts[chosenCsId]||0)+1;
-        var cF={};for(var ck in counts)cF[ck]={integerValue:String(counts[ck])};
-        fetch('https://firestore.googleapis.com/v1/projects/'+cfg.fbProjectId+'/databases/(default)/documents/od_prods/'+cfg.productId+'?key='+cfg.fbApiKey+'&updateMask.fieldPaths=csLeadCounts',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{csLeadCounts:{mapValue:{fields:cF}}}}),keepalive:true}).catch(function(){});
-      }
-    }catch(e){
-      if(window.dataLayer)window.dataLayer.push({event:'lead_sync_fail',lead_id:leadId,err:String(e&&e.message||e)});
-    }
-  }
-
-  /* ── Set anchor href dulu sebagai fallback (kalau redirect ke-block) ── */
   var manualBtn=document.getElementById('oo-wa-btn-${p.id}');
-  if(manualBtn) manualBtn.href=waUrl;
-  /* ── Show success screen sebagai fallback (kalau redirect ke-block) ── */
   document.getElementById('oo-f${p.id}').style.display='none';
   document.getElementById('oo-ok${p.id}').style.display='block';
-  /* ── INSTANT redirect — multi-fallback biar work di semua browser ── */
-  // Method 1: anchor click — paling reliable buat in-app browser (FB/IG/YouTube)
-  try { if(manualBtn && manualBtn.click) manualBtn.click(); } catch(e){}
-  // Method 2: location.href — fallback paling universal
-  try { window.location.href=waUrl; } catch(e){}
+
+  /* ── proceed(): jalan setelah fetch selesai (atau timeout/fail fallback ke baked) ── */
+  function proceed(prod, csMap){
+    var csIds = (prod && prod.csIds && prod.csIds.length) ? prod.csIds : (cfg.csIds || []);
+    var dMode = (prod && prod.distribMode) || cfg.distribMode || 'equal';
+    var weights = (prod && prod.csWeights) || cfg.csWeights || {};
+    var soloId = (prod && prod.distribSoloId) || cfg.distribSoloId || null;
+    var counts = Object.assign({}, (prod && prod.csLeadCounts) || cfg.csCounts || {});
+    var greeting = (prod && prod.greeting) || cfg.greeting;
+    var produkWA = (prod && prod.produkWA) || cfg.produkWA;
+    var convLabel = (prod && prod.convLabel) || cfg.convLabel;
+    var fallbackWa = (prod && prod.waNum) || cfg.fallbackWa || cfg.waNum;
+
+    /* ── PILIH CS — 3 mode: solo / custom (weighted random) / equal (round-robin counter) ── */
+    var chosenCsId=null, chosenWa=fallbackWa;
+    if(csIds.length){
+      if(dMode === 'solo' && soloId && csIds.indexOf(soloId) >= 0){
+        chosenCsId = soloId;
+      } else if(dMode === 'custom' && weights){
+        var roll = Math.random() * 100;
+        var acc = 0;
+        var picked = null;
+        for(var i=0;i<csIds.length;i++){
+          var cid = csIds[i];
+          acc += (weights[cid] || 0);
+          if(roll < acc){ picked = cid; break; }
+        }
+        chosenCsId = (picked !== null) ? picked : csIds[0];
+      } else {
+        chosenCsId = csIds[0];
+        var minC = counts[chosenCsId] || 0;
+        csIds.forEach(function(id){ var c = counts[id] || 0; if(c < minC){ minC = c; chosenCsId = id; } });
+      }
+      var csm = csMap && csMap[chosenCsId];
+      if(csm && csm.waNum) chosenWa = csm.waNum;
+    }
+
+    /* Build WA message & URL — fallback chain biar gak ada "undefined" */
+    var prodLabel = produkWA || cfg.storeName || 'produk';
+    var storeLabel = cfg.storeName || '';
+    var msg = greeting.replace(/{nama}/g,nm).replace(/{wa}/g,wa).replace(/{produk}/g,prodLabel).replace(/{toko}/g,storeLabel).replace(/{alamat}/g,al||'-').replace(/{kota}/g,kt||'-').replace(/{kecamatan}/g,kc||'-');
+    waUrl = 'https://wa.me/' + normWa(chosenWa) + '?text=' + encodeURIComponent(msg);
+    if(manualBtn) manualBtn.href = waUrl;
+
+    if(isDupe){
+      /* Skip create lead, langsung redirect aja */
+      try{if(manualBtn && manualBtn.click) manualBtn.click();}catch(e){}
+      try{window.location.href=waUrl;}catch(e){}
+      return;
+    }
+    try{sessionStorage.setItem(dupKey,String(Date.now()));}catch(e){}
+
+    /* Build lead */
+    var leadId='L'+Date.now()+Math.floor(Math.random()*1000);
+    var lead={id:leadId,ts:Date.now(),nama:nm,wa:wa,produk:produkWA,csId:chosenCsId,alamat:al,kota:kt,kecamatan:kc,followStatus:'pending',waAttempted:true};
+
+    /* GTM events */
+    if(window.dataLayer)window.dataLayer.push({event:'generate_lead',lead_name:nm,lead_product:produkWA});
+    if(convLabel&&typeof gtag==='function')gtag('event','conversion',{send_to:convLabel});
+
+    /* Firestore POST (lead + counter) */
+    if(cfg.fbApiKey&&cfg.fbProjectId){
+      try{
+        var leadFields={};for(var k in lead)leadFields[k]=fsEnc(lead[k]);
+        fetch('https://firestore.googleapis.com/v1/projects/'+cfg.fbProjectId+'/databases/(default)/documents/od_leads?documentId='+leadId+'&key='+cfg.fbApiKey,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:leadFields}),keepalive:true}).catch(function(err){
+          if(window.dataLayer)window.dataLayer.push({event:'lead_sync_fail',lead_id:leadId,err:String(err&&err.message||err)});
+        });
+        if(chosenCsId){
+          counts[chosenCsId]=(counts[chosenCsId]||0)+1;
+          var cF={};for(var ck in counts)cF[ck]={integerValue:String(counts[ck])};
+          fetch('https://firestore.googleapis.com/v1/projects/'+cfg.fbProjectId+'/databases/(default)/documents/od_prods/'+cfg.productId+'?key='+cfg.fbApiKey+'&updateMask.fieldPaths=csLeadCounts',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{csLeadCounts:{mapValue:{fields:cF}}}}),keepalive:true}).catch(function(){});
+        }
+      }catch(e){
+        if(window.dataLayer)window.dataLayer.push({event:'lead_sync_fail',lead_id:leadId,err:String(e&&e.message||e)});
+      }
+    }
+
+    /* Redirect — multi-fallback */
+    try{if(manualBtn && manualBtn.click) manualBtn.click();}catch(e){}
+    try{window.location.href=waUrl;}catch(e){}
+  }
+
+  /* ── LIVE FETCH: ambil produk + CS terbaru dari Firestore, fallback ke baked kalau timeout/fail ── */
+  if(!cfg.fbApiKey || !cfg.fbProjectId){
+    proceed(null, cfg.csMap || {});
+    return;
+  }
+  var doneFetch = false;
+  var timeoutFetch = setTimeout(function(){
+    if(doneFetch) return;
+    doneFetch = true;
+    proceed(null, cfg.csMap || {});
+  }, 1500);
+
+  fetch('https://firestore.googleapis.com/v1/projects/'+cfg.fbProjectId+'/databases/(default)/documents/od_prods/'+cfg.productId+'?key='+cfg.fbApiKey)
+    .then(function(r){return r.json();})
+    .then(function(prodDoc){
+      var prodData = fsParseDoc(prodDoc) || {};
+      var csIds = (prodData.csIds && prodData.csIds.length) ? prodData.csIds : (cfg.csIds || []);
+      var csPromises = csIds.map(function(id){
+        return fetch('https://firestore.googleapis.com/v1/projects/'+cfg.fbProjectId+'/databases/(default)/documents/od_cs/'+id+'?key='+cfg.fbApiKey)
+          .then(function(r){return r.json();})
+          .then(function(doc){return {id:id, data:fsParseDoc(doc)};})
+          .catch(function(){return {id:id, data:(cfg.csMap && cfg.csMap[id]) || null};});
+      });
+      return Promise.all(csPromises).then(function(results){
+        var csMap = Object.assign({}, cfg.csMap || {});
+        results.forEach(function(r){ if(r.data) csMap[r.id] = r.data; });
+        return {prod:prodData, csMap:csMap};
+      });
+    })
+    .then(function(combined){
+      if(doneFetch) return;
+      doneFetch = true;
+      clearTimeout(timeoutFetch);
+      proceed(combined.prod, combined.csMap);
+    })
+    .catch(function(err){
+      if(doneFetch) return;
+      doneFetch = true;
+      clearTimeout(timeoutFetch);
+      if(window.dataLayer)window.dataLayer.push({event:'prod_fetch_fail',err:String(err && err.message || err)});
+      proceed(null, cfg.csMap || {});
+    });
 };
 ${gtmId?`if(!document.getElementById('oo-gtm-${p.id}')){var gs=document.createElement('script');gs.id='oo-gtm-${p.id}';gs.innerHTML='(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);})(window,document,"script","dataLayer","${gtmId}");';document.head.appendChild(gs);}`:``}}();
 <\/script>`;
