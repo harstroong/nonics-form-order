@@ -581,6 +581,77 @@ tr:hover td{background:var(--surface-2)}
   .lead-row-meta{flex:1 0 100%;justify-content:space-between;border-top:0.5px solid var(--border);padding-top:8px;margin-top:4px}
   .lead-row-name{max-width:unset}
 }
+
+/* ═══════════════════════════════════════════
+   PRODUK PANEL PRO — table minimal version
+═══════════════════════════════════════════ */
+.prod-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:18px 22px}
+.prod-header-info{display:flex;align-items:center;gap:12px;min-width:0}
+.prod-header-icon{width:34px;height:34px;border-radius:9px;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.prod-header-title-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.prod-header-title{font-size:18px;font-weight:600;color:var(--text);letter-spacing:-.3px;line-height:1.2}
+.prod-header-count{background:var(--surface-2);color:var(--text-muted);font-size:11px;padding:3px 9px;border-radius:50px;font-weight:500;font-family:'SF Mono',Menlo,monospace}
+.prod-header-sub{font-size:11px;color:var(--text-muted);margin-top:3px;line-height:1.4}
+.prod-header-btn-new{background:linear-gradient(135deg,var(--sb-accent),var(--sb-accent-2));color:#fff;border:none;font-size:12px;padding:9px 16px;border-radius:8px;font-weight:500;display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-family:inherit}
+.prod-header-btn-new:hover{opacity:.88}
+.prod-header-btn-new i{font-size:14px}
+
+.prod-filter-strip{padding:0 22px 12px 22px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.prod-search{flex:1;min-width:200px;display:flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid var(--border);border-radius:7px;padding:7px 12px;transition:border-color .15s}
+.prod-search:focus-within{border-color:var(--primary)}
+.prod-search i{font-size:13px;color:var(--text-muted)}
+.prod-search input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-size:12px;font-family:inherit;min-width:0;padding:0}
+.prod-search input::placeholder{color:var(--text-muted)}
+.prod-filter-select{background:var(--surface-2);border:1px solid var(--border);color:var(--text);font-size:11px;padding:7px 10px;border-radius:7px;font-family:inherit;cursor:pointer;font-weight:500}
+.prod-filter-select:focus{outline:none;border-color:var(--primary)}
+.prod-filter-info{font-size:11px;color:var(--text-muted);font-family:'SF Mono',Menlo,monospace}
+
+.prod-table-wrap{}
+.prod-table{width:100%;border-collapse:collapse;font-size:12px}
+.prod-table thead tr{background:var(--surface-2)}
+.prod-table th{padding:8px 14px;text-align:left;font-size:10px;color:var(--text-muted);font-weight:500;text-transform:uppercase;letter-spacing:.4px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.prod-table th.col-action{text-align:right;width:60px}
+.prod-table tbody tr{border-top:1px solid var(--border);cursor:pointer;transition:background .12s}
+.prod-table tbody tr:hover{background:var(--surface-2)}
+.prod-table tbody tr.is-alt{background:rgba(0,0,0,.015)}
+[data-theme="dark"] .prod-table tbody tr.is-alt{background:rgba(255,255,255,.015)}
+.prod-table td{padding:10px 14px;color:var(--text);vertical-align:middle}
+.prod-cell-name{color:var(--text);font-weight:500}
+.prod-cell-owner{font-size:9px;padding:1px 6px;border-radius:50px;margin-left:6px;font-weight:500}
+.prod-cell-owner.admin{background:var(--blue-light);color:var(--blue)}
+.prod-cell-owner.advertiser{background:var(--orange-light);color:var(--orange)}
+[data-theme="dark"] .prod-cell-owner.admin{color:#93C5FD}
+[data-theme="dark"] .prod-cell-owner.advertiser{color:#FBBF24}
+.prod-cell-warn{font-size:12px;color:var(--red);margin-left:6px;vertical-align:-1px}
+.prod-cell-price{color:var(--green);font-family:'SF Mono',Menlo,monospace;font-weight:500}
+.prod-cell-cs{display:flex;align-items:center;gap:6px}
+.prod-cell-cs-avatars{display:flex}
+.prod-cell-cs-avatar{width:18px;height:18px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;border:1.5px solid var(--surface);flex-shrink:0}
+.prod-cell-cs-avatar:not(:first-child){margin-left:-6px}
+.prod-cell-cs-label{font-size:11px;color:var(--text-muted)}
+.prod-cell-cs-empty{color:var(--red);font-size:11px}
+.prod-cell-action-btn{background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:4px 6px;border-radius:5px;font-size:14px;display:inline-flex;align-items:center;justify-content:center}
+.prod-cell-action-btn:hover{background:var(--surface-2);color:var(--text)}
+.prod-cell-action-btn-setup{background:var(--red-light);color:var(--red);border:1px solid var(--red);padding:5px 10px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;font-family:inherit}
+.prod-cell-action-btn-setup:hover{opacity:.85}
+
+/* Context menu (when ⋯ clicked) */
+.prod-context-menu{position:absolute;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow-lg);min-width:170px;z-index:50;padding:4px;display:none}
+.prod-context-menu.open{display:block}
+.prod-context-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:5px;cursor:pointer;font-size:12px;color:var(--text);border:none;background:none;width:100%;text-align:left;font-family:inherit}
+.prod-context-item:hover{background:var(--surface-2)}
+.prod-context-item.danger{color:var(--red)}
+.prod-context-item.danger:hover{background:var(--red-light)}
+.prod-context-item i{font-size:14px;width:16px}
+.prod-context-divider{height:1px;background:var(--border);margin:3px 0}
+
+@media(max-width:768px){
+  .prod-table th,.prod-table td{padding:8px 10px;font-size:11px}
+  .prod-table th{font-size:9px}
+  .prod-cell-owner{display:none}
+  .prod-header{padding:14px 16px}
+  .prod-filter-strip{padding:0 16px 12px 16px}
+}
 .prod-item{
   border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;
   margin-bottom:10px;display:flex;align-items:center;gap:14px;background:var(--surface);
@@ -1240,7 +1311,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-05-leads-pro';
+window.__APP_VERSION = '2026-06-05-produk-table';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -2118,28 +2189,37 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="panel" id="panel-produk">
 
         <!-- Product List -->
-        <div class="card" id="prodListCard">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-            <div>
-              <div class="card-title" style="margin-bottom:2px">📦 Daftar Produk / Campaign</div>
-              <div style="font-size:13px;color:var(--text-muted)">Setiap produk punya CS, Greeting, GTM & Embed sendiri</div>
+        <div class="card" id="prodListCard" style="padding:0;overflow:hidden">
+          <!-- Header -->
+          <div class="prod-header">
+            <div class="prod-header-info">
+              <div class="prod-header-icon"><i class="ti ti-package" aria-hidden="true"></i></div>
+              <div>
+                <div class="prod-header-title-row">
+                  <div class="prod-header-title">Produk</div>
+                  <span class="prod-header-count" id="prodHeaderCount">0 produk</span>
+                </div>
+                <div class="prod-header-sub" id="prodHeaderSub">—</div>
+              </div>
             </div>
-            <button class="btn btn-primary" onclick="showProdForm(null)">➕ Tambah Produk</button>
+            <button class="prod-header-btn-new" onclick="showProdForm(null)"><i class="ti ti-plus" aria-hidden="true"></i>Tambah Produk</button>
           </div>
-          <!-- Filter owner (admin-only, hidden untuk advertiser) -->
-          <div class="date-filter-bar" id="prodOwnerFilterBar">
-            <span class="dfb-label">👥 Filter Owner:</span>
-            <select class="dfb-select" id="prodOwnerFilter" onchange="renderProdList()">
+
+          <!-- Filter strip -->
+          <div class="prod-filter-strip">
+            <div class="prod-search">
+              <i class="ti ti-search" aria-hidden="true"></i>
+              <input id="prodSearch" type="text" placeholder="Cari nama produk…" oninput="renderProdList()"/>
+            </div>
+            <select id="prodOwnerFilter" class="prod-filter-select" onchange="renderProdList()">
               <option value="">Semua Owner</option>
-              <option value="admin">👤 Admin Only</option>
+              <option value="admin">Admin</option>
             </select>
-            <span class="dfb-info" id="prodOwnerInfo"></span>
+            <span class="prod-filter-info" id="prodOwnerInfo"></span>
           </div>
-          <!-- Search produk by nama -->
-          <div style="margin-bottom:16px">
-            <input class="input" id="prodSearch" type="text" placeholder="🔍  Cari nama produk..." oninput="renderProdList()" style="max-width:420px"/>
-          </div>
-          <div id="prodList"></div>
+
+          <!-- Table -->
+          <div id="prodList" class="prod-table-wrap"></div>
         </div>
 
         <!-- Product Detail Form (hidden by default) -->
@@ -3849,80 +3929,154 @@ function renderProdList(){
   if(q){
     prods = prods.filter(p => (p.name||'').toLowerCase().includes(q));
   }
-  // Update info counter (admin only) — termasuk hasil search
+  // Update header counter + sub
+  const totalAll = getProds().length;
+  const noCsCount = getProds().filter(function(p){
+    const ids = (p.csIds && p.csIds.length) ? p.csIds : (p.csId ? [p.csId] : []);
+    return ids.length === 0;
+  }).length;
+  const activeCount = totalAll - noCsCount;
+  const countEl = document.getElementById('prodHeaderCount');
+  if(countEl) countEl.textContent = totalAll + ' produk';
+  const subEl = document.getElementById('prodHeaderSub');
+  if(subEl){
+    if(totalAll === 0) subEl.textContent = 'Belum ada produk — klik Tambah Produk buat mulai';
+    else subEl.textContent = activeCount + ' aktif' + (noCsCount > 0 ? ' · ' + noCsCount + ' belum ada CS' : '');
+  }
+  // Legacy ownerInfo (admin only) — keep buat compat tapi gak ditampilin
   if(!currentAdUser){
     const infoEl = document.getElementById('prodOwnerInfo');
-    if(infoEl){
-      const total = getProds().length;
-      infoEl.innerHTML = `<b>${prods.length}</b> / ${total} produk`;
-    }
+    if(infoEl) infoEl.textContent = '';
   }
-  const el=document.getElementById('prodList');
+
+  const el = document.getElementById('prodList');
   if(!prods.length){
     let emptyMsg;
     if(q){
       emptyMsg = `<div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">Tidak ada produk cocok "${esc(q)}"</div><div class="empty-sub">Coba kata kunci lain atau kosongkan kotak search</div></div>`;
     } else if(currentAdUser){
-      emptyMsg = `<div class="empty"><div class="empty-icon">📦</div><div class="empty-title">Belum ada produk lo</div><div class="empty-sub">Klik "Tambah Produk" untuk bikin produk pertama lo. Produk yg lo bikin cuma keliatan ke lo doang.</div></div>`;
+      emptyMsg = `<div class="empty"><div class="empty-icon">📦</div><div class="empty-title">Belum ada produk lo</div><div class="empty-sub">Klik "Tambah Produk" buat bikin produk pertama. Produk yg lo bikin cuma keliatan ke lo doang.</div></div>`;
     } else {
       emptyMsg = `<div class="empty"><div class="empty-icon">📦</div><div class="empty-title">Belum ada produk</div><div class="empty-sub">Klik "Tambah Produk" untuk mulai</div></div>`;
     }
     el.innerHTML = emptyMsg;
     return;
   }
-  el.innerHTML=prods.map((p,i)=>{
-    const csList = getCSList();
+
+  // Build table
+  const csList = getCSList();
+  const palette = ['#7F77DD','#5DCAA5','#F0997B','#FBBF24','#3B82F6','#EC4899','#10B981'];
+
+  let html = '<table class="prod-table"><thead><tr>' +
+    '<th>Produk</th>' +
+    '<th>Harga</th>' +
+    '<th>CS</th>' +
+    '<th class="col-action">Aksi</th>' +
+    '</tr></thead><tbody>';
+
+  prods.forEach(function(p, i){
     const csIds = (p.csIds && p.csIds.length) ? p.csIds : (p.csId ? [p.csId] : []);
-    const assignedCSs = csIds.map(id => csList.find(c => c.id === id)).filter(Boolean);
+    const assignedCSs = csIds.map(function(id){ return csList.find(function(c){ return c.id === id; }); }).filter(Boolean);
     const hasCS = assignedCSs.length > 0;
-    const csLabel = hasCS
-      ? (assignedCSs.length === 1 ? assignedCSs[0].name : `${assignedCSs.length} CS (round robin)`)
-      : 'Belum pilih CS';
-    const csTitle = hasCS ? assignedCSs.map(c=>c.name+' ('+c.waNum+')').join(', ') : 'Belum ada CS dipilih';
-    const hasGTM = !!(p.gtmId);
-    const hasGreeting = !!(p.greeting);
-    const hasConv = !!(p.convLabel);
-    // Owner badge prominent — admin liat siapa yg bikin (advertiser mana / admin)
-    let ownerHeader = '';
-    if(!currentAdUser){ // Admin view only
+    const distMode = p.distribMode || 'equal';
+    const distLabel = (csIds.length < 2) ? 'Solo' :
+      (distMode === 'custom' ? 'Custom' :
+        (distMode === 'solo' ? 'Solo' : 'Rata'));
+
+    // Owner badge
+    let ownerBadge = '';
+    if(!currentAdUser){
       if(p.ownerRole === 'advertiser'){
-        ownerHeader = `<div style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#fef3c7,#fde68a);border:1px solid #f59e0b;padding:4px 10px;border-radius:50px;font-size:11px;font-weight:700;color:#78350f;margin-bottom:6px">
-          <span style="font-size:13px">📊</span>
-          <span>Advertiser: ${esc(p.ownerName || '(tanpa nama)')}</span>
-        </div>`;
-      } else if(p.ownerRole === 'admin' || !p.ownerRole){
-        ownerHeader = `<div style="display:inline-flex;align-items:center;gap:6px;background:#ebf4ff;border:1px solid #93c5fd;padding:4px 10px;border-radius:50px;font-size:11px;font-weight:700;color:#1e40af;margin-bottom:6px">
-          <span style="font-size:13px">👤</span>
-          <span>Admin</span>
-        </div>`;
+        ownerBadge = '<span class="prod-cell-owner advertiser">' + esc(p.ownerName || 'Advertiser') + '</span>';
+      } else {
+        ownerBadge = '<span class="prod-cell-owner admin">Admin</span>';
       }
     }
-    return`<div class="prod-item" style="flex-wrap:wrap;gap:10px">
-      <div class="prod-num">${i+1}</div>
-      <div class="prod-info" style="flex:1;min-width:180px">
-        ${ownerHeader}
-        <div class="prod-name">${esc(p.name)}</div>
-        ${p.price?`<div class="prod-price">${esc(p.price)}</div>`:''}
-        ${p.desc?`<div class="prod-desc">${esc(p.desc)}</div>`:''}
-        <div class="prod-status-row">
-          <span class="badge ${hasCS?'badge-green':'badge-orange'}" title="${esc(csTitle)}">
-            💬 ${esc(csLabel)}
-          </span>
-          <span class="badge ${hasGreeting?'badge-green':'badge-orange'}">
-            ✍️ ${hasGreeting?'Greeting Custom':'Greeting Global'}
-          </span>
-          <span class="badge ${hasGTM?'badge-green':'badge-orange'}">
-            📊 ${hasGTM?'GTM Custom':'GTM Global'}
-          </span>
-          ${hasConv?`<span class="badge badge-blue">🎯 Conv Label</span>`:''}
-        </div>
-      </div>
-      <div class="prod-actions" style="flex-shrink:0">
-        <button class="btn btn-primary btn-sm" onclick="showProdForm(${p.id})">⚙️ Kelola</button>
-        <button class="btn btn-icon btn-sm" onclick="deleteProd(${p.id})" title="Hapus">🗑️</button>
-      </div>
-    </div>`;
-  }).join('');
+
+    // CS cell
+    let csCell = '';
+    if(!hasCS){
+      csCell = '<span class="prod-cell-cs-empty"><i class="ti ti-alert-circle" style="font-size:12px;vertical-align:-2px;margin-right:3px"></i>No CS</span>';
+    } else {
+      const avatars = assignedCSs.slice(0, 4).map(function(cs, idx){
+        const init = (cs.name||'?')[0].toUpperCase();
+        const color = palette[(cs.id || idx) % palette.length];
+        return '<div class="prod-cell-cs-avatar" style="background:'+color+'">'+esc(init)+'</div>';
+      }).join('');
+      const label = assignedCSs.length === 1 ? assignedCSs[0].name : (assignedCSs.length + ' · ' + distLabel);
+      csCell = '<div class="prod-cell-cs">' +
+        '<div class="prod-cell-cs-avatars">'+avatars+'</div>' +
+        '<span class="prod-cell-cs-label">'+esc(label)+'</span>' +
+      '</div>';
+    }
+
+    // Action — only ⋯ icon (context menu)
+    const action = '<button class="prod-cell-action-btn" onclick="event.stopPropagation();toggleProdContextMenu(' + p.id + ', event)" title="Aksi"><i class="ti ti-dots" aria-hidden="true"></i></button>' +
+      '<div class="prod-context-menu" id="prodCtxMenu-'+p.id+'">' +
+        '<button class="prod-context-item" onclick="showProdForm('+p.id+');closeProdContextMenu()"><i class="ti ti-settings"></i>Kelola</button>' +
+        '<button class="prod-context-item" onclick="copyProdEmbed('+p.id+');closeProdContextMenu()"><i class="ti ti-copy"></i>Copy Embed Code</button>' +
+        '<div class="prod-context-divider"></div>' +
+        '<button class="prod-context-item danger" onclick="deleteProd('+p.id+');closeProdContextMenu()"><i class="ti ti-trash"></i>Hapus Produk</button>' +
+      '</div>';
+
+    // Warning icon kalau no CS
+    const warnIcon = !hasCS ? '<i class="ti ti-alert-circle prod-cell-warn" title="Belum ada CS — embed gak akan jalan"></i>' : '';
+
+    const altClass = (i % 2 === 1) ? 'is-alt' : '';
+    html += '<tr class="'+altClass+'" onclick="showProdForm('+p.id+')">' +
+      '<td><span class="prod-cell-name">'+esc(p.name)+'</span>'+ownerBadge+warnIcon+'</td>' +
+      '<td>'+(p.price ? '<span class="prod-cell-price">Rp '+esc(p.price)+'</span>' : '<span style="color:var(--text-muted)">—</span>')+'</td>' +
+      '<td>'+csCell+'</td>' +
+      '<td style="text-align:right;position:relative">'+action+'</td>' +
+    '</tr>';
+  });
+
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+/* Context menu helpers buat Produk row */
+function toggleProdContextMenu(prodId, ev){
+  closeProdContextMenu();
+  const menu = document.getElementById('prodCtxMenu-'+prodId);
+  if(!menu) return;
+  // Position absolute, anchored to button
+  const btn = ev && ev.currentTarget;
+  if(btn){
+    const rect = btn.getBoundingClientRect();
+    menu.style.top = (rect.bottom + window.scrollY + 4) + 'px';
+    menu.style.left = (rect.right + window.scrollX - 170) + 'px'; // 170px = min-width
+    menu.style.position = 'fixed';
+    menu.style.top = (rect.bottom + 4) + 'px';
+    menu.style.left = (rect.right - 170) + 'px';
+  }
+  menu.classList.add('open');
+  // Close on outside click
+  setTimeout(function(){
+    document.addEventListener('click', closeProdContextMenuOnce, { once: true });
+  }, 0);
+}
+function closeProdContextMenuOnce(){ closeProdContextMenu(); }
+function closeProdContextMenu(){
+  document.querySelectorAll('.prod-context-menu.open').forEach(function(m){ m.classList.remove('open'); });
+}
+function copyProdEmbed(prodId){
+  const prod = getProds().find(function(p){ return p.id === prodId; });
+  if(!prod){ toast('⚠️ Produk tidak ditemukan'); return; }
+  // Generate the embed code dengan fungsi existing, then copy
+  try {
+    generateProdEmbed(prod);
+    const code = (document.getElementById('prodEmbedInline')||{}).textContent || '';
+    if(!code || code.indexOf('Simpan produk dulu') >= 0){ toast('⚠️ Buka Kelola dulu, save baru bisa copy embed'); return; }
+    navigator.clipboard.writeText(code).then(function(){
+      toast('✅ Embed code di-copy ke clipboard');
+    }).catch(function(){
+      // Fallback prompt
+      prompt('Copy code ini:', code);
+    });
+  } catch(e){
+    toast('⚠️ Gagal generate embed: '+e.message);
+  }
 }
 
 function showProdForm(id){
