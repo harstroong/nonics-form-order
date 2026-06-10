@@ -391,6 +391,83 @@ tr:hover td{background:#fafbff}
 .empty-title{font-size:15px;font-weight:600;margin-bottom:4px;color:var(--text)}
 .empty-sub{font-size:13px}
 
+/* ═══════════════════════════════════════════
+   OVERVIEW PANEL — pro dashboard look
+═══════════════════════════════════════════ */
+.ov-stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:18px}
+.ov-stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;transition:border-color .15s}
+.ov-stat:hover{border-color:var(--border-strong)}
+.ov-stat-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.ov-stat-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;font-weight:600}
+.ov-stat-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;position:relative}
+.ov-stat-icon.icon-purple{background:var(--primary-soft);color:var(--primary)}
+.ov-stat-icon.icon-green{background:var(--green-soft);color:var(--green)}
+.ov-stat-icon.icon-orange{background:var(--orange-soft);color:var(--orange)}
+.ov-stat-icon.icon-blue{background:var(--blue-soft);color:var(--blue)}
+.ov-stat-icon.icon-red{background:var(--red-soft);color:var(--red)}
+.ov-stat-icon-dot::after{content:'';position:absolute;top:-2px;right:-2px;width:8px;height:8px;border-radius:50%;background:var(--green);border:2px solid var(--surface);box-shadow:0 0 6px var(--green)}
+.ov-stat-value{font-size:28px;font-weight:600;color:var(--text);letter-spacing:-.7px;line-height:1;margin-bottom:10px}
+.ov-stat-suffix{font-size:13px;color:var(--text-muted);font-weight:400;margin-left:3px}
+.ov-stat-sub{font-size:11px;color:var(--text-muted)}
+.ov-stat-foot{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ov-stat-trend{font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:3px}
+.ov-stat-trend.up{color:var(--green)}
+.ov-stat-trend.down{color:var(--red)}
+.ov-stat-trend.flat{color:var(--text-muted)}
+.ov-sparkline{flex:0 0 auto}
+
+/* Card umum di Overview */
+.ov-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:14px}
+.ov-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:10px}
+.ov-card-title{font-size:14px;font-weight:600;color:var(--text);line-height:1.2}
+.ov-card-sub{font-size:11px;color:var(--text-muted);margin-top:2px}
+.ov-card-meta{font-size:11px;color:var(--text-muted);font-family:'SF Mono',Menlo,monospace}
+
+/* HEATMAP */
+.ov-heatmap{display:grid;grid-template-columns:36px repeat(24, 1fr);gap:3px;font-family:'SF Mono',Menlo,monospace}
+.ov-heatmap-header{font-size:9px;color:var(--text-tertiary);text-align:center;padding-bottom:4px}
+.ov-heatmap-row-label{font-size:10px;color:var(--text-muted);align-self:center;padding-right:4px}
+.ov-heatmap-row-label.is-peak{color:var(--orange);font-weight:600}
+.ov-heatmap-cell{aspect-ratio:1;border-radius:3px;transition:transform .1s}
+.ov-heatmap-cell:hover{transform:scale(1.15)}
+.ov-heatmap-cell.is-peak{outline:1.5px solid var(--orange);outline-offset:-1.5px}
+.ov-heatmap-footer{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
+.ov-heatmap-legend{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--text-muted)}
+.ov-heatmap-legend-cells{display:flex;gap:3px}
+.ov-heatmap-legend-cells span{width:11px;height:11px;border-radius:2px;display:block}
+.ov-heatmap-insight{font-size:11px;color:var(--green);display:flex;align-items:center;gap:5px}
+
+/* Two column grid (Top Produk + Top CS) */
+.ov-twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ov-twocol .ov-card{margin-bottom:0}
+
+/* Ranking list (Top Produk/CS) */
+.ov-rank{display:flex;flex-direction:column;gap:12px}
+.ov-rank-item{display:flex;align-items:center;gap:11px}
+.ov-rank-num{width:22px;height:22px;border-radius:6px;background:var(--surface-2);color:var(--text-muted);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;font-family:'SF Mono',Menlo,monospace;flex-shrink:0}
+.ov-rank-num.is-first{background:var(--primary-soft);color:var(--primary)}
+.ov-rank-info{flex:1;min-width:0}
+.ov-rank-name{font-size:12px;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ov-rank-sub{font-size:10px;color:var(--text-muted);margin-top:1px}
+.ov-rank-value{font-size:12px;font-weight:600;font-family:'SF Mono',Menlo,monospace;color:var(--text-muted)}
+.ov-rank-value.is-pos{color:var(--green)}
+.ov-rank-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:600;flex-shrink:0}
+
+/* CS Online avatars di stat card */
+.ov-cs-avatars{display:flex;align-items:center;gap:0;flex:1}
+.ov-cs-avatar{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-weight:600;border:2px solid var(--surface);flex-shrink:0}
+.ov-cs-avatar:not(:first-child){margin-left:-6px}
+.ov-cs-avatars-names{font-size:10px;color:var(--text-muted);margin-left:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+
+@media(max-width:768px){
+  .ov-stat-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .ov-stat{padding:12px 14px}
+  .ov-stat-value{font-size:22px}
+  .ov-twocol{grid-template-columns:1fr}
+  .ov-heatmap{grid-template-columns:30px repeat(24, 1fr);gap:2px;font-size:8px}
+  .ov-heatmap-cell{border-radius:2px}
+}
+
 /* LEADS LIST */
 .lead-item{
   border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;
@@ -1090,7 +1167,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-05-sidebar-topbar-refresh';
+window.__APP_VERSION = '2026-06-05-overview-pro';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -1809,67 +1886,88 @@ document.addEventListener('DOMContentLoaded', function(){
 
       <!-- ── OVERVIEW ── -->
       <div class="panel active" id="panel-overview">
-        <div class="stat-grid">
-          <div class="stat-card stat-card-1">
-            <div class="stat-icon">👥</div>
-            <div class="stat-val" id="ov-total">0</div>
-            <div class="stat-label" id="ov-total-label">Total Leads</div>
-            <div class="stat-trend trend-neutral" id="ov-total-t">Semua waktu</div>
+
+        <!-- 3 STAT CARDS (Leads · Today / Produk Aktif / CS Online) -->
+        <div class="ov-stat-grid">
+          <div class="ov-stat">
+            <div class="ov-stat-head">
+              <div class="ov-stat-label">Leads · Today</div>
+              <div class="ov-stat-icon icon-purple"><i class="ti ti-users" aria-hidden="true"></i></div>
+            </div>
+            <div class="ov-stat-value" id="ov-leads-today">0</div>
+            <div class="ov-stat-foot">
+              <svg class="ov-sparkline" id="ov-leads-sparkline" width="100" height="22" viewBox="0 0 100 22" aria-hidden="true"></svg>
+              <div class="ov-stat-trend" id="ov-leads-trend"></div>
+            </div>
           </div>
-          <div class="stat-card stat-card-3">
-            <div class="stat-icon">📦</div>
-            <div class="stat-val" id="ov-prods">0</div>
-            <div class="stat-label">Produk Aktif</div>
-            <div class="stat-trend trend-neutral">Di form</div>
+          <div class="ov-stat">
+            <div class="ov-stat-head">
+              <div class="ov-stat-label">Produk Aktif</div>
+              <div class="ov-stat-icon icon-green"><i class="ti ti-package" aria-hidden="true"></i></div>
+            </div>
+            <div class="ov-stat-value" id="ov-prods">0</div>
+            <div class="ov-stat-sub">terdaftar</div>
           </div>
-          <div class="stat-card stat-card-4">
-            <div class="stat-icon">📊</div>
-            <div class="stat-val" id="ov-gtm">—</div>
-            <div class="stat-label">GTM Status</div>
-            <div class="stat-trend trend-neutral" id="ov-gtm-t">Belum dikonfigurasi</div>
+          <div class="ov-stat">
+            <div class="ov-stat-head">
+              <div class="ov-stat-label">CS Online</div>
+              <div class="ov-stat-icon icon-green ov-stat-icon-dot"><i class="ti ti-headset" aria-hidden="true"></i></div>
+            </div>
+            <div class="ov-stat-value"><span id="ov-cs-online">0</span><span class="ov-stat-suffix" id="ov-cs-total"> / 0 CS</span></div>
+            <div class="ov-stat-foot" id="ov-cs-avatars"></div>
           </div>
         </div>
 
-        <!-- Filter Periode utk semua analytics di Overview -->
-        <div class="card">
-          <div class="card-title" style="margin-bottom:12px">📊 Insights & Analytics</div>
-          <div class="date-filter-bar">
-            <span class="dfb-label">📅 Periode:</span>
-            <select class="dfb-select" id="ovDateSel" onchange="onDateFilterChange('ov')">
-              <option value="lifetime">Lifetime (Semua)</option>
-              <option value="today">Hari Ini</option>
-              <option value="yesterday">Kemarin</option>
-              <option value="3days">3 Hari Terakhir</option>
-              <option value="7days">7 Hari Terakhir</option>
-              <option value="30days">30 Hari Terakhir</option>
-              <option value="thismonth">Bulan Ini</option>
-              <option value="custom">Custom Range</option>
-            </select>
-            <span class="dfb-custom" id="ovDateCustom">
-              <input type="date" class="dfb-date" id="ovDateStart" onchange="onDateFilterChange('ov')"/>
-              <span style="color:var(--text-muted)">—</span>
-              <input type="date" class="dfb-date" id="ovDateEnd" onchange="onDateFilterChange('ov')"/>
-            </span>
-            <span class="dfb-info" id="ovDateInfo"></span>
+        <!-- LEAD ACTIVITY HEATMAP -->
+        <div class="ov-card">
+          <div class="ov-card-head">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="ov-stat-icon icon-purple" style="width:30px;height:30px"><i class="ti ti-clock-hour-4" aria-hidden="true"></i></div>
+              <div>
+                <div class="ov-card-title">Lead Activity Heatmap</div>
+                <div class="ov-card-sub">Kapan lead paling banyak masuk · 7 hari terakhir</div>
+              </div>
+            </div>
+            <div class="ov-card-meta" id="ov-heatmap-peak">Peak: <strong>—</strong></div>
           </div>
-          <!-- Funnel Status -->
-          <div style="margin-top:8px">
-            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px">🎯 Funnel Status Lead</div>
-            <div id="ov-funnel"></div>
+          <div id="ov-heatmap" class="ov-heatmap"></div>
+          <div class="ov-heatmap-footer">
+            <div class="ov-heatmap-legend">
+              <span>Less</span>
+              <div class="ov-heatmap-legend-cells">
+                <span style="background:rgba(139,124,246,.1)"></span>
+                <span style="background:rgba(139,124,246,.3)"></span>
+                <span style="background:rgba(139,124,246,.5)"></span>
+                <span style="background:rgba(139,124,246,.75)"></span>
+                <span style="background:rgba(139,124,246,1)"></span>
+              </div>
+              <span>More</span>
+            </div>
+            <div class="ov-heatmap-insight" id="ov-heatmap-insight"></div>
           </div>
         </div>
 
         <!-- Top Produk + Top CS side by side -->
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:20px">
-          <div class="card" style="margin-bottom:0">
-            <div class="card-title">📦 Top Produk</div>
-            <div class="card-sub">Produk dengan lead terbanyak</div>
-            <div id="ov-top-produk"></div>
+        <div class="ov-twocol">
+          <div class="ov-card">
+            <div class="ov-card-head">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div class="ov-stat-icon icon-purple" style="width:30px;height:30px"><i class="ti ti-package" aria-hidden="true"></i></div>
+                <div class="ov-card-title">Top Produk</div>
+              </div>
+              <div class="ov-card-meta">By lead count</div>
+            </div>
+            <div id="ov-top-produk" class="ov-rank"></div>
           </div>
-          <div class="card" style="margin-bottom:0">
-            <div class="card-title">🏆 Top CS</div>
-            <div class="card-sub">CS dengan closing rate tertinggi</div>
-            <div id="ov-top-cs"></div>
+          <div class="ov-card">
+            <div class="ov-card-head">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div class="ov-stat-icon icon-orange" style="width:30px;height:30px"><i class="ti ti-trophy" aria-hidden="true"></i></div>
+                <div class="ov-card-title">Top CS</div>
+              </div>
+              <div class="ov-card-meta">By closing rate</div>
+            </div>
+            <div id="ov-top-cs" class="ov-rank"></div>
           </div>
         </div>
 
@@ -2927,13 +3025,13 @@ function showDashboard(){
    SIDEBAR & PANELS
 ═════════════════════════════════════════════ */
 const panelTitles={
-  overview:'📊 Overview',leads:'👥 Leads',produk:'📦 Produk',
-  form:'📋 Form Builder',cs:'💬 CS & Greeting',
-  csaccess:'🔐 Akses Login CS',
-  adaccess:'📊 Akses Login Advertisers',
-  quickreply:'💬 Quick Reply Templates',
-  gtm:'📈 GTM Tracking',embed:'🔗 Embed HTML',
-  cloud:'☁️ Cloud Sync',settings:'⚙️ Pengaturan'
+  overview:'Overview',leads:'Leads',produk:'Produk',
+  form:'Form Builder',cs:'CS & Greeting',
+  csaccess:'Akses Login CS',
+  adaccess:'Akses Login Advertisers',
+  quickreply:'Quick Reply Templates',
+  gtm:'GTM Tracking',embed:'Embed HTML',
+  cloud:'Cloud Sync',settings:'Pengaturan'
 };
 let activePanel='overview';
 function showPanel(name){
@@ -2993,31 +3091,194 @@ function renderOverview(){
     const myProdNames = new Set(prods.map(p => p.produkWA || p.name));
     leads = leads.filter(l => myProdNames.has(l.produk));
   }
-  // Card "Total Leads" sekarang dinamis — ikuti filter periode di "Leads Terbaru" di bawah
+  // Pakai global period filter (atau fallback ke ov panel filter)
   const range = getDateFilterRange('ov');
   const filteredByRange = filterLeadsByDate(leads, range);
-  document.getElementById('ov-total').textContent = filteredByRange.length;
-  // Update label + trend agar jelas periode mana
-  const labelEl = document.getElementById('ov-total-label');
-  const trendEl = document.getElementById('ov-total-t');
-  if(labelEl) labelEl.textContent = (range.preset === 'lifetime') ? 'Total Leads' : 'Leads (' + range.label + ')';
-  if(trendEl) trendEl.textContent = (range.preset === 'lifetime') ? 'Semua waktu' : range.label;
-  document.getElementById('ov-prods').textContent=prods.length;
-  // GTM status
-  if(cfg.gtmId){
-    document.getElementById('ov-gtm').textContent='✓';
-    document.getElementById('ov-gtm-t').textContent=cfg.gtmId;
-    document.getElementById('ov-gtm-t').className='stat-trend trend-up';
-  }
-  // Update info filter
-  updateDateFilterInfo('ov', filteredByRange.length, leads.length);
 
-  // ── FUNNEL STATUS ──
-  renderOverviewFunnel(filteredByRange);
-  // ── TOP PRODUK ──
+  // ── CARD 1: Leads · Today (atau periode terpilih) ──
+  const leadsCount = filteredByRange.length;
+  const elLeads = document.getElementById('ov-leads-today');
+  if(elLeads) elLeads.textContent = leadsCount;
+  // Update label sesuai period
+  const periodLabel = (window.__globalPeriod === 'today') ? 'Today'
+    : (window.__globalPeriod === 'yesterday') ? 'Yesterday'
+    : (window.__globalPeriod === '7d') ? 'Last 7 days'
+    : (window.__globalPeriod === '30d') ? 'Last 30 days'
+    : (window.__globalPeriod === 'all') ? 'All time'
+    : (range.label || 'Custom');
+  const labelEl = document.querySelector('.ov-stat-grid .ov-stat:first-child .ov-stat-label');
+  if(labelEl) labelEl.textContent = 'Leads · ' + periodLabel;
+
+  // Sparkline — last 7 days lead trend
+  renderLeadsSparkline(leads);
+
+  // Trend vs previous period
+  renderLeadsTrend(leads, range);
+
+  // ── CARD 2: Produk Aktif ──
+  const elProds = document.getElementById('ov-prods');
+  if(elProds) elProds.textContent = prods.length;
+
+  // ── CARD 3: CS Online ──
+  renderCSOnlineCard();
+
+  // ── HEATMAP ──
+  renderLeadActivityHeatmap(leads);
+
+  // ── TOP PRODUK / TOP CS ──
   renderOverviewTopProduk(filteredByRange);
-  // ── TOP CS ──
   renderOverviewTopCS(filteredByRange);
+}
+
+function renderLeadsSparkline(leads){
+  const el = document.getElementById('ov-leads-sparkline');
+  if(!el) return;
+  // Group by day (last 7 days)
+  const now = Date.now();
+  const dayMs = 86400000;
+  const buckets = new Array(7).fill(0);
+  leads.forEach(function(l){
+    const age = now - (l.ts || 0);
+    const dayIdx = 6 - Math.floor(age / dayMs);
+    if(dayIdx >= 0 && dayIdx <= 6) buckets[dayIdx]++;
+  });
+  const max = Math.max.apply(null, buckets) || 1;
+  const w = 100, h = 22, pad = 2;
+  const stepX = (w - pad*2) / 6;
+  const points = buckets.map(function(v, i){
+    const x = pad + i * stepX;
+    const y = pad + (h - pad*2) * (1 - v/max);
+    return x + ',' + y;
+  }).join(' ');
+  el.innerHTML = '<polyline points="' + points + '" fill="none" stroke="var(--accent)" stroke-width="1.8"/>';
+}
+
+function renderLeadsTrend(allLeads, range){
+  const el = document.getElementById('ov-leads-trend');
+  if(!el) return;
+  // Compute % change vs previous period of same length
+  const periodLen = (range && range.to && range.from) ? (range.to - range.from + 1) : 86400000;
+  const cur = filterLeadsByDate(allLeads, range).length;
+  const prevFrom = range.from - periodLen;
+  const prevTo = range.from - 1;
+  const prev = allLeads.filter(function(l){ const t = l.ts || 0; return t >= prevFrom && t <= prevTo; }).length;
+  if(prev === 0){
+    el.innerHTML = cur > 0 ? '<i class="ti ti-arrow-up" style="font-size:11px"></i>New' : '';
+    el.className = 'ov-stat-trend ' + (cur > 0 ? 'up' : 'flat');
+    return;
+  }
+  const diff = ((cur - prev) / prev * 100);
+  const sign = diff > 0 ? '+' : '';
+  const arrow = diff > 0 ? 'arrow-up' : (diff < 0 ? 'arrow-down' : 'minus');
+  const cls = diff > 0 ? 'up' : (diff < 0 ? 'down' : 'flat');
+  el.className = 'ov-stat-trend ' + cls;
+  el.innerHTML = '<i class="ti ti-' + arrow + '" style="font-size:11px"></i>' + sign + Math.round(diff) + '%';
+}
+
+function renderCSOnlineCard(){
+  // "Online" di sini diartikan: CS yang punya akun login + di-assign minimal 1 produk
+  const csList = (typeof getCSList === 'function') ? getCSList() : [];
+  let userList = [];
+  try { userList = (typeof getCSUsers === 'function') ? getCSUsers() : []; } catch(e){}
+  // Filter CS dengan login user (proxy "active")
+  const userCsIds = new Set(userList.map(function(u){ return u.csId; }));
+  // Filter CS yang appear di product csIds (proxy "in use")
+  const prods = getProds();
+  const assignedCsIds = new Set();
+  prods.forEach(function(p){
+    const ids = (p.csIds && p.csIds.length) ? p.csIds : (p.csId ? [p.csId] : []);
+    ids.forEach(function(id){ assignedCsIds.add(id); });
+  });
+  const activeCS = csList.filter(function(c){
+    return userCsIds.has(c.id) || assignedCsIds.has(c.id);
+  });
+  // Display
+  const totalEl = document.getElementById('ov-cs-total');
+  const onlineEl = document.getElementById('ov-cs-online');
+  if(onlineEl) onlineEl.textContent = activeCS.length;
+  if(totalEl) totalEl.textContent = ' / ' + csList.length + ' CS';
+  // Avatars
+  const avEl = document.getElementById('ov-cs-avatars');
+  if(avEl){
+    const palette = ['#7F77DD','#5DCAA5','#F0997B','#FBBF24','#3B82F6','#EC4899','#10B981'];
+    const top = activeCS.slice(0, 4);
+    const names = top.map(function(c){ return c.name; }).join(', ');
+    const avatars = top.map(function(c, i){
+      const init = c.name ? c.name[0].toUpperCase() : '?';
+      return '<div class="ov-cs-avatar" style="background:'+palette[i % palette.length]+'">'+esc(init)+'</div>';
+    }).join('');
+    avEl.className = 'ov-stat-foot';
+    avEl.innerHTML = '<div class="ov-cs-avatars">' + avatars + '<span class="ov-cs-avatars-names">' + esc(names) + '</span></div>';
+  }
+}
+
+function renderLeadActivityHeatmap(leads){
+  const el = document.getElementById('ov-heatmap');
+  if(!el) return;
+  // Filter: 7 hari terakhir (rolling)
+  const now = Date.now();
+  const cutoff = now - 7 * 86400000;
+  const recentLeads = leads.filter(function(l){ return (l.ts || 0) >= cutoff; });
+  // Group by day-of-week × hour-of-day
+  const grid = {}; // grid[dow][hr] = count
+  let maxCount = 0;
+  recentLeads.forEach(function(l){
+    const d = new Date(l.ts || 0);
+    const dow = d.getDay(); // 0=Sun, 6=Sat
+    const hr = d.getHours();
+    if(!grid[dow]) grid[dow] = {};
+    grid[dow][hr] = (grid[dow][hr] || 0) + 1;
+    if(grid[dow][hr] > maxCount) maxCount = grid[dow][hr];
+  });
+  // Find peak cell
+  let peakDow = -1, peakHr = -1, peakCount = 0;
+  for(let d=0; d<7; d++){
+    for(let h=0; h<24; h++){
+      const c = (grid[d] && grid[d][h]) || 0;
+      if(c > peakCount){ peakCount = c; peakDow = d; peakHr = h; }
+    }
+  }
+  // Render header + 7 rows × 24 cells. Order: Mon..Sun
+  const dowOrder = [1,2,3,4,5,6,0]; // Mon, Tue, Wed, Thu, Fri, Sat, Sun
+  const dowLabels = {0:'Sun',1:'Mon',2:'Tue',3:'Wed',4:'Thu',5:'Fri',6:'Sat'};
+  let html = '<div></div>' +
+    '<div class="ov-heatmap-header" style="grid-column:span 6">00–06</div>' +
+    '<div class="ov-heatmap-header" style="grid-column:span 6">06–12</div>' +
+    '<div class="ov-heatmap-header" style="grid-column:span 6">12–18</div>' +
+    '<div class="ov-heatmap-header" style="grid-column:span 6">18–24</div>';
+  dowOrder.forEach(function(dow){
+    const isPeakRow = (dow === peakDow);
+    html += '<div class="ov-heatmap-row-label' + (isPeakRow ? ' is-peak' : '') + '">' + dowLabels[dow] + '</div>';
+    for(let h=0; h<24; h++){
+      const c = (grid[dow] && grid[dow][h]) || 0;
+      const intensity = maxCount > 0 ? (c / maxCount) : 0;
+      // Map 0..1 to 0.05..1 opacity
+      const alpha = c === 0 ? 0.05 : (0.1 + intensity * 0.9);
+      const isPeak = (dow === peakDow && h === peakHr && c > 0);
+      html += '<div class="ov-heatmap-cell' + (isPeak ? ' is-peak' : '') + '" style="background:rgba(139,124,246,' + alpha.toFixed(2) + ')" title="' + dowLabels[dow] + ' ' + (h<10?'0':'') + h + ':00 — ' + c + ' lead"></div>';
+    }
+  });
+  el.innerHTML = html;
+  // Peak label
+  const peakEl = document.getElementById('ov-heatmap-peak');
+  if(peakEl){
+    if(peakCount > 0){
+      const hrStr = (peakHr < 10 ? '0' : '') + peakHr + ':00';
+      peakEl.innerHTML = 'Peak: <strong>' + dowLabels[peakDow] + ' ' + hrStr + '</strong>';
+    } else {
+      peakEl.innerHTML = 'Peak: <strong>—</strong>';
+    }
+  }
+  // Insight
+  const insightEl = document.getElementById('ov-heatmap-insight');
+  if(insightEl){
+    if(peakCount > 0){
+      const hrStr = peakHr + ':00';
+      insightEl.innerHTML = '<i class="ti ti-bulb"></i>Lead paling banyak masuk ' + dowLabels[peakDow] + ' jam ' + hrStr;
+    } else {
+      insightEl.innerHTML = '<i class="ti ti-info-circle"></i>Belum cukup data buat detect pattern';
+    }
+  }
 }
 
 function renderOverviewFunnel(leads){
@@ -3060,10 +3321,9 @@ function renderOverviewTopProduk(leads){
   const el = document.getElementById('ov-top-produk');
   if(!el) return;
   if(!leads.length){
-    el.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px">Belum ada data</div>`;
+    el.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px">Belum ada data</div>`;
     return;
   }
-  // Group by produk
   const groups = {};
   leads.forEach(l => {
     const k = l.produk || '(tanpa produk)';
@@ -3074,12 +3334,14 @@ function renderOverviewTopProduk(leads){
   const arr = Object.values(groups).sort((a,b) => b.total - a.total).slice(0, 5);
   el.innerHTML = arr.map((p, i) => {
     const closingRate = p.total > 0 ? Math.round(p.closed / p.total * 100) : 0;
-    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
-      <div style="width:28px;height:28px;border-radius:8px;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">${i+1}</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.name)}</div>
-        <div style="font-size:11px;color:var(--text-muted)">${p.total} lead · ${p.closed} closing (${closingRate}%)</div>
+    const isFirst = (i === 0);
+    return `<div class="ov-rank-item">
+      <div class="ov-rank-num${isFirst?' is-first':''}">${i+1}</div>
+      <div class="ov-rank-info">
+        <div class="ov-rank-name">${esc(p.name)}</div>
+        <div class="ov-rank-sub">${p.total} lead · ${p.closed} closing</div>
       </div>
+      <div class="ov-rank-value${closingRate>0?' is-pos':''}">${closingRate}%</div>
     </div>`;
   }).join('');
 }
@@ -3088,11 +3350,10 @@ function renderOverviewTopCS(leads){
   const el = document.getElementById('ov-top-cs');
   if(!el) return;
   if(!leads.length){
-    el.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px">Belum ada data</div>`;
+    el.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px">Belum ada data</div>`;
     return;
   }
   const csList = getCSList();
-  // Group by CS
   const groups = {};
   leads.forEach(l => {
     const k = l.csId || 0;
@@ -3108,20 +3369,23 @@ function renderOverviewTopCS(leads){
       const rateA = a.total > 0 ? a.closed / a.total : 0;
       const rateB = b.total > 0 ? b.closed / b.total : 0;
       if(rateB !== rateA) return rateB - rateA;
-      return b.closed - a.closed; // tie-break by closing count
+      return b.closed - a.closed;
     }).slice(0, 5);
   if(!arr.length){
-    el.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px">Belum ada data CS</div>`;
+    el.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px">Belum ada data CS</div>`;
     return;
   }
+  const palette = ['#7F77DD','#5DCAA5','#F0997B','#FBBF24','#3B82F6','#EC4899','#10B981'];
   el.innerHTML = arr.map((c, i) => {
     const rate = c.total > 0 ? Math.round(c.closed / c.total * 100) : 0;
-    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
-      <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">${i+1}</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.name)}</div>
-        <div style="font-size:11px;color:var(--text-muted)">${c.total} lead · ${c.closed} closing (<strong style="color:#10b981">${rate}%</strong>)</div>
+    const init = c.name ? c.name[0].toUpperCase() : '?';
+    return `<div class="ov-rank-item">
+      <div class="ov-rank-avatar" style="background:${palette[i % palette.length]}">${esc(init)}</div>
+      <div class="ov-rank-info">
+        <div class="ov-rank-name">${esc(c.name)}</div>
+        <div class="ov-rank-sub">${c.total} lead · ${c.closed} closing</div>
       </div>
+      <div class="ov-rank-value${rate>0?' is-pos':''}">${rate}%</div>
     </div>`;
   }).join('');
 }
