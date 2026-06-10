@@ -203,8 +203,47 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
   min-height:100vh;
   display:flex;align-items:center;justify-content:center;
   background:linear-gradient(135deg,#141c2e 0%,#1a2540 40%,#232f4a 100%);
-  padding:20px;
+  padding:20px;position:relative;
 }
+/* Light mode override untuk login page */
+[data-theme="light"] #viewLogin{
+  background:linear-gradient(135deg,#F1F5F9 0%,#E2E8F0 40%,#CBD5E1 100%);
+}
+[data-theme="light"] #viewLogin .login-card{
+  background:rgba(255,255,255,.96);
+  border:1px solid rgba(15,23,42,.08);
+  box-shadow:0 24px 64px rgba(15,23,42,.12);
+}
+[data-theme="light"] #viewLogin .login-title{color:#0F172A}
+[data-theme="light"] #viewLogin .login-sub{color:#64748B}
+[data-theme="light"] #viewLogin .login-logo-text{color:#0F172A}
+[data-theme="light"] #viewLogin .login-label{color:#475569}
+[data-theme="light"] #viewLogin .login-input{
+  background:#F8FAFC;border:1.5px solid #E2E8F0;color:#0F172A;
+}
+[data-theme="light"] #viewLogin .login-input::placeholder{color:#94A3B8}
+[data-theme="light"] #viewLogin .login-input:focus{background:#fff;border-color:var(--sb-accent)}
+[data-theme="light"] #viewLogin .pass-eye{color:#64748B}
+[data-theme="light"] #viewLogin .pass-eye:hover{background:rgba(15,23,42,.05);color:#0F172A}
+[data-theme="light"] #viewLogin .login-footer{color:#94A3B8}
+
+/* Login appearance picker — discrete di pojok atas */
+.login-appearance{position:absolute;top:18px;right:18px;display:flex;flex-direction:column;align-items:flex-end;gap:8px;z-index:5}
+.login-appearance-row{display:flex;gap:6px;align-items:center}
+.login-theme-toggle{display:flex;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:7px;padding:3px;gap:1px}
+.login-theme-toggle button{background:none;border:none;color:rgba(255,255,255,.5);width:26px;height:24px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;font-family:inherit;transition:all .15s}
+.login-theme-toggle button:hover{color:rgba(255,255,255,.9)}
+.login-theme-toggle button.active{background:rgba(255,255,255,.12);color:#fff}
+[data-theme="light"] .login-theme-toggle{background:rgba(15,23,42,.04);border-color:rgba(15,23,42,.08)}
+[data-theme="light"] .login-theme-toggle button{color:#64748B}
+[data-theme="light"] .login-theme-toggle button:hover{color:#0F172A}
+[data-theme="light"] .login-theme-toggle button.active{background:#fff;color:#0F172A;box-shadow:0 1px 2px rgba(15,23,42,.06)}
+.login-accent-swatches{display:flex;gap:5px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:7px;padding:5px}
+.login-accent-swatches button{width:18px;height:18px;border-radius:50%;border:none;cursor:pointer;transition:transform .15s;outline:0 solid transparent;outline-offset:0}
+.login-accent-swatches button:hover{transform:scale(1.15)}
+.login-accent-swatches button.active{outline:2px solid currentColor;outline-offset:2px;transform:scale(1.05)}
+[data-theme="light"] .login-accent-swatches{background:rgba(15,23,42,.04);border-color:rgba(15,23,42,.08)}
+
 .login-card{
   background:rgba(255,255,255,.04);
   border:1px solid rgba(255,255,255,.08);
@@ -918,6 +957,8 @@ tr:hover td{background:var(--surface-2)}
   /* LOGIN — padding kecil, input 16px (cegah iOS auto-zoom) */
   #viewLogin{padding:12px;min-height:100vh;min-height:100dvh}
   .login-card{padding:28px 20px;border-radius:16px;max-width:none}
+  .login-appearance{position:relative;top:auto;right:auto;flex-direction:row;align-items:center;justify-content:center;margin-bottom:14px;width:100%}
+  .login-appearance-row{flex:0 0 auto}
   .login-logo{margin-bottom:24px}
   .login-logo-icon{width:40px;height:40px;font-size:20px}
   .login-logo-text{font-size:18px}
@@ -1425,7 +1466,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-05-double-confirm';
+window.__APP_VERSION = '2026-06-05-login-themed';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -1466,10 +1507,15 @@ window.__JS_ERRORS = [];
     if(value !== 'light' && value !== 'dark' && value !== 'auto') return;
     try { localStorage.setItem(THEME_KEY, value); } catch(e){}
     applyResolvedTheme(value);
-    // Update toggle UI active state
+    // Update toggle UI active state (sidebar)
     var btns = document.querySelectorAll('.sb-theme-toggle button[data-theme-value]');
     btns.forEach(function(b){
       b.classList.toggle('active', b.getAttribute('data-theme-value') === value);
+    });
+    // Update login page toggle juga
+    var loginBtns = document.querySelectorAll('.login-theme-toggle button[data-login-theme]');
+    loginBtns.forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-login-theme') === value);
     });
   };
 
@@ -1489,10 +1535,15 @@ window.__JS_ERRORS = [];
     if(!ACCENT_NAMES[name]) return;
     try { localStorage.setItem(ACCENT_KEY, name); } catch(e){}
     applyAccent(name);
-    // Update swatch UI active state
+    // Update swatch UI active state (sidebar)
     var btns = document.querySelectorAll('.sb-accent-swatches button[data-accent]');
     btns.forEach(function(b){
       b.classList.toggle('active', b.getAttribute('data-accent') === name);
+    });
+    // Update login page swatches juga
+    var loginSwatches = document.querySelectorAll('.login-accent-swatches button[data-login-accent]');
+    loginSwatches.forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-login-accent') === name);
     });
     // Update label
     var lbl = document.getElementById('sbAccentCurrent');
@@ -1502,14 +1553,23 @@ window.__JS_ERRORS = [];
   // Sync UI when DOM ready
   document.addEventListener('DOMContentLoaded', function(){
     var pref = document.documentElement.getAttribute('data-theme-pref') || 'auto';
-    var btns = document.querySelectorAll('.sb-theme-toggle button[data-theme-value]');
-    btns.forEach(function(b){
+    // Sidebar theme buttons
+    document.querySelectorAll('.sb-theme-toggle button[data-theme-value]').forEach(function(b){
       b.classList.toggle('active', b.getAttribute('data-theme-value') === pref);
     });
+    // Login theme buttons
+    document.querySelectorAll('.login-theme-toggle button[data-login-theme]').forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-login-theme') === pref);
+    });
+
     var curAccent = document.documentElement.getAttribute('data-accent') || 'indigo';
-    var swatches = document.querySelectorAll('.sb-accent-swatches button[data-accent]');
-    swatches.forEach(function(b){
+    // Sidebar accent swatches
+    document.querySelectorAll('.sb-accent-swatches button[data-accent]').forEach(function(b){
       b.classList.toggle('active', b.getAttribute('data-accent') === curAccent);
+    });
+    // Login accent swatches
+    document.querySelectorAll('.login-accent-swatches button[data-login-accent]').forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-login-accent') === curAccent);
     });
     var lbl = document.getElementById('sbAccentCurrent');
     if(lbl) lbl.textContent = ACCENT_NAMES[curAccent] || 'Indigo';
@@ -1972,6 +2032,25 @@ document.addEventListener('DOMContentLoaded', function(){
      LOGIN
 ═══════════════════════════════════ -->
 <div id="viewLogin">
+  <!-- Theme + accent picker di pojok atas, biar user bisa custom sebelum login -->
+  <div class="login-appearance">
+    <div class="login-appearance-row">
+      <div class="login-theme-toggle" role="group" aria-label="Theme">
+        <button type="button" data-login-theme="light" title="Light mode" onclick="setTheme('light')"><i class="ti ti-sun" aria-hidden="true"></i></button>
+        <button type="button" data-login-theme="dark" title="Dark mode" onclick="setTheme('dark')"><i class="ti ti-moon" aria-hidden="true"></i></button>
+        <button type="button" data-login-theme="auto" title="Auto" onclick="setTheme('auto')"><i class="ti ti-device-laptop" aria-hidden="true"></i></button>
+      </div>
+    </div>
+    <div class="login-accent-swatches" role="group" aria-label="Accent color">
+      <button type="button" data-login-accent="indigo" title="Indigo" onclick="setAccent('indigo')" style="background:#6366F1"></button>
+      <button type="button" data-login-accent="emerald" title="Emerald" onclick="setAccent('emerald')" style="background:#10B981"></button>
+      <button type="button" data-login-accent="sky" title="Sky Blue" onclick="setAccent('sky')" style="background:#0EA5E9"></button>
+      <button type="button" data-login-accent="amber" title="Amber" onclick="setAccent('amber')" style="background:#F59E0B"></button>
+      <button type="button" data-login-accent="cyan" title="Cyan" onclick="setAccent('cyan')" style="background:#0891B2"></button>
+      <button type="button" data-login-accent="rose" title="Rose" onclick="setAccent('rose')" style="background:#E11D48"></button>
+    </div>
+  </div>
+
   <div style="display:flex;flex-direction:column;align-items:center;width:100%">
   <div class="login-card">
     <div class="login-logo">
