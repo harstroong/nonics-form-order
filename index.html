@@ -511,7 +511,76 @@ tr:hover td{background:var(--surface-2)}
   .lead-selbar-label{flex:1 0 100%;order:-1}
 }
 
-/* PRODUCT ITEMS */
+/* ═══════════════════════════════════════════
+   LEADS PANEL PRO — header, filter, rows
+═══════════════════════════════════════════ */
+.leads-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.leads-header-info{display:flex;align-items:center;gap:12px;min-width:0}
+.leads-header-icon{width:34px;height:34px;border-radius:9px;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.leads-header-title-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.leads-header-title{font-size:18px;font-weight:600;color:var(--text);letter-spacing:-.3px;line-height:1.2}
+.leads-header-count{background:var(--surface-2);color:var(--text-muted);font-size:11px;padding:3px 9px;border-radius:50px;font-weight:500;font-family:'SF Mono',Menlo,monospace}
+.leads-header-sub{font-size:11px;color:var(--text-muted);margin-top:3px;line-height:1.4}
+.leads-header-actions{display:flex;gap:8px}
+.leads-btn-outline{background:transparent;border:1px solid var(--border);color:var(--text);font-size:12px;padding:8px 14px;border-radius:7px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:inherit}
+.leads-btn-outline:hover{border-color:var(--primary);color:var(--primary)}
+.leads-btn-outline i{font-size:13px}
+.leads-btn-icon-danger{background:transparent;border:1px solid var(--border);color:var(--red);font-size:14px;padding:8px 10px;border-radius:7px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.leads-btn-icon-danger:hover{background:var(--red-light);border-color:var(--red)}
+
+.leads-filter-strip{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.leads-search{flex:1;min-width:200px;display:flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:7px 12px;transition:border-color .15s}
+.leads-search:focus-within{border-color:var(--primary)}
+.leads-search i{font-size:14px;color:var(--text-muted)}
+.leads-search input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-size:13px;font-family:inherit;min-width:0;padding:0}
+.leads-search input::placeholder{color:var(--text-muted)}
+.leads-filter-select{background:var(--surface-2);border:1px solid var(--border);color:var(--text);font-size:11px;padding:7px 10px;border-radius:7px;font-family:inherit;cursor:pointer;font-weight:500}
+.leads-filter-select:focus{outline:none;border-color:var(--primary)}
+.leads-filter-reset{background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:11px;padding:7px 11px;border-radius:7px;cursor:pointer;font-family:inherit}
+.leads-filter-reset:hover{color:var(--text);border-color:var(--text-muted)}
+
+/* PRO LEAD ROW — icon-only actions */
+.lead-row{display:flex;align-items:center;gap:14px;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:9px;margin-bottom:5px;transition:border-color .15s,box-shadow .15s}
+.lead-row:hover{border-color:var(--border-strong)}
+.lead-row.is-selected{border-color:var(--primary);box-shadow:0 0 0 1px var(--primary-soft)}
+.lead-row.lead-row-closed{opacity:.75}
+.lead-row .lead-row-checkbox{width:15px;height:15px;accent-color:var(--primary);cursor:pointer;flex-shrink:0;margin:0}
+.lead-row-avatar{width:34px;height:34px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
+.lead-row-info{flex:1;min-width:0}
+.lead-row-line1{display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap}
+.lead-row-name{font-size:13px;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}
+.lead-row-status{font-size:10px;padding:1px 7px;border-radius:50px;font-weight:500;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.lead-row-status.pending{color:var(--orange);background:var(--orange-light)}
+.lead-row-status.contacted{color:var(--blue);background:var(--blue-light)}
+.lead-row-status.closed{color:var(--green);background:var(--green-light)}
+.lead-row-status.no_response{color:var(--red);background:var(--red-light)}
+.lead-row-status .dot{width:5px;height:5px;border-radius:50%}
+.lead-row-status.pending .dot{background:var(--orange)}
+.lead-row-status.contacted .dot{background:var(--blue)}
+.lead-row-status.closed .dot{background:var(--green)}
+.lead-row-status.no_response .dot{background:var(--red)}
+.lead-row-line2{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-muted);flex-wrap:wrap}
+.lead-row-wa{font-family:'SF Mono',Menlo,monospace}
+.lead-row-prod{color:var(--primary);font-weight:500}
+.lead-row-sep{opacity:.4}
+.lead-row-meta{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.lead-row-date{font-size:11px;color:var(--text-muted);font-family:'SF Mono',Menlo,monospace;text-align:right;line-height:1.3}
+.lead-row-date strong{color:var(--text-muted);display:block;font-weight:500}
+.lead-row-date span{color:var(--text-secondary);font-size:10px}
+.lead-row-actions{display:flex;gap:4px}
+.lead-row-btn{width:30px;height:30px;border:1px solid var(--border);background:transparent;color:var(--text-muted);border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-family:inherit;transition:all .15s}
+.lead-row-btn:hover{color:var(--text);border-color:var(--text-muted)}
+.lead-row-btn.btn-wa{background:var(--green-soft);border-color:var(--green-soft);color:var(--green);text-decoration:none}
+.lead-row-btn.btn-wa:hover{background:var(--green-light);border-color:var(--green)}
+
+@media(max-width:768px){
+  .leads-filter-strip{gap:6px}
+  .leads-filter-select{font-size:10px;padding:6px 8px}
+  .lead-row{flex-wrap:wrap;gap:10px;padding:10px 12px}
+  .lead-row-info{flex:1 0 calc(100% - 70px);min-width:0}
+  .lead-row-meta{flex:1 0 100%;justify-content:space-between;border-top:0.5px solid var(--border);padding-top:8px;margin-top:4px}
+  .lead-row-name{max-width:unset}
+}
 .prod-item{
   border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;
   margin-bottom:10px;display:flex;align-items:center;gap:14px;background:var(--surface);
@@ -1171,7 +1240,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-05-panels-themed';
+window.__APP_VERSION = '2026-06-05-leads-pro';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -1990,56 +2059,58 @@ document.addEventListener('DOMContentLoaded', function(){
       <!-- ── LEADS ── -->
       <div class="panel" id="panel-leads">
         <div class="card">
-          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:20px">
-            <div>
-              <div class="card-title" style="margin-bottom:2px">👥 Semua Leads</div>
-              <div style="font-size:13px;color:var(--text-muted)">Data customer yang mengisi form</div>
+          <!-- Header -->
+          <div class="leads-header">
+            <div class="leads-header-info">
+              <div class="leads-header-icon"><i class="ti ti-users" aria-hidden="true"></i></div>
+              <div>
+                <div class="leads-header-title-row">
+                  <div class="leads-header-title">Leads</div>
+                  <span class="leads-header-count" id="leadsHeaderCount">0 total</span>
+                </div>
+                <div class="leads-header-sub" id="leadsHeaderSub">—</div>
+              </div>
             </div>
-            <div style="display:flex;gap:8px" id="leadsTopActions">
-              <button class="btn btn-success btn-sm" onclick="exportCSV()">⬇️ Export CSV</button>
-              <button class="btn btn-danger btn-sm" onclick="clearLeads()" id="btnClearLeads">🗑️ Hapus Semua</button>
+            <div class="leads-header-actions" id="leadsTopActions">
+              <button class="leads-btn-outline" onclick="exportCSV()"><i class="ti ti-download" aria-hidden="true"></i>Export CSV</button>
+              <button class="leads-btn-icon-danger" onclick="clearLeads()" id="btnClearLeads" title="Hapus Semua"><i class="ti ti-trash" aria-hidden="true"></i></button>
             </div>
-          </div>
-          <!-- Date Range Filter -->
-          <div class="date-filter-bar">
-            <span class="dfb-label">📅 Periode:</span>
-            <select class="dfb-select" id="leadsDateSel" onchange="onDateFilterChange('leads')">
-              <option value="lifetime">Lifetime (Semua)</option>
-              <option value="today">Hari Ini</option>
-              <option value="yesterday">Kemarin</option>
-              <option value="3days">3 Hari Terakhir</option>
-              <option value="7days">7 Hari Terakhir</option>
-              <option value="30days">30 Hari Terakhir</option>
-              <option value="thismonth">Bulan Ini</option>
-              <option value="custom">Custom Range</option>
-            </select>
-            <span class="dfb-custom" id="leadsDateCustom">
-              <input type="date" class="dfb-date" id="leadsDateStart" onchange="onDateFilterChange('leads')"/>
-              <span style="color:var(--text-muted)">—</span>
-              <input type="date" class="dfb-date" id="leadsDateEnd" onchange="onDateFilterChange('leads')"/>
-            </span>
-            <span class="dfb-info" id="leadsDateInfo"></span>
           </div>
 
-          <!-- Filter Tambahan: CS & Produk -->
-          <div class="date-filter-bar">
-            <span class="dfb-label">💬 CS:</span>
-            <select class="dfb-select" id="leadsCSFilter" onchange="renderLeads()">
+          <!-- Filter strip: search + CS + Produk + Status + Reset -->
+          <div class="leads-filter-strip">
+            <div class="leads-search">
+              <i class="ti ti-search" aria-hidden="true"></i>
+              <input id="leadSearch" type="text" placeholder="Cari nama atau nomor WA…" oninput="renderLeads()"/>
+            </div>
+            <select id="leadsCSFilter" class="leads-filter-select" onchange="renderLeads()">
               <option value="">Semua CS</option>
             </select>
-            <span class="dfb-label" style="margin-left:8px">📦 Produk:</span>
-            <select class="dfb-select" id="leadsProdFilter" onchange="renderLeads()">
+            <select id="leadsProdFilter" class="leads-filter-select" onchange="renderLeads()">
               <option value="">Semua Produk</option>
             </select>
-            <button class="btn btn-outline btn-sm" onclick="resetLeadsFilter()" style="margin-left:auto;padding:6px 12px;font-size:12px">🔄 Reset Filter</button>
+            <select id="leadsStatusFilter" class="leads-filter-select" onchange="renderLeads()">
+              <option value="">Semua Status</option>
+              <option value="pending">Belum FU</option>
+              <option value="contacted">Dihubungi</option>
+              <option value="closed">Closing</option>
+              <option value="no_response">No Respon</option>
+            </select>
+            <button class="leads-filter-reset" onclick="resetLeadsFilter()">Reset</button>
           </div>
-          <!-- Search Filter -->
-          <div style="margin-bottom:16px">
-            <input class="input" id="leadSearch" type="text" placeholder="🔍  Cari nama atau nomor WA..." oninput="renderLeads()" style="max-width:320px"/>
-          </div>
+
           <!-- Bulk select header bar -->
           <div id="leadsSelbar" class="lead-selbar" style="display:none"></div>
           <div id="leadsList"></div>
+
+          <!-- Hidden legacy date filter (kept untuk backward compat dgn getDateFilterRange) -->
+          <div style="display:none">
+            <select id="leadsDateSel"><option value="lifetime"></option></select>
+            <input type="date" id="leadsDateStart"/>
+            <input type="date" id="leadsDateEnd"/>
+            <span id="leadsDateInfo"></span>
+            <span id="leadsDateCustom"></span>
+          </div>
         </div>
       </div>
 
@@ -3466,40 +3537,95 @@ function updateSelectionUI(){
 }
 
 function leadCard(l,compact=false){
-  const init=l.nama?l.nama[0].toUpperCase():'?';
-  const addrParts=[l.alamat,l.kota,l.kecamatan].filter(Boolean);
-  const addrHtml=addrParts.length?`<span>📍 ${esc(addrParts.join(', '))}</span>`:'';
-  const statusBadge=leadStatusBadge(l.followStatus);
-  const csList=getCSList();
-  const csInfo=l.csId?csList.find(c=>c.id===l.csId):null;
-  const csTag=csInfo?`<span class="badge badge-purple" title="CS: ${esc(csInfo.name)}">💬 ${esc(csInfo.name)}</span>`:'';
-  const isSelected=selectedLeadIds.has(l.id);
-  const showCheckbox=!compact; // checkbox cuma di full view (admin/advertiser leads tab)
-  return`<div class="lead-item ${isSelected?'is-selected':''}" data-lead-id="${l.id}">
-    ${showCheckbox?`<input type="checkbox" class="lead-select" ${isSelected?'checked':''} onclick="event.stopPropagation()" onchange="toggleLeadSelect('${l.id}',event)" />`:''}
-    <div class="lead-avatar">${init}</div>
-    <div class="lead-info">
-      <div class="lead-name">${esc(l.nama)}</div>
-      <div class="lead-meta">
-        <span>📱 ${esc(l.wa)}</span>
-        <span class="badge badge-blue">${esc(l.produk)}</span>
-        ${csTag}
-        ${statusBadge}
-        ${addrHtml}
-        <span>${fmtDate(l.ts)}</span>
-      </div>
-      ${l.followNotes?`<div style="font-size:12px;color:#78350f;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:6px 10px;margin-top:6px"><strong>Catatan CS:</strong> ${esc(l.followNotes)}</div>`:''}
-    </div>
-    ${!compact?`<div class="lead-actions" style="align-items:flex-start">
-      <a href="https://wa.me/${normalizeWaID(l.wa)}" target="_blank" class="btn btn-success btn-sm">💬 WA</a>
-      <button class="btn btn-outline btn-sm" onclick="openReassignModal('${l.id}')" title="Pindahkan lead ke CS lain">🔄 Reassign</button>
-      ${currentAdUser ? '' : `<div class="lead-menu-wrap">
-        <button class="lead-menu-btn" onclick="toggleLeadMenu('a-${l.id}')" title="Aksi lain">⋯</button>
-        <div class="lead-menu-dropdown" id="leadMenu-a-${l.id}">
-          <button class="lead-menu-item danger" onclick="deleteLead('${l.id}');toggleLeadMenu('a-${l.id}')">🗑️ Hapus Lead</button>
+  // Compact mode: legacy fallback for advertiser/other contexts — gunakan lead-item lama
+  if(compact){
+    const init=l.nama?l.nama[0].toUpperCase():'?';
+    const addrParts=[l.alamat,l.kota,l.kecamatan].filter(Boolean);
+    const addrHtml=addrParts.length?`<span>📍 ${esc(addrParts.join(', '))}</span>`:'';
+    const statusBadge=leadStatusBadge(l.followStatus);
+    const csList=getCSList();
+    const csInfo=l.csId?csList.find(c=>c.id===l.csId):null;
+    const csTag=csInfo?`<span class="badge badge-purple">${esc(csInfo.name)}</span>`:'';
+    return`<div class="lead-item" data-lead-id="${l.id}">
+      <div class="lead-avatar">${init}</div>
+      <div class="lead-info">
+        <div class="lead-name">${esc(l.nama)}</div>
+        <div class="lead-meta">
+          <span>📱 ${esc(l.wa)}</span>
+          <span class="badge badge-blue">${esc(l.produk)}</span>
+          ${csTag}${statusBadge}${addrHtml}
+          <span>${fmtDate(l.ts)}</span>
         </div>
-      </div>`}
-    </div>`:''}
+      </div>
+    </div>`;
+  }
+  // PRO lead row — icon-only actions
+  const init = l.nama ? l.nama[0].toUpperCase() : '?';
+  const csList = getCSList();
+  const csInfo = l.csId ? csList.find(c => c.id === l.csId) : null;
+  const csName = csInfo ? csInfo.name : '(unassigned)';
+  // Avatar color palette berdasarkan inisial (deterministic)
+  const palette = ['#7F77DD','#5DCAA5','#F0997B','#FBBF24','#3B82F6','#EC4899','#10B981'];
+  const colorIdx = (init.charCodeAt(0) || 0) % palette.length;
+  const avatarColor = palette[colorIdx];
+  // Status
+  const status = l.followStatus || 'pending';
+  const statusLabels = {
+    pending:'Belum FU',
+    contacted:'Dihubungi',
+    closed:'Closing',
+    no_response:'No Respon'
+  };
+  const isClosed = (status === 'closed');
+  const isSelected = selectedLeadIds.has(l.id);
+  // Date split
+  let dateMain = '—', timeMain = '';
+  if(l.ts){
+    const d = new Date(l.ts);
+    const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    dateMain = d.getDate() + ' ' + months[d.getMonth()];
+    const hh = (d.getHours()<10?'0':'')+d.getHours();
+    const mm = (d.getMinutes()<10?'0':'')+d.getMinutes();
+    timeMain = hh + ':' + mm;
+  }
+  // Actions
+  const waUrl = `https://wa.me/${normalizeWaID(l.wa)}`;
+  const waBtn = isClosed
+    ? '' // udah closing, gak perlu WA button lagi
+    : `<a href="${waUrl}" target="_blank" class="lead-row-btn btn-wa" title="Chat WA" onclick="event.stopPropagation()"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i></a>`;
+  const reassignBtn = `<button class="lead-row-btn" onclick="event.stopPropagation();openReassignModal('${l.id}')" title="Reassign ke CS lain"><i class="ti ti-refresh" aria-hidden="true"></i></button>`;
+  const moreBtn = currentAdUser
+    ? ''
+    : `<div class="lead-menu-wrap" style="position:relative">
+        <button class="lead-row-btn" onclick="event.stopPropagation();toggleLeadMenu('a-${l.id}')" title="Lainnya"><i class="ti ti-dots-vertical" aria-hidden="true"></i></button>
+        <div class="lead-menu-dropdown" id="leadMenu-a-${l.id}">
+          <button class="lead-menu-item danger" onclick="deleteLead('${l.id}');toggleLeadMenu('a-${l.id}')"><i class="ti ti-trash"></i>Hapus Lead</button>
+        </div>
+      </div>`;
+  return `<div class="lead-row ${isSelected?'is-selected':''} ${isClosed?'lead-row-closed':''}" data-lead-id="${l.id}">
+    <input type="checkbox" class="lead-row-checkbox lead-select" ${isSelected?'checked':''} onclick="event.stopPropagation()" onchange="toggleLeadSelect('${l.id}',event)" />
+    <div class="lead-row-avatar" style="background:${avatarColor}">${esc(init)}</div>
+    <div class="lead-row-info">
+      <div class="lead-row-line1">
+        <div class="lead-row-name">${esc(l.nama || '-')}</div>
+        <span class="lead-row-status ${status}"><span class="dot"></span>${statusLabels[status] || status}</span>
+      </div>
+      <div class="lead-row-line2">
+        <span class="lead-row-wa">${esc(l.wa || '-')}</span>
+        <span class="lead-row-sep">·</span>
+        <span class="lead-row-prod">${esc(l.produk || '-')}</span>
+        <span class="lead-row-sep">·</span>
+        <span>${esc(csName)}</span>
+      </div>
+    </div>
+    <div class="lead-row-meta">
+      <div class="lead-row-date"><strong>${dateMain}</strong><span>${timeMain}</span></div>
+      <div class="lead-row-actions">
+        ${waBtn}
+        ${reassignBtn}
+        ${moreBtn}
+      </div>
+    </div>
   </div>`;
 }
 
@@ -3550,6 +3676,7 @@ function initLeadsPanel(){
 function resetLeadsFilter(){
   const cs = document.getElementById('leadsCSFilter'); if(cs) cs.value = '';
   const pr = document.getElementById('leadsProdFilter'); if(pr) pr.value = '';
+  const st = document.getElementById('leadsStatusFilter'); if(st) st.value = '';
   const dt = document.getElementById('leadsDateSel'); if(dt) dt.value = 'lifetime';
   const dtc = document.getElementById('leadsDateCustom'); if(dtc) dtc.classList.remove('show');
   const sr = document.getElementById('leadSearch'); if(sr) sr.value = '';
@@ -3561,8 +3688,9 @@ function renderLeads(){
   const q=(document.getElementById('leadSearch')||{}).value||'';
   const csFilter = (document.getElementById('leadsCSFilter')||{}).value || '';
   const prodFilter = (document.getElementById('leadsProdFilter')||{}).value || '';
+  const statusFilter = (document.getElementById('leadsStatusFilter')||{}).value || '';
   let all = getLeads();
-  // ADVERTISER SCOPE: cuma liat lead dari produk yang dia bikin
+  // ADVERTISER SCOPE
   if(currentAdUser){
     const myProds = getProds().filter(p => p.ownerRole === 'advertiser' && p.ownerId === currentAdUser.id);
     const myProdNames = new Set(myProds.map(p => p.produkWA || p.name));
@@ -3573,33 +3701,51 @@ function renderLeads(){
   let leads = inRange.filter(l =>
     !q || (l.nama||'').toLowerCase().includes(q.toLowerCase()) || (l.wa||'').includes(q)
   );
-  // CS filter (cocokin berdasarkan csId di lead)
   if(csFilter){
     const csIdNum = parseInt(csFilter, 10);
     leads = leads.filter(l => l.csId === csIdNum || String(l.csId||'') === csFilter);
   }
-  // Produk filter (cocokin berdasarkan nama produk yg tersimpan di lead.produk)
   if(prodFilter){
     leads = leads.filter(l => (l.produk||'') === prodFilter);
   }
+  if(statusFilter){
+    leads = leads.filter(l => (l.followStatus||'pending') === statusFilter);
+  }
+  // Auto-sort: terbaru duluan
+  leads.sort(function(a,b){ return (b.ts||0) - (a.ts||0); });
+
+  // Update header counter + sub-info
+  const totalAll = all.length;
+  const totalToday = (function(){
+    const today = new Date(); today.setHours(0,0,0,0);
+    const start = today.getTime();
+    return all.filter(function(l){ return (l.ts||0) >= start; }).length;
+  })();
+  const totalPending = leads.filter(function(l){ return (l.followStatus||'pending') === 'pending'; }).length;
+  const countEl = document.getElementById('leadsHeaderCount');
+  if(countEl) countEl.textContent = totalAll + ' total';
+  const subEl = document.getElementById('leadsHeaderSub');
+  if(subEl){
+    if(totalAll === 0) subEl.textContent = 'Belum ada lead — pasang embed form di landing page lo dulu';
+    else subEl.textContent = totalToday + ' lead masuk hari ini · ' + totalPending + ' belum di-FU';
+  }
+
   updateDateFilterInfo('leads', inRange.length, all.length);
   const el=document.getElementById('leadsList');
   const selbar=document.getElementById('leadsSelbar');
   if(!leads.length){
     let title, sub;
     if(!all.length){ title='Belum ada leads'; sub='Belum ada yang mengisi form'; }
-    else if(!inRange.length){ title='Tidak ada lead di periode '+range.label; sub='Coba ganti periode di atas'; }
-    else if(csFilter || prodFilter){ title='Tidak ada lead cocok filter'; sub='Coba ganti CS atau Produk, atau klik 🔄 Reset Filter'; }
+    else if(!inRange.length){ title='Tidak ada lead di periode ini'; sub='Coba ganti period di topbar'; }
+    else if(csFilter || prodFilter || statusFilter){ title='Tidak ada lead cocok filter'; sub='Coba ganti filter atau klik Reset'; }
     else { title='Tidak ada lead cocok'; sub='Coba kata kunci lain'; }
     el.innerHTML=`<div class="empty"><div class="empty-icon">👥</div><div class="empty-title">${title}</div><div class="empty-sub">${sub}</div></div>`;
     if(selbar) selbar.style.display='none';
     return;
   }
   el.innerHTML=leads.map(l=>leadCard(l)).join('');
-  // Prune selectedLeadIds: buang ID yang udah gak ke-render (mis. lead di-delete atau filter berubah)
   const renderedSet = new Set(leads.map(l=>l.id));
   Array.from(selectedLeadIds).forEach(id=>{ if(!renderedSet.has(id)) selectedLeadIds.delete(id); });
-  // Show selbar + sync UI
   if(selbar){ selbar.style.display='flex'; updateSelectionUI(); }
 }
 function deleteLead(id){
