@@ -102,6 +102,59 @@
 }
 
 /* ═══════════════════════════════════════════
+   ACCENT COLOR PALETTES — 6 pilihan
+   Set di document.documentElement via data-accent="..."
+═══════════════════════════════════════════ */
+:root,[data-accent="indigo"]{
+  --sb-accent:#8B7CF6;--sb-accent-2:#5B4FD6;
+}
+[data-accent="emerald"]{
+  --primary:#059669;--primary-dark:#047857;--primary-light:#D1FAE5;--primary-soft:rgba(16,185,129,.1);
+  --accent:#10B981;--accent-soft:rgba(16,185,129,.1);
+  --sb-accent:#10B981;--sb-accent-2:#059669;
+}
+[data-accent="emerald"][data-theme="dark"]{
+  --primary:#10B981;--primary-dark:#059669;--primary-light:rgba(16,185,129,.15);--primary-soft:rgba(16,185,129,.08);
+  --accent:#10B981;--accent-soft:rgba(16,185,129,.1);
+}
+[data-accent="sky"]{
+  --primary:#0284C7;--primary-dark:#0369A1;--primary-light:#E0F2FE;--primary-soft:rgba(14,165,233,.1);
+  --accent:#0EA5E9;--accent-soft:rgba(14,165,233,.1);
+  --sb-accent:#0EA5E9;--sb-accent-2:#0284C7;
+}
+[data-accent="sky"][data-theme="dark"]{
+  --primary:#0EA5E9;--primary-dark:#0284C7;--primary-light:rgba(14,165,233,.15);--primary-soft:rgba(14,165,233,.08);
+  --accent:#0EA5E9;--accent-soft:rgba(14,165,233,.1);
+}
+[data-accent="amber"]{
+  --primary:#D97706;--primary-dark:#B45309;--primary-light:#FEF3C7;--primary-soft:rgba(245,158,11,.1);
+  --accent:#F59E0B;--accent-soft:rgba(245,158,11,.1);
+  --sb-accent:#F59E0B;--sb-accent-2:#D97706;
+}
+[data-accent="amber"][data-theme="dark"]{
+  --primary:#FBBF24;--primary-dark:#F59E0B;--primary-light:rgba(245,158,11,.15);--primary-soft:rgba(245,158,11,.08);
+  --accent:#FBBF24;--accent-soft:rgba(245,158,11,.1);
+}
+[data-accent="cyan"]{
+  --primary:#0E7490;--primary-dark:#155E75;--primary-light:#CFFAFE;--primary-soft:rgba(8,145,178,.1);
+  --accent:#0891B2;--accent-soft:rgba(8,145,178,.1);
+  --sb-accent:#0891B2;--sb-accent-2:#0E7490;
+}
+[data-accent="cyan"][data-theme="dark"]{
+  --primary:#22D3EE;--primary-dark:#0891B2;--primary-light:rgba(8,145,178,.15);--primary-soft:rgba(8,145,178,.08);
+  --accent:#22D3EE;--accent-soft:rgba(8,145,178,.1);
+}
+[data-accent="rose"]{
+  --primary:#BE123C;--primary-dark:#9F1239;--primary-light:#FFE4E6;--primary-soft:rgba(225,29,72,.1);
+  --accent:#E11D48;--accent-soft:rgba(225,29,72,.1);
+  --sb-accent:#E11D48;--sb-accent-2:#BE123C;
+}
+[data-accent="rose"][data-theme="dark"]{
+  --primary:#FB7185;--primary-dark:#E11D48;--primary-light:rgba(225,29,72,.15);--primary-soft:rgba(225,29,72,.08);
+  --accent:#FB7185;--accent-soft:rgba(225,29,72,.1);
+}
+
+/* ═══════════════════════════════════════════
    CS VIEW — selalu light theme, gak follow toggle admin
    (CS staff kerja lama-lama di sini, light lebih enak di mata)
 ═══════════════════════════════════════════ */
@@ -289,6 +342,26 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 .sb-theme-toggle button:hover{color:rgba(255,255,255,.85)}
 .sb-theme-toggle button.active{background:rgba(139,124,246,.18);color:#C7BFFA;font-weight:600}
 .sb-theme-toggle button i{font-size:12px}
+
+/* Accent color picker */
+.sb-accent-label{font-size:9px;font-weight:600;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.6px;margin:10px 2px 6px 2px;padding:0}
+.sb-accent-swatches{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;padding:0 2px}
+.sb-accent-swatches button{
+  aspect-ratio:1;border-radius:50%;border:none;cursor:pointer;
+  transition:transform .15s,outline .15s;
+  position:relative;outline:0 solid transparent;outline-offset:0;
+}
+.sb-accent-swatches button:hover{transform:scale(1.1)}
+.sb-accent-swatches button.active{
+  outline:2px solid currentColor;outline-offset:2px;
+  box-shadow:0 0 0 2px var(--sb-bg);
+  transform:scale(1.05);
+}
+.sb-accent-current{
+  font-size:9px;color:rgba(255,255,255,.5);text-align:center;
+  margin-top:8px;text-transform:capitalize;font-weight:500;
+  letter-spacing:.3px;
+}
 
 /* MAIN */
 .main{
@@ -1352,7 +1425,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-05-cs-light-only';
+window.__APP_VERSION = '2026-06-05-accent-picker';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -1399,6 +1472,33 @@ window.__JS_ERRORS = [];
       b.classList.toggle('active', b.getAttribute('data-theme-value') === value);
     });
   };
+
+  /* ─── ACCENT COLOR PICKER ─── */
+  var ACCENT_KEY = 'od_accent';
+  var ACCENT_NAMES = { indigo:'Indigo', emerald:'Emerald', sky:'Sky Blue', amber:'Amber', cyan:'Cyan', rose:'Rose' };
+  function applyAccent(name){
+    if(!ACCENT_NAMES[name]) name = 'indigo';
+    document.documentElement.setAttribute('data-accent', name);
+  }
+  // Read saved accent
+  var savedAccent = 'indigo';
+  try { var a = localStorage.getItem(ACCENT_KEY); if(a && ACCENT_NAMES[a]) savedAccent = a; } catch(e){}
+  applyAccent(savedAccent);
+
+  window.setAccent = function(name){
+    if(!ACCENT_NAMES[name]) return;
+    try { localStorage.setItem(ACCENT_KEY, name); } catch(e){}
+    applyAccent(name);
+    // Update swatch UI active state
+    var btns = document.querySelectorAll('.sb-accent-swatches button[data-accent]');
+    btns.forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-accent') === name);
+    });
+    // Update label
+    var lbl = document.getElementById('sbAccentCurrent');
+    if(lbl) lbl.textContent = ACCENT_NAMES[name];
+  };
+
   // Sync UI when DOM ready
   document.addEventListener('DOMContentLoaded', function(){
     var pref = document.documentElement.getAttribute('data-theme-pref') || 'auto';
@@ -1406,6 +1506,13 @@ window.__JS_ERRORS = [];
     btns.forEach(function(b){
       b.classList.toggle('active', b.getAttribute('data-theme-value') === pref);
     });
+    var curAccent = document.documentElement.getAttribute('data-accent') || 'indigo';
+    var swatches = document.querySelectorAll('.sb-accent-swatches button[data-accent]');
+    swatches.forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-accent') === curAccent);
+    });
+    var lbl = document.getElementById('sbAccentCurrent');
+    if(lbl) lbl.textContent = ACCENT_NAMES[curAccent] || 'Indigo';
   });
 })();
 
@@ -2032,6 +2139,16 @@ document.addEventListener('DOMContentLoaded', function(){
         <button type="button" data-theme-value="dark" title="Dark mode" onclick="setTheme('dark')"><i class="ti ti-moon"></i><span>Dark</span></button>
         <button type="button" data-theme-value="auto" title="Auto (ngikut sistem)" onclick="setTheme('auto')"><i class="ti ti-device-laptop"></i><span>Auto</span></button>
       </div>
+      <div class="sb-accent-label">Accent Color</div>
+      <div class="sb-accent-swatches" role="group" aria-label="Accent color">
+        <button type="button" data-accent="indigo" title="Indigo" onclick="setAccent('indigo')" style="background:#6366F1"></button>
+        <button type="button" data-accent="emerald" title="Emerald" onclick="setAccent('emerald')" style="background:#10B981"></button>
+        <button type="button" data-accent="sky" title="Sky Blue" onclick="setAccent('sky')" style="background:#0EA5E9"></button>
+        <button type="button" data-accent="amber" title="Amber" onclick="setAccent('amber')" style="background:#F59E0B"></button>
+        <button type="button" data-accent="cyan" title="Cyan" onclick="setAccent('cyan')" style="background:#0891B2"></button>
+        <button type="button" data-accent="rose" title="Rose" onclick="setAccent('rose')" style="background:#E11D48"></button>
+      </div>
+      <div class="sb-accent-current" id="sbAccentCurrent">Indigo</div>
     </div>
 
     <div class="sb-user">
