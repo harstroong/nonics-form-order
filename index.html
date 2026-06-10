@@ -302,7 +302,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 .panel.active{display:block}
 
 /* CARDS */
-.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;margin-bottom:20px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;margin-bottom:20px}
 .card-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:8px}
 .card-sub{font-size:13px;color:var(--text-muted);margin-bottom:20px}
 .card-divider{height:1px;background:var(--border);margin:20px 0}
@@ -335,12 +335,12 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
   padding:11px 14px;font-size:14px;font-family:inherit;outline:none;
   color:var(--text);background:var(--surface);transition:border-color .15s,box-shadow .15s;
 }
-.input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(102,126,234,.12)}
+.input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
 .input.err{border-color:var(--red)}
-.input[readonly]{background:#f7f8fc;color:var(--text-muted);cursor:default}
+.input[readonly]{background:var(--surface-2);color:var(--text-muted);cursor:default}
 textarea.input{resize:vertical;min-height:100px;line-height:1.6}
 .hint{font-size:12px;color:var(--text-muted);margin-top:6px;line-height:1.6}
-.hint code{background:#f0f2f8;padding:1px 6px;border-radius:4px;font-size:11px;color:var(--primary)}
+.hint code{background:var(--surface-2);padding:1px 6px;border-radius:4px;font-size:11px;color:var(--primary)}
 .err-msg{font-size:12px;color:var(--red);margin-top:5px;display:none}
 .err-msg.show{display:block}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -358,32 +358,36 @@ textarea.input{resize:vertical;min-height:100px;line-height:1.6}
 .btn-primary:hover{opacity:.88}
 .btn-success{background:linear-gradient(135deg,var(--green),#059669);color:#fff}
 .btn-success:hover{opacity:.88}
-.btn-outline{background:#fff;border:1.5px solid var(--border);color:var(--text)}
+.btn-outline{background:var(--surface);border:1.5px solid var(--border);color:var(--text)}
 .btn-outline:hover{border-color:var(--primary);color:var(--primary)}
-.btn-danger{background:var(--red-light);color:var(--red);border:1px solid #fca5a5}
-.btn-danger:hover{background:#fecaca}
+.btn-danger{background:var(--red-light);color:var(--red);border:1px solid var(--red-light)}
+.btn-danger:hover{opacity:.85}
 .btn-ghost{background:none;border:none;color:var(--text-muted);padding:8px 10px}
-.btn-ghost:hover{background:var(--bg);color:var(--text)}
+.btn-ghost:hover{background:var(--surface-2);color:var(--text)}
 .btn-sm{padding:7px 14px;font-size:12px}
 .btn-lg{padding:13px 24px;font-size:15px}
 .btn-full{width:100%}
-.btn-icon{padding:8px;border-radius:8px;background:var(--bg);border:1px solid var(--border)}
-.btn-icon:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-light)}
+.btn-icon{padding:8px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border);color:var(--text)}
+.btn-icon:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-soft)}
 
 /* BADGES */
 .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:50px;font-size:11px;font-weight:600}
-.badge-green{background:var(--green-light);color:#059669}
-.badge-orange{background:var(--orange-light);color:#d97706}
+.badge-green{background:var(--green-light);color:var(--green)}
+.badge-orange{background:var(--orange-light);color:var(--orange)}
 .badge-blue{background:var(--primary-light);color:var(--primary)}
 .badge-purple{background:var(--purple-light);color:var(--purple)}
+[data-theme="dark"] .badge-green{color:#86EFAC}
+[data-theme="dark"] .badge-orange{color:#FCD34D}
+[data-theme="dark"] .badge-blue{color:#C7BFFA}
+[data-theme="dark"] .badge-purple{color:#DDD6FE}
 
 /* TABLE */
 .table-wrap{overflow-x:auto;border-radius:var(--radius-sm);border:1px solid var(--border)}
-table{width:100%;border-collapse:collapse}
-th{background:#f7f8fc;padding:11px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-muted);text-align:left;border-bottom:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;background:var(--surface)}
+th{background:var(--surface-2);padding:11px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-muted);text-align:left;border-bottom:1px solid var(--border)}
 td{padding:13px 16px;font-size:13px;border-bottom:1px solid var(--border);color:var(--text)}
 tr:last-child td{border-bottom:none}
-tr:hover td{background:#fafbff}
+tr:hover td{background:var(--surface-2)}
 
 /* EMPTY STATE */
 .empty{text-align:center;padding:56px 0;color:var(--text-muted)}
@@ -605,8 +609,8 @@ tr:hover td{background:#fafbff}
   border-bottom:2px solid transparent;margin-bottom:-1px;
   transition:all .15s;font-family:inherit;white-space:nowrap;
 }
-.prod-tab:hover{color:var(--text);background:#fafbff;}
-.prod-tab.active{color:var(--primary);border-bottom-color:var(--primary);background:#fafbff;}
+.prod-tab:hover{color:var(--text);background:var(--surface-2);}
+.prod-tab.active{color:var(--primary);border-bottom-color:var(--primary);background:var(--primary-soft);}
 
 /* PROD LIST STATUS BADGES */
 .prod-status-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
@@ -848,7 +852,7 @@ tr:hover td{background:#fafbff}
 .csv-content{flex:1;padding:24px;max-width:1200px;width:100%;margin:0 auto;box-sizing:border-box}
 .cs-lead-card{
   border:1px solid var(--border);border-radius:var(--radius-sm);
-  margin-bottom:8px;background:#fff;
+  margin-bottom:8px;background:var(--surface);
   transition:border-color .15s,box-shadow .15s;
   overflow:hidden;
 }
@@ -899,7 +903,7 @@ tr:hover td{background:#fafbff}
 ═══════════════════════════════════════════ */
 .date-filter-bar{
   display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-  background:#f7f8fc;border:1px solid var(--border);
+  background:var(--surface-2);border:1px solid var(--border);
   border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;
 }
 .date-filter-bar .dfb-label{
@@ -909,7 +913,7 @@ tr:hover td{background:#fafbff}
 .date-filter-bar .dfb-select{
   border:1.5px solid var(--border);border-radius:6px;
   padding:7px 10px;font-size:13px;font-family:inherit;
-  color:var(--text);background:#fff;outline:none;cursor:pointer;
+  color:var(--text);background:var(--surface);outline:none;cursor:pointer;
   font-weight:500;
 }
 .date-filter-bar .dfb-select:focus{border-color:var(--primary)}
@@ -918,7 +922,7 @@ tr:hover td{background:#fafbff}
 .date-filter-bar .dfb-date{
   border:1.5px solid var(--border);border-radius:6px;
   padding:6px 10px;font-size:13px;font-family:inherit;
-  color:var(--text);background:#fff;outline:none;
+  color:var(--text);background:var(--surface);outline:none;
 }
 .date-filter-bar .dfb-date:focus{border-color:var(--primary)}
 .date-filter-bar .dfb-info{
@@ -1097,12 +1101,12 @@ tr:hover td{background:#fafbff}
 
 /* Admin panel: list template */
 .qr-card{
-  background:#fff;border:1px solid var(--border);
+  background:var(--surface);border:1px solid var(--border);
   border-radius:var(--radius-sm);padding:14px 16px;
   margin-bottom:10px;
   display:flex;gap:12px;align-items:flex-start;
 }
-.qr-card.inactive{opacity:.55;background:#f9fafb}
+.qr-card.inactive{opacity:.55;background:var(--surface-2)}
 .qr-card-icon{
   width:40px;height:40px;border-radius:10px;flex-shrink:0;
   background:linear-gradient(135deg,#10b981,#059669);
@@ -1119,7 +1123,7 @@ tr:hover td{background:#fafbff}
   font-size:12px;color:var(--text-muted);line-height:1.5;
   white-space:pre-wrap;
   max-height:60px;overflow:hidden;
-  background:#f7f8fc;padding:8px 12px;
+  background:var(--surface-2);padding:8px 12px;
   border-radius:6px;
   font-family:'Cascadia Code',Consolas,monospace;
   display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;
@@ -1167,7 +1171,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-05-overview-pro';
+window.__APP_VERSION = '2026-06-05-panels-themed';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -2135,13 +2139,13 @@ document.addEventListener('DOMContentLoaded', function(){
 
               <div id="distribModeCards" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px"></div>
 
-              <div id="distribCustomBox" style="display:none;background:#f7f8fc;border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px">
+              <div id="distribCustomBox" style="display:none;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px">
                 <div style="font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.4px">Set persentase per CS</div>
                 <div id="distribCustomList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
                 <div id="distribTotal" style="padding:8px 12px;border-radius:6px;font-size:12px;display:flex;align-items:center;gap:6px"></div>
               </div>
 
-              <div id="distribSoloBox" style="display:none;background:#f7f8fc;border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px">
+              <div id="distribSoloBox" style="display:none;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px">
                 <div style="font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.4px">Pilih 1 CS yang dapat semua lead</div>
                 <div id="distribSoloList" style="display:flex;flex-direction:column;gap:8px"></div>
               </div>
@@ -2754,7 +2758,7 @@ document.addEventListener('DOMContentLoaded', function(){
      FORM PREVIEW MODAL
 ═══════════════════════════════════ -->
 <div id="formPreviewModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:20px">
-  <div style="background:#fff;border-radius:16px;max-width:440px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.3)">
+  <div style="background:var(--surface);border-radius:16px;max-width:440px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.3)">
     <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
       <div style="font-weight:700;font-size:15px">Preview Form Customer</div>
       <button onclick="closePreview()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-muted)">✕</button>
@@ -2767,13 +2771,13 @@ document.addEventListener('DOMContentLoaded', function(){
      BULK REASSIGN MODAL — pindahin N lead ke 1 CS sekaligus
 ═══════════════════════════════════ -->
 <div id="bulkReassignModal" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.6);align-items:center;justify-content:center;padding:20px">
-  <div style="background:#fff;border-radius:16px;max-width:480px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.3)">
+  <div style="background:var(--surface);border-radius:16px;max-width:480px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.3)">
     <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
       <div style="font-weight:700;font-size:15px">🔄 Reassign <span id="bulkCount">0</span> lead</div>
       <button onclick="closeBulkReassignModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-muted)">✕</button>
     </div>
     <div style="padding:18px 20px">
-      <div id="bulkLeadList" style="background:#f7f8fc;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--text-muted);max-height:140px;overflow-y:auto;line-height:1.7"></div>
+      <div id="bulkLeadList" style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--text-muted);max-height:140px;overflow-y:auto;line-height:1.7"></div>
       <div id="bulkWarn" style="display:none;background:#fef3c7;border:1px solid #fbbf24;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:#78350f;line-height:1.5"></div>
       <div style="margin-bottom:6px;font-size:12px;color:var(--text-muted);font-weight:600">Pindahkan ke CS</div>
       <select id="bulkTargetCS" class="input" style="width:100%;margin-bottom:14px"></select>
@@ -2792,13 +2796,13 @@ document.addEventListener('DOMContentLoaded', function(){
      REASSIGN LEAD MODAL — pindahin lead dari CS A ke CS B
 ═══════════════════════════════════ -->
 <div id="reassignModal" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.6);align-items:center;justify-content:center;padding:20px">
-  <div style="background:#fff;border-radius:16px;max-width:440px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.3)">
+  <div style="background:var(--surface);border-radius:16px;max-width:440px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.3)">
     <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
       <div style="font-weight:700;font-size:15px">🔄 Pindahkan Lead ke CS Lain</div>
       <button onclick="closeReassignModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-muted)">✕</button>
     </div>
     <div style="padding:18px 20px">
-      <div id="reassignLeadInfo" style="background:#f7f8fc;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:13px"></div>
+      <div id="reassignLeadInfo" style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:13px"></div>
       <div id="reassignWarn" style="display:none;background:#fef3c7;border:1px solid #fbbf24;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:#78350f;line-height:1.5"></div>
       <div style="margin-bottom:6px;font-size:12px;color:var(--text-muted);font-weight:600">CS saat ini</div>
       <div id="reassignCurrentCS" style="padding:8px 12px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;font-size:13px;color:#9a3412;margin-bottom:14px"></div>
