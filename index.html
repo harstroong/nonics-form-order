@@ -210,11 +210,13 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
   color:var(--sb-text);font-size:13.5px;font-weight:500;
   transition:all .15s;border:none;background:none;width:100%;text-align:left;font-family:inherit;
 }
-.sb-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.8)}
-.sb-item.active{background:linear-gradient(135deg,rgba(102,126,234,.25),rgba(118,75,162,.15));color:#fff;font-weight:600}
+.sb-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.85)}
+.sb-item.active{background:rgba(139,124,246,.14);color:#C7BFFA;font-weight:600;border-left:2px solid var(--sb-accent);padding-left:10px}
 .sb-item.active .sb-icon{color:var(--sb-accent)}
-.sb-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
-.sb-badge{margin-left:auto;background:var(--sb-accent);color:#fff;border-radius:50px;padding:2px 8px;font-size:10px;font-weight:700}
+.sb-icon{font-size:17px;width:20px;text-align:center;flex-shrink:0;line-height:1}
+.sb-logo-icon i{font-size:18px;color:#fff;line-height:1}
+.sb-badge{margin-left:auto;background:rgba(239,68,68,.15);color:#FCA5A5;border-radius:50px;padding:2px 8px;font-size:10px;font-weight:700}
+.sb-item.active .sb-badge{background:rgba(239,68,68,.2);color:#FCA5A5}
 .sb-divider{height:1px;background:var(--sb-border);margin:10px 12px}
 .sb-user{
   padding:16px 14px;border-top:1px solid var(--sb-border);
@@ -261,17 +263,35 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
   display:flex;align-items:center;justify-content:space-between;
   position:sticky;top:0;z-index:100;
 }
-.topbar-title{font-size:17px;font-weight:700;color:var(--text)}
+.topbar-title{font-size:16px;font-weight:600;color:var(--text);letter-spacing:-.2px}
 .topbar-right{display:flex;align-items:center;gap:10px}
+
+/* Global Period Selector di topbar */
+.topbar-period{
+  display:flex;background:var(--surface-2);border:1px solid var(--border);
+  border-radius:8px;padding:3px;gap:0;
+}
+.topbar-period button{
+  background:none;border:none;color:var(--text-muted);
+  padding:6px 12px;border-radius:5px;cursor:pointer;
+  font-size:12px;font-weight:500;font-family:inherit;
+  transition:all .15s;display:inline-flex;align-items:center;gap:5px;
+}
+.topbar-period button:hover{color:var(--text)}
+.topbar-period button.active{background:var(--primary);color:#fff;font-weight:600}
+[data-theme="dark"] .topbar-period button.active{background:var(--primary-light);color:#C7BFFA}
+.topbar-period-custom{border-left:1px solid var(--border);margin-left:2px;padding-left:10px!important}
+
 .topbar-preview-btn{
   display:flex;align-items:center;gap:6px;
   background:linear-gradient(135deg,var(--sb-accent),var(--sb-accent-2));
-  color:#fff;border:none;border-radius:8px;padding:8px 16px;
-  font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;
+  color:#fff;border:none;border-radius:8px;padding:8px 14px;
+  font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;
   transition:opacity .15s;
 }
 .topbar-preview-btn:hover{opacity:.88}
-.hamburger{display:none;background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;color:var(--text)}
+.topbar-preview-btn i{font-size:13px}
+.hamburger{display:none;background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;color:var(--text);font-size:18px}
 .content{padding:28px;flex:1}
 
 /* ═══════════════════════════════════════════
@@ -576,11 +596,16 @@ tr:hover td{background:#fafbff}
   .login-footer{font-size:11px;margin-top:18px;line-height:1.5}
 
   /* DASHBOARD TOPBAR */
-  .topbar{padding:0 12px;gap:8px}
-  .topbar-title{font-size:15px}
+  .topbar{padding:0 12px;gap:6px;height:auto;flex-wrap:wrap;padding-top:8px;padding-bottom:8px}
+  .topbar-title{font-size:14px}
   .topbar-right{gap:6px;flex-wrap:nowrap}
-  .topbar-preview-btn{padding:7px 10px;font-size:12px;white-space:nowrap}
+  .topbar-preview-btn{padding:6px 10px;font-size:11px;white-space:nowrap}
+  .topbar-preview-btn span,.topbar-preview-btn i+*{display:inline}
   .cloud-badge{padding:4px 8px;font-size:10px}
+  /* Period selector: hide labels >= md, on mobile keep small */
+  .topbar-period{order:3;flex:1 0 100%;justify-content:flex-start;overflow-x:auto;scrollbar-width:none}
+  .topbar-period::-webkit-scrollbar{display:none}
+  .topbar-period button{padding:5px 10px;font-size:11px}
 
   /* CONTENT */
   .content{padding:14px 12px}
@@ -1065,7 +1090,7 @@ tr:hover td{background:#fafbff}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-05-theme-system';
+window.__APP_VERSION = '2026-06-05-sidebar-topbar-refresh';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -1686,54 +1711,54 @@ document.addEventListener('DOMContentLoaded', function(){
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="sb-logo">
-      <div class="sb-logo-icon">⚡</div>
+      <div class="sb-logo-icon"><i class="ti ti-bolt" aria-hidden="true"></i></div>
       <div class="sb-logo-text">Order Dashboard<span id="sbStoreName">Admin Panel</span></div>
     </div>
 
     <div class="sb-nav">
       <div class="sb-section">Menu</div>
       <button class="sb-item active" onclick="showPanel('overview')">
-        <span class="sb-icon">📊</span> Overview
+        <i class="ti ti-layout-dashboard sb-icon" aria-hidden="true"></i> Overview
       </button>
       <button class="sb-item" onclick="showPanel('leads')">
-        <span class="sb-icon">👥</span> Leads
+        <i class="ti ti-users sb-icon" aria-hidden="true"></i> Leads
         <span class="sb-badge" id="leadsBadge">0</span>
       </button>
 
       <div class="sb-section">Kelola</div>
       <button class="sb-item" onclick="showPanel('produk')">
-        <span class="sb-icon">📦</span> Produk
+        <i class="ti ti-package sb-icon" aria-hidden="true"></i> Produk
       </button>
       <button class="sb-item" onclick="showPanel('form')">
-        <span class="sb-icon">📋</span> Form Builder
+        <i class="ti ti-forms sb-icon" aria-hidden="true"></i> Form Builder
       </button>
       <button class="sb-item" onclick="showPanel('cs')">
-        <span class="sb-icon">💬</span> CS & Greeting
+        <i class="ti ti-headset sb-icon" aria-hidden="true"></i> CS & Greeting
       </button>
       <button class="sb-item" onclick="showPanel('csaccess')">
-        <span class="sb-icon">🔐</span> Akses Login CS
+        <i class="ti ti-key sb-icon" aria-hidden="true"></i> Akses Login CS
       </button>
       <button class="sb-item" onclick="showPanel('adaccess')">
-        <span class="sb-icon">📊</span> Akses Login Advertisers
+        <i class="ti ti-user-shield sb-icon" aria-hidden="true"></i> Akses Login Advertisers
       </button>
       <button class="sb-item" onclick="showPanel('quickreply')">
-        <span class="sb-icon">💬</span> Quick Reply
+        <i class="ti ti-message-2 sb-icon" aria-hidden="true"></i> Quick Reply
       </button>
 
       <div class="sb-section">Integrasi</div>
       <button class="sb-item" onclick="showPanel('gtm')">
-        <span class="sb-icon">📈</span> GTM Tracking
+        <i class="ti ti-chart-line sb-icon" aria-hidden="true"></i> GTM Tracking
       </button>
       <button class="sb-item" onclick="showPanel('embed')">
-        <span class="sb-icon">🔗</span> Embed HTML
+        <i class="ti ti-code sb-icon" aria-hidden="true"></i> Embed HTML
       </button>
       <button class="sb-item" onclick="showPanel('cloud')">
-        <span class="sb-icon">☁️</span> Cloud Sync
+        <i class="ti ti-cloud sb-icon" aria-hidden="true"></i> Cloud Sync
       </button>
 
       <div class="sb-divider"></div>
       <button class="sb-item" onclick="showPanel('settings')">
-        <span class="sb-icon">⚙️</span> Pengaturan
+        <i class="ti ti-settings sb-icon" aria-hidden="true"></i> Pengaturan
       </button>
     </div>
 
@@ -1752,23 +1777,31 @@ document.addEventListener('DOMContentLoaded', function(){
         <div class="sb-user-name">Administrator</div>
         <div class="sb-user-role">Super Admin</div>
       </div>
-      <button class="sb-logout" onclick="doLogout()" title="Keluar">⏻</button>
+      <button class="sb-logout" onclick="doLogout()" title="Keluar"><i class="ti ti-logout" aria-hidden="true"></i></button>
     </div>
   </aside>
 
   <!-- MAIN AREA -->
   <div class="main">
     <div class="topbar">
-      <div style="display:flex;align-items:center;gap:12px">
-        <button class="hamburger" onclick="openSidebar()">☰</button>
+      <div style="display:flex;align-items:center;gap:12px;min-width:0">
+        <button class="hamburger" onclick="openSidebar()"><i class="ti ti-menu-2" aria-hidden="true"></i></button>
         <div class="topbar-title" id="topbarTitle">Overview</div>
+      </div>
+      <div class="topbar-period" id="topbarPeriod" role="group" aria-label="Period filter">
+        <button type="button" data-period="today" class="active" onclick="setGlobalPeriod('today')">Today</button>
+        <button type="button" data-period="yesterday" onclick="setGlobalPeriod('yesterday')">Yesterday</button>
+        <button type="button" data-period="7d" onclick="setGlobalPeriod('7d')">7d</button>
+        <button type="button" data-period="30d" onclick="setGlobalPeriod('30d')">30d</button>
+        <button type="button" data-period="all" onclick="setGlobalPeriod('all')">All</button>
+        <button type="button" data-period="custom" onclick="openCustomPeriod()" class="topbar-period-custom"><i class="ti ti-calendar" aria-hidden="true"></i>Custom</button>
       </div>
       <div class="topbar-right">
         <span class="cloud-badge cb-offline" id="cloudBadge" onclick="showPanel('cloud')" style="cursor:pointer" title="Klik untuk konfigurasi">
           <span class="cb-dot"></span>
           <span id="cloudBadgeText">Local Only</span>
         </span>
-        <button class="topbar-preview-btn" onclick="previewForm()">👁️ Preview Form</button>
+        <button class="topbar-preview-btn" onclick="previewForm()"><i class="ti ti-eye" aria-hidden="true" style="margin-right:4px"></i>Preview Form</button>
       </div>
     </div>
 
@@ -6960,6 +6993,19 @@ function getDateRange(preset, customStart, customEnd){
 }
 
 function getDateFilterRange(prefix){
+  // Cek global period dulu — kalau ada, pake itu
+  if(window.__globalPeriod && window.__globalPeriod !== 'custom-disabled'){
+    const g = window.__globalPeriod;
+    if(g === 'today') return getDateRange('today');
+    if(g === 'yesterday') return getDateRange('yesterday');
+    if(g === '7d') return getDateRange('7d');
+    if(g === '30d') return getDateRange('30d');
+    if(g === 'all') return getDateRange('lifetime');
+    if(g === 'custom' && window.__globalPeriodCustom){
+      return getDateRange('custom', window.__globalPeriodCustom.from, window.__globalPeriodCustom.to);
+    }
+  }
+  // Fallback: per-panel filter (legacy)
   const sel = document.getElementById(prefix+'DateSel');
   if(!sel) return getDateRange('lifetime');
   const preset = sel.value;
@@ -6967,6 +7013,55 @@ function getDateFilterRange(prefix){
   const e = document.getElementById(prefix+'DateEnd');
   return getDateRange(preset, s?s.value:'', e?e.value:'');
 }
+
+/* ═══════════════════════════════════
+   GLOBAL PERIOD SELECTOR — di topbar
+   Berlaku ke semua panel/widget yang pake getDateFilterRange()
+═══════════════════════════════════ */
+window.__globalPeriod = 'today'; // default
+function setGlobalPeriod(value){
+  window.__globalPeriod = value;
+  try { localStorage.setItem('od_global_period', value); } catch(e){}
+  // Update active state di topbar buttons
+  const btns = document.querySelectorAll('.topbar-period button[data-period]');
+  btns.forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-period') === value);
+  });
+  // Re-render active panel
+  try {
+    if(typeof activePanel !== 'undefined'){
+      if(activePanel === 'overview' && typeof renderOverview === 'function') renderOverview();
+      else if(activePanel === 'leads' && typeof renderLeads === 'function') renderLeads();
+      else if(activePanel === 'produk' && typeof renderProdList === 'function') renderProdList();
+    }
+  } catch(e){ console.warn('global period re-render fail:', e); }
+}
+function openCustomPeriod(){
+  // Stub — buat sekarang prompt sederhana. Nanti di-upgrade ke calendar modal.
+  const today = new Date().toISOString().slice(0,10);
+  const from = prompt('Tanggal mulai (YYYY-MM-DD):', today);
+  if(!from) return;
+  const to = prompt('Tanggal selesai (YYYY-MM-DD):', today);
+  if(!to) return;
+  window.__globalPeriodCustom = { from: from, to: to };
+  setGlobalPeriod('custom');
+}
+// Restore saved global period on load
+(function(){
+  try {
+    const saved = localStorage.getItem('od_global_period');
+    if(saved && ['today','yesterday','7d','30d','all'].indexOf(saved) >= 0){
+      window.__globalPeriod = saved;
+    }
+  } catch(e){}
+  // Sync button state when DOM ready
+  document.addEventListener('DOMContentLoaded', function(){
+    const btns = document.querySelectorAll('.topbar-period button[data-period]');
+    btns.forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-period') === (window.__globalPeriod || 'today'));
+    });
+  });
+})();
 
 function onDateFilterChange(prefix){
   const sel = document.getElementById(prefix+'DateSel');
