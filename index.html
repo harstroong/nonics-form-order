@@ -1425,7 +1425,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-05-accent-picker';
+window.__APP_VERSION = '2026-06-05-double-confirm';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -1561,7 +1561,7 @@ function __renderDiag(){
   el.textContent = JSON.stringify(info, null, 2);
 }
 function __resetAll(){
-  if(!confirm('Reset SEMUA data lokal di browser ini?\n\nIni akan hapus:\n- Firebase config (kalau ada)\n- Cache leads/produk/CS lokal\n- Settings\n\nData di cloud TIDAK terhapus. Setelah reset, password admin balik ke "admin123".')) return;
+  if(!confirmDestructive('Reset SEMUA data lokal di browser ini?\n\nIni akan hapus:\n- Firebase config (kalau ada)\n- Cache leads/produk/CS lokal\n- Settings\n\nData di cloud TIDAK terhapus. Setelah reset, password admin balik ke "admin123".', '⚠️ KONFIRMASI ULANG\n\nYakin reset semua data lokal? Lo bakal kehapus settings & cache, dan login admin balik ke "admin123".')) return;
   try {
     ['od_cfg','od_prods','od_leads','od_cs','od_cs_users','od_fb_cfg','od_local_backup'].forEach(function(k){
       localStorage.removeItem(k);
@@ -3988,6 +3988,9 @@ function renderLeads(){
   if(selbar){ selbar.style.display='flex'; updateSelectionUI(); }
 }
 function deleteLead(id){
+  const lead = getLeads().find(function(l){ return l.id === id; });
+  const label = lead ? (lead.nama || lead.wa || id) : id;
+  if(!confirmDestructive('Hapus lead "'+label+'"?\n\nData customer ini bakal hilang permanent.', '⚠️ KONFIRMASI ULANG\n\nYakin hapus lead "'+label+'"?')) return;
   LS.s('od_leads',getLeads().filter(l=>l.id!==id));
   syncLeadDelete(id);
   renderLeads();updateLeadsBadge();
@@ -3995,7 +3998,7 @@ function deleteLead(id){
   toast('🗑️ Lead dihapus');
 }
 function clearLeads(){
-  if(confirm('Hapus semua leads?\n\nTindakan ini tidak bisa dibatalkan.'))
+  if(confirmDestructive('Hapus SEMUA leads?\n\nIni hapus seluruh data customer yang udah masuk form. Gak bisa di-undo.', '⚠️ KONFIRMASI ULANG\n\nYakin hapus SEMUA leads? Semua history customer akan hilang permanent.'))
   {LS.s('od_leads',[]);if(fb.configured)syncBulkDelete(FB_COLLECTIONS.leads);renderLeads();updateLeadsBadge();toast('🗑️ Semua leads dihapus');}
 }
 function clearAllLeads(){clearLeads();}
@@ -4909,7 +4912,7 @@ function deleteProd(id){
       toast('⚠️ Produk ini bukan milik lo'); return;
     }
   }
-  if(!confirm('Hapus produk ini? Semua konfigurasi CS, GTM, dan Greeting-nya akan ikut terhapus.'))return;
+  if(!confirmDestructive('Hapus produk ini?\n\nSemua konfigurasi CS, GTM, dan Greeting-nya akan ikut terhapus. Embed code di landing page juga bakal berhenti dapat lead.', '⚠️ KONFIRMASI ULANG\n\nYakin hapus produk ini? Embed di landing page bakal mati permanent.'))return;
   LS.s('od_prods',getProds().filter(p=>p.id!==id));
   syncProdDelete(id);
   renderProdList();updatePreview();toast('🗑️ Produk dihapus');
@@ -5129,7 +5132,7 @@ function deleteCSItem(id){
     // Tawarkan reassign atau unassign
     const otherCS = getCSList().filter(c => c.id !== id);
     if(!otherCS.length){
-      if(!confirm(`⚠️ CS "${cs.name}" punya ${orphanLeads.length} lead aktif.\n\nGak ada CS lain buat reassign. Kalau dihapus, lead-lead ini jadi unassigned (csId = null).\n\nLanjut hapus?`)) return;
+      if(!confirmDestructive(`⚠️ CS "${cs.name}" punya ${orphanLeads.length} lead aktif.\n\nGak ada CS lain buat reassign. Kalau dihapus, lead-lead ini jadi unassigned (csId = null).\n\nLanjut hapus?`, `⚠️ KONFIRMASI ULANG\n\nYakin hapus CS "${cs.name}"? ${orphanLeads.length} lead bakal jadi unassigned.`)) return;
       // Unassign semua lead
       const updated = allLeads.map(l => l.csId === id ? Object.assign({}, l, {csId:null, reassignedAt:Date.now(), reassignedFrom:id, reassignedBy:'system-delete'}) : l);
       LS.s('od_leads', updated);
@@ -5189,7 +5192,7 @@ function deleteCSItem(id){
       toast('✅ '+orphanLeads.length+' lead dipindah ke '+targetName);
     }
   } else {
-    if(!confirm(`Hapus CS "${cs.name}"?`)) return;
+    if(!confirmDestructive(`Hapus CS "${cs.name}"?\n\nCS ini bakal hilang dari semua produk. Lo perlu reassign manual kalau ada lead yang masih dipegang CS ini.`, `⚠️ KONFIRMASI ULANG\n\nYakin hapus CS "${cs.name}"?`)) return;
   }
 
   // Cleanup: hapus CS dari prods.csIds & csLeadCounts
@@ -5325,7 +5328,7 @@ function savePassword(){
   toast('✅ Password berhasil diubah!');
 }
 function resetAllData(){
-  if(confirm('RESET semua data?\n\nIni akan menghapus semua leads, produk, dan pengaturan (di local DAN cloud). Tidak bisa dibatalkan!')){
+  if(confirmDestructive('🔥 RESET SEMUA DATA?\n\nIni akan menghapus semua leads, produk, dan pengaturan (di local DAN cloud). Tindakan ini PERMANENT dan tidak bisa dibatalkan!\n\nLanjut?', '⚠️ KONFIRMASI ULANG (TERAKHIR)\n\nYakin SANGAT YAKIN mau reset semua data? Lo bakal mulai dari nol. Pikirin baik-baik sebelum klik OK.')){
     ['od_cfg','od_prods','od_leads'].forEach(k=>localStorage.removeItem(k));
     if(fb.configured){
       Promise.all([
@@ -5540,6 +5543,15 @@ function copyCode(id,btn){
 ═════════════════════════════════════════════ */
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 
+/* ─── Double confirmation untuk semua destructive action ───
+   Pattern: confirm pertama nampilin detail, confirm kedua minta yakin ulang.
+   Return true cuma kalau dua-duanya OK. */
+function confirmDestructive(primaryMsg, secondaryMsg){
+  if(!confirm(primaryMsg)) return false;
+  var s = secondaryMsg || '⚠️ KONFIRMASI ULANG\n\nYakin lanjut? Tindakan ini gak bisa di-undo.';
+  return confirm(s);
+}
+
 /* ── Normalisasi nomor WA Indonesia untuk wa.me URL ──
    Customer biasa ngetik "08xxx" (format lokal). WhatsApp wa.me butuh "628xxx".
    Kalau ke-pass "08xxx" doang, WA salah interpret jadi country code +82 (Korea).
@@ -5696,7 +5708,7 @@ function toggleCSUser(id){
 function deleteCSUser(id){
   const u = getCSUsers().find(x => x.id === id);
   if(!u) return;
-  if(!confirm(`Hapus akun login "${u.username}"?\n\nCS tidak bisa login lagi. Profil CS-nya di menu CS & Greeting tetap ada.`)) return;
+  if(!confirmDestructive(`Hapus akun login "${u.username}"?\n\nCS tidak bisa login lagi. Profil CS-nya di menu CS & Greeting tetap ada.`, `⚠️ KONFIRMASI ULANG\n\nYakin hapus akun login "${u.username}"?`)) return;
   LS.s('od_cs_users', getCSUsers().filter(x => x.id !== id));
   syncCSUserDelete(id);
   renderCSUserList();
@@ -6621,7 +6633,7 @@ async function enableFirebaseSync(){
 }
 
 function disableFirebaseSync(){
-  if(!confirm('Nonaktifkan Cloud Sync?\n\nData di cloud TIDAK ikut terhapus. Dashboard akan kembali pakai localStorage doang.')) return;
+  if(!confirmDestructive('Nonaktifkan Cloud Sync?\n\nData di cloud TIDAK ikut terhapus. Dashboard akan kembali pakai localStorage doang. Embed di landing page juga gak bakal sync ke dashboard lagi.', '⚠️ KONFIRMASI ULANG\n\nYakin matiin Cloud Sync? Lead baru gak bakal nyampe dashboard sampai Cloud Sync di-aktifin lagi.')) return;
   // Unsubscribe listeners
   fb.unsubs.forEach(u=>{ try{u()}catch(e){} });
   fb.unsubs = [];
@@ -7320,7 +7332,7 @@ function toggleQRTemplate(id){
 function deleteQRTemplate(id){
   const t = getQRTemplates().find(x => x.id === id);
   if(!t) return;
-  if(!confirm(`Hapus template "${t.label}"?\n\nGak bisa di-undo. Kalau cuma mau sembunyiin sementara, pakai tombol 🔒 Nonaktifkan.`)) return;
+  if(!confirmDestructive(`Hapus template "${t.label}"?\n\nGak bisa di-undo. Kalau cuma mau sembunyiin sementara, pakai tombol 🔒 Nonaktifkan.`, `⚠️ KONFIRMASI ULANG\n\nYakin hapus template "${t.label}"?`)) return;
   LS.s('od_qr_templates', getQRTemplates().filter(x => x.id !== id));
   syncQRDelete(id);
   renderQRList();
@@ -7365,7 +7377,7 @@ function insertQRVar(varName){
 }
 
 function seedDefaultQRTemplates(){
-  if(!confirm('Reset ke template default?\n\n7 template bawaan (Sapaan, Konfirmasi, Bayar, FU1, FU2, Closing, Tidak Respon) akan menggantikan semua template yang ada.')) return;
+  if(!confirmDestructive('Reset ke template default?\n\n7 template bawaan (Sapaan, Konfirmasi, Bayar, FU1, FU2, Closing, Tidak Respon) akan menggantikan SEMUA template yang ada. Template custom yang lo bikin bakal hilang.', '⚠️ KONFIRMASI ULANG\n\nYakin reset ke default? Template custom lo bakal hilang permanent.')) return;
   LS.s('od_qr_templates', DEF_QR_TEMPLATES.slice());
   DEF_QR_TEMPLATES.forEach(t => syncQRSave(t));
   renderQRList();
@@ -7537,7 +7549,7 @@ function toggleAdUser(id){
 function deleteAdUser(id){
   const u = getAdUsers().find(x => x.id === id);
   if(!u) return;
-  if(!confirm(`Hapus akun login "${u.username}"?\n\nAdvertiser tidak bisa login lagi.`)) return;
+  if(!confirmDestructive(`Hapus akun login "${u.username}"?\n\nAdvertiser tidak bisa login lagi.`, `⚠️ KONFIRMASI ULANG\n\nYakin hapus akun advertiser "${u.username}"?`)) return;
   LS.s('od_ad_users', getAdUsers().filter(x => x.id !== id));
   syncAdUserDelete(id);
   renderAdUserList();
