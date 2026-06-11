@@ -1644,7 +1644,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-11-topnav-v2';
+window.__APP_VERSION = '2026-06-11-topnav-v2-reorder';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -2621,6 +2621,30 @@ document.addEventListener('DOMContentLoaded', function(){
           </div>
         </div>
 
+        <!-- Top Produk + Top CS side by side (di atas heatmap) -->
+        <div class="ov-twocol">
+          <div class="ov-card">
+            <div class="ov-card-head">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div class="ov-stat-icon icon-purple" style="width:30px;height:30px"><i class="ti ti-package" aria-hidden="true"></i></div>
+                <div class="ov-card-title">Top Produk</div>
+              </div>
+              <div class="ov-card-meta">By lead count</div>
+            </div>
+            <div id="ov-top-produk" class="ov-rank"></div>
+          </div>
+          <div class="ov-card">
+            <div class="ov-card-head">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div class="ov-stat-icon icon-orange" style="width:30px;height:30px"><i class="ti ti-trophy" aria-hidden="true"></i></div>
+                <div class="ov-card-title">Top CS</div>
+              </div>
+              <div class="ov-card-meta">By closing rate</div>
+            </div>
+            <div id="ov-top-cs" class="ov-rank"></div>
+          </div>
+        </div>
+
         <!-- LEAD ACTIVITY HEATMAP -->
         <div class="ov-card">
           <div class="ov-card-head">
@@ -2647,30 +2671,6 @@ document.addEventListener('DOMContentLoaded', function(){
               <span>More</span>
             </div>
             <div class="ov-heatmap-insight" id="ov-heatmap-insight"></div>
-          </div>
-        </div>
-
-        <!-- Top Produk + Top CS side by side -->
-        <div class="ov-twocol">
-          <div class="ov-card">
-            <div class="ov-card-head">
-              <div style="display:flex;align-items:center;gap:10px">
-                <div class="ov-stat-icon icon-purple" style="width:30px;height:30px"><i class="ti ti-package" aria-hidden="true"></i></div>
-                <div class="ov-card-title">Top Produk</div>
-              </div>
-              <div class="ov-card-meta">By lead count</div>
-            </div>
-            <div id="ov-top-produk" class="ov-rank"></div>
-          </div>
-          <div class="ov-card">
-            <div class="ov-card-head">
-              <div style="display:flex;align-items:center;gap:10px">
-                <div class="ov-stat-icon icon-orange" style="width:30px;height:30px"><i class="ti ti-trophy" aria-hidden="true"></i></div>
-                <div class="ov-card-title">Top CS</div>
-              </div>
-              <div class="ov-card-meta">By closing rate</div>
-            </div>
-            <div id="ov-top-cs" class="ov-rank"></div>
           </div>
         </div>
 
