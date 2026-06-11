@@ -955,9 +955,9 @@ tr:hover td{background:var(--surface-2)}
 ═══════════════════════════════════════════ */
 @media(max-width:640px){
   /* LOGIN — padding kecil, input 16px (cegah iOS auto-zoom) */
-  #viewLogin{padding:12px;min-height:100vh;min-height:100dvh}
-  .login-card{padding:28px 20px;border-radius:16px;max-width:none}
-  .login-appearance{position:relative;top:auto;right:auto;flex-direction:row;align-items:center;justify-content:center;margin-bottom:14px;width:100%}
+  #viewLogin{padding:12px;min-height:100vh;min-height:100dvh;flex-direction:column}
+  .login-card{padding:28px 20px;border-radius:16px;max-width:none;width:100%;box-sizing:border-box}
+  .login-appearance{position:relative;top:auto;right:auto;flex-direction:row;align-items:center;justify-content:center;margin-bottom:14px;width:auto;max-width:100%;flex-wrap:wrap;gap:8px}
   .login-appearance-row{flex:0 0 auto}
   .login-logo{margin-bottom:24px}
   .login-logo-icon{width:40px;height:40px;font-size:20px}
@@ -1466,7 +1466,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-11-cs-periode-fix';
+window.__APP_VERSION = '2026-06-11-login-mobile-fix';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
