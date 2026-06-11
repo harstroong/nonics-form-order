@@ -920,6 +920,184 @@ tr:hover td{background:var(--surface-2)}
 }
 .toast.show{opacity:1;transform:translateY(0)}
 
+/* ═══════════════════════════════════════════
+   TOPNAV V2 — modern SaaS layout (logo kiri · nav kanan · actions kanan)
+═══════════════════════════════════════════ */
+.topnav{
+  background:var(--surface); border-bottom:1px solid var(--border);
+  height:64px; padding:0 24px;
+  display:flex; align-items:center; gap:0;
+  position:sticky; top:0; z-index:100;
+}
+.tn-logo{display:flex; align-items:center; gap:10px; flex:0 0 auto; cursor:pointer; user-select:none}
+.tn-logo-icon{
+  width:34px; height:34px; border-radius:9px;
+  background:linear-gradient(135deg, var(--sb-accent), var(--sb-accent-2));
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.tn-logo-icon i{font-size:20px; color:#fff; line-height:1}
+.tn-logo-text{font-size:16px; font-weight:500; color:var(--text); letter-spacing:-.2px; white-space:nowrap}
+.tn-logo-text .tn-logo-accent{color:var(--primary); font-weight:400}
+.tn-spacer{flex:1 1 auto}
+.tn-nav{display:flex; gap:4px; flex:0 0 auto; align-items:center; position:relative}
+.tn-nav-item{
+  background:none; border:none; cursor:pointer; font-family:inherit;
+  color:var(--text-muted); padding:9px 16px; border-radius:8px;
+  font-size:14px; font-weight:500; display:flex; align-items:center; gap:5px;
+  transition:background .15s, color .15s; white-space:nowrap;
+}
+.tn-nav-item:hover{background:var(--surface-2); color:var(--text)}
+.tn-nav-item.active{background:var(--primary-soft); color:var(--primary); font-weight:500}
+.tn-nav-item i{font-size:13px}
+.tn-nav-wrap{position:relative}
+.tn-gap{width:24px; flex:0 0 24px}
+.tn-actions{display:flex; align-items:center; gap:10px; flex:0 0 auto}
+.tn-cloud-badge{
+  background:var(--green-soft); color:var(--green);
+  padding:5px 11px; border-radius:99px; font-size:12px;
+  display:flex; align-items:center; gap:5px; font-weight:500;
+  border:none; cursor:pointer; font-family:inherit;
+}
+.tn-cloud-badge.cb-online{background:var(--green-soft); color:var(--green)}
+.tn-cloud-badge.cb-offline{background:var(--surface-2); color:var(--text-muted)}
+.tn-cloud-badge.cb-error{background:var(--red-soft); color:var(--red)}
+.tn-cloud-badge .cb-dot{width:6px; height:6px; border-radius:50%; background:currentColor}
+.tn-preview-btn{
+  background:var(--surface); border:1px solid var(--border); color:var(--text);
+  padding:7px 13px; border-radius:8px; font-size:13px; font-weight:500;
+  display:inline-flex; align-items:center; gap:5px; cursor:pointer; font-family:inherit;
+  transition:background .15s, border-color .15s;
+}
+.tn-preview-btn:hover{background:var(--surface-2)}
+.tn-preview-btn i{font-size:14px}
+.tn-cta-btn{
+  background:linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color:#fff; border:none; padding:8px 14px; border-radius:8px;
+  font-size:13px; font-weight:500; display:inline-flex; align-items:center; gap:5px;
+  cursor:pointer; font-family:inherit; transition:opacity .15s;
+}
+.tn-cta-btn:hover{opacity:.9}
+.tn-icon-btn{
+  position:relative; width:34px; height:34px;
+  background:none; border:none; cursor:pointer; color:var(--text-muted);
+  border-radius:8px; display:flex; align-items:center; justify-content:center;
+  transition:background .15s, color .15s; font-family:inherit;
+}
+.tn-icon-btn:hover{background:var(--surface-2); color:var(--text)}
+.tn-icon-btn i{font-size:19px}
+.tn-icon-btn .badge{
+  position:absolute; top:2px; right:2px; min-width:15px; height:15px; padding:0 3px;
+  background:var(--red); color:#fff; font-size:10px; font-weight:500;
+  border-radius:8px; display:flex; align-items:center; justify-content:center;
+}
+.tn-avatar{
+  width:34px; height:34px; border-radius:50%;
+  background:linear-gradient(135deg, var(--sb-accent), var(--sb-accent-2));
+  display:flex; align-items:center; justify-content:center;
+  color:#fff; font-size:13px; font-weight:500; cursor:pointer;
+  border:none; font-family:inherit; transition:transform .15s;
+}
+.tn-avatar:hover{transform:scale(1.05)}
+
+/* DROPDOWN PANELS */
+.tn-dropdown{
+  position:absolute; top:calc(100% + 6px); right:0;
+  background:var(--surface); border:1px solid var(--border); border-radius:12px;
+  padding:6px; box-shadow:0 12px 32px rgba(15,23,42,.12); z-index:150; min-width:220px;
+  display:none;
+}
+.tn-dropdown.open{display:block}
+.tn-dropdown-item{
+  display:flex; align-items:center; gap:10px;
+  padding:9px 12px; border-radius:6px; cursor:pointer;
+  font-size:13.5px; color:var(--text); transition:background .15s;
+  background:none; border:none; width:100%; text-align:left; font-family:inherit;
+}
+.tn-dropdown-item:hover{background:var(--surface-2)}
+.tn-dropdown-item i{font-size:16px; color:var(--text-muted); width:20px; text-align:center}
+.tn-dropdown-item.danger{color:var(--red)}
+.tn-dropdown-item.danger i{color:var(--red)}
+.tn-dropdown-divider{height:1px; background:var(--border); margin:6px 0}
+.tn-dropdown-header{padding:10px 12px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--border); margin-bottom:4px}
+.tn-dropdown-header .av{width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, var(--sb-accent), var(--sb-accent-2)); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:500}
+.tn-dropdown-header .un{font-size:13.5px; font-weight:500; color:var(--text)}
+.tn-dropdown-header .ur{font-size:11px; color:var(--text-muted); margin-top:1px}
+.tn-dd-section{padding:8px 12px 4px}
+.tn-dd-section-label{font-size:10px; color:var(--text-muted); letter-spacing:.5px; font-weight:500; margin-bottom:6px; text-transform:uppercase; display:flex; justify-content:space-between; align-items:center}
+.tn-theme-toggle{display:flex; background:var(--surface-2); border-radius:7px; padding:3px; gap:2px}
+.tn-theme-toggle button{
+  flex:1; background:none; border:none; cursor:pointer; font-family:inherit;
+  color:var(--text-muted); padding:5px 0; border-radius:5px;
+  font-size:11px; display:flex; align-items:center; justify-content:center; gap:4px;
+  transition:all .15s;
+}
+.tn-theme-toggle button:hover{color:var(--text)}
+.tn-theme-toggle button.active{background:var(--surface); color:var(--text); font-weight:500; box-shadow:0 1px 2px rgba(0,0,0,.06)}
+[data-theme="dark"] .tn-theme-toggle button.active{background:rgba(255,255,255,.08)}
+.tn-theme-toggle button i{font-size:12px}
+.tn-accent-swatches{display:flex; gap:8px; justify-content:space-between; padding:0}
+.tn-accent-swatches button{
+  width:22px; height:22px; border-radius:50%; border:none; cursor:pointer;
+  transition:transform .15s; outline:0 solid transparent; outline-offset:0;
+}
+.tn-accent-swatches button:hover{transform:scale(1.15)}
+.tn-accent-swatches button.active{outline:2px solid currentColor; outline-offset:2px; transform:scale(1.05)}
+.tn-accent-current{font-size:10px; color:var(--primary); font-weight:500; text-transform:capitalize}
+
+/* SUB-HEADER (judul + period selector) */
+.subheader{
+  padding:22px 28px 0; display:flex; align-items:center; gap:12px;
+  flex-wrap:wrap;
+}
+.subheader-title{font-size:20px; font-weight:500; color:var(--text); letter-spacing:-.3px}
+.subheader-sub{font-size:13px; color:var(--text-muted)}
+.subheader-spacer{flex:1}
+
+/* HIDE OLD SIDEBAR + OLD TOPBAR */
+.sidebar{display:none !important}
+.main{margin-left:0 !important}
+.topbar{display:none !important}
+
+/* MOBILE TOPNAV */
+.tn-mobile-toggle{display:none}
+@media(max-width:900px){
+  .tn-nav{display:none}
+  .tn-mobile-toggle{display:flex !important}
+  .topnav{padding:0 14px; height:56px; gap:10px}
+  .tn-cloud-badge{padding:5px; gap:0}
+  .tn-cloud-badge .cb-text{display:none}
+  .tn-preview-btn .tn-btn-label{display:none}
+  .tn-preview-btn{padding:7px 9px}
+  .tn-cta-btn .tn-btn-label{display:none}
+  .tn-cta-btn{padding:8px 10px}
+  .tn-logo-text{font-size:14px}
+  .tn-logo-text .tn-logo-accent{display:none}
+  .subheader{padding:16px 16px 0}
+}
+
+/* Mobile drawer */
+.tn-drawer{
+  position:fixed; top:0; left:0; bottom:0;
+  width:280px; background:var(--surface); z-index:300;
+  display:flex; flex-direction:column; padding:14px; gap:4px;
+  border-right:1px solid var(--border); overflow-y:auto;
+  transform:translateX(-100%); transition:transform .25s ease;
+}
+.tn-drawer.open{transform:translateX(0)}
+.tn-drawer-overlay{display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:290}
+.tn-drawer-overlay.open{display:block}
+.tn-drawer-header{display:flex; align-items:center; justify-content:space-between; padding:6px 8px 14px; border-bottom:1px solid var(--border); margin-bottom:8px}
+.tn-drawer-item{
+  display:flex; align-items:center; gap:10px; padding:11px 12px;
+  border-radius:8px; font-size:14px; color:var(--text);
+  background:none; border:none; cursor:pointer; font-family:inherit; text-align:left;
+  width:100%;
+}
+.tn-drawer-item:hover{background:var(--surface-2)}
+.tn-drawer-item.active{background:var(--primary-soft); color:var(--primary); font-weight:500}
+.tn-drawer-item i{font-size:16px; width:20px; text-align:center}
+.tn-drawer-section{font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:.8px; padding:14px 12px 6px}
+
 /* OVERLAY */
 .sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:190}
 
@@ -1466,7 +1644,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-11-login-mobile-fix';
+window.__APP_VERSION = '2026-06-11-topnav-v2';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -1507,9 +1685,14 @@ window.__JS_ERRORS = [];
     if(value !== 'light' && value !== 'dark' && value !== 'auto') return;
     try { localStorage.setItem(THEME_KEY, value); } catch(e){}
     applyResolvedTheme(value);
-    // Update toggle UI active state (sidebar)
+    // Update toggle UI active state (sidebar — legacy)
     var btns = document.querySelectorAll('.sb-theme-toggle button[data-theme-value]');
     btns.forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-theme-value') === value);
+    });
+    // Update topnav v2 avatar dropdown theme toggle
+    var tnBtns = document.querySelectorAll('.tn-theme-toggle button[data-theme-value]');
+    tnBtns.forEach(function(b){
       b.classList.toggle('active', b.getAttribute('data-theme-value') === value);
     });
     // Update login page toggle juga
@@ -1535,9 +1718,14 @@ window.__JS_ERRORS = [];
     if(!ACCENT_NAMES[name]) return;
     try { localStorage.setItem(ACCENT_KEY, name); } catch(e){}
     applyAccent(name);
-    // Update swatch UI active state (sidebar)
+    // Update swatch UI active state (sidebar — legacy)
     var btns = document.querySelectorAll('.sb-accent-swatches button[data-accent]');
     btns.forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-accent') === name);
+    });
+    // Update topnav v2 avatar dropdown swatches
+    var tnSw = document.querySelectorAll('.tn-accent-swatches button[data-accent]');
+    tnSw.forEach(function(b){
       b.classList.toggle('active', b.getAttribute('data-accent') === name);
     });
     // Update login page swatches juga
@@ -1545,16 +1733,22 @@ window.__JS_ERRORS = [];
     loginSwatches.forEach(function(b){
       b.classList.toggle('active', b.getAttribute('data-login-accent') === name);
     });
-    // Update label
+    // Update labels (legacy + topnav)
     var lbl = document.getElementById('sbAccentCurrent');
     if(lbl) lbl.textContent = ACCENT_NAMES[name];
+    var tnLbl = document.getElementById('tnAccentCurrent');
+    if(tnLbl) tnLbl.textContent = ACCENT_NAMES[name];
   };
 
   // Sync UI when DOM ready
   document.addEventListener('DOMContentLoaded', function(){
     var pref = document.documentElement.getAttribute('data-theme-pref') || 'auto';
-    // Sidebar theme buttons
+    // Sidebar theme buttons (legacy)
     document.querySelectorAll('.sb-theme-toggle button[data-theme-value]').forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-theme-value') === pref);
+    });
+    // Topnav v2 avatar dropdown theme toggle
+    document.querySelectorAll('.tn-theme-toggle button[data-theme-value]').forEach(function(b){
       b.classList.toggle('active', b.getAttribute('data-theme-value') === pref);
     });
     // Login theme buttons
@@ -1563,8 +1757,12 @@ window.__JS_ERRORS = [];
     });
 
     var curAccent = document.documentElement.getAttribute('data-accent') || 'indigo';
-    // Sidebar accent swatches
+    // Sidebar accent swatches (legacy)
     document.querySelectorAll('.sb-accent-swatches button[data-accent]').forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-accent') === curAccent);
+    });
+    // Topnav v2 avatar dropdown swatches
+    document.querySelectorAll('.tn-accent-swatches button[data-accent]').forEach(function(b){
       b.classList.toggle('active', b.getAttribute('data-accent') === curAccent);
     });
     // Login accent swatches
@@ -1573,6 +1771,8 @@ window.__JS_ERRORS = [];
     });
     var lbl = document.getElementById('sbAccentCurrent');
     if(lbl) lbl.textContent = ACCENT_NAMES[curAccent] || 'Indigo';
+    var tnLbl = document.getElementById('tnAccentCurrent');
+    if(tnLbl) tnLbl.textContent = ACCENT_NAMES[curAccent] || 'Indigo';
   });
 })();
 
@@ -2256,11 +2456,98 @@ document.addEventListener('DOMContentLoaded', function(){
 
   <!-- MAIN AREA -->
   <div class="main">
-    <div class="topbar">
-      <div style="display:flex;align-items:center;gap:12px;min-width:0">
-        <button class="hamburger" onclick="openSidebar()"><i class="ti ti-menu-2" aria-hidden="true"></i></button>
-        <div class="topbar-title" id="topbarTitle">Overview</div>
+
+    <!-- TOPNAV V2 -->
+    <nav class="topnav" id="topnav">
+      <div class="tn-logo" onclick="showPanel('overview')" title="Beranda">
+        <div class="tn-logo-icon"><i class="ti ti-bolt" aria-hidden="true"></i></div>
+        <div class="tn-logo-text">Nonics<span class="tn-logo-accent"> · Form Order</span></div>
       </div>
+
+      <div class="tn-spacer"></div>
+
+      <div class="tn-nav" role="navigation" aria-label="Main">
+        <button class="tn-nav-item active" data-nav="overview" onclick="showPanel('overview')">Dashboard</button>
+        <button class="tn-nav-item" data-nav="leads" onclick="showPanel('leads')">Leads</button>
+        <button class="tn-nav-item" data-nav="produk" onclick="showPanel('produk')">Produk</button>
+
+        <div class="tn-nav-wrap">
+          <button class="tn-nav-item" id="tnNavCS" onclick="toggleTnDropdown('csMenu', event)" aria-haspopup="true" aria-expanded="false">CS <i class="ti ti-chevron-down" aria-hidden="true"></i></button>
+          <div class="tn-dropdown" id="csMenu" role="menu">
+            <button class="tn-dropdown-item" onclick="tnNavGo('cs')"><i class="ti ti-headset"></i> CS &amp; Greeting</button>
+            <button class="tn-dropdown-item" onclick="tnNavGo('csaccess')"><i class="ti ti-key"></i> Akses Login CS</button>
+          </div>
+        </div>
+
+        <div class="tn-nav-wrap">
+          <button class="tn-nav-item" id="tnNavMore" onclick="toggleTnDropdown('moreMenu', event)" aria-haspopup="true" aria-expanded="false">Lainnya <i class="ti ti-chevron-down" aria-hidden="true"></i></button>
+          <div class="tn-dropdown" id="moreMenu" role="menu">
+            <button class="tn-dropdown-item" onclick="tnNavGo('form')"><i class="ti ti-forms"></i> Form Builder</button>
+            <button class="tn-dropdown-item" onclick="tnNavGo('adaccess')"><i class="ti ti-user-shield"></i> Akses Login Advertisers</button>
+            <button class="tn-dropdown-item" onclick="tnNavGo('quickreply')"><i class="ti ti-message-2"></i> Quick Reply</button>
+            <div class="tn-dropdown-divider"></div>
+            <button class="tn-dropdown-item" onclick="tnNavGo('gtm')"><i class="ti ti-chart-line"></i> GTM Tracking</button>
+            <button class="tn-dropdown-item" onclick="tnNavGo('embed')"><i class="ti ti-code"></i> Embed HTML</button>
+            <button class="tn-dropdown-item" onclick="tnNavGo('cloud')"><i class="ti ti-cloud"></i> Cloud Sync</button>
+            <div class="tn-dropdown-divider"></div>
+            <button class="tn-dropdown-item" onclick="tnNavGo('settings')"><i class="ti ti-settings"></i> Pengaturan</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="tn-icon-btn tn-mobile-toggle" onclick="openTnDrawer()" aria-label="Menu" title="Menu"><i class="ti ti-menu-2" aria-hidden="true"></i></button>
+
+      <div class="tn-gap"></div>
+
+      <div class="tn-actions">
+        <button class="tn-cloud-badge cb-offline" id="cloudBadge" onclick="showPanel('cloud')" title="Klik untuk konfigurasi">
+          <span class="cb-dot"></span>
+          <span class="cb-text" id="cloudBadgeText">Local Only</span>
+        </button>
+        <button class="tn-preview-btn" onclick="previewForm()"><i class="ti ti-eye" aria-hidden="true"></i><span class="tn-btn-label">Preview</span></button>
+        <button class="tn-cta-btn" onclick="showPanel('produk');cancelProd()"><i class="ti ti-plus" aria-hidden="true"></i><span class="tn-btn-label">Produk</span></button>
+        <div class="tn-nav-wrap">
+          <button class="tn-avatar" id="tnAvatar" onclick="toggleTnDropdown('avatarMenu', event)" aria-haspopup="true" aria-expanded="false" title="Akun">A</button>
+          <div class="tn-dropdown" id="avatarMenu" role="menu" style="min-width:260px">
+            <div class="tn-dropdown-header">
+              <div class="av">A</div>
+              <div><div class="un">Administrator</div><div class="ur">Super Admin</div></div>
+            </div>
+
+            <div class="tn-dd-section">
+              <div class="tn-dd-section-label">Appearance</div>
+              <div class="tn-theme-toggle" role="group" aria-label="Theme">
+                <button type="button" data-theme-value="light" onclick="setTheme('light')"><i class="ti ti-sun"></i>Light</button>
+                <button type="button" data-theme-value="dark" onclick="setTheme('dark')"><i class="ti ti-moon"></i>Dark</button>
+                <button type="button" data-theme-value="auto" onclick="setTheme('auto')"><i class="ti ti-device-laptop"></i>Auto</button>
+              </div>
+            </div>
+
+            <div class="tn-dd-section">
+              <div class="tn-dd-section-label"><span>Accent Color</span><span class="tn-accent-current" id="tnAccentCurrent">Indigo</span></div>
+              <div class="tn-accent-swatches" role="group" aria-label="Accent color">
+                <button type="button" data-accent="indigo" title="Indigo" onclick="setAccent('indigo')" style="background:#6366F1"></button>
+                <button type="button" data-accent="emerald" title="Emerald" onclick="setAccent('emerald')" style="background:#10B981"></button>
+                <button type="button" data-accent="sky" title="Sky Blue" onclick="setAccent('sky')" style="background:#0EA5E9"></button>
+                <button type="button" data-accent="amber" title="Amber" onclick="setAccent('amber')" style="background:#F59E0B"></button>
+                <button type="button" data-accent="cyan" title="Cyan" onclick="setAccent('cyan')" style="background:#0891B2"></button>
+                <button type="button" data-accent="rose" title="Rose" onclick="setAccent('rose')" style="background:#E11D48"></button>
+              </div>
+            </div>
+
+            <div class="tn-dropdown-divider"></div>
+            <button class="tn-dropdown-item" onclick="tnCloseAllDropdowns();showPanel('settings')"><i class="ti ti-settings"></i> Pengaturan</button>
+            <button class="tn-dropdown-item danger" onclick="tnCloseAllDropdowns();doLogout()"><i class="ti ti-logout"></i> Logout</button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- SUB-HEADER: judul halaman + global period selector -->
+    <div class="subheader" id="subheader">
+      <div class="subheader-title" id="topbarTitle">Overview</div>
+      <div class="subheader-sub" id="subheaderSub"></div>
+      <div class="subheader-spacer"></div>
       <div class="topbar-period" id="topbarPeriod" role="group" aria-label="Period filter">
         <button type="button" data-period="today" class="active" onclick="setGlobalPeriod('today')">Today</button>
         <button type="button" data-period="yesterday" onclick="setGlobalPeriod('yesterday')">Yesterday</button>
@@ -2269,14 +2556,34 @@ document.addEventListener('DOMContentLoaded', function(){
         <button type="button" data-period="all" onclick="setGlobalPeriod('all')">All</button>
         <button type="button" data-period="custom" onclick="openCustomPeriod()" class="topbar-period-custom"><i class="ti ti-calendar" aria-hidden="true"></i>Custom</button>
       </div>
-      <div class="topbar-right">
-        <span class="cloud-badge cb-offline" id="cloudBadge" onclick="showPanel('cloud')" style="cursor:pointer" title="Klik untuk konfigurasi">
-          <span class="cb-dot"></span>
-          <span id="cloudBadgeText">Local Only</span>
-        </span>
-        <button class="topbar-preview-btn" onclick="previewForm()"><i class="ti ti-eye" aria-hidden="true" style="margin-right:4px"></i>Preview Form</button>
-      </div>
     </div>
+
+    <!-- Mobile drawer -->
+    <div class="tn-drawer-overlay" id="tnDrawerOverlay" onclick="closeTnDrawer()"></div>
+    <aside class="tn-drawer" id="tnDrawer" aria-hidden="true">
+      <div class="tn-drawer-header">
+        <div class="tn-logo">
+          <div class="tn-logo-icon"><i class="ti ti-bolt" aria-hidden="true"></i></div>
+          <div class="tn-logo-text">Nonics<span class="tn-logo-accent"> · Form Order</span></div>
+        </div>
+        <button class="tn-icon-btn" onclick="closeTnDrawer()" aria-label="Tutup"><i class="ti ti-x" aria-hidden="true"></i></button>
+      </div>
+      <div class="tn-drawer-section">Menu</div>
+      <button class="tn-drawer-item active" data-drawer-nav="overview" onclick="tnDrawerGo('overview')"><i class="ti ti-layout-dashboard"></i> Dashboard</button>
+      <button class="tn-drawer-item" data-drawer-nav="leads" onclick="tnDrawerGo('leads')"><i class="ti ti-users"></i> Leads</button>
+      <button class="tn-drawer-item" data-drawer-nav="produk" onclick="tnDrawerGo('produk')"><i class="ti ti-package"></i> Produk</button>
+      <div class="tn-drawer-section">CS</div>
+      <button class="tn-drawer-item" data-drawer-nav="cs" onclick="tnDrawerGo('cs')"><i class="ti ti-headset"></i> CS &amp; Greeting</button>
+      <button class="tn-drawer-item" data-drawer-nav="csaccess" onclick="tnDrawerGo('csaccess')"><i class="ti ti-key"></i> Akses Login CS</button>
+      <div class="tn-drawer-section">Lainnya</div>
+      <button class="tn-drawer-item" data-drawer-nav="form" onclick="tnDrawerGo('form')"><i class="ti ti-forms"></i> Form Builder</button>
+      <button class="tn-drawer-item" data-drawer-nav="adaccess" onclick="tnDrawerGo('adaccess')"><i class="ti ti-user-shield"></i> Akses Login Advertisers</button>
+      <button class="tn-drawer-item" data-drawer-nav="quickreply" onclick="tnDrawerGo('quickreply')"><i class="ti ti-message-2"></i> Quick Reply</button>
+      <button class="tn-drawer-item" data-drawer-nav="gtm" onclick="tnDrawerGo('gtm')"><i class="ti ti-chart-line"></i> GTM Tracking</button>
+      <button class="tn-drawer-item" data-drawer-nav="embed" onclick="tnDrawerGo('embed')"><i class="ti ti-code"></i> Embed HTML</button>
+      <button class="tn-drawer-item" data-drawer-nav="cloud" onclick="tnDrawerGo('cloud')"><i class="ti ti-cloud"></i> Cloud Sync</button>
+      <button class="tn-drawer-item" data-drawer-nav="settings" onclick="tnDrawerGo('settings')"><i class="ti ti-settings"></i> Pengaturan</button>
+    </aside>
 
     <div class="content">
 
@@ -3445,13 +3752,17 @@ function showPanel(name){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
   document.getElementById('panel-'+name).classList.add('active');
-  // Highlight sidebar item
+  // Highlight sidebar item (legacy — sidebar hidden, but tetap di-sync biar fungsi lama gak rusak)
   document.querySelectorAll('.sb-item').forEach(b=>{
     if(b.getAttribute('onclick')===`showPanel('${name}')`)b.classList.add('active');
   });
+  // Sync topnav v2 active state
+  tnSyncActive(name);
   document.getElementById('topbarTitle').textContent=panelTitles[name]||name;
   activePanel=name;
   closeSidebar();
+  tnCloseAllDropdowns();
+  closeTnDrawer();
   // Panel-specific init
   if(name==='overview')renderOverview();
   else if(name==='leads'){initLeadsPanel();renderLeads();}
@@ -3467,13 +3778,94 @@ function showPanel(name){
   else if(name==='settings')initSettings();
 }
 function openSidebar(){
-  document.getElementById('sidebar').classList.add('open');
-  document.getElementById('sbOverlay').classList.add('show');
+  // Legacy stub — sidebar is hidden in topnav v2. Buka drawer mobile instead.
+  openTnDrawer();
 }
 function closeSidebar(){
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('sbOverlay').classList.remove('show');
+  // Legacy stub — sidebar is hidden in topnav v2. Tutup drawer mobile.
+  closeTnDrawer();
 }
+
+/* ═════════════════════════════════════════════
+   TOPNAV V2 — dropdowns, drawer, active sync
+═════════════════════════════════════════════ */
+// Map panel name → which top-level nav button should look active
+var TN_NAV_MAP = {
+  overview: 'overview', leads: 'leads', produk: 'produk',
+  cs: 'cs', csaccess: 'cs',
+  form: 'more', adaccess: 'more', quickreply: 'more',
+  gtm: 'more', embed: 'more', cloud: 'more', settings: 'more'
+};
+function tnSyncActive(name){
+  try {
+    var key = TN_NAV_MAP[name] || name;
+    document.querySelectorAll('.tn-nav-item').forEach(function(b){
+      b.classList.remove('active');
+    });
+    document.querySelectorAll('.tn-drawer-item').forEach(function(b){
+      b.classList.remove('active');
+    });
+    // Main 3 buttons match by data-nav
+    var topBtn = document.querySelector('.tn-nav-item[data-nav="'+key+'"]');
+    if(topBtn) topBtn.classList.add('active');
+    // CS/More dropdown triggers — highlight when child active
+    if(key === 'cs'){
+      var csBtn = document.getElementById('tnNavCS'); if(csBtn) csBtn.classList.add('active');
+    } else if(key === 'more'){
+      var mBtn = document.getElementById('tnNavMore'); if(mBtn) mBtn.classList.add('active');
+    }
+    // Drawer item
+    var drBtn = document.querySelector('.tn-drawer-item[data-drawer-nav="'+name+'"]');
+    if(drBtn) drBtn.classList.add('active');
+  } catch(e){ console.warn('tnSyncActive fail:', e); }
+}
+function toggleTnDropdown(id, ev){
+  if(ev){ ev.stopPropagation(); }
+  var menu = document.getElementById(id);
+  if(!menu) return;
+  var willOpen = !menu.classList.contains('open');
+  tnCloseAllDropdowns();
+  if(willOpen){
+    menu.classList.add('open');
+    var trigger = menu.previousElementSibling;
+    if(trigger) trigger.setAttribute('aria-expanded','true');
+  }
+}
+function tnCloseAllDropdowns(){
+  document.querySelectorAll('.tn-dropdown.open').forEach(function(m){
+    m.classList.remove('open');
+    var trigger = m.previousElementSibling;
+    if(trigger) trigger.setAttribute('aria-expanded','false');
+  });
+}
+function tnNavGo(panelName){
+  tnCloseAllDropdowns();
+  showPanel(panelName);
+}
+function tnDrawerGo(panelName){
+  closeTnDrawer();
+  showPanel(panelName);
+}
+function openTnDrawer(){
+  var d = document.getElementById('tnDrawer');
+  var ov = document.getElementById('tnDrawerOverlay');
+  if(d) d.classList.add('open');
+  if(ov) ov.classList.add('open');
+}
+function closeTnDrawer(){
+  var d = document.getElementById('tnDrawer');
+  var ov = document.getElementById('tnDrawerOverlay');
+  if(d) d.classList.remove('open');
+  if(ov) ov.classList.remove('open');
+}
+// Click outside → tutup dropdown
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.tn-nav-wrap')) tnCloseAllDropdowns();
+});
+// ESC → tutup semua
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape'){ tnCloseAllDropdowns(); closeTnDrawer(); }
+});
 
 /* ═════════════════════════════════════════════
    INIT
