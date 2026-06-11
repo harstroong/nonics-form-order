@@ -1099,6 +1099,192 @@ tr:hover td{background:var(--surface-2)}
 .tn-drawer-section{font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:.8px; padding:14px 12px 6px}
 
 /* ═══════════════════════════════════════════
+   LEADS PANEL V3 — table layout + Filter popover
+═══════════════════════════════════════════ */
+.leads-toolbar{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  margin-bottom:14px;
+}
+.leads-toolbar-spacer{flex:1}
+.leads-status-tabs{display:flex;gap:6px;font-size:12px;flex-wrap:wrap}
+.leads-status-tab{
+  background:var(--surface);color:var(--text-muted);
+  border:1px solid var(--border);padding:6px 13px;border-radius:99px;
+  font-weight:500;cursor:pointer;font-family:inherit;
+  transition:background .15s,color .15s,border-color .15s;
+}
+.leads-status-tab:hover{background:var(--surface-2)}
+.leads-status-tab.active{background:var(--text);color:var(--surface);border-color:var(--text)}
+.leads-status-tab span{font-family:'SF Mono',Menlo,monospace}
+
+.leads-filter-wrap{position:relative;flex:0 0 auto}
+.leads-filter-btn{
+  background:var(--surface);border:1px solid var(--border);color:var(--text);
+  padding:7px 12px;border-radius:8px;font-size:12px;font-weight:500;
+  display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-family:inherit;
+  transition:background .15s,border-color .15s,box-shadow .15s;
+}
+.leads-filter-btn:hover{background:var(--surface-2)}
+.leads-filter-btn.is-active{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft);color:var(--primary)}
+.leads-filter-btn i{font-size:14px}
+.leads-filter-badge{
+  background:var(--primary);color:#fff;font-size:10px;
+  padding:1px 7px;border-radius:99px;font-weight:500;
+  line-height:1.4;font-family:'SF Mono',Menlo,monospace;
+}
+.leads-filter-popover{
+  display:none;position:absolute;top:calc(100% + 6px);right:0;
+  width:300px;background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:6px;box-shadow:0 12px 32px rgba(15,23,42,.12);
+  z-index:50;
+}
+.leads-filter-popover.open{display:block}
+.leads-filter-popover-head{
+  padding:10px 12px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:13px;font-weight:500;color:var(--text);
+}
+.leads-filter-reset-btn{
+  background:none;border:none;color:var(--primary);font-size:11px;font-weight:500;
+  cursor:pointer;font-family:inherit;
+}
+.leads-filter-reset-btn:hover{text-decoration:underline}
+.leads-filter-popover-section{padding:10px 12px 4px}
+.leads-filter-popover-label{
+  font-size:10px;color:var(--text-muted);letter-spacing:.5px;
+  font-weight:500;margin-bottom:6px;text-transform:uppercase;
+}
+.leads-filter-select-pop{
+  width:100%;background:var(--surface);border:1px solid var(--border);
+  border-radius:7px;padding:8px 10px;font-size:12px;color:var(--text);
+  outline:none;font-family:inherit;cursor:pointer;
+}
+.leads-filter-select-pop:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
+.leads-filter-chips{
+  display:flex;flex-wrap:wrap;gap:5px;padding:6px 12px 10px;
+}
+.leads-filter-chips:empty{padding:0}
+.leads-filter-chip{
+  background:var(--primary-soft);color:var(--primary);
+  padding:3px 8px;border-radius:99px;font-size:10px;font-weight:500;
+  display:inline-flex;align-items:center;gap:4px;cursor:pointer;
+  border:none;font-family:inherit;
+}
+.leads-filter-chip:hover{background:var(--primary-light)}
+
+.leads-search-wrap{position:relative;flex:0 0 auto;width:200px}
+.leads-search-wrap i{position:absolute;left:11px;top:8px;font-size:14px;color:var(--text-muted)}
+.leads-search-wrap input{
+  width:100%;background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;padding:7px 12px 7px 32px;font-size:12px;
+  outline:none;font-family:inherit;color:var(--text);box-sizing:border-box;
+}
+.leads-search-wrap input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
+
+.leads-table-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.leads-table-head,.leads-table-row{
+  display:grid;
+  grid-template-columns:40px 1.4fr 1.1fr 120px 110px 240px 50px;
+  gap:14px;padding:13px 16px;align-items:center;
+}
+.leads-table-head{
+  background:var(--surface-2);border-bottom:1px solid var(--border);
+  font-size:11px;color:var(--text-muted);font-weight:500;
+  letter-spacing:.4px;text-transform:uppercase;
+}
+.leads-table-row{
+  font-size:13px;color:var(--text);border-bottom:1px solid var(--border);
+  transition:background .12s;
+}
+.leads-table-row:last-child{border-bottom:none}
+.leads-table-row:hover{background:var(--surface-2)}
+.leads-table-row.is-selected{background:var(--primary-soft)}
+.leads-table-row.is-closed{opacity:.7}
+
+.lt-name-cell .lt-name{font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px}
+.lt-name-cell .lt-name-status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.lt-name-cell .lt-name-status-dot.pending{background:var(--orange)}
+.lt-name-cell .lt-name-status-dot.contacted{background:var(--blue)}
+.lt-name-cell .lt-name-status-dot.closed{background:var(--green)}
+.lt-name-cell .lt-name-status-dot.no_response{background:var(--red)}
+.lt-name-cell .lt-wa{
+  font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:4px;
+  margin-top:2px;font-family:'SF Mono',Menlo,monospace;
+}
+.lt-name-cell .lt-wa i{font-size:12px;color:var(--green)}
+
+.lt-prod{color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px}
+.lt-cs-cell{display:flex;align-items:center;gap:6px;min-width:0}
+.lt-cs-avatar{
+  width:22px;height:22px;border-radius:50%;
+  background:linear-gradient(135deg,var(--sb-accent),var(--sb-accent-2));
+  color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;
+  font-weight:500;flex-shrink:0;
+}
+.lt-cs-name{color:var(--text);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lt-cs-name.unassigned{color:var(--text-muted);font-style:italic}
+
+.lt-date{color:var(--text-muted);font-size:11px;line-height:1.3;font-family:'SF Mono',Menlo,monospace;white-space:nowrap}
+.lt-date .lt-time{color:var(--text-tertiary);display:block}
+
+.lt-greet-cell{display:flex;gap:5px}
+.lt-greet-btn{
+  width:30px;height:30px;border-radius:7px;
+  background:var(--surface-2);color:var(--text-muted);border:none;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  font-size:11px;font-weight:600;font-family:'SF Mono',Menlo,monospace;
+  transition:all .12s;text-decoration:none;
+}
+.lt-greet-btn:hover{background:var(--surface);color:var(--text);box-shadow:0 0 0 1px var(--border)}
+.lt-greet-btn i{font-size:14px}
+.lt-greet-btn.wa{background:var(--surface-2);color:var(--text-muted)}
+.lt-greet-btn.wa.is-sent{background:var(--green);color:#fff}
+.lt-greet-btn.wa.is-sent:hover{background:var(--green);color:#fff}
+.lt-greet-btn.qr.is-sent{background:var(--orange-soft);color:var(--orange)}
+.lt-greet-btn.qr.is-last{outline:2px solid var(--orange);outline-offset:-1px}
+
+.lt-row-actions{display:flex;justify-content:flex-end}
+.lt-more-wrap{position:relative}
+.lt-more-btn{
+  background:var(--surface);border:1px solid var(--border);
+  width:30px;height:30px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;color:var(--text-muted);
+  cursor:pointer;font-family:inherit;transition:background .12s,color .12s;
+}
+.lt-more-btn:hover{background:var(--surface-2);color:var(--text)}
+.lt-more-btn i{font-size:14px}
+.lt-more-menu{
+  display:none;position:absolute;top:calc(100% + 4px);right:0;
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:5px;min-width:200px;box-shadow:0 10px 28px rgba(15,23,42,.12);
+  z-index:30;
+}
+.lt-more-menu.open{display:block}
+.lt-more-item{
+  display:flex;align-items:center;gap:9px;
+  padding:8px 11px;border-radius:6px;font-size:12.5px;
+  color:var(--text);background:none;border:none;cursor:pointer;
+  width:100%;text-align:left;font-family:inherit;
+}
+.lt-more-item:hover{background:var(--surface-2)}
+.lt-more-item i{font-size:14px;color:var(--text-muted);width:18px;text-align:center}
+.lt-more-item.danger{color:var(--red)}
+.lt-more-item.danger i{color:var(--red)}
+.lt-more-divider{height:1px;background:var(--border);margin:4px 2px}
+
+@media(max-width:1100px){
+  .leads-table-head,.leads-table-row{grid-template-columns:36px 1.3fr 1fr 100px 90px 200px 44px;gap:10px;padding:12px 14px;font-size:12px}
+  .leads-table-head{font-size:10px}
+}
+@media(max-width:820px){
+  .leads-table-head{display:none}
+  .leads-table-row{
+    grid-template-columns:1fr auto;gap:8px;padding:14px;
+  }
+  .leads-table-row > *{min-width:0}
+}
+
+/* ═══════════════════════════════════════════
    TEAM MEMBERS PANEL
 ═══════════════════════════════════════════ */
 .team-header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
@@ -1813,7 +1999,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-11-team-members';
+window.__APP_VERSION = '2026-06-11-leads-v3';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -2848,59 +3034,87 @@ document.addEventListener('DOMContentLoaded', function(){
 
       <!-- ── LEADS ── -->
       <div class="panel" id="panel-leads">
-        <div class="card">
-          <!-- Header -->
-          <div class="leads-header">
-            <div class="leads-header-info">
-              <div class="leads-header-icon"><i class="ti ti-users" aria-hidden="true"></i></div>
-              <div>
-                <div class="leads-header-title-row">
-                  <div class="leads-header-title">Leads</div>
-                  <span class="leads-header-count" id="leadsHeaderCount">0 total</span>
-                </div>
-                <div class="leads-header-sub" id="leadsHeaderSub">—</div>
+        <!-- Header -->
+        <div class="team-header">
+          <div>
+            <div class="team-title">Leads</div>
+            <div class="team-sub" id="leadsHeaderSub">—</div>
+          </div>
+          <div class="team-actions-header">
+            <button class="btn-outline-sm" onclick="exportCSV()"><i class="ti ti-download"></i><span>Export CSV</span></button>
+            <button class="btn-outline-sm" onclick="clearLeads()" id="btnClearLeads" title="Hapus Semua"><i class="ti ti-trash"></i><span>Hapus Semua</span></button>
+          </div>
+        </div>
+
+        <!-- Status tabs + Filter button + Search -->
+        <div class="leads-toolbar">
+          <div class="leads-status-tabs">
+            <button class="leads-status-tab active" data-status="" onclick="setLeadsStatus('')">Semua · <span id="lsCountAll">0</span></button>
+            <button class="leads-status-tab" data-status="pending" onclick="setLeadsStatus('pending')">Pending · <span id="lsCountPending">0</span></button>
+            <button class="leads-status-tab" data-status="contacted" onclick="setLeadsStatus('contacted')">Contacted · <span id="lsCountContacted">0</span></button>
+            <button class="leads-status-tab" data-status="closed" onclick="setLeadsStatus('closed')">Closed · <span id="lsCountClosed">0</span></button>
+            <button class="leads-status-tab" data-status="no_response" onclick="setLeadsStatus('no_response')">No Response · <span id="lsCountNoresp">0</span></button>
+          </div>
+          <div class="leads-toolbar-spacer"></div>
+
+          <!-- Filter popover -->
+          <div class="leads-filter-wrap">
+            <button class="leads-filter-btn" id="leadsFilterBtn" onclick="toggleLeadsFilterPopover(event)" aria-haspopup="true" aria-expanded="false">
+              <i class="ti ti-filter"></i> Filter <span class="leads-filter-badge" id="leadsFilterBadge" style="display:none">0</span> <i class="ti ti-chevron-down" style="font-size:11px"></i>
+            </button>
+            <div class="leads-filter-popover" id="leadsFilterPopover">
+              <div class="leads-filter-popover-head">
+                <div>Filter Leads</div>
+                <button class="leads-filter-reset-btn" onclick="resetLeadsFilter()">Reset</button>
               </div>
-            </div>
-            <div class="leads-header-actions" id="leadsTopActions">
-              <button class="leads-btn-outline" onclick="exportCSV()"><i class="ti ti-download" aria-hidden="true"></i>Export CSV</button>
-              <button class="leads-btn-icon-danger" onclick="clearLeads()" id="btnClearLeads" title="Hapus Semua"><i class="ti ti-trash" aria-hidden="true"></i></button>
+              <div class="leads-filter-popover-section">
+                <div class="leads-filter-popover-label">CS / Handled By</div>
+                <select id="leadsCSFilter" class="leads-filter-select-pop" onchange="onLeadsFilterChange()">
+                  <option value="">Semua CS</option>
+                </select>
+              </div>
+              <div class="leads-filter-popover-section">
+                <div class="leads-filter-popover-label">Produk</div>
+                <select id="leadsProdFilter" class="leads-filter-select-pop" onchange="onLeadsFilterChange()">
+                  <option value="">Semua Produk</option>
+                </select>
+              </div>
+              <div id="leadsFilterChips" class="leads-filter-chips"></div>
             </div>
           </div>
 
-          <!-- Filter strip: search + CS + Produk + Status + Reset -->
-          <div class="leads-filter-strip">
-            <div class="leads-search">
-              <i class="ti ti-search" aria-hidden="true"></i>
-              <input id="leadSearch" type="text" placeholder="Cari nama atau nomor WA…" oninput="renderLeads()"/>
-            </div>
-            <select id="leadsCSFilter" class="leads-filter-select" onchange="renderLeads()">
-              <option value="">Semua CS</option>
-            </select>
-            <select id="leadsProdFilter" class="leads-filter-select" onchange="renderLeads()">
-              <option value="">Semua Produk</option>
-            </select>
-            <select id="leadsStatusFilter" class="leads-filter-select" onchange="renderLeads()">
-              <option value="">Semua Status</option>
-              <option value="pending">Belum FU</option>
-              <option value="contacted">Dihubungi</option>
-              <option value="closed">Closing</option>
-              <option value="no_response">No Respon</option>
-            </select>
-            <button class="leads-filter-reset" onclick="resetLeadsFilter()">Reset</button>
+          <div class="leads-search-wrap">
+            <i class="ti ti-search"></i>
+            <input id="leadSearch" type="text" placeholder="Cari nama / WA..." oninput="renderLeads()"/>
           </div>
+        </div>
 
-          <!-- Bulk select header bar -->
-          <div id="leadsSelbar" class="lead-selbar" style="display:none"></div>
+        <!-- Bulk select header bar -->
+        <div id="leadsSelbar" class="lead-selbar" style="display:none"></div>
+
+        <!-- Table -->
+        <div class="leads-table-card">
+          <div class="leads-table-head" id="leadsTableHead">
+            <div><input type="checkbox" class="lead-select" id="leadsHeaderSelectAll" onchange="toggleSelectAllLeads()" title="Pilih semua di halaman ini"/></div>
+            <div>Name</div>
+            <div>Product Name</div>
+            <div>Handled By</div>
+            <div onclick="toggleLeadsSort()" style="cursor:pointer;display:flex;align-items:center;gap:3px">Date <i class="ti ti-chevron-down" id="leadsSortIcon"></i></div>
+            <div>Greeting Template</div>
+            <div></div>
+          </div>
           <div id="leadsList"></div>
+        </div>
 
-          <!-- Hidden legacy date filter (kept untuk backward compat dgn getDateFilterRange) -->
-          <div style="display:none">
-            <select id="leadsDateSel"><option value="lifetime"></option></select>
-            <input type="date" id="leadsDateStart"/>
-            <input type="date" id="leadsDateEnd"/>
-            <span id="leadsDateInfo"></span>
-            <span id="leadsDateCustom"></span>
-          </div>
+        <!-- Hidden legacy filters -->
+        <div style="display:none">
+          <select id="leadsStatusFilter"><option value=""></option></select>
+          <select id="leadsDateSel"><option value="lifetime"></option></select>
+          <input type="date" id="leadsDateStart"/>
+          <input type="date" id="leadsDateEnd"/>
+          <span id="leadsDateInfo"></span>
+          <span id="leadsDateCustom"></span>
+          <span id="leadsHeaderCount">0</span>
         </div>
       </div>
 
@@ -4482,16 +4696,17 @@ function clearLeadSelection(){
 
 function getRenderedLeadIds(){
   // Ambil dari DOM — semua lead-item yang punya data-lead-id
-  const nodes = document.querySelectorAll('#leadsList .lead-item[data-lead-id]');
-  return Array.from(nodes).map(n => n.getAttribute('data-lead-id'));
+  // V3 query: .leads-table-row (plus legacy .lead-item / .lead-row fallback)
+  var nodes = document.querySelectorAll('#leadsList [data-lead-id]');
+  return Array.from(nodes).map(function(n){ return n.getAttribute('data-lead-id'); });
 }
 
 function updateSelectionUI(){
   const rendered = getRenderedLeadIds();
   const n = selectedLeadIds.size;
 
-  // Update tiap card styling + checkbox state
-  document.querySelectorAll('#leadsList .lead-item[data-lead-id]').forEach(node => {
+  // Update tiap row styling + checkbox state (V3 table + legacy)
+  document.querySelectorAll('#leadsList [data-lead-id]').forEach(node => {
     const id = node.getAttribute('data-lead-id');
     const cb = node.querySelector('.lead-select');
     const selected = selectedLeadIds.has(id);
@@ -4499,10 +4714,19 @@ function updateSelectionUI(){
     if(cb) cb.checked = selected;
   });
 
-  // Update selection header bar
+  // Update header "select all" checkbox state
+  var headerCb = document.getElementById('leadsHeaderSelectAll');
+  if(headerCb){
+    var allChecked = rendered.length > 0 && rendered.every(function(id){ return selectedLeadIds.has(id); });
+    headerCb.checked = allChecked;
+    headerCb.indeterminate = !allChecked && n > 0;
+  }
+
+  // Update selection bar
   const bar = document.getElementById('leadsSelbar');
   if(!bar) return;
   if(n > 0){
+    bar.style.display='flex';
     bar.classList.add('is-active');
     bar.innerHTML =
       '<i style="font-size:16px">✓</i>' +
@@ -4510,11 +4734,9 @@ function updateSelectionUI(){
       '<button class="lead-selbar-btn" onclick="openBulkReassignModal()">🔄 Reassign ke CS lain</button>' +
       '<button class="lead-selbar-cancel" onclick="clearLeadSelection()">Batal pilih</button>';
   } else {
+    bar.style.display='none';
     bar.classList.remove('is-active');
-    const allChecked = rendered.length > 0 && rendered.every(id => selectedLeadIds.has(id));
-    bar.innerHTML =
-      '<input type="checkbox" class="lead-select" id="leadsSelectAll" '+(allChecked?'checked':'')+' onchange="toggleSelectAllLeads()" />' +
-      '<label for="leadsSelectAll" class="lead-selbar-label" style="cursor:pointer">Pilih semua ('+rendered.length+' lead)</label>';
+    bar.innerHTML = '';
   }
 }
 
@@ -4541,74 +4763,137 @@ function leadCard(l,compact=false){
       </div>
     </div>`;
   }
-  // PRO lead row — icon-only actions
-  const init = l.nama ? l.nama[0].toUpperCase() : '?';
+  // V3 TABLE ROW — 7 columns: checkbox · Name · Product · Handled By · Date · Greeting Template · ⋮
   const csList = getCSList();
   const csInfo = l.csId ? csList.find(c => c.id === l.csId) : null;
   const csName = csInfo ? csInfo.name : '(unassigned)';
-  // Avatar color palette berdasarkan inisial (deterministic)
-  const palette = ['#7F77DD','#5DCAA5','#F0997B','#FBBF24','#3B82F6','#EC4899','#10B981'];
-  const colorIdx = (init.charCodeAt(0) || 0) % palette.length;
-  const avatarColor = palette[colorIdx];
-  // Status
+  const csInit = csInfo ? (csInfo.name||'?')[0].toUpperCase() : '?';
   const status = l.followStatus || 'pending';
-  const statusLabels = {
-    pending:'Belum FU',
-    contacted:'Dihubungi',
-    closed:'Closing',
-    no_response:'No Respon'
-  };
   const isClosed = (status === 'closed');
   const isSelected = selectedLeadIds.has(l.id);
   // Date split
-  let dateMain = '—', timeMain = '';
+  let dateStr = '—', timeStr = '';
   if(l.ts){
     const d = new Date(l.ts);
-    const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-    dateMain = d.getDate() + ' ' + months[d.getMonth()];
-    const hh = (d.getHours()<10?'0':'')+d.getHours();
-    const mm = (d.getMinutes()<10?'0':'')+d.getMinutes();
-    timeMain = hh + ':' + mm;
+    const pad = function(n){ return n<10?'0'+n:''+n; };
+    dateStr = pad(d.getDate())+'-'+pad(d.getMonth()+1)+'-'+d.getFullYear();
+    timeStr = pad(d.getHours())+':'+pad(d.getMinutes());
   }
-  // Actions
+  // Greeting Template buttons: W + active QR templates
+  const qrSent = Array.isArray(l.qrSent) ? l.qrSent : [];
+  const lastSentQR = l.lastQRSent || (qrSent.length ? qrSent[qrSent.length-1] : null);
+  const waOpened = !!l.waOpened;
   const waUrl = `https://wa.me/${normalizeWaID(l.wa)}`;
-  const waBtn = isClosed
-    ? '' // udah closing, gak perlu WA button lagi
-    : `<a href="${waUrl}" target="_blank" class="lead-row-btn btn-wa" title="Chat WA" onclick="event.stopPropagation()"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i></a>`;
-  const reassignBtn = `<button class="lead-row-btn" onclick="event.stopPropagation();openReassignModal('${l.id}')" title="Reassign ke CS lain"><i class="ti ti-refresh" aria-hidden="true"></i></button>`;
-  const moreBtn = currentAdUser
-    ? ''
-    : `<div class="lead-menu-wrap" style="position:relative">
-        <button class="lead-row-btn" onclick="event.stopPropagation();toggleLeadMenu('a-${l.id}')" title="Lainnya"><i class="ti ti-dots-vertical" aria-hidden="true"></i></button>
-        <div class="lead-menu-dropdown" id="leadMenu-a-${l.id}">
-          <button class="lead-menu-item danger" onclick="deleteLead('${l.id}');toggleLeadMenu('a-${l.id}')"><i class="ti ti-trash"></i>Hapus Lead</button>
-        </div>
-      </div>`;
-  return `<div class="lead-row ${isSelected?'is-selected':''} ${isClosed?'lead-row-closed':''}" data-lead-id="${l.id}">
-    <input type="checkbox" class="lead-row-checkbox lead-select" ${isSelected?'checked':''} onclick="event.stopPropagation()" onchange="toggleLeadSelect('${l.id}',event)" />
-    <div class="lead-row-avatar" style="background:${avatarColor}">${esc(init)}</div>
-    <div class="lead-row-info">
-      <div class="lead-row-line1">
-        <div class="lead-row-name">${esc(l.nama || '-')}</div>
-        <span class="lead-row-status ${status}"><span class="dot"></span>${statusLabels[status] || status}</span>
-      </div>
-      <div class="lead-row-line2">
-        <span class="lead-row-wa">${esc(l.wa || '-')}</span>
-        <span class="lead-row-sep">·</span>
-        <span class="lead-row-prod">${esc(l.produk || '-')}</span>
-        <span class="lead-row-sep">·</span>
-        <span>${esc(csName)}</span>
-      </div>
-    </div>
-    <div class="lead-row-meta">
-      <div class="lead-row-date"><strong>${dateMain}</strong><span>${timeMain}</span></div>
-      <div class="lead-row-actions">
-        ${waBtn}
-        ${reassignBtn}
-        ${moreBtn}
-      </div>
-    </div>
-  </div>`;
+  const waBtn = `<a href="${waUrl}" target="_blank" class="lt-greet-btn wa ${waOpened?'is-sent':''}" title="Buka WhatsApp${waOpened?' · pernah dibuka':''}" onclick="event.stopPropagation();markLeadWaOpened('${l.id}')"><i class="ti ti-brand-whatsapp"></i></a>`;
+  const qrList = (typeof getQRTemplates === 'function' ? getQRTemplates() : []).filter(function(t){ return t.active !== false; }).sort(function(a,b){ return (a.order||0) - (b.order||0); });
+  const qrBtns = qrList.slice(0, 6).map(function(t, idx){
+    const sent = qrSent.indexOf(t.id) >= 0;
+    const isLast = lastSentQR === t.id;
+    const cls = 'lt-greet-btn qr' + (sent?' is-sent':'') + (isLast?' is-last':'');
+    const lbl = (t.icon ? t.icon+' ' : '') + (t.label||'Template '+(idx+1));
+    return '<button class="'+cls+'" onclick="event.stopPropagation();sendQRToLead('+t.id+',\''+l.id+'\')" title="'+esc(lbl)+'">'+(idx+1)+'</button>';
+  }).join('');
+  // More menu
+  const moreMenuId = 'ltMenu-'+l.id;
+  const isAd = !!currentAdUser;
+  const statusActions = isAd ? '' :
+    '<button class="lt-more-item" onclick="event.stopPropagation();setLeadStatus(\''+l.id+'\',\'contacted\');closeAllLtMoreMenus()"><i class="ti ti-phone"></i>Mark Contacted</button>' +
+    '<button class="lt-more-item" onclick="event.stopPropagation();setLeadStatus(\''+l.id+'\',\'closed\');closeAllLtMoreMenus()"><i class="ti ti-circle-check"></i>Mark Closed</button>' +
+    '<button class="lt-more-item" onclick="event.stopPropagation();setLeadStatus(\''+l.id+'\',\'no_response\');closeAllLtMoreMenus()"><i class="ti ti-circle-x"></i>Mark No Response</button>' +
+    '<button class="lt-more-item" onclick="event.stopPropagation();setLeadStatus(\''+l.id+'\',\'pending\');closeAllLtMoreMenus()"><i class="ti ti-rotate"></i>Reset ke Pending</button>' +
+    '<div class="lt-more-divider"></div>' +
+    '<button class="lt-more-item" onclick="event.stopPropagation();openReassignModal(\''+l.id+'\');closeAllLtMoreMenus()"><i class="ti ti-arrows-shuffle"></i>Reassign ke CS lain</button>' +
+    '<div class="lt-more-divider"></div>';
+  const moreMenu =
+    '<div class="lt-more-wrap">' +
+      '<button class="lt-more-btn" onclick="event.stopPropagation();toggleLtMoreMenu(\''+moreMenuId+'\')" title="Lainnya"><i class="ti ti-dots-vertical"></i></button>' +
+      '<div class="lt-more-menu" id="'+moreMenuId+'">' +
+        statusActions +
+        '<button class="lt-more-item danger" onclick="event.stopPropagation();deleteLead(\''+l.id+'\');closeAllLtMoreMenus()"><i class="ti ti-trash"></i>Hapus Lead</button>' +
+      '</div>' +
+    '</div>';
+
+  return '<div class="leads-table-row '+(isSelected?'is-selected':'')+' '+(isClosed?'is-closed':'')+'" data-lead-id="'+l.id+'">' +
+    '<div><input type="checkbox" class="lead-select" '+(isSelected?'checked':'')+' onclick="event.stopPropagation()" onchange="toggleLeadSelect(\''+l.id+'\',event)"/></div>' +
+    '<div class="lt-name-cell"><div class="lt-name"><span class="lt-name-status-dot '+status+'" title="'+status+'"></span>'+esc(l.nama || '-')+'</div><div class="lt-wa"><i class="ti ti-brand-whatsapp"></i>'+esc(l.wa || '-')+'</div></div>' +
+    '<div class="lt-prod" title="'+esc(l.produk || '')+'">'+esc(l.produk || '-')+'</div>' +
+    '<div class="lt-cs-cell"><div class="lt-cs-avatar">'+esc(csInit)+'</div><div class="lt-cs-name '+(csInfo?'':'unassigned')+'">'+esc(csName)+'</div></div>' +
+    '<div class="lt-date">'+dateStr+'<span class="lt-time">'+timeStr+'</span></div>' +
+    '<div class="lt-greet-cell">'+waBtn+qrBtns+'</div>' +
+    '<div class="lt-row-actions">'+moreMenu+'</div>' +
+  '</div>';
+}
+
+/* ── Leads V3 toolbar handlers ── */
+var leadsStatusFilter = '';
+var leadsSortDesc = true; // newest first
+function setLeadsStatus(s){
+  leadsStatusFilter = s;
+  document.querySelectorAll('.leads-status-tab').forEach(function(t){
+    t.classList.toggle('active', (t.getAttribute('data-status')||'') === s);
+  });
+  renderLeads();
+}
+function toggleLeadsSort(){
+  leadsSortDesc = !leadsSortDesc;
+  var icon = document.getElementById('leadsSortIcon');
+  if(icon) icon.className = leadsSortDesc ? 'ti ti-chevron-down' : 'ti ti-chevron-up';
+  renderLeads();
+}
+function toggleLeadsFilterPopover(ev){
+  if(ev) ev.stopPropagation();
+  var pop = document.getElementById('leadsFilterPopover');
+  if(!pop) return;
+  pop.classList.toggle('open');
+}
+// close on outside click
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.leads-filter-wrap')){
+    var pop = document.getElementById('leadsFilterPopover');
+    if(pop) pop.classList.remove('open');
+  }
+  if(!e.target.closest('.lt-more-wrap')) closeAllLtMoreMenus();
+});
+function onLeadsFilterChange(){
+  renderLeads();
+}
+function closeAllLtMoreMenus(){
+  document.querySelectorAll('.lt-more-menu.open').forEach(function(m){ m.classList.remove('open'); });
+}
+function toggleLtMoreMenu(id){
+  var el = document.getElementById(id);
+  if(!el) return;
+  var willOpen = !el.classList.contains('open');
+  closeAllLtMoreMenus();
+  if(willOpen) el.classList.add('open');
+}
+
+/* ── Lead status + WA open tracking ── */
+function setLeadStatus(id, status){
+  var leads = getLeads();
+  var i = leads.findIndex(function(l){ return l.id === id; });
+  if(i < 0) return;
+  leads[i].followStatus = status;
+  leads[i].followStatusAt = Date.now();
+  LS.s('od_leads', leads);
+  if(typeof syncLeadSave === 'function') syncLeadSave(leads[i]);
+  renderLeads();
+  if(activePanel === 'overview' && typeof renderOverview === 'function') renderOverview();
+  var labelMap = { pending:'Belum FU', contacted:'Dihubungi', closed:'Closing', no_response:'No Respon' };
+  toast('✅ Lead ditandai: '+(labelMap[status]||status));
+}
+function markLeadWaOpened(id){
+  // Track bahwa WA dibuka — non-blocking, ga delay buka link
+  setTimeout(function(){
+    var leads = getLeads();
+    var i = leads.findIndex(function(l){ return l.id === id; });
+    if(i < 0) return;
+    if(leads[i].waOpened) return;
+    leads[i].waOpened = true;
+    leads[i].waOpenedAt = Date.now();
+    LS.s('od_leads', leads);
+    if(typeof syncLeadSave === 'function') syncLeadSave(leads[i]);
+  }, 200);
 }
 
 function leadStatusBadge(status){
@@ -4662,6 +4947,13 @@ function resetLeadsFilter(){
   const dt = document.getElementById('leadsDateSel'); if(dt) dt.value = 'lifetime';
   const dtc = document.getElementById('leadsDateCustom'); if(dtc) dtc.classList.remove('show');
   const sr = document.getElementById('leadSearch'); if(sr) sr.value = '';
+  // V3: reset status tab + close popover
+  if(typeof leadsStatusFilter !== 'undefined') leadsStatusFilter = '';
+  document.querySelectorAll('.leads-status-tab').forEach(function(t){
+    t.classList.toggle('active', (t.getAttribute('data-status')||'') === '');
+  });
+  var pop = document.getElementById('leadsFilterPopover');
+  if(pop) pop.classList.remove('open');
   renderLeads();
   toast('🔄 Filter direset');
 }
@@ -4670,7 +4962,8 @@ function renderLeads(){
   const q=(document.getElementById('leadSearch')||{}).value||'';
   const csFilter = (document.getElementById('leadsCSFilter')||{}).value || '';
   const prodFilter = (document.getElementById('leadsProdFilter')||{}).value || '';
-  const statusFilter = (document.getElementById('leadsStatusFilter')||{}).value || '';
+  // V3: status filter dari tab, bukan dropdown
+  const statusFilter = (typeof leadsStatusFilter !== 'undefined') ? leadsStatusFilter : '';
   let all = getLeads();
   // ADVERTISER SCOPE
   if(currentAdUser){
@@ -4680,55 +4973,108 @@ function renderLeads(){
   }
   const range = getDateFilterRange('leads');
   const inRange = filterLeadsByDate(all, range);
-  let leads = inRange.filter(l =>
-    !q || (l.nama||'').toLowerCase().includes(q.toLowerCase()) || (l.wa||'').includes(q)
-  );
+
+  // Update status tab counts (based on inRange + cs/prod filters, but BEFORE status filter)
+  let baseForCounts = inRange.filter(function(l){
+    return !q || (l.nama||'').toLowerCase().includes(q.toLowerCase()) || (l.wa||'').includes(q);
+  });
   if(csFilter){
     const csIdNum = parseInt(csFilter, 10);
-    leads = leads.filter(l => l.csId === csIdNum || String(l.csId||'') === csFilter);
+    baseForCounts = baseForCounts.filter(l => l.csId === csIdNum || String(l.csId||'') === csFilter);
   }
   if(prodFilter){
-    leads = leads.filter(l => (l.produk||'') === prodFilter);
+    baseForCounts = baseForCounts.filter(l => (l.produk||'') === prodFilter);
   }
+  const cntAll = baseForCounts.length;
+  const cntPending = baseForCounts.filter(function(l){ return (l.followStatus||'pending') === 'pending'; }).length;
+  const cntContacted = baseForCounts.filter(function(l){ return l.followStatus === 'contacted'; }).length;
+  const cntClosed = baseForCounts.filter(function(l){ return l.followStatus === 'closed'; }).length;
+  const cntNoresp = baseForCounts.filter(function(l){ return l.followStatus === 'no_response'; }).length;
+  const setText = function(id, val){ const e=document.getElementById(id); if(e) e.textContent = val; };
+  setText('lsCountAll', cntAll);
+  setText('lsCountPending', cntPending);
+  setText('lsCountContacted', cntContacted);
+  setText('lsCountClosed', cntClosed);
+  setText('lsCountNoresp', cntNoresp);
+
+  let leads = baseForCounts.slice();
   if(statusFilter){
     leads = leads.filter(l => (l.followStatus||'pending') === statusFilter);
   }
-  // Auto-sort: terbaru duluan
-  leads.sort(function(a,b){ return (b.ts||0) - (a.ts||0); });
+  // Sort
+  const desc = (typeof leadsSortDesc === 'undefined') ? true : leadsSortDesc;
+  leads.sort(function(a,b){ return desc ? ((b.ts||0) - (a.ts||0)) : ((a.ts||0) - (b.ts||0)); });
 
-  // Update header counter + sub-info
+  // Header sub
   const totalAll = all.length;
   const totalToday = (function(){
     const today = new Date(); today.setHours(0,0,0,0);
     const start = today.getTime();
     return all.filter(function(l){ return (l.ts||0) >= start; }).length;
   })();
-  const totalPending = leads.filter(function(l){ return (l.followStatus||'pending') === 'pending'; }).length;
   const countEl = document.getElementById('leadsHeaderCount');
   if(countEl) countEl.textContent = totalAll + ' total';
   const subEl = document.getElementById('leadsHeaderSub');
   if(subEl){
     if(totalAll === 0) subEl.textContent = 'Belum ada lead — pasang embed form di landing page lo dulu';
-    else subEl.textContent = totalToday + ' lead masuk hari ini · ' + totalPending + ' belum di-FU';
+    else subEl.textContent = totalAll + ' lead total · ' + totalToday + ' masuk hari ini · ' + cntPending + ' pending';
   }
+
+  // Filter button badge + chips
+  updateLeadsFilterButton(csFilter, prodFilter);
 
   updateDateFilterInfo('leads', inRange.length, all.length);
   const el=document.getElementById('leadsList');
   const selbar=document.getElementById('leadsSelbar');
+  const tableHead=document.getElementById('leadsTableHead');
   if(!leads.length){
     let title, sub;
     if(!all.length){ title='Belum ada leads'; sub='Belum ada yang mengisi form'; }
     else if(!inRange.length){ title='Tidak ada lead di periode ini'; sub='Coba ganti period di topbar'; }
     else if(csFilter || prodFilter || statusFilter){ title='Tidak ada lead cocok filter'; sub='Coba ganti filter atau klik Reset'; }
     else { title='Tidak ada lead cocok'; sub='Coba kata kunci lain'; }
-    el.innerHTML=`<div class="empty"><div class="empty-icon">👥</div><div class="empty-title">${title}</div><div class="empty-sub">${sub}</div></div>`;
-    if(selbar) selbar.style.display='none';
+    el.innerHTML='<div class="empty" style="padding:40px 20px;text-align:center;color:var(--text-muted)"><div class="empty-icon" style="font-size:32px;opacity:.5;margin-bottom:8px">👥</div><div class="empty-title" style="font-size:14px;color:var(--text);font-weight:500;margin-bottom:4px">'+title+'</div><div class="empty-sub" style="font-size:12px">'+sub+'</div></div>';
+    if(tableHead) tableHead.style.display='none';
+    if(selbar){ selbar.style.display='none'; selbar.classList.remove('is-active'); }
     return;
   }
+  if(tableHead) tableHead.style.display='';
   el.innerHTML=leads.map(l=>leadCard(l)).join('');
   const renderedSet = new Set(leads.map(l=>l.id));
   Array.from(selectedLeadIds).forEach(id=>{ if(!renderedSet.has(id)) selectedLeadIds.delete(id); });
-  if(selbar){ selbar.style.display='flex'; updateSelectionUI(); }
+  updateSelectionUI();
+}
+
+/* Update Filter button badge + chips di popover */
+function updateLeadsFilterButton(csFilter, prodFilter){
+  var activeCount = 0;
+  if(csFilter) activeCount++;
+  if(prodFilter) activeCount++;
+  var btn = document.getElementById('leadsFilterBtn');
+  var badge = document.getElementById('leadsFilterBadge');
+  if(btn) btn.classList.toggle('is-active', activeCount > 0);
+  if(badge){
+    if(activeCount > 0){ badge.textContent = activeCount; badge.style.display=''; }
+    else badge.style.display='none';
+  }
+  // Chips
+  var chipsEl = document.getElementById('leadsFilterChips');
+  if(!chipsEl) return;
+  var chips = [];
+  if(csFilter){
+    var cs = getCSList().find(function(c){ return String(c.id) === String(csFilter); });
+    if(cs) chips.push('<button class="leads-filter-chip" onclick="clearLeadsFilter(\'cs\')">'+esc(cs.name)+' <i class=\"ti ti-x\" style=\"font-size:11px\"></i></button>');
+  }
+  if(prodFilter){
+    chips.push('<button class="leads-filter-chip" onclick="clearLeadsFilter(\'prod\')">'+esc(prodFilter)+' <i class=\"ti ti-x\" style=\"font-size:11px\"></i></button>');
+  }
+  chipsEl.innerHTML = chips.join('');
+}
+
+function clearLeadsFilter(which){
+  if(which === 'cs'){ var s=document.getElementById('leadsCSFilter'); if(s) s.value=''; }
+  if(which === 'prod'){ var s2=document.getElementById('leadsProdFilter'); if(s2) s2.value=''; }
+  renderLeads();
 }
 function deleteLead(id){
   const lead = getLeads().find(function(l){ return l.id === id; });
