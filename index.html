@@ -1098,6 +1098,175 @@ tr:hover td{background:var(--surface-2)}
 .tn-drawer-item i{font-size:16px; width:20px; text-align:center}
 .tn-drawer-section{font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:.8px; padding:14px 12px 6px}
 
+/* ═══════════════════════════════════════════
+   TEAM MEMBERS PANEL
+═══════════════════════════════════════════ */
+.team-header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.team-title{font-size:22px;font-weight:500;color:var(--text);letter-spacing:-.3px}
+.team-sub{font-size:12px;color:var(--text-muted);margin-top:3px}
+.team-actions-header{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.btn-outline-sm{
+  background:var(--surface);border:1px solid var(--border);color:var(--text);
+  padding:8px 14px;border-radius:8px;font-size:13px;font-weight:500;
+  display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-family:inherit;
+  transition:background .15s,border-color .15s;
+}
+.btn-outline-sm:hover{background:var(--surface-2)}
+.btn-outline-sm i{font-size:14px}
+.btn-primary-sm{
+  background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;
+  border:none;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:500;
+  display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-family:inherit;
+  transition:opacity .15s;
+}
+.btn-primary-sm:hover{opacity:.9}
+.btn-primary-sm i{font-size:14px}
+
+.team-filter-row{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.team-tabs{display:flex;gap:6px;font-size:12px}
+.team-tab{
+  background:var(--surface);color:var(--text-muted);
+  border:1px solid var(--border);padding:6px 13px;border-radius:99px;
+  font-weight:500;cursor:pointer;font-family:inherit;
+  display:inline-flex;align-items:center;gap:4px;
+  transition:background .15s,color .15s;
+}
+.team-tab:hover{background:var(--surface-2)}
+.team-tab.active{background:var(--text);color:var(--surface);border-color:var(--text)}
+.team-search-wrap{position:relative;margin-left:auto;flex:0 0 auto;max-width:280px;width:280px}
+.team-search-wrap i{position:absolute;left:11px;top:9px;font-size:14px;color:var(--text-muted)}
+.team-search-wrap input{
+  width:100%;background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;padding:8px 12px 8px 34px;font-size:12px;
+  outline:none;font-family:inherit;color:var(--text);box-sizing:border-box;
+}
+.team-search-wrap input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
+
+.team-table-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.team-table-head,.team-row{
+  display:grid;
+  grid-template-columns:64px 1.5fr 130px 130px 150px 90px 100px 110px;
+  gap:12px;padding:13px 18px;align-items:center;
+}
+.team-table-head{
+  background:var(--surface-2);border-bottom:1px solid var(--border);
+  font-size:11px;color:var(--text-muted);font-weight:500;
+  letter-spacing:.4px;text-transform:uppercase;
+}
+.team-row{font-size:13px;color:var(--text);border-bottom:1px solid var(--border)}
+.team-row:last-child{border-bottom:none}
+.team-row.is-off{background:var(--surface-2);color:var(--text-muted)}
+.team-row.is-off .tm-avatar{opacity:.6}
+
+.tm-toggle{
+  width:34px;height:20px;background:#CBD5E1;border-radius:99px;
+  position:relative;cursor:pointer;border:none;padding:0;
+  transition:background .15s;
+}
+.tm-toggle.on{background:var(--green)}
+.tm-toggle-knob{
+  position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;
+  background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.15);
+  transition:left .15s;
+}
+.tm-toggle.on .tm-toggle-knob{left:16px}
+
+.tm-name-cell{display:flex;align-items:center;gap:10px;min-width:0}
+.tm-avatar{
+  width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(135deg,var(--sb-accent),var(--sb-accent-2));
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:500;flex-shrink:0;
+}
+.tm-avatar.role-ad{background:linear-gradient(135deg,#F59E0B,#D97706)}
+.tm-name-text{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.tm-name-off{font-size:10px;color:var(--text-muted);margin-left:4px;font-weight:400}
+
+.tm-mono{color:var(--text-muted);font-family:'SF Mono',Menlo,monospace;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tm-pass-cell{display:flex;align-items:center;gap:6px}
+.tm-pass-mask{color:var(--text-muted);letter-spacing:2px;font-family:'SF Mono',Menlo,monospace;font-size:13px;flex:1;min-width:0;overflow:hidden}
+.tm-pass-mask.is-revealed{color:var(--text);letter-spacing:0;font-size:12px}
+.tm-pass-eye{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:2px;display:inline-flex;align-items:center;justify-content:center}
+.tm-pass-eye:hover{color:var(--text)}
+
+.tm-role-badge{padding:3px 9px;border-radius:99px;font-size:10px;font-weight:500;display:inline-block}
+.tm-role-badge.cs{background:var(--primary-soft);color:var(--primary)}
+.tm-role-badge.ad{background:var(--orange-soft);color:var(--orange)}
+
+.tm-date{color:var(--text-muted);font-size:11px;white-space:nowrap}
+
+.tm-row-actions{display:flex;gap:6px}
+.tm-icon-btn{
+  background:var(--surface);border:1px solid var(--border);width:30px;height:30px;
+  border-radius:7px;display:flex;align-items:center;justify-content:center;
+  color:var(--text-muted);cursor:pointer;font-family:inherit;
+  transition:background .15s,color .15s,border-color .15s;
+}
+.tm-icon-btn:hover{background:var(--surface-2);color:var(--text)}
+.tm-icon-btn.danger:hover{color:var(--red);border-color:var(--red)}
+
+@media(max-width:1024px){
+  .team-table-head,.team-row{grid-template-columns:60px 1.3fr 110px 110px 130px 80px 90px 100px;gap:8px;padding:12px 14px;font-size:12px}
+  .team-table-head{font-size:10px}
+}
+@media(max-width:760px){
+  .team-table-head{display:none}
+  .team-row{
+    grid-template-columns:1fr auto;gap:8px;padding:14px;
+    border-bottom:1px solid var(--border);
+  }
+  .team-row > *{min-width:0}
+}
+
+/* ADD/EDIT MEMBER MODAL */
+.tm-modal-overlay{
+  position:fixed;inset:0;background:rgba(15,23,42,.45);
+  z-index:400;display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.tm-modal{
+  background:var(--surface);border-radius:14px;width:100%;max-width:520px;
+  max-height:90vh;display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 24px 64px rgba(0,0,0,.25);
+}
+.tm-modal-head{
+  padding:16px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.tm-modal-title{font-size:16px;font-weight:500;color:var(--text);letter-spacing:-.2px}
+.tm-modal-close{background:none;border:none;cursor:pointer;color:var(--text-muted);padding:4px;display:flex;align-items:center;justify-content:center}
+.tm-modal-close:hover{color:var(--text)}
+.tm-modal-close i{font-size:18px}
+.tm-modal-body{padding:18px 20px;overflow-y:auto;flex:1}
+.tm-modal-foot{
+  padding:14px 20px;border-top:1px solid var(--border);
+  display:flex;justify-content:flex-end;gap:8px;
+}
+.tm-field{margin-bottom:14px}
+.tm-field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tm-label{font-size:12px;font-weight:500;color:var(--text);display:block;margin-bottom:6px}
+.tm-hint{font-size:11px;color:var(--text-muted);margin-top:5px;line-height:1.5}
+.tm-input{
+  width:100%;background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;padding:9px 12px;font-size:13px;color:var(--text);
+  font-family:inherit;outline:none;box-sizing:border-box;
+  transition:border-color .15s,box-shadow .15s;
+}
+.tm-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
+.tm-role-toggle{display:flex;background:var(--surface-2);border-radius:8px;padding:3px;gap:2px}
+.tm-role-toggle button{
+  flex:1;background:none;border:none;cursor:pointer;font-family:inherit;
+  padding:8px;border-radius:6px;font-size:13px;font-weight:500;color:var(--text-muted);
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  transition:all .15s;
+}
+.tm-role-toggle button:hover{color:var(--text)}
+.tm-role-toggle button.active{background:var(--surface);color:var(--primary);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.tm-role-toggle button.active[data-tm-role="ad"]{color:var(--orange)}
+.tm-error{
+  background:var(--red-soft);color:var(--red);
+  padding:9px 12px;border-radius:7px;font-size:12px;margin-top:4px;
+}
+
 /* OVERLAY */
 .sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:190}
 
@@ -1644,7 +1813,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-11-overview-spacing';
+window.__APP_VERSION = '2026-06-11-team-members';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -2470,20 +2639,13 @@ document.addEventListener('DOMContentLoaded', function(){
         <button class="tn-nav-item active" data-nav="overview" onclick="showPanel('overview')">Dashboard</button>
         <button class="tn-nav-item" data-nav="leads" onclick="showPanel('leads')">Leads</button>
         <button class="tn-nav-item" data-nav="produk" onclick="showPanel('produk')">Produk</button>
-
-        <div class="tn-nav-wrap">
-          <button class="tn-nav-item" id="tnNavCS" onclick="toggleTnDropdown('csMenu', event)" aria-haspopup="true" aria-expanded="false">CS <i class="ti ti-chevron-down" aria-hidden="true"></i></button>
-          <div class="tn-dropdown" id="csMenu" role="menu">
-            <button class="tn-dropdown-item" onclick="tnNavGo('cs')"><i class="ti ti-headset"></i> CS &amp; Greeting</button>
-            <button class="tn-dropdown-item" onclick="tnNavGo('csaccess')"><i class="ti ti-key"></i> Akses Login CS</button>
-          </div>
-        </div>
+        <button class="tn-nav-item" data-nav="team" onclick="showPanel('team')">Team Members</button>
 
         <div class="tn-nav-wrap">
           <button class="tn-nav-item" id="tnNavMore" onclick="toggleTnDropdown('moreMenu', event)" aria-haspopup="true" aria-expanded="false">Lainnya <i class="ti ti-chevron-down" aria-hidden="true"></i></button>
           <div class="tn-dropdown" id="moreMenu" role="menu">
             <button class="tn-dropdown-item" onclick="tnNavGo('form')"><i class="ti ti-forms"></i> Form Builder</button>
-            <button class="tn-dropdown-item" onclick="tnNavGo('adaccess')"><i class="ti ti-user-shield"></i> Akses Login Advertisers</button>
+            <button class="tn-dropdown-item" onclick="tnNavGo('cs')"><i class="ti ti-message-circle-2"></i> Greeting Templates</button>
             <button class="tn-dropdown-item" onclick="tnNavGo('quickreply')"><i class="ti ti-message-2"></i> Quick Reply</button>
             <div class="tn-dropdown-divider"></div>
             <button class="tn-dropdown-item" onclick="tnNavGo('gtm')"><i class="ti ti-chart-line"></i> GTM Tracking</button>
@@ -2572,12 +2734,10 @@ document.addEventListener('DOMContentLoaded', function(){
       <button class="tn-drawer-item active" data-drawer-nav="overview" onclick="tnDrawerGo('overview')"><i class="ti ti-layout-dashboard"></i> Dashboard</button>
       <button class="tn-drawer-item" data-drawer-nav="leads" onclick="tnDrawerGo('leads')"><i class="ti ti-users"></i> Leads</button>
       <button class="tn-drawer-item" data-drawer-nav="produk" onclick="tnDrawerGo('produk')"><i class="ti ti-package"></i> Produk</button>
-      <div class="tn-drawer-section">CS</div>
-      <button class="tn-drawer-item" data-drawer-nav="cs" onclick="tnDrawerGo('cs')"><i class="ti ti-headset"></i> CS &amp; Greeting</button>
-      <button class="tn-drawer-item" data-drawer-nav="csaccess" onclick="tnDrawerGo('csaccess')"><i class="ti ti-key"></i> Akses Login CS</button>
+      <button class="tn-drawer-item" data-drawer-nav="team" onclick="tnDrawerGo('team')"><i class="ti ti-users-group"></i> Team Members</button>
       <div class="tn-drawer-section">Lainnya</div>
       <button class="tn-drawer-item" data-drawer-nav="form" onclick="tnDrawerGo('form')"><i class="ti ti-forms"></i> Form Builder</button>
-      <button class="tn-drawer-item" data-drawer-nav="adaccess" onclick="tnDrawerGo('adaccess')"><i class="ti ti-user-shield"></i> Akses Login Advertisers</button>
+      <button class="tn-drawer-item" data-drawer-nav="cs" onclick="tnDrawerGo('cs')"><i class="ti ti-message-circle-2"></i> Greeting Templates</button>
       <button class="tn-drawer-item" data-drawer-nav="quickreply" onclick="tnDrawerGo('quickreply')"><i class="ti ti-message-2"></i> Quick Reply</button>
       <button class="tn-drawer-item" data-drawer-nav="gtm" onclick="tnDrawerGo('gtm')"><i class="ti ti-chart-line"></i> GTM Tracking</button>
       <button class="tn-drawer-item" data-drawer-nav="embed" onclick="tnDrawerGo('embed')"><i class="ti ti-code"></i> Embed HTML</button>
@@ -3054,6 +3214,102 @@ document.addEventListener('DOMContentLoaded', function(){
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn btn-primary" onclick="saveGreeting()">💾 Simpan Template</button>
             <button class="btn btn-outline" onclick="testGreeting()">📱 Test Pesan</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TEAM MEMBERS (unified: CS access + Advertisers) ── -->
+      <div class="panel" id="panel-team">
+        <div class="team-header">
+          <div>
+            <div class="team-title">Team Members</div>
+            <div class="team-sub">Lo bisa nambah <strong id="teamSlotCount">∞</strong> team member lagi</div>
+          </div>
+          <div class="team-actions-header">
+            <button class="btn-outline-sm" onclick="showPanel('produk')"><i class="ti ti-arrows-shuffle"></i><span>Member Rotators</span></button>
+            <button class="btn-outline-sm" onclick="showPanel('overview')"><i class="ti ti-chart-bar"></i><span>Team Performance</span></button>
+            <button class="btn-primary-sm" onclick="openTeamMemberModal()"><i class="ti ti-plus"></i><span>Add New Member</span></button>
+          </div>
+        </div>
+
+        <div class="team-filter-row">
+          <div class="team-tabs">
+            <button class="team-tab active" data-team-tab="all" onclick="setTeamTab('all')">Semua · <span id="teamCountAll">0</span></button>
+            <button class="team-tab" data-team-tab="cs" onclick="setTeamTab('cs')">CS · <span id="teamCountCS">0</span></button>
+            <button class="team-tab" data-team-tab="ad" onclick="setTeamTab('ad')">Advertiser · <span id="teamCountAd">0</span></button>
+          </div>
+          <div class="team-search-wrap">
+            <i class="ti ti-search"></i>
+            <input type="text" id="teamSearch" placeholder="Cari nama / username / telepon..." oninput="renderTeamList()"/>
+          </div>
+        </div>
+
+        <div class="team-table-card">
+          <div class="team-table-head">
+            <div>Active</div>
+            <div>Name</div>
+            <div>Username</div>
+            <div>Password</div>
+            <div>Telepon</div>
+            <div>Role</div>
+            <div onclick="toggleTeamSort()" style="cursor:pointer;display:flex;align-items:center;gap:3px">Created <i class="ti ti-chevron-down" id="teamSortIcon"></i></div>
+            <div>Actions</div>
+          </div>
+          <div id="teamTableBody"></div>
+          <div id="teamEmpty" style="display:none;padding:32px 16px;text-align:center;color:var(--text-muted);font-size:13px">
+            <div style="font-size:32px;margin-bottom:8px;opacity:.5">👥</div>
+            Belum ada team member. Klik <strong>+ Add New Member</strong> di pojok kanan atas.
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ADD/EDIT MEMBER MODAL ── -->
+      <div class="tm-modal-overlay" id="tmModalOverlay" onclick="closeTeamMemberModal(event)" style="display:none">
+        <div class="tm-modal" onclick="event.stopPropagation()">
+          <div class="tm-modal-head">
+            <div class="tm-modal-title" id="tmModalTitle">Add New Member</div>
+            <button class="tm-modal-close" onclick="closeTeamMemberModal()" aria-label="Tutup"><i class="ti ti-x"></i></button>
+          </div>
+          <div class="tm-modal-body">
+
+            <div class="tm-field">
+              <label class="tm-label">Role *</label>
+              <div class="tm-role-toggle" id="tmRoleToggle">
+                <button type="button" data-tm-role="cs" class="active" onclick="setTmRole('cs')"><i class="ti ti-headset"></i> CS</button>
+                <button type="button" data-tm-role="ad" onclick="setTmRole('ad')"><i class="ti ti-user-shield"></i> Advertiser</button>
+              </div>
+              <div class="tm-hint" id="tmRoleHint">CS akan menerima lead dan follow-up via WhatsApp.</div>
+            </div>
+
+            <div class="tm-field">
+              <label class="tm-label">Nama Lengkap *</label>
+              <input type="text" id="tmName" class="tm-input" placeholder="Contoh: Dina Putri" autocomplete="off"/>
+            </div>
+
+            <div class="tm-field tm-cs-only">
+              <label class="tm-label">Nomor WhatsApp *</label>
+              <input type="text" id="tmWa" class="tm-input" placeholder="Contoh: 081234567890" inputmode="numeric" autocomplete="off"/>
+              <div class="tm-hint">Format 08xxx atau 628xxx. Lead akan diarahkan ke nomor ini.</div>
+            </div>
+
+            <div class="tm-field-row">
+              <div class="tm-field">
+                <label class="tm-label">Username *</label>
+                <input type="text" id="tmUsername" class="tm-input" placeholder="contoh: dina" autocomplete="off"/>
+                <div class="tm-hint">Huruf kecil, tanpa spasi.</div>
+              </div>
+              <div class="tm-field">
+                <label class="tm-label">Password *</label>
+                <input type="text" id="tmPassword" class="tm-input" placeholder="Min 4 karakter" autocomplete="off"/>
+                <div class="tm-hint">Plain-text, supaya admin bisa kasih ke user.</div>
+              </div>
+            </div>
+
+            <div id="tmError" class="tm-error" style="display:none"></div>
+          </div>
+          <div class="tm-modal-foot">
+            <button class="btn-outline-sm" onclick="closeTeamMemberModal()">Batal</button>
+            <button class="btn-primary-sm" onclick="saveTeamMember()"><i class="ti ti-device-floppy"></i><span>Simpan Member</span></button>
           </div>
         </div>
       </div>
@@ -3740,7 +3996,8 @@ function showDashboard(){
 ═════════════════════════════════════════════ */
 const panelTitles={
   overview:'Overview',leads:'Leads',produk:'Produk',
-  form:'Form Builder',cs:'CS & Greeting',
+  team:'Team Members',
+  form:'Form Builder',cs:'Greeting Templates',
   csaccess:'Akses Login CS',
   adaccess:'Akses Login Advertisers',
   quickreply:'Quick Reply Templates',
@@ -3767,6 +4024,7 @@ function showPanel(name){
   if(name==='overview')renderOverview();
   else if(name==='leads'){initLeadsPanel();renderLeads();}
   else if(name==='produk'){renderProdList();document.getElementById('prodListCard').style.display='block';document.getElementById('prodFormCard').style.display='none';}
+  else if(name==='team')initTeamPanel();
   else if(name==='form')initFormPanel();
   else if(name==='cs')initCSPanel();
   else if(name==='csaccess')initCSAccessPanel();
@@ -3792,8 +4050,8 @@ function closeSidebar(){
 // Map panel name → which top-level nav button should look active
 var TN_NAV_MAP = {
   overview: 'overview', leads: 'leads', produk: 'produk',
-  cs: 'cs', csaccess: 'cs',
-  form: 'more', adaccess: 'more', quickreply: 'more',
+  team: 'team', csaccess: 'team', adaccess: 'team',
+  form: 'more', cs: 'more', quickreply: 'more',
   gtm: 'more', embed: 'more', cloud: 'more', settings: 'more'
 };
 function tnSyncActive(name){
@@ -8051,6 +8309,356 @@ function deleteAdUser(id){
 
 function syncAdUserSave(u){ if(fb.configured) dbWriteDoc(FB_COLLECTIONS.ad_users, u.id, u); }
 function syncAdUserDelete(id){ if(fb.configured) dbDeleteDoc(FB_COLLECTIONS.ad_users, id); }
+
+/* ═════════════════════════════════════════════
+   TEAM MEMBERS PANEL (unified: CS access + Advertisers)
+═════════════════════════════════════════════ */
+var teamCurrentTab = 'all';
+var teamSortDesc = true; // true = newest first
+var teamEditMember = null; // {role:'cs'|'ad', id} saat lagi edit, null saat add baru
+var teamRevealedIds = {}; // {cs-123: true, ad-456: true} — track which passwords are revealed
+
+function initTeamPanel(){
+  teamCurrentTab = 'all';
+  teamRevealedIds = {};
+  var search = document.getElementById('teamSearch');
+  if(search) search.value = '';
+  document.querySelectorAll('.team-tab').forEach(function(t){
+    t.classList.toggle('active', t.getAttribute('data-team-tab') === 'all');
+  });
+  renderTeamList();
+}
+
+function setTeamTab(tab){
+  teamCurrentTab = tab;
+  document.querySelectorAll('.team-tab').forEach(function(t){
+    t.classList.toggle('active', t.getAttribute('data-team-tab') === tab);
+  });
+  renderTeamList();
+}
+
+function toggleTeamSort(){
+  teamSortDesc = !teamSortDesc;
+  var icon = document.getElementById('teamSortIcon');
+  if(icon) icon.className = teamSortDesc ? 'ti ti-chevron-down' : 'ti ti-chevron-up';
+  renderTeamList();
+}
+
+function buildTeamRowList(){
+  // Gabungin CS users + Advertisers jadi unified list
+  var csList = getCSList();
+  var csUsers = getCSUsers();
+  var adUsers = getAdUsers();
+  var rows = [];
+  csUsers.forEach(function(u){
+    var cs = csList.find(function(c){ return c.id === u.csId; });
+    rows.push({
+      role: 'cs',
+      id: u.id,
+      name: cs ? cs.name : ('('+u.username+' — profil hilang)'),
+      username: u.username,
+      password: u.password,
+      telepon: cs ? cs.waNum : '',
+      active: u.active !== false,
+      createdAt: u.id, // pakai id (timestamp) sebagai created
+      orphan: !cs,
+      csId: u.csId,
+      raw: u
+    });
+  });
+  adUsers.forEach(function(u){
+    rows.push({
+      role: 'ad',
+      id: u.id,
+      name: u.name || u.username,
+      username: u.username,
+      password: u.password,
+      telepon: '',
+      active: u.active !== false,
+      createdAt: u.id,
+      orphan: false,
+      raw: u
+    });
+  });
+  return rows;
+}
+
+function renderTeamList(){
+  var all = buildTeamRowList();
+  // Tab counts
+  var csCount = 0, adCount = 0;
+  all.forEach(function(r){ if(r.role==='cs') csCount++; else adCount++; });
+  var elAll = document.getElementById('teamCountAll'); if(elAll) elAll.textContent = all.length;
+  var elCs = document.getElementById('teamCountCS'); if(elCs) elCs.textContent = csCount;
+  var elAd = document.getElementById('teamCountAd'); if(elAd) elAd.textContent = adCount;
+  // Slot info
+  var slotEl = document.getElementById('teamSlotCount');
+  if(slotEl) slotEl.textContent = Math.max(0, 50 - all.length); // arbitrary 50 cap
+
+  // Filter by tab
+  var filtered = all.filter(function(r){
+    if(teamCurrentTab === 'cs') return r.role === 'cs';
+    if(teamCurrentTab === 'ad') return r.role === 'ad';
+    return true;
+  });
+  // Filter by search
+  var q = (document.getElementById('teamSearch') || {}).value || '';
+  q = q.trim().toLowerCase();
+  if(q){
+    filtered = filtered.filter(function(r){
+      return (r.name||'').toLowerCase().indexOf(q) >= 0
+          || (r.username||'').toLowerCase().indexOf(q) >= 0
+          || (r.telepon||'').toLowerCase().indexOf(q) >= 0;
+    });
+  }
+  // Sort
+  filtered.sort(function(a,b){
+    return teamSortDesc ? (b.createdAt - a.createdAt) : (a.createdAt - b.createdAt);
+  });
+
+  var body = document.getElementById('teamTableBody');
+  var empty = document.getElementById('teamEmpty');
+  if(!body) return;
+
+  if(!filtered.length){
+    body.innerHTML = '';
+    if(empty) empty.style.display = 'block';
+    return;
+  }
+  if(empty) empty.style.display = 'none';
+
+  body.innerHTML = filtered.map(function(r){
+    var rowKey = r.role + '-' + r.id;
+    var revealed = teamRevealedIds[rowKey];
+    var initial = (r.name || r.username || '?').charAt(0).toUpperCase();
+    if((r.name || '').indexOf(' ') > 0){
+      var parts = r.name.split(/\s+/);
+      initial = (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+    }
+    var created = teamFmtDate(r.createdAt);
+    var roleLabel = r.role === 'cs' ? 'CS' : 'Advertiser';
+    var avatarCls = r.role === 'cs' ? '' : 'role-ad';
+    var rowCls = 'team-row' + (r.active ? '' : ' is-off');
+    var passDisplay = revealed ? esc(r.password) : '••••••••';
+    var passCls = 'tm-pass-mask' + (revealed ? ' is-revealed' : '');
+    var eyeIcon = revealed ? 'ti-eye-off' : 'ti-eye';
+    var offTag = r.active ? '' : '<span class="tm-name-off">(off)</span>';
+    var orphanTag = r.orphan ? '<span style="color:var(--red);font-size:10px;margin-left:5px">⚠ profil hilang</span>' : '';
+    var telDisplay = r.telepon ? esc(r.telepon) : '<span style="color:var(--text-tertiary)">—</span>';
+    return '<div class="'+rowCls+'">' +
+      '<div><button class="tm-toggle ' + (r.active?'on':'') + '" onclick="toggleTeamMember(\''+r.role+'\','+r.id+')" aria-label="Toggle"><span class="tm-toggle-knob"></span></button></div>' +
+      '<div class="tm-name-cell"><div class="tm-avatar '+avatarCls+'">'+esc(initial)+'</div><div class="tm-name-text">'+esc(r.name)+offTag+orphanTag+'</div></div>' +
+      '<div class="tm-mono">'+esc(r.username)+'</div>' +
+      '<div class="tm-pass-cell"><span class="'+passCls+'">'+passDisplay+'</span><button class="tm-pass-eye" onclick="toggleTeamPasswordReveal(\''+rowKey+'\')" aria-label="Reveal"><i class="ti '+eyeIcon+'"></i></button></div>' +
+      '<div class="tm-mono">'+telDisplay+'</div>' +
+      '<div><span class="tm-role-badge '+r.role+'">'+roleLabel+'</span></div>' +
+      '<div class="tm-date">'+created+'</div>' +
+      '<div class="tm-row-actions">' +
+        '<button class="tm-icon-btn" onclick="openTeamMemberModal(\''+r.role+'\','+r.id+')" title="Edit"><i class="ti ti-pencil"></i></button>' +
+        '<button class="tm-icon-btn danger" onclick="deleteTeamMember(\''+r.role+'\','+r.id+')" title="Hapus"><i class="ti ti-trash"></i></button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function teamFmtDate(ts){
+  if(!ts) return '—';
+  var d = new Date(ts);
+  if(isNaN(d.getTime())) return '—';
+  var pad = function(n){ return n < 10 ? '0'+n : ''+n; };
+  return pad(d.getDate())+'-'+pad(d.getMonth()+1)+'-'+d.getFullYear();
+}
+
+function toggleTeamPasswordReveal(key){
+  if(teamRevealedIds[key]) delete teamRevealedIds[key];
+  else teamRevealedIds[key] = true;
+  renderTeamList();
+}
+
+function toggleTeamMember(role, id){
+  if(role === 'cs') toggleCSUser(id);
+  else if(role === 'ad') toggleAdUser(id);
+  renderTeamList();
+}
+
+function deleteTeamMember(role, id){
+  if(role === 'cs'){
+    var u = getCSUsers().find(function(x){ return x.id === id; });
+    if(!u) return;
+    if(!confirmDestructive('Hapus akun CS "'+u.username+'"?', '⚠️ KONFIRMASI ULANG\n\nYakin hapus akun CS "'+u.username+'"?')) return;
+    LS.s('od_cs_users', getCSUsers().filter(function(x){ return x.id !== id; }));
+    syncCSUserDelete(id);
+    toast('🗑️ Akun CS dihapus');
+  } else if(role === 'ad'){
+    var u2 = getAdUsers().find(function(x){ return x.id === id; });
+    if(!u2) return;
+    if(!confirmDestructive('Hapus akun Advertiser "'+u2.username+'"?', '⚠️ KONFIRMASI ULANG\n\nYakin hapus akun advertiser "'+u2.username+'"?')) return;
+    LS.s('od_ad_users', getAdUsers().filter(function(x){ return x.id !== id; }));
+    syncAdUserDelete(id);
+    toast('🗑️ Akun Advertiser dihapus');
+  }
+  renderTeamList();
+}
+
+/* ── MODAL: Add / Edit Team Member ── */
+function openTeamMemberModal(role, id){
+  teamEditMember = null;
+  // Reset form
+  document.getElementById('tmName').value = '';
+  document.getElementById('tmWa').value = '';
+  document.getElementById('tmUsername').value = '';
+  document.getElementById('tmPassword').value = '';
+  document.getElementById('tmError').style.display = 'none';
+  document.getElementById('tmError').textContent = '';
+  // Default role = cs
+  var initialRole = (role === 'cs' || role === 'ad') ? role : 'cs';
+
+  if(id){
+    // Edit mode — load existing
+    if(role === 'cs'){
+      var u = getCSUsers().find(function(x){ return x.id === id; });
+      if(!u){ toast('⚠️ Member tidak ditemukan'); return; }
+      var cs = getCSList().find(function(c){ return c.id === u.csId; });
+      teamEditMember = { role: 'cs', id: id, csId: u.csId };
+      document.getElementById('tmName').value = cs ? cs.name : '';
+      document.getElementById('tmWa').value = cs ? cs.waNum : '';
+      document.getElementById('tmUsername').value = u.username;
+      document.getElementById('tmPassword').value = u.password;
+      initialRole = 'cs';
+    } else if(role === 'ad'){
+      var u2 = getAdUsers().find(function(x){ return x.id === id; });
+      if(!u2){ toast('⚠️ Member tidak ditemukan'); return; }
+      teamEditMember = { role: 'ad', id: id };
+      document.getElementById('tmName').value = u2.name || '';
+      document.getElementById('tmUsername').value = u2.username;
+      document.getElementById('tmPassword').value = u2.password;
+      initialRole = 'ad';
+    }
+  }
+  setTmRole(initialRole);
+  // Lock role saat edit (gak boleh ubah role di edit mode)
+  document.querySelectorAll('#tmRoleToggle button').forEach(function(b){
+    b.disabled = !!id;
+    b.style.opacity = id ? '.5' : '';
+    b.style.cursor = id ? 'not-allowed' : '';
+  });
+  document.getElementById('tmModalTitle').textContent = id ? 'Edit Team Member' : 'Add New Member';
+
+  document.getElementById('tmModalOverlay').style.display = 'flex';
+}
+
+function closeTeamMemberModal(ev){
+  if(ev && ev.target !== ev.currentTarget) return; // klik di dalam modal — abaikan
+  document.getElementById('tmModalOverlay').style.display = 'none';
+  teamEditMember = null;
+}
+
+function setTmRole(role){
+  document.querySelectorAll('#tmRoleToggle button').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-tm-role') === role);
+  });
+  // Show/hide CS-only fields
+  document.querySelectorAll('.tm-cs-only').forEach(function(el){
+    el.style.display = role === 'cs' ? '' : 'none';
+  });
+  var hint = document.getElementById('tmRoleHint');
+  if(hint){
+    hint.textContent = role === 'cs'
+      ? 'CS akan menerima lead dan follow-up via WhatsApp.'
+      : 'Advertiser bisa lihat overview, leads, produk, GTM tracking & embed code.';
+  }
+}
+
+function saveTeamMember(){
+  var role = document.querySelector('#tmRoleToggle button.active').getAttribute('data-tm-role');
+  var name = (document.getElementById('tmName').value || '').trim();
+  var wa = (document.getElementById('tmWa').value || '').trim();
+  var username = (document.getElementById('tmUsername').value || '').trim().toLowerCase();
+  var password = (document.getElementById('tmPassword').value || '').trim();
+  var errEl = document.getElementById('tmError');
+  function showErr(msg){ errEl.textContent = msg; errEl.style.display = 'block'; }
+  errEl.style.display = 'none';
+
+  // Validation
+  if(!name){ showErr('Nama wajib diisi.'); return; }
+  if(!username){ showErr('Username wajib diisi.'); return; }
+  if(!/^[a-z0-9._-]{3,}$/.test(username)){ showErr('Username minimal 3 karakter (a-z, 0-9, . _ -).'); return; }
+  if(!password || password.length < 4){ showErr('Password minimal 4 karakter.'); return; }
+  if(role === 'cs'){
+    if(!wa){ showErr('Nomor WhatsApp wajib diisi untuk CS.'); return; }
+    var waNorm = wa.replace(/\D/g,'');
+    if(waNorm.length < 9 || waNorm.length > 15){ showErr('Nomor WA tidak valid (9-15 digit).'); return; }
+  }
+
+  if(role === 'cs'){
+    // Check username unique among CS users
+    var existingCS = getCSUsers();
+    if(existingCS.some(function(u){ return u.username === username && (!teamEditMember || u.id !== teamEditMember.id); })){
+      showErr('Username sudah dipakai oleh CS lain.'); return;
+    }
+    if(teamEditMember && teamEditMember.role === 'cs'){
+      // Update existing CS profile + access
+      var csList = getCSList();
+      var csIdx = csList.findIndex(function(c){ return c.id === teamEditMember.csId; });
+      if(csIdx >= 0){
+        csList[csIdx].name = name;
+        csList[csIdx].waNum = wa;
+        LS.s('od_cs', csList);
+        if(typeof syncCSSave === 'function') syncCSSave(csList[csIdx]);
+      }
+      var users = getCSUsers();
+      var ui = users.findIndex(function(u){ return u.id === teamEditMember.id; });
+      if(ui >= 0){
+        users[ui].username = username;
+        users[ui].password = password;
+        LS.s('od_cs_users', users);
+        syncCSUserSave(users[ui]);
+      }
+      toast('✅ Member CS diperbarui');
+    } else {
+      // Create new CS profile + access entry
+      var nowId = Date.now();
+      var csList2 = getCSList();
+      var newCS = { id: nowId, name: name, waNum: wa, greeting: '' };
+      csList2.push(newCS);
+      LS.s('od_cs', csList2);
+      if(typeof syncCSSave === 'function') syncCSSave(newCS);
+      var users2 = getCSUsers();
+      var newUser = { id: Date.now() + 1, csId: nowId, username: username, password: password, active: true };
+      users2.push(newUser);
+      LS.s('od_cs_users', users2);
+      syncCSUserSave(newUser);
+      toast('✅ Member CS baru ditambahkan');
+    }
+  } else if(role === 'ad'){
+    var existingAd = getAdUsers();
+    if(existingAd.some(function(u){ return u.username === username && (!teamEditMember || u.id !== teamEditMember.id); })){
+      showErr('Username sudah dipakai oleh Advertiser lain.'); return;
+    }
+    if(teamEditMember && teamEditMember.role === 'ad'){
+      var ads = getAdUsers();
+      var ai = ads.findIndex(function(u){ return u.id === teamEditMember.id; });
+      if(ai >= 0){
+        ads[ai].name = name;
+        ads[ai].username = username;
+        ads[ai].password = password;
+        LS.s('od_ad_users', ads);
+        syncAdUserSave(ads[ai]);
+      }
+      toast('✅ Member Advertiser diperbarui');
+    } else {
+      var ads2 = getAdUsers();
+      var newAd = { id: Date.now(), name: name, username: username, password: password, active: true };
+      ads2.push(newAd);
+      LS.s('od_ad_users', ads2);
+      syncAdUserSave(newAd);
+      toast('✅ Member Advertiser baru ditambahkan');
+    }
+  }
+
+  closeTeamMemberModal();
+  renderTeamList();
+}
 
 /* ── Cloud-first login fetch buat Advertiser ── */
 window.__fetchAndLoginAd = async function(username, password){
