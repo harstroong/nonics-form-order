@@ -1999,7 +1999,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-11-nav-pill-compact';
+window.__APP_VERSION = '2026-06-11-add-bigheader';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -2936,6 +2936,18 @@ document.addEventListener('DOMContentLoaded', function(){
       <!-- ── OVERVIEW ── -->
       <div class="panel active" id="panel-overview">
 
+        <!-- Header gede (sama style sama Leads) -->
+        <div class="team-header">
+          <div>
+            <div class="team-title">Overview</div>
+            <div class="team-sub" id="overviewHeaderSub">Aktivitas dashboard real-time</div>
+          </div>
+          <div class="team-actions-header">
+            <button class="btn-outline-sm" onclick="showPanel('leads')"><i class="ti ti-users"></i><span>Lihat Semua Lead</span></button>
+            <button class="btn-outline-sm" onclick="exportCSV()"><i class="ti ti-download"></i><span>Export CSV</span></button>
+          </div>
+        </div>
+
         <!-- 3 STAT CARDS (Leads · Today / Produk Aktif / CS Online) -->
         <div class="ov-stat-grid">
           <div class="ov-stat">
@@ -3121,21 +3133,22 @@ document.addEventListener('DOMContentLoaded', function(){
       <!-- ── PRODUK ── -->
       <div class="panel" id="panel-produk">
 
+        <!-- Header gede (sama style sama Leads) -->
+        <div class="team-header">
+          <div>
+            <div class="team-title">Produk</div>
+            <div class="team-sub" id="prodHeaderSub">—</div>
+          </div>
+          <div class="team-actions-header">
+            <button class="btn-primary-sm" onclick="showProdForm(null)"><i class="ti ti-plus"></i><span>Tambah Produk</span></button>
+          </div>
+        </div>
+
         <!-- Product List -->
         <div class="card" id="prodListCard" style="padding:0;overflow:hidden">
-          <!-- Header -->
-          <div class="prod-header">
-            <div class="prod-header-info">
-              <div class="prod-header-icon"><i class="ti ti-package" aria-hidden="true"></i></div>
-              <div>
-                <div class="prod-header-title-row">
-                  <div class="prod-header-title">Produk</div>
-                  <span class="prod-header-count" id="prodHeaderCount">0 produk</span>
-                </div>
-                <div class="prod-header-sub" id="prodHeaderSub">—</div>
-              </div>
-            </div>
-            <button class="prod-header-btn-new" onclick="showProdForm(null)"><i class="ti ti-plus" aria-hidden="true"></i>Tambah Produk</button>
+          <!-- Header lama di-hide, count masih di-akses lewat ID -->
+          <div class="prod-header" style="display:none">
+            <span id="prodHeaderCount">0 produk</span>
           </div>
 
           <!-- Filter strip -->
