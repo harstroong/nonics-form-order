@@ -1466,7 +1466,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-05-rename-title';
+window.__APP_VERSION = '2026-06-05-cs-stats-fix';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -5988,27 +5988,35 @@ function renderCSLeads(){
   // Apply date filter (counter & list semua ikut filter sekarang)
   const range = getDateFilterRange('cs');
   const inRange = filterLeadsByDate(allMine, range);
-  // Stat cards: hitung berdasarkan PERIODE TERPILIH
-  const pendingN = inRange.filter(l => !l.followStatus || l.followStatus === 'pending').length;
-  const doneN = inRange.filter(l => l.followStatus === 'contacted' || l.followStatus === 'closed').length;
-  document.getElementById('cs-total').textContent = inRange.length;
+
+  // Apply produk filter SEBELUM hitung stat cards (biar angka di atas ikut produk filter)
+  const prodFilter = (document.getElementById('csProdFilter') || {}).value || '';
+  const inScope = prodFilter
+    ? inRange.filter(l => (l.produk || '') === prodFilter)
+    : inRange;
+
+  // Stat cards: hitung berdasarkan SCOPE (periode + produk filter)
+  const pendingN = inScope.filter(l => !l.followStatus || l.followStatus === 'pending').length;
+  const doneN = inScope.filter(l => l.followStatus === 'contacted' || l.followStatus === 'closed').length;
+  document.getElementById('cs-total').textContent = inScope.length;
   document.getElementById('cs-pending').textContent = pendingN;
   document.getElementById('cs-done').textContent = doneN;
-  // Update label dinamis sesuai periode
+  // Update label dinamis sesuai periode + produk
   const labelEl = document.getElementById('cs-total-label');
   const trendEl = document.getElementById('cs-total-trend');
   if(labelEl) labelEl.textContent = (range.preset === 'lifetime') ? 'Lead Saya (Total)' : 'Lead Saya';
-  if(trendEl) trendEl.textContent = (range.preset === 'lifetime') ? 'Semua waktu' : range.label;
-  updateDateFilterInfo('cs', inRange.length, allMine.length);
+  if(trendEl){
+    let trendText = (range.preset === 'lifetime') ? 'Semua waktu' : range.label;
+    if(prodFilter) trendText += ' · ' + prodFilter;
+    trendEl.textContent = trendText;
+  }
+  updateDateFilterInfo('cs', inScope.length, allMine.length);
 
   const q = (document.getElementById('csLeadSearch') || {}).value || '';
-  const prodFilter = (document.getElementById('csProdFilter') || {}).value || '';
-  let leads = inRange.slice();
+  // Lanjut filter list dari inScope (sudah include produk filter)
+  let leads = inScope.slice();
   if(csLeadFilter !== 'all'){
     leads = leads.filter(l => (l.followStatus || 'pending') === csLeadFilter);
-  }
-  if(prodFilter){
-    leads = leads.filter(l => (l.produk||'') === prodFilter);
   }
   if(q){
     const qq = q.toLowerCase();
