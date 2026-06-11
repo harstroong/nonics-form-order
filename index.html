@@ -942,9 +942,10 @@ tr:hover td{background:var(--surface-2)}
 .tn-nav{display:flex; gap:4px; flex:0 0 auto; align-items:center; position:relative}
 .tn-nav-item{
   background:none; border:none; cursor:pointer; font-family:inherit;
-  color:var(--text-muted); padding:9px 16px; border-radius:8px;
+  color:var(--text-secondary); padding:11px 22px; border-radius:10px;
   font-size:14px; font-weight:500; display:flex; align-items:center; gap:5px;
   transition:background .15s, color .15s; white-space:nowrap;
+  min-height:42px; min-width:96px; justify-content:center;
 }
 .tn-nav-item:hover{background:var(--surface-2); color:var(--text)}
 .tn-nav-item.active{background:var(--primary-soft); color:var(--primary); font-weight:500}
@@ -1999,7 +2000,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-11-leads-v3';
+window.__APP_VERSION = '2026-06-11-revert-headers';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
