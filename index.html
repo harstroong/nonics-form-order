@@ -1716,16 +1716,17 @@ tr:hover td{background:var(--surface-2)}
    LOGIN ROLE TABS (Admin / CS)
 ═══════════════════════════════════════════ */
 .login-tabs{
-  display:flex;gap:4px;
+  display:flex;gap:3px;flex-wrap:wrap;
   background:rgba(255,255,255,.05);
   border:1px solid rgba(255,255,255,.08);
   padding:4px;border-radius:10px;margin-bottom:22px;
 }
 .login-tab{
-  flex:1;border:none;background:transparent;
+  flex:1 1 90px;min-width:90px;border:none;background:transparent;
   color:rgba(255,255,255,.5);
-  padding:9px 12px;font-size:13px;font-weight:600;
+  padding:9px 8px;font-size:11.5px;font-weight:600;
   border-radius:7px;cursor:pointer;font-family:inherit;transition:all .15s;
+  white-space:nowrap;
 }
 .login-tab:hover{color:rgba(255,255,255,.85)}
 .login-tab.active{
@@ -2085,7 +2086,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-12-produk-sort';
+window.__APP_VERSION = '2026-06-12-phase1-digital';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -2491,17 +2492,87 @@ function __safeSwitchLoginTab(tab){
   }
   // Fallback ES5
   var tA = document.getElementById('loginTabAdmin');
+  var tAD = document.getElementById('loginTabAdminDigital');
   var tC = document.getElementById('loginTabCS');
   var tAd = document.getElementById('loginTabAd');
+  var tCust = document.getElementById('loginTabCustomer');
   var fA = document.getElementById('loginAdminForm');
+  var fAD = document.getElementById('loginAdminDigitalForm');
   var fC = document.getElementById('loginCSForm');
   var fAd = document.getElementById('loginAdForm');
+  var fCust = document.getElementById('loginCustomerForm');
   if(tA) tA.className = 'login-tab' + (tab === 'admin' ? ' active' : '');
+  if(tAD) tAD.className = 'login-tab' + (tab === 'adminDigital' ? ' active' : '');
   if(tC) tC.className = 'login-tab' + (tab === 'cs' ? ' active' : '');
   if(tAd) tAd.className = 'login-tab' + (tab === 'advertiser' ? ' active' : '');
+  if(tCust) tCust.className = 'login-tab' + (tab === 'customer' ? ' active' : '');
   if(fA) fA.style.display = (tab === 'admin' ? 'block' : 'none');
+  if(fAD) fAD.style.display = (tab === 'adminDigital' ? 'block' : 'none');
   if(fC) fC.style.display = (tab === 'cs' ? 'block' : 'none');
   if(fAd) fAd.style.display = (tab === 'advertiser' ? 'block' : 'none');
+  if(fCust) fCust.style.display = (tab === 'customer' ? 'block' : 'none');
+}
+
+/* Admin Digital login (Phase 1 stub — pakai password yang sama dengan admin fisik buat sekarang.
+   Bisa di-pisahin pake separate password key di Phase 4) */
+function __safeAdminDigitalLogin(){
+  var pwEl = document.getElementById('loginAdminDigPass');
+  var errEl = document.getElementById('loginAdminDigErr');
+  if(!pwEl) return;
+  var pw = pwEl.value || '';
+  // Cek password: pakai od_admin_pw_digital kalau ada, fallback ke od_admin_pw, fallback default
+  var savedDig = null, savedPhys = null;
+  try { savedDig = localStorage.getItem('od_admin_pw_digital'); } catch(e){}
+  try { savedPhys = localStorage.getItem('od_admin_pw'); } catch(e){}
+  var expected = savedDig || savedPhys || 'admin123';
+  if(pw !== expected){
+    if(errEl) errEl.classList.add('show');
+    pwEl.classList.add('err');
+    return;
+  }
+  pwEl.value = '';
+  if(errEl) errEl.classList.remove('show');
+  pwEl.classList.remove('err');
+  try { localStorage.setItem('od_session', JSON.stringify({role:'adminDigital',ts:Date.now()})); } catch(e){}
+  if(typeof unlockAudio === 'function'){ try { unlockAudio(); } catch(e){} }
+  if(typeof askNotifPermission === 'function'){ try { askNotifPermission(); } catch(e){} }
+  if(typeof showAdminDigitalView === 'function') showAdminDigitalView();
+}
+
+/* Customer login (Phase 1 stub — auth eventually checks od_customers) */
+function __safeCustomerLogin(){
+  var eEl = document.getElementById('loginCustEmail');
+  var pEl = document.getElementById('loginCustPass');
+  var errEl = document.getElementById('loginCustErr');
+  if(!eEl || !pEl) return;
+  var email = (eEl.value || '').trim().toLowerCase();
+  var pw = pEl.value || '';
+  if(!email || !pw){
+    if(errEl) errEl.classList.add('show');
+    return;
+  }
+  var customers = [];
+  try {
+    var raw = localStorage.getItem('od_customers_digital');
+    if(raw) customers = JSON.parse(raw) || [];
+  } catch(e){}
+  var found = customers.find(function(c){
+    return (c.email||'').toLowerCase() === email && c.password === pw && c.active !== false;
+  });
+  if(!found){
+    if(errEl) errEl.classList.add('show');
+    eEl.classList.add('err');
+    pEl.classList.add('err');
+    return;
+  }
+  eEl.value = '';
+  pEl.value = '';
+  if(errEl) errEl.classList.remove('show');
+  eEl.classList.remove('err');
+  pEl.classList.remove('err');
+  window.currentCustomer = found;
+  try { localStorage.setItem('od_session', JSON.stringify({role:'customer',email:found.email,ts:Date.now()})); } catch(e){}
+  if(typeof showCustomerView === 'function') showCustomerView();
 }
 
 function __doAdLoginSuccess(user){
@@ -2717,20 +2788,49 @@ document.addEventListener('DOMContentLoaded', function(){
 
     <!-- Role tabs -->
     <div class="login-tabs">
-      <button type="button" class="login-tab active" id="loginTabAdmin" onclick="__safeSwitchLoginTab('admin')">👤 Admin</button>
+      <button type="button" class="login-tab active" id="loginTabAdmin" onclick="__safeSwitchLoginTab('admin')">📦 Admin Fisik</button>
+      <button type="button" class="login-tab" id="loginTabAdminDigital" onclick="__safeSwitchLoginTab('adminDigital')">💻 Admin Digital</button>
       <button type="button" class="login-tab" id="loginTabCS" onclick="__safeSwitchLoginTab('cs')">💬 CS</button>
       <button type="button" class="login-tab" id="loginTabAd" onclick="__safeSwitchLoginTab('advertiser')">📊 Advertisers</button>
+      <button type="button" class="login-tab" id="loginTabCustomer" onclick="__safeSwitchLoginTab('customer')">👤 Customer</button>
     </div>
 
-    <!-- Admin form (original) -->
+    <!-- Admin form (original — Admin Fisik) -->
     <div id="loginAdminForm">
-      <label class="login-label">Password Admin</label>
+      <label class="login-label">Password Admin Fisik</label>
       <div class="pass-wrap">
         <input class="login-input" id="loginPass" type="password" placeholder="Masukkan password..." autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="new-password"/>
         <button type="button" class="pass-eye" onclick="__togglePass('loginPass', this)" title="Lihat password">👁</button>
       </div>
       <div class="login-err" id="loginErr">Password salah. Coba lagi.</div>
-      <button type="button" class="login-btn" onclick="__safeAdminLogin()">Masuk ke Dashboard →</button>
+      <button type="button" class="login-btn" onclick="__safeAdminLogin()">Masuk Dashboard Fisik →</button>
+      <div class="login-footer" style="margin-top:10px;font-size:11px">Buat manage produk fisik, COD, dropship.</div>
+    </div>
+
+    <!-- Admin Digital form -->
+    <div id="loginAdminDigitalForm" style="display:none">
+      <label class="login-label">Password Admin Digital</label>
+      <div class="pass-wrap">
+        <input class="login-input" id="loginAdminDigPass" type="password" placeholder="Masukkan password..." autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="new-password"/>
+        <button type="button" class="pass-eye" onclick="__togglePass('loginAdminDigPass', this)" title="Lihat password">👁</button>
+      </div>
+      <div class="login-err" id="loginAdminDigErr">Password salah. Coba lagi.</div>
+      <button type="button" class="login-btn" onclick="__safeAdminDigitalLogin()">Masuk Dashboard Digital →</button>
+      <div class="login-footer" style="margin-top:10px;font-size:11px">Buat manage kursus/ebook/template + payment gateway.</div>
+    </div>
+
+    <!-- Customer form -->
+    <div id="loginCustomerForm" style="display:none">
+      <label class="login-label">Email</label>
+      <input class="login-input" id="loginCustEmail" type="email" placeholder="email@kamu.com" autocomplete="email" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="email"/>
+      <label class="login-label">Password</label>
+      <div class="pass-wrap">
+        <input class="login-input" id="loginCustPass" type="password" placeholder="Password..." autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false"/>
+        <button type="button" class="pass-eye" onclick="__togglePass('loginCustPass', this)" title="Lihat password">👁</button>
+      </div>
+      <div class="login-err" id="loginCustErr">Email atau password salah.</div>
+      <button type="button" class="login-btn" onclick="__safeCustomerLogin()">Masuk Member Area →</button>
+      <div class="login-footer" style="margin-top:10px;font-size:11px">Belum punya akun? Akun otomatis dibuat setelah lo beli produk digital — cek email lo.</div>
     </div>
 
     <!-- CS form (baru) -->
@@ -4163,6 +4263,105 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 </div>
 
+
+<!-- ═══════════════════════════════════
+     ADMIN DIGITAL VIEW — scaffold Phase 1
+     Topnav + panels (Dashboard / Pesanan / Produk / Pelanggan / Payment / Lainnya)
+     akan diisi di Phase 2.
+═══════════════════════════════════ -->
+<div id="viewDashboardDigital" style="display:none;min-height:100vh;background:var(--bg);">
+  <nav class="topnav" id="topnavDigital">
+    <div class="tn-logo">
+      <div class="tn-logo-icon" style="background:linear-gradient(135deg,#0EA5E9,#0369A1)"><i class="ti ti-cloud-data-connection" aria-hidden="true"></i></div>
+      <div class="tn-logo-text">Nonics<span class="tn-logo-accent" style="color:#0EA5E9"> · Digital</span></div>
+    </div>
+    <div class="tn-spacer"></div>
+    <div class="tn-nav">
+      <button class="tn-nav-item active" data-dignav="overview" onclick="showDigitalPanel('overview')">Dashboard</button>
+      <button class="tn-nav-item" data-dignav="pesanan" onclick="showDigitalPanel('pesanan')">Pesanan</button>
+      <button class="tn-nav-item" data-dignav="produk" onclick="showDigitalPanel('produk')">Produk</button>
+      <button class="tn-nav-item" data-dignav="pelanggan" onclick="showDigitalPanel('pelanggan')">Pelanggan</button>
+      <button class="tn-nav-item" data-dignav="payment" onclick="showDigitalPanel('payment')">Payment</button>
+    </div>
+    <div class="tn-gap"></div>
+    <div class="tn-actions">
+      <button class="tn-cta-btn" style="background:linear-gradient(135deg,#0EA5E9,#0369A1)" onclick="showDigitalPanel('produk');dgNewProd()"><i class="ti ti-plus"></i><span class="tn-btn-label">Produk</span></button>
+      <button class="tn-avatar" onclick="doAdminDigitalLogout()" title="Logout">⏻</button>
+    </div>
+  </nav>
+
+  <div class="content" id="digitalContent">
+    <div class="panel-digital active" id="dgpanel-overview">
+      <div class="team-header">
+        <div>
+          <div class="team-title">Dashboard Digital</div>
+          <div class="team-sub">Overview produk digital — sales, revenue, customers aktif</div>
+        </div>
+      </div>
+      <div style="background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:48px 32px;text-align:center">
+        <div style="font-size:32px;margin-bottom:10px;opacity:.4">💻</div>
+        <div style="font-size:14px;color:var(--text);font-weight:500;margin-bottom:6px">Phase 2 — coming soon</div>
+        <div style="font-size:12px;color:var(--text-muted);max-width:480px;margin:0 auto;line-height:1.6">Stat cards (revenue, sales, customers, refund rate) + chart + top digital products bakal di-deploy di Phase 2.</div>
+      </div>
+    </div>
+
+    <div class="panel-digital" id="dgpanel-pesanan" style="display:none">
+      <div class="team-header"><div><div class="team-title">Pesanan Digital</div><div class="team-sub">Order yang masuk dari form digital — status pembayaran &amp; akses</div></div></div>
+      <div style="background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:48px 32px;text-align:center;color:var(--text-muted);font-size:13px">Phase 2 — coming soon</div>
+    </div>
+
+    <div class="panel-digital" id="dgpanel-produk" style="display:none">
+      <div class="team-header">
+        <div><div class="team-title">Produk Digital</div><div class="team-sub">Kursus / Ebook / Template — upload file, set harga, generate link form</div></div>
+        <div class="team-actions-header"><button class="btn-primary-sm" onclick="dgNewProd()"><i class="ti ti-plus"></i><span>Produk Digital Baru</span></button></div>
+      </div>
+      <div style="background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:48px 32px;text-align:center;color:var(--text-muted);font-size:13px">Phase 2 — coming soon</div>
+    </div>
+
+    <div class="panel-digital" id="dgpanel-pelanggan" style="display:none">
+      <div class="team-header"><div><div class="team-title">Pelanggan</div><div class="team-sub">List customer yang udah beli + akses produk mereka</div></div></div>
+      <div style="background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:48px 32px;text-align:center;color:var(--text-muted);font-size:13px">Phase 3 — coming soon</div>
+    </div>
+
+    <div class="panel-digital" id="dgpanel-payment" style="display:none">
+      <div class="team-header"><div><div class="team-title">Payment Settings</div><div class="team-sub">Konfigurasi Midtrans (Server Key + Client Key) + Resend email</div></div></div>
+      <div style="background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:48px 32px;text-align:center;color:var(--text-muted);font-size:13px">Phase 4 — coming soon</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     CUSTOMER MEMBER AREA — scaffold Phase 1
+     Login pakai email + password yang dikirim ke email setelah purchase.
+     List produk digital yang dia beli + tombol akses.
+═══════════════════════════════════ -->
+<div id="viewMember" style="display:none;min-height:100vh;background:var(--bg);">
+  <nav class="topnav">
+    <div class="tn-logo">
+      <div class="tn-logo-icon" style="background:linear-gradient(135deg,#7C3AED,#5B21B6)"><i class="ti ti-user-circle" aria-hidden="true"></i></div>
+      <div class="tn-logo-text">Nonics<span class="tn-logo-accent" style="color:#7C3AED"> · Member</span></div>
+    </div>
+    <div class="tn-spacer"></div>
+    <div class="tn-actions">
+      <div style="font-size:13px;color:var(--text);margin-right:8px"><span id="customerNameTopnav">—</span></div>
+      <button class="tn-avatar" onclick="doCustomerLogout()" title="Logout">⏻</button>
+    </div>
+  </nav>
+
+  <div class="content">
+    <div class="team-header">
+      <div>
+        <div class="team-title">My Library</div>
+        <div class="team-sub">Akses produk digital yang lo udah beli</div>
+      </div>
+    </div>
+    <div id="memberProductList" style="background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:48px 32px;text-align:center">
+      <div style="font-size:32px;margin-bottom:10px;opacity:.4">📚</div>
+      <div style="font-size:14px;color:var(--text);font-weight:500;margin-bottom:6px">Belum ada produk</div>
+      <div style="font-size:12px;color:var(--text-muted);max-width:480px;margin:0 auto;line-height:1.6">Phase 3 — list produk yang dibeli + tombol akses bakal di-deploy berikutnya.</div>
+    </div>
+  </div>
+</div>
 
 <!-- ═══════════════════════════════════
      CS VIEW (login CS — terpisah dari admin)
@@ -6991,23 +7190,36 @@ function deleteCSUser(id){
    LOGIN ROLE TABS
 ═════════════════════════════════════════════ */
 function switchLoginTab(tab){
-  document.getElementById('loginTabAdmin').classList.toggle('active', tab === 'admin');
-  document.getElementById('loginTabCS').classList.toggle('active', tab === 'cs');
-  const tAd = document.getElementById('loginTabAd');
+  // 5 tabs: admin (= Admin Fisik), adminDigital, cs, advertiser, customer
+  var tA = document.getElementById('loginTabAdmin');
+  var tAD = document.getElementById('loginTabAdminDigital');
+  var tC = document.getElementById('loginTabCS');
+  var tAd = document.getElementById('loginTabAd');
+  var tCust = document.getElementById('loginTabCustomer');
+  if(tA) tA.classList.toggle('active', tab === 'admin');
+  if(tAD) tAD.classList.toggle('active', tab === 'adminDigital');
+  if(tC) tC.classList.toggle('active', tab === 'cs');
   if(tAd) tAd.classList.toggle('active', tab === 'advertiser');
-  document.getElementById('loginAdminForm').style.display = tab === 'admin' ? 'block' : 'none';
-  document.getElementById('loginCSForm').style.display = tab === 'cs' ? 'block' : 'none';
-  const fAd = document.getElementById('loginAdForm');
+  if(tCust) tCust.classList.toggle('active', tab === 'customer');
+
+  var fA = document.getElementById('loginAdminForm');
+  var fAD = document.getElementById('loginAdminDigitalForm');
+  var fC = document.getElementById('loginCSForm');
+  var fAd = document.getElementById('loginAdForm');
+  var fCust = document.getElementById('loginCustomerForm');
+  if(fA) fA.style.display = tab === 'admin' ? 'block' : 'none';
+  if(fAD) fAD.style.display = tab === 'adminDigital' ? 'block' : 'none';
+  if(fC) fC.style.display = tab === 'cs' ? 'block' : 'none';
   if(fAd) fAd.style.display = tab === 'advertiser' ? 'block' : 'none';
-  document.getElementById('loginErr').classList.remove('show');
-  document.getElementById('loginCSErr').classList.remove('show');
-  const erAd = document.getElementById('loginAdErr');
-  if(erAd) erAd.classList.remove('show');
-  document.getElementById('loginPass').classList.remove('err');
-  document.getElementById('loginCSUser').classList.remove('err');
-  document.getElementById('loginCSPass').classList.remove('err');
-  const uAd = document.getElementById('loginAdUser'); if(uAd) uAd.classList.remove('err');
-  const pAd = document.getElementById('loginAdPass'); if(pAd) pAd.classList.remove('err');
+  if(fCust) fCust.style.display = tab === 'customer' ? 'block' : 'none';
+
+  // Clear error states
+  ['loginErr','loginAdminDigErr','loginCSErr','loginAdErr','loginCustErr'].forEach(function(id){
+    var e = document.getElementById(id); if(e) e.classList.remove('show');
+  });
+  ['loginPass','loginAdminDigPass','loginCSUser','loginCSPass','loginAdUser','loginAdPass','loginCustEmail','loginCustPass'].forEach(function(id){
+    var e = document.getElementById(id); if(e) e.classList.remove('err');
+  });
 }
 
 /* ═════════════════════════════════════════════
@@ -8937,6 +9149,81 @@ function syncAdUserSave(u){ if(fb.configured) dbWriteDoc(FB_COLLECTIONS.ad_users
 function syncAdUserDelete(id){ if(fb.configured) dbDeleteDoc(FB_COLLECTIONS.ad_users, id); }
 
 /* ═════════════════════════════════════════════
+   ADMIN DIGITAL VIEW + CUSTOMER VIEW — Phase 1 scaffold
+═════════════════════════════════════════════ */
+function showAdminDigitalView(){
+  var vLogin = document.getElementById('viewLogin');
+  var vDash = document.getElementById('viewDashboard');
+  var vCS = document.getElementById('viewCS');
+  var vDig = document.getElementById('viewDashboardDigital');
+  var vMem = document.getElementById('viewMember');
+  if(vLogin) vLogin.style.display = 'none';
+  if(vDash){ vDash.style.display = 'none'; vDash.classList.remove('show'); }
+  if(vCS) vCS.style.display = 'none';
+  if(vMem) vMem.style.display = 'none';
+  if(vDig) vDig.style.display = 'block';
+  // Default to overview panel
+  if(typeof showDigitalPanel === 'function') showDigitalPanel('overview');
+}
+
+function doAdminDigitalLogout(){
+  if(!confirmDestructive('Logout dari Admin Digital?', '⚠️ Yakin logout? Data lokal tetap aman.')) return;
+  try { localStorage.removeItem('od_session'); } catch(e){}
+  var vDig = document.getElementById('viewDashboardDigital');
+  if(vDig) vDig.style.display = 'none';
+  var vLogin = document.getElementById('viewLogin');
+  if(vLogin) vLogin.style.display = 'flex';
+  switchLoginTab('adminDigital');
+}
+
+function showDigitalPanel(name){
+  document.querySelectorAll('.panel-digital').forEach(function(p){
+    p.style.display = 'none';
+    p.classList.remove('active');
+  });
+  var target = document.getElementById('dgpanel-' + name);
+  if(target){ target.style.display = ''; target.classList.add('active'); }
+  // Sync active nav
+  document.querySelectorAll('#topnavDigital .tn-nav-item').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-dignav') === name);
+  });
+}
+
+function dgNewProd(){
+  // Stub Phase 1 — bakal di-implement di Phase 2
+  toast('📦 Produk Digital baru — Phase 2 coming soon');
+}
+
+/* CUSTOMER MEMBER AREA */
+window.currentCustomer = null;
+
+function showCustomerView(){
+  var vLogin = document.getElementById('viewLogin');
+  var vDash = document.getElementById('viewDashboard');
+  var vCS = document.getElementById('viewCS');
+  var vDig = document.getElementById('viewDashboardDigital');
+  var vMem = document.getElementById('viewMember');
+  if(vLogin) vLogin.style.display = 'none';
+  if(vDash){ vDash.style.display = 'none'; vDash.classList.remove('show'); }
+  if(vCS) vCS.style.display = 'none';
+  if(vDig) vDig.style.display = 'none';
+  if(vMem) vMem.style.display = 'block';
+  var nameEl = document.getElementById('customerNameTopnav');
+  if(nameEl && window.currentCustomer) nameEl.textContent = window.currentCustomer.name || window.currentCustomer.email;
+  // Phase 3 will populate the product list
+}
+
+function doCustomerLogout(){
+  try { localStorage.removeItem('od_session'); } catch(e){}
+  window.currentCustomer = null;
+  var vMem = document.getElementById('viewMember');
+  if(vMem) vMem.style.display = 'none';
+  var vLogin = document.getElementById('viewLogin');
+  if(vLogin) vLogin.style.display = 'flex';
+  switchLoginTab('customer');
+}
+
+/* ═════════════════════════════════════════════
    TEAM MEMBERS PANEL (unified: CS access + Advertisers)
 ═════════════════════════════════════════════ */
 var teamCurrentTab = 'all';
@@ -9680,6 +9967,24 @@ async function restoreSession(){
     document.getElementById('viewLogin').style.display = 'none';
     showDashboard();
     return true;
+  }
+  if(session.role === 'adminDigital'){
+    document.getElementById('viewLogin').style.display = 'none';
+    if(typeof showAdminDigitalView === 'function') showAdminDigitalView();
+    return true;
+  }
+  if(session.role === 'customer' && session.email){
+    var custs = [];
+    try { var raw = localStorage.getItem('od_customers_digital'); if(raw) custs = JSON.parse(raw) || []; } catch(e){}
+    var c = custs.find(function(x){ return (x.email||'').toLowerCase() === String(session.email).toLowerCase() && x.active !== false; });
+    if(c){
+      window.currentCustomer = c;
+      document.getElementById('viewLogin').style.display = 'none';
+      if(typeof showCustomerView === 'function') showCustomerView();
+      return true;
+    } else {
+      clearSession();
+    }
   }
   if(session.role === 'advertiser' && session.userId !== undefined){
     // Cari Advertiser user di LS
