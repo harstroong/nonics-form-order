@@ -1114,14 +1114,14 @@ tr:hover td{background:var(--surface-2)}
 .tn-accent-swatches button.active{outline:2px solid currentColor; outline-offset:2px; transform:scale(1.05)}
 .tn-accent-current{font-size:10px; color:var(--primary); font-weight:500; text-transform:capitalize}
 
-/* SUB-HEADER (judul + period selector) */
+/* SUB-HEADER — title di-hide (duplikat sama team-header), period selector floating kanan */
 .subheader{
-  padding:22px 28px 0; display:flex; align-items:center; gap:12px;
-  flex-wrap:wrap;
+  padding:14px 28px 0; display:flex; align-items:center; gap:12px;
+  flex-wrap:wrap; justify-content:flex-end;
 }
-.subheader-title{font-size:20px; font-weight:500; color:var(--text); letter-spacing:-.3px}
-.subheader-sub{font-size:13px; color:var(--text-muted)}
-.subheader-spacer{flex:1}
+.subheader-title{display:none}
+.subheader-sub{display:none}
+.subheader-spacer{display:none}
 
 /* HIDE OLD SIDEBAR + OLD TOPBAR */
 .sidebar{display:none !important}
@@ -2072,7 +2072,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-12-notif-bell';
+window.__APP_VERSION = '2026-06-12-hide-subtitle';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
