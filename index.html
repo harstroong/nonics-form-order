@@ -2086,7 +2086,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-12-phase1-digital';
+window.__APP_VERSION = '2026-06-12-phase1-digital-pw';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -4324,8 +4324,35 @@ document.addEventListener('DOMContentLoaded', function(){
     </div>
 
     <div class="panel-digital" id="dgpanel-payment" style="display:none">
-      <div class="team-header"><div><div class="team-title">Payment Settings</div><div class="team-sub">Konfigurasi Midtrans (Server Key + Client Key) + Resend email</div></div></div>
-      <div style="background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:48px 32px;text-align:center;color:var(--text-muted);font-size:13px">Phase 4 — coming soon</div>
+      <div class="team-header">
+        <div><div class="team-title">Payment &amp; Security</div><div class="team-sub">Konfigurasi Midtrans + ganti password Admin Digital</div></div>
+      </div>
+
+      <div style="background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:24px;margin-bottom:14px;">
+        <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:8px"><i class="ti ti-key" style="font-size:16px;color:var(--primary)"></i>Password Admin Digital</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;line-height:1.6">Set password sendiri buat Admin Digital (terpisah dari Admin Fisik). Default sekarang ngikut password Admin Fisik.</div>
+        <div id="dgPwStatus" style="font-size:11px;margin-bottom:14px;display:inline-block;padding:5px 11px;border-radius:99px;background:var(--orange-soft);color:var(--orange);font-weight:500"><i class="ti ti-alert-circle" style="font-size:13px;vertical-align:-2px;margin-right:3px"></i>Belum di-set — pakai password Admin Fisik</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:520px">
+          <div>
+            <label class="tm-label">Password baru *</label>
+            <input type="password" id="dgPwNew" class="tm-input" placeholder="Min 6 karakter" autocomplete="new-password"/>
+          </div>
+          <div>
+            <label class="tm-label">Konfirmasi password *</label>
+            <input type="password" id="dgPwConfirm" class="tm-input" placeholder="Ketik ulang" autocomplete="new-password"/>
+          </div>
+        </div>
+        <div id="dgPwError" class="tm-error" style="display:none;margin-top:10px;max-width:520px"></div>
+        <div style="margin-top:14px;display:flex;gap:8px">
+          <button class="btn-primary-sm" onclick="dgSavePassword()"><i class="ti ti-device-floppy"></i><span>Simpan Password</span></button>
+          <button class="btn-outline-sm" onclick="dgClearPassword()" id="dgClearPwBtn" style="display:none"><i class="ti ti-rotate"></i><span>Reset ke default (samakan dengan Admin Fisik)</span></button>
+        </div>
+      </div>
+
+      <div style="background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:48px 24px;text-align:center;color:var(--text-muted);font-size:13px">
+        <div style="font-size:24px;margin-bottom:8px;opacity:.4">💳</div>
+        Midtrans + Resend config — Phase 4 coming soon
+      </div>
     </div>
   </div>
 </div>
@@ -9187,11 +9214,61 @@ function showDigitalPanel(name){
   document.querySelectorAll('#topnavDigital .tn-nav-item').forEach(function(b){
     b.classList.toggle('active', b.getAttribute('data-dignav') === name);
   });
+  // Panel-specific init
+  if(name === 'payment' && typeof dgRefreshPwStatus === 'function') dgRefreshPwStatus();
 }
 
 function dgNewProd(){
   // Stub Phase 1 — bakal di-implement di Phase 2
   toast('📦 Produk Digital baru — Phase 2 coming soon');
+}
+
+/* Password Admin Digital — set/change/reset */
+function dgRefreshPwStatus(){
+  var statusEl = document.getElementById('dgPwStatus');
+  var clearBtn = document.getElementById('dgClearPwBtn');
+  if(!statusEl) return;
+  var saved = null;
+  try { saved = localStorage.getItem('od_admin_pw_digital'); } catch(e){}
+  if(saved){
+    statusEl.innerHTML = '<i class="ti ti-shield-check" style="font-size:13px;vertical-align:-2px;margin-right:3px"></i>Password Admin Digital aktif & terpisah dari Admin Fisik';
+    statusEl.style.background = 'var(--green-soft)';
+    statusEl.style.color = 'var(--green)';
+    if(clearBtn) clearBtn.style.display = '';
+  } else {
+    statusEl.innerHTML = '<i class="ti ti-alert-circle" style="font-size:13px;vertical-align:-2px;margin-right:3px"></i>Belum di-set — pakai password Admin Fisik';
+    statusEl.style.background = 'var(--orange-soft)';
+    statusEl.style.color = 'var(--orange)';
+    if(clearBtn) clearBtn.style.display = 'none';
+  }
+}
+
+function dgSavePassword(){
+  var newEl = document.getElementById('dgPwNew');
+  var confEl = document.getElementById('dgPwConfirm');
+  var errEl = document.getElementById('dgPwError');
+  if(!newEl || !confEl) return;
+  function showErr(msg){ if(errEl){ errEl.textContent = msg; errEl.style.display = 'block'; } }
+  if(errEl) errEl.style.display = 'none';
+  var pwNew = (newEl.value || '').trim();
+  var pwConf = (confEl.value || '').trim();
+  if(!pwNew){ showErr('Password baru wajib diisi.'); return; }
+  if(pwNew.length < 6){ showErr('Password minimal 6 karakter.'); return; }
+  if(pwNew !== pwConf){ showErr('Konfirmasi password tidak cocok.'); return; }
+  try { localStorage.setItem('od_admin_pw_digital', pwNew); } catch(e){
+    showErr('Gagal simpan ke localStorage: '+e.message); return;
+  }
+  newEl.value = '';
+  confEl.value = '';
+  dgRefreshPwStatus();
+  toast('✅ Password Admin Digital di-update — login berikutnya pakai password baru');
+}
+
+function dgClearPassword(){
+  if(!confirmDestructive('Reset password Admin Digital?\n\nPassword bakal balik ngikut Admin Fisik.', '⚠️ Yakin reset? Setelah ini Admin Digital pakai password yang sama dengan Admin Fisik.')) return;
+  try { localStorage.removeItem('od_admin_pw_digital'); } catch(e){}
+  dgRefreshPwStatus();
+  toast('🔄 Password Admin Digital direset — sekarang pakai password Admin Fisik');
 }
 
 /* CUSTOMER MEMBER AREA */
