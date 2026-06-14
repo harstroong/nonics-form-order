@@ -1582,6 +1582,25 @@ tr:hover td{background:var(--surface-2)}
   .dg-cust-row{grid-template-columns:40px 1.3fr 100px 110px 1fr 100px 80px;gap:10px;padding:11px;font-size:11.5px}
 }
 
+/* Member area — product cards */
+.member-prod-card{background:#fff;border:0.5px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s}
+.member-prod-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(15,23,42,.08)}
+.member-prod-cover{aspect-ratio:16/10;display:flex;align-items:center;justify-content:center;font-size:48px}
+.member-prod-cover i{font-size:52px}
+.member-prod-body{padding:14px 16px;display:flex;flex-direction:column;gap:8px;flex:1}
+.member-prod-type{display:inline-block;align-self:flex-start;padding:3px 9px;border-radius:99px;font-size:10px;font-weight:500}
+.member-prod-name{font-size:14px;font-weight:500;color:var(--text);line-height:1.4}
+.member-prod-desc{font-size:12px;color:var(--text-muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.member-prod-meta{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--text-muted);font-family:'SF Mono',Menlo,monospace;margin-top:auto}
+.member-prod-meta i{margin-right:3px}
+.member-prod-btn{
+  margin-top:6px;background:linear-gradient(135deg,#7C3AED,#5B21B6);color:#fff;
+  border:none;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500;
+  display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;font-family:inherit;
+  transition:opacity .15s;
+}
+.member-prod-btn:hover{opacity:.9}
+
 /* Custom period quickset chips */
 .cp-quickset{display:flex;flex-wrap:wrap;gap:6px}
 .cp-quickset button{
@@ -2139,7 +2158,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-12-phase2-digital';
+window.__APP_VERSION = '2026-06-12-phase3-member';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -4562,23 +4581,70 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="tn-logo-text">Nonics<span class="tn-logo-accent" style="color:#7C3AED"> · Member</span></div>
     </div>
     <div class="tn-spacer"></div>
+    <div class="tn-nav">
+      <button class="tn-nav-item active" data-membernav="library" onclick="showMemberPanel('library')">My Library</button>
+      <button class="tn-nav-item" data-membernav="orders" onclick="showMemberPanel('orders')">Pesanan</button>
+      <button class="tn-nav-item" data-membernav="profile" onclick="showMemberPanel('profile')">Profile</button>
+    </div>
+    <div class="tn-gap"></div>
     <div class="tn-actions">
-      <div style="font-size:13px;color:var(--text);margin-right:8px"><span id="customerNameTopnav">—</span></div>
-      <button class="tn-avatar" onclick="doCustomerLogout()" title="Logout">⏻</button>
+      <div style="font-size:13px;color:var(--text);margin-right:8px;display:flex;align-items:center;gap:8px">
+        <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#5B21B6);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:500;font-size:12px" id="customerAvatar">?</div>
+        <span id="customerNameTopnav">—</span>
+      </div>
+      <button class="tn-avatar" style="background:linear-gradient(135deg,#94A3B8,#64748B)" onclick="doCustomerLogout()" title="Logout"><i class="ti ti-logout" style="font-size:16px"></i></button>
     </div>
   </nav>
 
   <div class="content">
-    <div class="team-header">
-      <div>
-        <div class="team-title">My Library</div>
-        <div class="team-sub">Akses produk digital yang lo udah beli</div>
+    <!-- LIBRARY PANEL -->
+    <div class="panel-member active" id="memberpanel-library">
+      <div class="team-header">
+        <div>
+          <div class="team-title">My Library</div>
+          <div class="team-sub" id="memberLibSub">—</div>
+        </div>
       </div>
+      <div id="memberProductGrid"></div>
     </div>
-    <div id="memberProductList" style="background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:48px 32px;text-align:center">
-      <div style="font-size:32px;margin-bottom:10px;opacity:.4">📚</div>
-      <div style="font-size:14px;color:var(--text);font-weight:500;margin-bottom:6px">Belum ada produk</div>
-      <div style="font-size:12px;color:var(--text-muted);max-width:480px;margin:0 auto;line-height:1.6">Phase 3 — list produk yang dibeli + tombol akses bakal di-deploy berikutnya.</div>
+
+    <!-- ORDERS PANEL -->
+    <div class="panel-member" id="memberpanel-orders" style="display:none">
+      <div class="team-header"><div><div class="team-title">Riwayat Pesanan</div><div class="team-sub" id="memberOrdSub">—</div></div></div>
+      <div id="memberOrderList" style="background:#fff;border:0.5px solid var(--border);border-radius:12px;overflow:hidden"></div>
+    </div>
+
+    <!-- PROFILE PANEL -->
+    <div class="panel-member" id="memberpanel-profile" style="display:none">
+      <div class="team-header"><div><div class="team-title">Profile</div><div class="team-sub">Data akun &amp; ganti password</div></div></div>
+      <div style="background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:24px;max-width:560px">
+        <div style="display:flex;align-items:center;gap:14px;padding-bottom:18px;border-bottom:1px solid var(--border);margin-bottom:18px">
+          <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#5B21B6);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500" id="memberProfileAvatar">?</div>
+          <div>
+            <div style="font-size:16px;font-weight:500;color:var(--text);margin-bottom:3px" id="memberProfileName">—</div>
+            <div style="font-size:12px;color:var(--text-muted);font-family:'SF Mono',Menlo,monospace" id="memberProfileEmail">—</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:18px">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">WhatsApp</div>
+          <div style="font-size:13px;color:var(--text);font-family:'SF Mono',Menlo,monospace" id="memberProfileWa">—</div>
+        </div>
+        <div style="margin-bottom:18px">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Bergabung sejak</div>
+          <div style="font-size:13px;color:var(--text);font-family:'SF Mono',Menlo,monospace" id="memberProfileJoined">—</div>
+        </div>
+
+        <div style="border-top:1px solid var(--border);padding-top:18px">
+          <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:10px"><i class="ti ti-key" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Ganti Password</div>
+          <div class="tm-field-row" style="margin-bottom:10px">
+            <div class="tm-field"><label class="tm-label">Password Baru *</label><input type="password" id="memberPwNew" class="tm-input" placeholder="Min 6 karakter"/></div>
+            <div class="tm-field"><label class="tm-label">Konfirmasi *</label><input type="password" id="memberPwConfirm" class="tm-input" placeholder="Ketik ulang"/></div>
+          </div>
+          <div id="memberPwError" class="tm-error" style="display:none;margin-bottom:10px"></div>
+          <button class="btn-primary-sm" onclick="memberChangePassword()"><i class="ti ti-device-floppy"></i><span>Update Password</span></button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -10065,6 +10131,187 @@ function dgSaveResendConfig(){
   toast('✅ Resend config disimpan — Phase 5 akan pakai ini buat kirim email');
 }
 
+/* ═════════════════════════════════════════════
+   CUSTOMER MEMBER AREA — Phase 3
+═════════════════════════════════════════════ */
+function showMemberPanel(name){
+  document.querySelectorAll('.panel-member').forEach(function(p){
+    p.style.display = 'none';
+    p.classList.remove('active');
+  });
+  var target = document.getElementById('memberpanel-' + name);
+  if(target){ target.style.display = ''; target.classList.add('active'); }
+  document.querySelectorAll('#viewMember .tn-nav-item').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-membernav') === name);
+  });
+  if(name === 'library') renderMemberLibrary();
+  else if(name === 'orders') renderMemberOrders();
+  else if(name === 'profile') renderMemberProfile();
+}
+
+function memberCurrentCustomer(){
+  var c = window.currentCustomer;
+  if(!c) return null;
+  // Re-fetch latest from storage (in case admin updated)
+  var fresh = getDgCustomers().find(function(x){ return x.id === c.id; });
+  if(fresh) window.currentCustomer = fresh;
+  return window.currentCustomer;
+}
+
+function renderMemberLibrary(){
+  var c = memberCurrentCustomer();
+  if(!c) return;
+  var prods = getDgProds();
+  var orders = getDgOrders().filter(function(o){
+    return (o.customerEmail||'').toLowerCase() === (c.email||'').toLowerCase() && o.accessStatus === 'granted';
+  });
+  // Unique product IDs (might have bought same product multiple times)
+  var seen = {};
+  var myProds = [];
+  orders.forEach(function(o){
+    if(seen[o.productId]) return;
+    seen[o.productId] = true;
+    var p = prods.find(function(x){ return x.id === o.productId; });
+    if(p) myProds.push({ prod: p, order: o });
+  });
+  // Also fallback to customer.productIds (for ones added before having orders)
+  (c.productIds || []).forEach(function(pid){
+    if(seen[pid]) return;
+    seen[pid] = true;
+    var p = prods.find(function(x){ return x.id === pid; });
+    if(p) myProds.push({ prod: p, order: null });
+  });
+  // Sort by latest access first
+  myProds.sort(function(a,b){
+    var aT = (a.order && a.order.grantedAt) || 0;
+    var bT = (b.order && b.order.grantedAt) || 0;
+    return bT - aT;
+  });
+
+  var subEl = document.getElementById('memberLibSub');
+  if(subEl) subEl.textContent = myProds.length ? (myProds.length + ' produk siap diakses') : 'Belum ada produk';
+
+  var grid = document.getElementById('memberProductGrid');
+  if(!grid) return;
+  if(!myProds.length){
+    grid.innerHTML = '<div style="background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:48px 32px;text-align:center"><div style="font-size:32px;margin-bottom:10px;opacity:.4">📚</div><div style="font-size:14px;color:var(--text);font-weight:500;margin-bottom:6px">Library kosong</div><div style="font-size:12px;color:var(--text-muted);max-width:480px;margin:0 auto;line-height:1.6">Lo belum punya produk digital. Setelah lo beli produk &amp; admin granting access, produk bakal muncul di sini.</div></div>';
+    return;
+  }
+  grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px';
+  grid.innerHTML = myProds.map(function(item){
+    var p = item.prod;
+    var meta = dgProdTypeMeta(p.type);
+    var accessLabel = p.accessType === 'file' ? ('📎 ' + (p.fileName || 'File')) : '🔗 Link';
+    var grantedAt = item.order && item.order.grantedAt ? dgFmtDate(item.order.grantedAt) : 'Akses aktif';
+    return '<div class="member-prod-card">' +
+      '<div class="member-prod-cover" style="background:'+meta.bg+';color:'+meta.color+'"><i class="ti '+meta.icon+'"></i></div>' +
+      '<div class="member-prod-body">' +
+        '<div class="member-prod-type" style="background:'+meta.bg+';color:'+meta.color+'">'+esc(meta.label)+'</div>' +
+        '<div class="member-prod-name">'+esc(p.name)+'</div>' +
+        (p.description ? '<div class="member-prod-desc">'+esc(p.description)+'</div>' : '') +
+        '<div class="member-prod-meta">' +
+          '<span><i class="ti ti-clock" style="font-size:11px;vertical-align:-1px"></i> '+esc(grantedAt)+'</span>' +
+          '<span>'+accessLabel+'</span>' +
+        '</div>' +
+        '<button class="member-prod-btn" onclick="memberAccessProduct('+p.id+')"><i class="ti ti-external-link" style="font-size:14px"></i>Buka Akses</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function memberAccessProduct(prodId){
+  var p = getDgProds().find(function(x){ return x.id === prodId; });
+  if(!p){ toast('⚠️ Produk tidak ditemukan'); return; }
+  if(p.accessType === 'link'){
+    if(!p.accessUrl){ toast('⚠️ Link akses kosong — hubungi admin'); return; }
+    window.open(p.accessUrl, '_blank', 'noopener,noreferrer');
+  } else if(p.accessType === 'file'){
+    if(!p.fileBase64){ toast('⚠️ File akses kosong — hubungi admin'); return; }
+    var a = document.createElement('a');
+    a.href = p.fileBase64;
+    a.download = p.fileName || (p.slug || 'file') + '.bin';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    toast('📥 Download dimulai: ' + (p.fileName || 'file'));
+  }
+}
+
+function renderMemberOrders(){
+  var c = memberCurrentCustomer();
+  if(!c) return;
+  var orders = getDgOrders().filter(function(o){
+    return (o.customerEmail||'').toLowerCase() === (c.email||'').toLowerCase();
+  });
+  orders.sort(function(a,b){ return (b.createdAt||0) - (a.createdAt||0); });
+
+  var subEl = document.getElementById('memberOrdSub');
+  if(subEl) subEl.textContent = orders.length + ' pesanan total';
+
+  var el = document.getElementById('memberOrderList');
+  if(!el) return;
+  if(!orders.length){
+    el.innerHTML = '<div style="padding:40px 16px;text-align:center;color:var(--text-muted);font-size:13px"><div style="font-size:28px;margin-bottom:8px;opacity:.5">📥</div>Belum ada pesanan.</div>';
+    return;
+  }
+  el.innerHTML = orders.map(function(o){
+    var statusMap = {
+      pending: { bg:'var(--orange-soft)', col:'var(--orange)', lbl:'Menunggu Pembayaran' },
+      paid: { bg:'var(--blue-soft)', col:'var(--blue)', lbl:'Sudah Bayar' },
+      failed: { bg:'var(--red-soft)', col:'var(--red)', lbl:'Dibatalkan' }
+    };
+    var s = statusMap[o.status] || statusMap.pending;
+    var accessBadge = o.accessStatus === 'granted'
+      ? '<span style="background:var(--green-soft);color:var(--green);padding:3px 9px;border-radius:99px;font-size:10px;font-weight:500"><i class="ti ti-check" style="font-size:11px;vertical-align:-1px"></i> Akses Aktif</span>'
+      : '<span style="background:var(--surface-2);color:var(--text-muted);padding:3px 9px;border-radius:99px;font-size:10px;font-weight:500">Belum Akses</span>';
+    return '<div style="display:grid;grid-template-columns:1fr 110px 140px 130px 100px;gap:12px;padding:13px 18px;align-items:center;font-size:13px;border-bottom:1px solid var(--border)">' +
+      '<div><div style="font-weight:500;color:var(--text)">'+esc(o.productName||'-')+'</div><div style="font-size:11px;color:var(--text-muted);font-family:\'SF Mono\',Menlo,monospace;margin-top:2px">Order #'+esc(String(o.id).slice(-8).toUpperCase())+'</div></div>' +
+      '<div style="font-family:\'SF Mono\',Menlo,monospace;color:var(--green);font-weight:500">'+esc(dgFmtRp(o.productPrice))+'</div>' +
+      '<div><span style="background:'+s.bg+';color:'+s.col+';padding:3px 9px;border-radius:99px;font-size:10px;font-weight:500">'+s.lbl+'</span></div>' +
+      '<div>'+accessBadge+'</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);font-family:\'SF Mono\',Menlo,monospace;text-align:right">'+esc(dgFmtDate(o.createdAt))+'</div>' +
+    '</div>';
+  }).join('');
+}
+
+function renderMemberProfile(){
+  var c = memberCurrentCustomer();
+  if(!c) return;
+  var setText = function(id, v){ var e=document.getElementById(id); if(e) e.textContent = v || '—'; };
+  var initial = ((c.name || c.email || '?')[0] || '?').toUpperCase();
+  var av1 = document.getElementById('memberProfileAvatar'); if(av1) av1.textContent = initial;
+  var av2 = document.getElementById('customerAvatar'); if(av2) av2.textContent = initial;
+  setText('memberProfileName', c.name || '(belum di-set)');
+  setText('memberProfileEmail', c.email);
+  setText('memberProfileWa', c.wa);
+  setText('memberProfileJoined', dgFmtDate(c.createdAt));
+  document.getElementById('memberPwNew').value = '';
+  document.getElementById('memberPwConfirm').value = '';
+  document.getElementById('memberPwError').style.display = 'none';
+}
+
+function memberChangePassword(){
+  var c = memberCurrentCustomer();
+  if(!c) return;
+  var newPw = (document.getElementById('memberPwNew').value || '').trim();
+  var confPw = (document.getElementById('memberPwConfirm').value || '').trim();
+  var errEl = document.getElementById('memberPwError');
+  function showErr(msg){ errEl.textContent = msg; errEl.style.display = 'block'; }
+  errEl.style.display = 'none';
+  if(!newPw){ showErr('Password baru wajib diisi.'); return; }
+  if(newPw.length < 6){ showErr('Password minimal 6 karakter.'); return; }
+  if(newPw !== confPw){ showErr('Konfirmasi tidak cocok.'); return; }
+  var custs = getDgCustomers();
+  var i = custs.findIndex(function(x){ return x.id === c.id; });
+  if(i < 0){ showErr('Customer tidak ditemukan.'); return; }
+  custs[i].password = newPw;
+  setDgCustomers(custs);
+  window.currentCustomer = custs[i];
+  document.getElementById('memberPwNew').value = '';
+  document.getElementById('memberPwConfirm').value = '';
+  toast('✅ Password berhasil diupdate — login berikutnya pakai password baru');
+}
+
 /* Password Admin Digital — set/change/reset */
 function dgRefreshPwStatus(){
   var statusEl = document.getElementById('dgPwStatus');
@@ -10129,7 +10376,14 @@ function showCustomerView(){
   if(vMem) vMem.style.display = 'block';
   var nameEl = document.getElementById('customerNameTopnav');
   if(nameEl && window.currentCustomer) nameEl.textContent = window.currentCustomer.name || window.currentCustomer.email;
-  // Phase 3 will populate the product list
+  // Update last login timestamp
+  try {
+    var custs = getDgCustomers();
+    var i = custs.findIndex(function(x){ return x.id === (window.currentCustomer || {}).id; });
+    if(i >= 0){ custs[i].lastLoginAt = Date.now(); setDgCustomers(custs); }
+  } catch(e){}
+  // Initialize library panel
+  if(typeof showMemberPanel === 'function') showMemberPanel('library');
 }
 
 function doCustomerLogout(){
