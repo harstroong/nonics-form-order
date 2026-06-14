@@ -2158,7 +2158,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-12-phase3-member';
+window.__APP_VERSION = '2026-06-12-phase4-midtrans';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -4477,7 +4477,12 @@ document.addEventListener('DOMContentLoaded', function(){
           </div>
         </div>
         <div style="margin-top:10px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary)"><input type="checkbox" id="dgMtProd" style="cursor:pointer"/><label for="dgMtProd" style="cursor:pointer">Mode Production (uncheck = Sandbox)</label></div>
-        <div style="margin-top:14px"><button class="btn-primary-sm" onclick="dgSaveMidtransConfig()"><i class="ti ti-device-floppy"></i><span>Simpan Midtrans</span></button></div>
+        <div style="margin-top:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn-primary-sm" onclick="dgSaveMidtransConfig()"><i class="ti ti-device-floppy"></i><span>Simpan Midtrans</span></button><button class="btn-outline-sm" onclick="dgShowWebhookUrl()"><i class="ti ti-link"></i><span>Lihat Webhook URL</span></button></div>
+        <div id="dgWebhookUrlBox" style="display:none;margin-top:14px;padding:12px;background:var(--surface-2);border-radius:8px;font-size:11px;color:var(--text-secondary);line-height:1.7">
+          <div style="font-weight:500;color:var(--text);margin-bottom:6px;font-size:12px">📌 Copy URL ini ke Midtrans Dashboard:</div>
+          <div style="font-family:'SF Mono',Menlo,monospace;background:var(--surface);padding:8px 10px;border-radius:6px;word-break:break-all;font-size:11px" id="dgWebhookUrl"></div>
+          <div style="margin-top:8px;font-size:11px">Settings → Configuration → <strong>Payment Notification URL</strong> → paste → Save</div>
+        </div>
       </div>
 
       <div style="background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:24px;margin-bottom:14px;">
@@ -4645,6 +4650,65 @@ document.addEventListener('DOMContentLoaded', function(){
           <button class="btn-primary-sm" onclick="memberChangePassword()"><i class="ti ti-device-floppy"></i><span>Update Password</span></button>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     DIGITAL CHECKOUT — public purchase form
+     Aktif kalau URL ?digital={slug-atau-id}
+     Customer isi: Nama + Email + WA → klik Bayar → Midtrans Snap popup
+═══════════════════════════════════ -->
+<div id="viewDigitalCheckout" style="display:none;min-height:100vh;background:linear-gradient(180deg,#FAFAFA 0%,#F1F5F9 100%);padding:24px 16px">
+  <div style="max-width:520px;margin:0 auto">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="display:inline-flex;align-items:center;gap:8px;background:#fff;padding:6px 14px;border-radius:99px;border:0.5px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,.04)">
+        <div style="width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,#0EA5E9,#0369A1);display:flex;align-items:center;justify-content:center;color:#fff"><i class="ti ti-cloud-data-connection" style="font-size:13px"></i></div>
+        <div style="font-size:12px;font-weight:500;color:var(--text)">Nonics<span style="color:#0EA5E9;font-weight:400"> · Digital</span></div>
+      </div>
+    </div>
+
+    <div id="checkoutProductCard" style="background:#fff;border:0.5px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px;box-shadow:0 4px 16px rgba(0,0,0,.06)">
+      <div id="checkoutCover" style="aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;background:#EEF2FF">
+        <i class="ti ti-package" style="font-size:64px;color:#4338CA"></i>
+      </div>
+      <div style="padding:20px 24px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span id="checkoutType" style="background:#EEF2FF;color:#4338CA;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:500">Ebook</span>
+        </div>
+        <div id="checkoutName" style="font-size:18px;font-weight:500;color:var(--text);margin-bottom:6px">—</div>
+        <div id="checkoutDesc" style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:14px"></div>
+        <div style="display:flex;align-items:baseline;gap:8px;padding-top:14px;border-top:1px solid var(--border)">
+          <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;font-weight:500">Total</div>
+          <div id="checkoutPrice" style="font-size:24px;font-weight:500;color:#10B981;font-family:'SF Mono',Menlo,monospace">Rp 0</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="checkoutForm" style="background:#fff;border:0.5px solid var(--border);border-radius:16px;padding:20px 24px;box-shadow:0 4px 16px rgba(0,0,0,.06)">
+      <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:14px">Data Pembeli</div>
+      <div class="tm-field"><label class="tm-label">Email *</label><input type="email" id="checkoutEmail" class="tm-input" placeholder="email@kamu.com" autocomplete="email" inputmode="email"/></div>
+      <div class="tm-field"><label class="tm-label">Nama Lengkap *</label><input type="text" id="checkoutNama" class="tm-input" placeholder="Sesuai identitas" autocomplete="name"/></div>
+      <div class="tm-field"><label class="tm-label">Nomor WhatsApp *</label><input type="tel" id="checkoutWa" class="tm-input" placeholder="08xxx" inputmode="numeric" autocomplete="tel"/></div>
+
+      <div id="checkoutError" class="tm-error" style="display:none;margin-bottom:14px"></div>
+
+      <button id="checkoutPayBtn" onclick="checkoutPayNow()" style="width:100%;background:linear-gradient(135deg,#0EA5E9,#0369A1);color:#fff;border:none;padding:14px;border-radius:10px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s">
+        <i class="ti ti-credit-card" style="font-size:18px"></i>
+        <span id="checkoutPayBtnText">Bayar Sekarang</span>
+      </button>
+      <div style="margin-top:12px;font-size:11px;color:var(--text-muted);text-align:center;line-height:1.6">Bayar via Midtrans · QRIS / Bank Transfer / GoPay / OVO / DANA / Credit Card<br/>Setelah bayar, akses produk dikirim ke email kamu.</div>
+    </div>
+
+    <div id="checkoutResult" style="display:none;background:#fff;border:0.5px solid var(--border);border-radius:16px;padding:32px 24px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.06)">
+      <div id="checkoutResultIcon" style="font-size:48px;margin-bottom:12px"></div>
+      <div id="checkoutResultTitle" style="font-size:18px;font-weight:500;color:var(--text);margin-bottom:8px"></div>
+      <div id="checkoutResultMsg" style="font-size:13px;color:var(--text-muted);line-height:1.7;margin-bottom:18px"></div>
+      <div id="checkoutResultActions"></div>
+    </div>
+
+    <div style="text-align:center;margin-top:18px;font-size:11px;color:var(--text-muted)">
+      <i class="ti ti-shield-check" style="font-size:12px;vertical-align:-2px"></i> Pembayaran aman & terenkripsi · Powered by Midtrans
     </div>
   </div>
 </div>
@@ -10131,6 +10195,21 @@ function dgSaveResendConfig(){
   toast('✅ Resend config disimpan — Phase 5 akan pakai ini buat kirim email');
 }
 
+function dgShowWebhookUrl(){
+  var fbCfg = (typeof getFBConfig === 'function') ? getFBConfig() : null;
+  if(!fbCfg || !fbCfg.projectId){
+    toast('⚠️ Firebase belum di-config. Aktifkan Cloud Sync dulu di menu Cloud Sync (Admin Fisik).');
+    return;
+  }
+  var region = 'asia-southeast2';
+  var url = 'https://' + region + '-' + fbCfg.projectId + '.cloudfunctions.net/midtransWebhook';
+  var box = document.getElementById('dgWebhookUrlBox');
+  var urlEl = document.getElementById('dgWebhookUrl');
+  if(urlEl) urlEl.textContent = url;
+  if(box) box.style.display = 'block';
+  try { navigator.clipboard.writeText(url); toast('📋 Webhook URL di-copy ke clipboard'); } catch(e){}
+}
+
 /* ═════════════════════════════════════════════
    CUSTOMER MEMBER AREA — Phase 3
 ═════════════════════════════════════════════ */
@@ -10288,6 +10367,248 @@ function renderMemberProfile(){
   document.getElementById('memberPwNew').value = '';
   document.getElementById('memberPwConfirm').value = '';
   document.getElementById('memberPwError').style.display = 'none';
+}
+
+/* ═════════════════════════════════════════════
+   DIGITAL CHECKOUT — Phase 4 (Midtrans Snap)
+═════════════════════════════════════════════ */
+var __checkoutProduct = null;
+var __checkoutSnapLoaded = false;
+
+function checkoutMaybeRoute(){
+  // Cek URL param ?digital={slug-atau-id}
+  var params = new URLSearchParams(window.location.search);
+  var slug = params.get('digital');
+  if(!slug) return false;
+  // Tutup view lain, buka checkout
+  var ids = ['viewLogin','viewDashboard','viewCS','viewDashboardDigital','viewMember'];
+  ids.forEach(function(id){ var el = document.getElementById(id); if(el){ el.style.display='none'; el.classList && el.classList.remove('show'); } });
+  var co = document.getElementById('viewDigitalCheckout');
+  if(co) co.style.display = 'block';
+  initCheckout(slug);
+  return true;
+}
+
+function initCheckout(slug){
+  // Cari produk berdasarkan slug atau id
+  var prods = (typeof getDgProds === 'function') ? getDgProds() : [];
+  var prod = prods.find(function(p){ return p.slug === slug || String(p.id) === String(slug); });
+  if(!prod || prod.active === false){
+    // Produk ga ditemukan / non-aktif
+    showCheckoutResult('error', 'Produk tidak tersedia', 'Link yang kamu buka tidak valid atau produk udah dinonaktifkan oleh admin.', '');
+    return;
+  }
+  __checkoutProduct = prod;
+  var meta = dgProdTypeMeta(prod.type);
+  // Render product card
+  var coverEl = document.getElementById('checkoutCover');
+  if(coverEl){
+    coverEl.style.background = meta.bg;
+    coverEl.innerHTML = '<i class="ti '+meta.icon+'" style="font-size:64px;color:'+meta.color+'"></i>';
+  }
+  var typeEl = document.getElementById('checkoutType');
+  if(typeEl){ typeEl.textContent = meta.label; typeEl.style.background = meta.bg; typeEl.style.color = meta.color; }
+  var nameEl = document.getElementById('checkoutName'); if(nameEl) nameEl.textContent = prod.name;
+  var descEl = document.getElementById('checkoutDesc');
+  if(descEl){
+    descEl.textContent = prod.description || '';
+    descEl.style.display = prod.description ? '' : 'none';
+  }
+  var priceEl = document.getElementById('checkoutPrice');
+  if(priceEl) priceEl.textContent = dgFmtRp(prod.price);
+}
+
+function checkoutPayNow(){
+  if(!__checkoutProduct){ showCheckoutErr('Produk tidak valid.'); return; }
+  var email = (document.getElementById('checkoutEmail').value || '').trim().toLowerCase();
+  var nama = (document.getElementById('checkoutNama').value || '').trim();
+  var wa = (document.getElementById('checkoutWa').value || '').trim();
+  if(!/^\S+@\S+\.\S+$/.test(email)){ showCheckoutErr('Email tidak valid.'); return; }
+  if(!nama){ showCheckoutErr('Nama wajib diisi.'); return; }
+  var waDigits = wa.replace(/\D/g,'');
+  if(waDigits.length < 9 || waDigits.length > 15){ showCheckoutErr('Nomor WhatsApp tidak valid (9-15 digit).'); return; }
+  // Disable button
+  var btn = document.getElementById('checkoutPayBtn');
+  var btnText = document.getElementById('checkoutPayBtnText');
+  if(btn){ btn.disabled = true; btn.style.opacity = '.6'; btn.style.cursor = 'wait'; }
+  if(btnText) btnText.textContent = 'Memproses...';
+
+  var orderId = 'DG-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+  var order = {
+    id: orderId,
+    productId: __checkoutProduct.id,
+    productName: __checkoutProduct.name,
+    productPrice: __checkoutProduct.price,
+    customerEmail: email,
+    customerName: nama,
+    customerWa: wa,
+    status: 'pending',
+    accessStatus: 'pending',
+    paymentMethod: 'midtrans',
+    createdAt: Date.now()
+  };
+
+  // Cek config: pakai backend (Firebase Function) atau fallback ke manual
+  var mid = dgLsGet(DG_MIDTRANS_KEY, {});
+  if(!mid.clientKey){
+    // Fallback: simpan order ke localStorage + Firestore, tampilkan "menunggu konfirmasi manual"
+    saveCheckoutOrderManual(order);
+    return;
+  }
+
+  // Call Firebase Cloud Function untuk dapet Snap token
+  var fbCfg = (typeof getFBConfig === 'function') ? getFBConfig() : null;
+  if(!fbCfg || !fbCfg.projectId){
+    showCheckoutErr('Konfigurasi server belum lengkap. Hubungi admin.');
+    resetPayBtn();
+    return;
+  }
+  var endpoint = 'https://' + fbCfg.region || 'asia-southeast2' ;
+  // Conventional endpoint: https://{region}-{projectId}.cloudfunctions.net/createSnapToken
+  var region = (mid.region || 'asia-southeast2');
+  var url = 'https://' + region + '-' + fbCfg.projectId + '.cloudfunctions.net/createSnapToken';
+
+  fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      orderId: orderId,
+      productId: __checkoutProduct.id,
+      productName: __checkoutProduct.name,
+      productPrice: __checkoutProduct.price,
+      customerEmail: email,
+      customerName: nama,
+      customerWa: wa
+    })
+  })
+  .then(function(res){
+    if(!res.ok) throw new Error('Server error ' + res.status);
+    return res.json();
+  })
+  .then(function(data){
+    if(!data.token){ throw new Error('Token tidak diterima dari server'); }
+    // Save order to Firestore (pending) — webhook akan update status nanti
+    saveOrderToFirestore(order);
+    // Open Snap popup
+    openSnapPopup(data.token, order, mid.clientKey, !!mid.isProduction);
+  })
+  .catch(function(err){
+    console.error('Checkout error:', err);
+    showCheckoutErr('Gagal memproses pembayaran: ' + (err.message || 'Server tidak terjawab') + '. Silakan coba lagi atau hubungi admin.');
+    resetPayBtn();
+  });
+}
+
+function resetPayBtn(){
+  var btn = document.getElementById('checkoutPayBtn');
+  var btnText = document.getElementById('checkoutPayBtnText');
+  if(btn){ btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = ''; }
+  if(btnText) btnText.textContent = 'Bayar Sekarang';
+}
+
+function showCheckoutErr(msg){
+  var errEl = document.getElementById('checkoutError');
+  if(errEl){ errEl.textContent = msg; errEl.style.display = 'block'; }
+}
+
+function loadSnapJs(isProduction, cb){
+  if(__checkoutSnapLoaded){ cb(); return; }
+  var s = document.createElement('script');
+  s.src = isProduction
+    ? 'https://app.midtrans.com/snap/snap.js'
+    : 'https://app.sandbox.midtrans.com/snap/snap.js';
+  s.setAttribute('data-client-key', window.__checkoutSnapClientKey || '');
+  s.onload = function(){ __checkoutSnapLoaded = true; cb(); };
+  s.onerror = function(){ showCheckoutErr('Gagal load Midtrans SDK. Cek koneksi internet.'); resetPayBtn(); };
+  document.head.appendChild(s);
+}
+
+function openSnapPopup(token, order, clientKey, isProduction){
+  window.__checkoutSnapClientKey = clientKey;
+  loadSnapJs(isProduction, function(){
+    if(!window.snap){
+      showCheckoutErr('Midtrans SDK belum load. Refresh halaman dan coba lagi.');
+      resetPayBtn();
+      return;
+    }
+    window.snap.pay(token, {
+      onSuccess: function(result){
+        showCheckoutResult('success', '✅ Pembayaran Berhasil!', 'Terima kasih ' + order.customerName + '! Akses produk dikirim ke email <strong>' + order.customerEmail + '</strong> dalam beberapa menit. Login member area dengan email + password yang dikirim.', generateMemberLoginButton());
+        order.status = 'paid';
+        order.paidAt = Date.now();
+        order.midtransTxId = result.transaction_id;
+        order.paymentType = result.payment_type;
+        saveOrderToFirestore(order);
+      },
+      onPending: function(result){
+        showCheckoutResult('pending', '⏳ Menunggu Pembayaran', 'Selesaikan pembayaran di aplikasi/halaman yang tadi dibuka. Setelah berhasil, akses dikirim ke email <strong>' + order.customerEmail + '</strong>.', '<button style="background:linear-gradient(135deg,#0EA5E9,#0369A1);color:#fff;border:none;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer" onclick="window.location.reload()">Refresh</button>');
+        order.status = 'pending';
+        order.midtransTxId = result.transaction_id;
+        saveOrderToFirestore(order);
+      },
+      onError: function(result){
+        showCheckoutResult('error', 'Pembayaran Gagal', 'Terjadi kesalahan saat memproses pembayaran. Silakan coba lagi atau hubungi admin.', '<button style="background:#fff;border:1px solid var(--border);color:var(--text);padding:10px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer" onclick="window.location.reload()">Coba Lagi</button>');
+        order.status = 'failed';
+        saveOrderToFirestore(order);
+      },
+      onClose: function(){
+        // User tutup popup tanpa selesai bayar
+        resetPayBtn();
+        showCheckoutErr('Pembayaran dibatalkan. Klik Bayar Sekarang kalau mau ulangi.');
+      }
+    });
+  });
+}
+
+function generateMemberLoginButton(){
+  return '<a href="/" style="background:linear-gradient(135deg,#7C3AED,#5B21B6);color:#fff;border:none;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;text-decoration:none;display:inline-block">Login Member Area →</a>';
+}
+
+function showCheckoutResult(type, title, msg, actionsHtml){
+  document.getElementById('checkoutForm').style.display = 'none';
+  document.getElementById('checkoutProductCard').style.display = 'none';
+  var resultEl = document.getElementById('checkoutResult');
+  resultEl.style.display = '';
+  var iconMap = { success: '🎉', pending: '⏳', error: '❌' };
+  document.getElementById('checkoutResultIcon').textContent = iconMap[type] || 'ℹ️';
+  document.getElementById('checkoutResultTitle').textContent = title;
+  document.getElementById('checkoutResultMsg').innerHTML = msg;
+  document.getElementById('checkoutResultActions').innerHTML = actionsHtml || '';
+}
+
+function saveCheckoutOrderManual(order){
+  // Backend belum di-setup — simpan order ke localStorage + (kalau ada) Firestore
+  // Admin perlu approve manual via "Mark Paid + Grant Access"
+  if(typeof getDgOrders === 'function'){
+    var orders = getDgOrders();
+    orders.push(order);
+    setDgOrders(orders);
+  }
+  saveOrderToFirestore(order);
+  showCheckoutResult('pending',
+    '📨 Pesanan Diterima',
+    'Pesanan kamu sudah masuk. Admin akan konfirmasi pembayaran dan kirim akses ke email <strong>' + order.customerEmail + '</strong>.<br/><br/><strong>⚠️ Note:</strong> Mode payment otomatis belum diaktifkan oleh admin. Tunggu konfirmasi manual via email atau WhatsApp.',
+    generateMemberLoginButton()
+  );
+}
+
+function saveOrderToFirestore(order){
+  // Simpan ke Firestore biar admin liat real-time
+  try {
+    if(typeof fb !== 'undefined' && fb.configured && typeof dbWriteDoc === 'function'){
+      dbWriteDoc('od_orders_digital', order.id, order);
+    }
+  } catch(e){ console.warn('Firestore save order fail:', e); }
+  // Juga simpan ke local untuk admin yang lagi login
+  try {
+    if(typeof getDgOrders === 'function'){
+      var orders = getDgOrders();
+      var i = orders.findIndex(function(o){ return o.id === order.id; });
+      if(i >= 0) orders[i] = order;
+      else orders.push(order);
+      setDgOrders(orders);
+    }
+  } catch(e){}
 }
 
 function memberChangePassword(){
@@ -11218,6 +11539,10 @@ async function restoreSession(){
    BOOT
 ═════════════════════════════════════════════ */
 (function(){
+  // Cek URL ?digital={slug} — kalau ada, langsung route ke checkout
+  if(typeof checkoutMaybeRoute === 'function' && checkoutMaybeRoute()){
+    return; // checkout mode — skip dashboard boot
+  }
   document.getElementById('viewLogin').style.display='flex';
   document.getElementById('viewDashboard').style.display='none';
   document.getElementById('viewCS').style.display='none';
