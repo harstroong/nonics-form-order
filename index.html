@@ -762,6 +762,9 @@ tr:hover td{background:var(--surface-2)}
 .prod-table thead tr{background:var(--surface-2)}
 .prod-table th{padding:8px 14px;text-align:left;font-size:10px;color:var(--text-muted);font-weight:500;text-transform:uppercase;letter-spacing:.4px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 .prod-table th.col-action{text-align:right;width:60px}
+.prod-table th.prod-th-sortable{cursor:pointer;color:var(--text);font-weight:600;user-select:none;transition:color .12s}
+.prod-table th.prod-th-sortable:hover{color:var(--primary)}
+.prod-th-sortbadge{display:inline-block;margin-left:6px;background:var(--green-soft);color:var(--green);padding:1px 6px;border-radius:99px;font-size:9px;font-weight:500;letter-spacing:0;text-transform:none;vertical-align:1px}
 .prod-table tbody tr{border-top:1px solid var(--border);cursor:pointer;transition:background .12s}
 .prod-table tbody tr:hover{background:var(--surface-2)}
 .prod-table tbody tr.is-alt{background:rgba(0,0,0,.015)}
@@ -2082,7 +2085,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-12-custom-daterange';
+window.__APP_VERSION = '2026-06-12-produk-sort';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -5294,6 +5297,12 @@ function exportCSV(){
 let editProdId=null;
 let activeProdTab='info';
 
+// Sort direction state untuk Produk table (default A → Z)
+var prodSortDir = 'asc';
+function toggleProdSort(){
+  prodSortDir = (prodSortDir === 'asc') ? 'desc' : 'asc';
+  renderProdList();
+}
 function renderProdList(){
   let prods=getProds();
   const filterBar = document.getElementById('prodOwnerFilterBar');
@@ -5375,12 +5384,25 @@ function renderProdList(){
     return;
   }
 
+  // Sort by name (case-insensitive, locale-aware buat huruf Indo)
+  prods.sort(function(a, b){
+    var an = (a.name || '').toLowerCase();
+    var bn = (b.name || '').toLowerCase();
+    var cmp = an.localeCompare(bn, 'id', { sensitivity: 'base', numeric: true });
+    return prodSortDir === 'asc' ? cmp : -cmp;
+  });
+
   // Build table
   const csList = getCSList();
   const palette = ['#7F77DD','#5DCAA5','#F0997B','#FBBF24','#3B82F6','#EC4899','#10B981'];
 
+  var sortArrow = prodSortDir === 'asc' ? 'ti-arrow-up' : 'ti-arrow-down';
+  var sortLabel = prodSortDir === 'asc' ? 'A→Z' : 'Z→A';
   let html = '<table class="prod-table"><thead><tr>' +
-    '<th>Produk</th>' +
+    '<th class="prod-th-sortable" onclick="toggleProdSort()" title="Klik untuk ubah urutan A→Z / Z→A">' +
+      'Produk <i class="ti '+sortArrow+'" style="font-size:12px;vertical-align:-1px;color:var(--green);margin-left:3px"></i>' +
+      '<span class="prod-th-sortbadge">'+sortLabel+'</span>' +
+    '</th>' +
     '<th>Harga</th>' +
     '<th>CS</th>' +
     '<th>Owner</th>' +
