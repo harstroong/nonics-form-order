@@ -1526,6 +1526,16 @@ tr:hover td{background:var(--surface-2)}
   padding:9px 12px;border-radius:7px;font-size:12px;margin-top:4px;
 }
 
+/* Custom period quickset chips */
+.cp-quickset{display:flex;flex-wrap:wrap;gap:6px}
+.cp-quickset button{
+  background:var(--surface-2);border:1px solid var(--border);color:var(--text-secondary);
+  padding:6px 11px;border-radius:99px;font-size:11.5px;font-weight:500;
+  cursor:pointer;font-family:inherit;
+  transition:background .12s,border-color .12s,color .12s;
+}
+.cp-quickset button:hover{background:var(--primary-soft);color:var(--primary);border-color:var(--primary-soft)}
+
 /* OVERLAY */
 .sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:190}
 
@@ -2072,7 +2082,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-12-hide-subtitle';
+window.__APP_VERSION = '2026-06-12-custom-daterange';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -3024,6 +3034,50 @@ document.addEventListener('DOMContentLoaded', function(){
       <button class="tn-drawer-item" data-drawer-nav="cloud" onclick="tnDrawerGo('cloud')"><i class="ti ti-cloud"></i> Cloud Sync</button>
       <button class="tn-drawer-item" data-drawer-nav="settings" onclick="tnDrawerGo('settings')"><i class="ti ti-settings"></i> Pengaturan</button>
     </aside>
+
+    <!-- CUSTOM PERIOD MODAL — pilih rentang tanggal manual -->
+    <div class="tm-modal-overlay" id="customPeriodModal" onclick="closeCustomPeriod(event)" style="display:none">
+      <div class="tm-modal" onclick="event.stopPropagation()" style="max-width:440px">
+        <div class="tm-modal-head">
+          <div class="tm-modal-title"><i class="ti ti-calendar-stats" style="vertical-align:-2px;margin-right:5px"></i>Custom Periode</div>
+          <button class="tm-modal-close" onclick="closeCustomPeriod()" aria-label="Tutup"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="tm-modal-body">
+
+          <div class="tm-field">
+            <label class="tm-label">Pilih cepat</label>
+            <div class="cp-quickset">
+              <button type="button" onclick="customPeriodQuickset(7)">7 hari terakhir</button>
+              <button type="button" onclick="customPeriodQuickset(14)">14 hari</button>
+              <button type="button" onclick="customPeriodQuickset(30)">30 hari</button>
+              <button type="button" onclick="customPeriodQuickset(90)">90 hari</button>
+              <button type="button" onclick="customPeriodQuickset('thismonth')">Bulan ini</button>
+              <button type="button" onclick="customPeriodQuickset('lastmonth')">Bulan lalu</button>
+              <button type="button" onclick="customPeriodQuickset('thisyear')">Tahun ini</button>
+            </div>
+          </div>
+
+          <div class="tm-field-row">
+            <div class="tm-field">
+              <label class="tm-label">Tanggal mulai *</label>
+              <input type="date" id="customPeriodFrom" class="tm-input"/>
+            </div>
+            <div class="tm-field">
+              <label class="tm-label">Tanggal selesai *</label>
+              <input type="date" id="customPeriodTo" class="tm-input"/>
+            </div>
+          </div>
+
+          <div class="tm-hint" style="margin-top:8px">Periode ini bakal di-apply ke seluruh dashboard (Overview, Leads, dll).</div>
+
+          <div id="customPeriodError" class="tm-error" style="display:none"></div>
+        </div>
+        <div class="tm-modal-foot">
+          <button class="btn-outline-sm" onclick="closeCustomPeriod()">Batal</button>
+          <button class="btn-primary-sm" onclick="applyCustomPeriod()"><i class="ti ti-check"></i><span>Apply Periode</span></button>
+        </div>
+      </div>
+    </div>
 
     <div class="content">
 
@@ -9431,14 +9485,80 @@ function setGlobalPeriod(value){
   } catch(e){ console.warn('global period re-render fail:', e); }
 }
 function openCustomPeriod(){
-  // Stub — buat sekarang prompt sederhana. Nanti di-upgrade ke calendar modal.
-  const today = new Date().toISOString().slice(0,10);
-  const from = prompt('Tanggal mulai (YYYY-MM-DD):', today);
-  if(!from) return;
-  const to = prompt('Tanggal selesai (YYYY-MM-DD):', today);
-  if(!to) return;
+  var modal = document.getElementById('customPeriodModal');
+  if(!modal){
+    console.warn('customPeriodModal not found');
+    return;
+  }
+  // Pre-fill values dari period sebelumnya kalau ada, kalau ga pake today
+  var today = new Date().toISOString().slice(0,10);
+  var saved = window.__globalPeriodCustom || {};
+  document.getElementById('customPeriodFrom').value = saved.from || today;
+  document.getElementById('customPeriodTo').value = saved.to || today;
+  document.getElementById('customPeriodError').style.display = 'none';
+  modal.style.display = 'flex';
+  // Focus input from
+  setTimeout(function(){
+    var fromEl = document.getElementById('customPeriodFrom');
+    if(fromEl) fromEl.focus();
+  }, 100);
+}
+
+function closeCustomPeriod(ev){
+  if(ev && ev.target !== ev.currentTarget) return;
+  var modal = document.getElementById('customPeriodModal');
+  if(modal) modal.style.display = 'none';
+}
+
+function applyCustomPeriod(){
+  var from = (document.getElementById('customPeriodFrom').value || '').trim();
+  var to = (document.getElementById('customPeriodTo').value || '').trim();
+  var errEl = document.getElementById('customPeriodError');
+  function showErr(msg){ errEl.textContent = msg; errEl.style.display = 'block'; }
+  errEl.style.display = 'none';
+  if(!from || !to){ showErr('Tanggal mulai dan selesai wajib diisi.'); return; }
+  // Validate format dan range
+  var fromDate = new Date(from + 'T00:00:00');
+  var toDate = new Date(to + 'T23:59:59');
+  if(isNaN(fromDate.getTime()) || isNaN(toDate.getTime())){
+    showErr('Format tanggal tidak valid. Pakai YYYY-MM-DD.'); return;
+  }
+  if(fromDate.getTime() > toDate.getTime()){
+    showErr('Tanggal mulai harus sebelum atau sama dengan tanggal selesai.'); return;
+  }
   window.__globalPeriodCustom = { from: from, to: to };
   setGlobalPeriod('custom');
+  closeCustomPeriod();
+}
+
+function customPeriodQuickset(days){
+  // days: -7 = last 7 days, -30 = last 30 days, etc.
+  // 'thismonth' = bulan ini, 'lastmonth' = bulan kemarin
+  var today = new Date();
+  var pad = function(n){ return n<10?'0'+n:''+n; };
+  var fmt = function(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); };
+  var fromEl = document.getElementById('customPeriodFrom');
+  var toEl = document.getElementById('customPeriodTo');
+  if(days === 'thismonth'){
+    var start = new Date(today.getFullYear(), today.getMonth(), 1);
+    fromEl.value = fmt(start);
+    toEl.value = fmt(today);
+  } else if(days === 'lastmonth'){
+    var lmStart = new Date(today.getFullYear(), today.getMonth()-1, 1);
+    var lmEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+    fromEl.value = fmt(lmStart);
+    toEl.value = fmt(lmEnd);
+  } else if(days === 'thisyear'){
+    var yStart = new Date(today.getFullYear(), 0, 1);
+    fromEl.value = fmt(yStart);
+    toEl.value = fmt(today);
+  } else {
+    var n = Math.abs(parseInt(days, 10) || 0);
+    var start2 = new Date(today.getTime());
+    start2.setDate(start2.getDate() - n + 1);
+    fromEl.value = fmt(start2);
+    toEl.value = fmt(today);
+  }
 }
 // Restore saved global period on load
 (function(){
