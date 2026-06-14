@@ -1529,6 +1529,59 @@ tr:hover td{background:var(--surface-2)}
   padding:9px 12px;border-radius:7px;font-size:12px;margin-top:4px;
 }
 
+/* ═══════════════════════════════════════════
+   ADMIN DIGITAL — Phase 2 panels CSS
+═══════════════════════════════════════════ */
+.dg-stat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
+.dg-stat-card{background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:14px 16px}
+.dg-stat-label{font-size:10px;color:var(--text-muted);letter-spacing:.5px;font-weight:500;margin-bottom:6px}
+.dg-stat-value{font-size:22px;font-weight:500;color:var(--text);font-family:'SF Mono',Menlo,monospace;line-height:1.1}
+@media(max-width:1024px){.dg-stat-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:640px){.dg-stat-grid{grid-template-columns:repeat(2,1fr)}}
+
+.dg-prod-row{display:grid;grid-template-columns:48px 1fr 130px 100px 150px;gap:14px;padding:14px 18px;align-items:center;border-bottom:1px solid var(--border);font-size:13px}
+.dg-prod-row:last-child{border-bottom:none}
+.dg-prod-row.is-off{opacity:.6;background:var(--surface-2)}
+.dg-prod-cover{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.dg-prod-cover i{font-size:22px}
+.dg-prod-info{min-width:0}
+.dg-prod-name{font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+.dg-prod-meta{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--text-muted);flex-wrap:wrap}
+.dg-prod-type{padding:2px 8px;border-radius:99px;font-size:10px;font-weight:500}
+.dg-prod-price{font-family:'SF Mono',Menlo,monospace;color:var(--green);font-weight:500}
+.dg-prod-actions{display:flex;gap:5px;justify-content:flex-end}
+
+.dg-order-row{display:grid;grid-template-columns:1.5fr 1.3fr 110px 110px 100px 120px 1fr;gap:12px;padding:13px 16px;align-items:center;border-bottom:1px solid var(--border);font-size:12.5px}
+.dg-order-row:last-child{border-bottom:none}
+.dg-order-head{background:var(--surface-2);font-size:10px;color:var(--text-muted);font-weight:500;letter-spacing:.4px;text-transform:uppercase}
+.dg-order-cust{min-width:0}
+.dg-order-name{font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dg-order-email{font-size:11px;color:var(--text-muted);font-family:'SF Mono',Menlo,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dg-order-prod{color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dg-order-price{font-family:'SF Mono',Menlo,monospace;color:var(--green);font-weight:500}
+.dg-order-date{font-size:11px;color:var(--text-muted);font-family:'SF Mono',Menlo,monospace;white-space:nowrap}
+.dg-order-actions{display:flex;gap:5px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+
+.dg-cust-row{display:grid;grid-template-columns:44px 1.4fr 120px 130px 1.2fr 130px 90px;gap:12px;padding:13px 16px;align-items:center;border-bottom:1px solid var(--border);font-size:12.5px}
+.dg-cust-row:last-child{border-bottom:none}
+.dg-cust-head{background:var(--surface-2);font-size:10px;color:var(--text-muted);font-weight:500;letter-spacing:.4px;text-transform:uppercase}
+.dg-cust-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#5B21B6);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:500;font-size:13px}
+.dg-cust-info{min-width:0}
+.dg-cust-name{font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dg-cust-email{font-size:11px;color:var(--text-muted);font-family:'SF Mono',Menlo,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dg-cust-wa{color:var(--text-muted);font-family:'SF Mono',Menlo,monospace}
+.dg-cust-pw{display:flex;align-items:center;gap:6px;color:var(--text-muted)}
+.dg-cust-prods{font-size:12px}
+.dg-cust-prods strong{color:var(--primary)}
+.dg-cust-date{font-size:11px;color:var(--text-muted);font-family:'SF Mono',Menlo,monospace}
+.dg-cust-actions{display:flex;gap:5px;justify-content:flex-end}
+
+@media(max-width:1100px){
+  .dg-prod-row{grid-template-columns:48px 1fr 110px 80px 130px;gap:10px;padding:12px}
+  .dg-order-row{grid-template-columns:1.4fr 1.2fr 95px 90px 85px 95px 1fr;gap:8px;padding:11px;font-size:11.5px}
+  .dg-cust-row{grid-template-columns:40px 1.3fr 100px 110px 1fr 100px 80px;gap:10px;padding:11px;font-size:11.5px}
+}
+
 /* Custom period quickset chips */
 .cp-quickset{display:flex;flex-wrap:wrap;gap:6px}
 .cp-quickset button{
@@ -2086,7 +2139,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-12-phase1-shorten';
+window.__APP_VERSION = '2026-06-12-phase2-digital';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -4293,34 +4346,76 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="content" id="digitalContent">
     <div class="panel-digital active" id="dgpanel-overview">
       <div class="team-header">
-        <div>
-          <div class="team-title">Dashboard Digital</div>
-          <div class="team-sub">Overview produk digital — sales, revenue, customers aktif</div>
+        <div><div class="team-title">Dashboard Digital</div><div class="team-sub">Overview produk digital — sales, revenue, customers</div></div>
+        <div class="team-actions-header">
+          <button class="btn-outline-sm" onclick="showDigitalPanel('pesanan')"><i class="ti ti-receipt"></i><span>Lihat Semua Pesanan</span></button>
         </div>
       </div>
-      <div style="background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:48px 32px;text-align:center">
-        <div style="font-size:32px;margin-bottom:10px;opacity:.4">💻</div>
-        <div style="font-size:14px;color:var(--text);font-weight:500;margin-bottom:6px">Phase 2 — coming soon</div>
-        <div style="font-size:12px;color:var(--text-muted);max-width:480px;margin:0 auto;line-height:1.6">Stat cards (revenue, sales, customers, refund rate) + chart + top digital products bakal di-deploy di Phase 2.</div>
+      <div class="dg-stat-grid">
+        <div class="dg-stat-card"><div class="dg-stat-label">REVENUE TOTAL</div><div class="dg-stat-value" id="dgStatRevenue" style="color:#10B981">Rp 0</div></div>
+        <div class="dg-stat-card"><div class="dg-stat-label">SALES (PAID)</div><div class="dg-stat-value" id="dgStatSales">0</div></div>
+        <div class="dg-stat-card"><div class="dg-stat-label">CUSTOMERS</div><div class="dg-stat-value" id="dgStatCustomers">0</div></div>
+        <div class="dg-stat-card"><div class="dg-stat-label">PRODUK AKTIF</div><div class="dg-stat-value" id="dgStatProducts">0</div></div>
+        <div class="dg-stat-card"><div class="dg-stat-label">ORDER HARI INI</div><div class="dg-stat-value" id="dgStatOrdersToday">0</div></div>
+      </div>
+      <div style="background:#fff;border:0.5px solid var(--border);border-radius:12px;overflow:hidden;">
+        <div style="padding:14px 18px;border-bottom:1px solid var(--border);font-size:13px;font-weight:500;color:var(--text);display:flex;justify-content:space-between;align-items:center"><span><i class="ti ti-clock" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>5 Pesanan Terbaru</span><button class="btn-outline-sm" style="padding:5px 10px;font-size:11px" onclick="showDigitalPanel('pesanan')">Semua →</button></div>
+        <div id="dgRecentOrders"></div>
       </div>
     </div>
 
     <div class="panel-digital" id="dgpanel-pesanan" style="display:none">
-      <div class="team-header"><div><div class="team-title">Pesanan Digital</div><div class="team-sub">Order yang masuk dari form digital — status pembayaran &amp; akses</div></div></div>
-      <div style="background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:48px 32px;text-align:center;color:var(--text-muted);font-size:13px">Phase 2 — coming soon</div>
+      <div class="team-header">
+        <div><div class="team-title">Pesanan Digital</div><div class="team-sub">Order yang masuk — status pembayaran &amp; akses</div></div>
+        <div class="team-actions-header"><button class="btn-primary-sm" onclick="dgOpenOrderModal()"><i class="ti ti-plus"></i><span>Pesanan Manual</span></button></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+        <div style="display:flex;gap:6px;font-size:12px;flex-wrap:wrap">
+          <button class="leads-status-tab dg-order-status-tab active" data-dgstat="" onclick="dgOnOrderStatusFilter('')">Semua · <span id="dgOrdCountAll">0</span></button>
+          <button class="leads-status-tab dg-order-status-tab" data-dgstat="pending" onclick="dgOnOrderStatusFilter('pending')">Pending · <span id="dgOrdCountPending">0</span></button>
+          <button class="leads-status-tab dg-order-status-tab" data-dgstat="paid" onclick="dgOnOrderStatusFilter('paid')">Paid (belum akses) · <span id="dgOrdCountPaid">0</span></button>
+          <button class="leads-status-tab dg-order-status-tab" data-dgstat="" onclick="dgOnOrderStatusFilter('')" style="background:var(--green-soft);color:var(--green)">Granted · <span id="dgOrdCountGranted">0</span></button>
+        </div>
+        <div style="flex:1"></div>
+        <div style="position:relative"><input type="text" id="dgOrderSearch" placeholder="Cari nama / email / produk..." oninput="dgOnOrderSearch()" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 12px 7px 32px;font-size:12px;width:240px;outline:none;box-sizing:border-box;color:var(--text)"/><i class="ti ti-search" style="position:absolute;left:11px;top:8px;font-size:14px;color:var(--text-muted);"></i></div>
+      </div>
+      <div style="background:#fff;border:0.5px solid var(--border);border-radius:12px;overflow:hidden">
+        <div class="dg-order-row dg-order-head"><div>Pelanggan</div><div>Produk</div><div>Harga</div><div>Status Bayar</div><div>Akses</div><div>Tanggal</div><div>Aksi</div></div>
+        <div id="dgOrderTableBody"></div>
+      </div>
     </div>
 
     <div class="panel-digital" id="dgpanel-produk" style="display:none">
       <div class="team-header">
-        <div><div class="team-title">Produk Digital</div><div class="team-sub">Kursus / Ebook / Template — upload file, set harga, generate link form</div></div>
+        <div><div class="team-title">Produk Digital</div><div class="team-sub" id="dgProdCount">0 produk</div></div>
         <div class="team-actions-header"><button class="btn-primary-sm" onclick="dgNewProd()"><i class="ti ti-plus"></i><span>Produk Digital Baru</span></button></div>
       </div>
-      <div style="background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:48px 32px;text-align:center;color:var(--text-muted);font-size:13px">Phase 2 — coming soon</div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+        <div style="display:flex;gap:6px;font-size:12px;flex-wrap:wrap">
+          <button class="leads-status-tab dg-prod-type-tab active" data-dgtype="" onclick="dgOnProdTypeFilter('')">Semua</button>
+          <button class="leads-status-tab dg-prod-type-tab" data-dgtype="ebook" onclick="dgOnProdTypeFilter('ebook')">Ebook</button>
+          <button class="leads-status-tab dg-prod-type-tab" data-dgtype="kursus" onclick="dgOnProdTypeFilter('kursus')">Kursus</button>
+          <button class="leads-status-tab dg-prod-type-tab" data-dgtype="template" onclick="dgOnProdTypeFilter('template')">Template</button>
+          <button class="leads-status-tab dg-prod-type-tab" data-dgtype="lainnya" onclick="dgOnProdTypeFilter('lainnya')">Lainnya</button>
+        </div>
+        <div style="flex:1"></div>
+        <div style="position:relative"><input type="text" id="dgProdSearch" placeholder="Cari nama produk..." oninput="dgOnProdSearch()" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 12px 7px 32px;font-size:12px;width:200px;outline:none;box-sizing:border-box;color:var(--text)"/><i class="ti ti-search" style="position:absolute;left:11px;top:8px;font-size:14px;color:var(--text-muted);"></i></div>
+      </div>
+      <div style="background:#fff;border:0.5px solid var(--border);border-radius:12px;overflow:hidden">
+        <div id="dgProdTableBody"></div>
+      </div>
     </div>
 
     <div class="panel-digital" id="dgpanel-pelanggan" style="display:none">
-      <div class="team-header"><div><div class="team-title">Pelanggan</div><div class="team-sub">List customer yang udah beli + akses produk mereka</div></div></div>
-      <div style="background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:48px 32px;text-align:center;color:var(--text-muted);font-size:13px">Phase 3 — coming soon</div>
+      <div class="team-header"><div><div class="team-title">Pelanggan</div><div class="team-sub" id="dgCustCount">0 pelanggan</div></div></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="flex:1"></div>
+        <div style="position:relative"><input type="text" id="dgCustSearch" placeholder="Cari nama / email / WA..." oninput="dgOnCustSearch()" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 12px 7px 32px;font-size:12px;width:240px;outline:none;box-sizing:border-box;color:var(--text)"/><i class="ti ti-search" style="position:absolute;left:11px;top:8px;font-size:14px;color:var(--text-muted);"></i></div>
+      </div>
+      <div style="background:#fff;border:0.5px solid var(--border);border-radius:12px;overflow:hidden">
+        <div class="dg-cust-row dg-cust-head"><div></div><div>Customer</div><div>WA</div><div>Password</div><div>Produk dibeli</div><div>Bergabung</div><div>Aksi</div></div>
+        <div id="dgCustTableBody"></div>
+      </div>
     </div>
 
     <div class="panel-digital" id="dgpanel-payment" style="display:none">
@@ -4349,10 +4444,108 @@ document.addEventListener('DOMContentLoaded', function(){
         </div>
       </div>
 
-      <div style="background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:48px 24px;text-align:center;color:var(--text-muted);font-size:13px">
-        <div style="font-size:24px;margin-bottom:8px;opacity:.4">💳</div>
-        Midtrans + Resend config — Phase 4 coming soon
+      <div style="background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:24px;margin-bottom:14px;">
+        <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:8px"><i class="ti ti-credit-card" style="font-size:16px;color:#0EA5E9"></i>Midtrans Payment Gateway</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;line-height:1.6">Daftar di <a href="https://dashboard.midtrans.com" target="_blank" style="color:var(--primary)">dashboard.midtrans.com</a> → ambil Server Key + Client Key dari Settings → Access Keys. Pakai Sandbox dulu, switch ke Production setelah verified.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:680px">
+          <div>
+            <label class="tm-label">Server Key *</label>
+            <input type="text" id="dgMtServer" class="tm-input" placeholder="SB-Mid-server-xxxxx" autocomplete="off"/>
+          </div>
+          <div>
+            <label class="tm-label">Client Key *</label>
+            <input type="text" id="dgMtClient" class="tm-input" placeholder="SB-Mid-client-xxxxx" autocomplete="off"/>
+          </div>
+        </div>
+        <div style="margin-top:10px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary)"><input type="checkbox" id="dgMtProd" style="cursor:pointer"/><label for="dgMtProd" style="cursor:pointer">Mode Production (uncheck = Sandbox)</label></div>
+        <div style="margin-top:14px"><button class="btn-primary-sm" onclick="dgSaveMidtransConfig()"><i class="ti ti-device-floppy"></i><span>Simpan Midtrans</span></button></div>
       </div>
+
+      <div style="background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:24px;margin-bottom:14px;">
+        <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:8px"><i class="ti ti-mail" style="font-size:16px;color:#7C3AED"></i>Resend Email Service</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;line-height:1.6">Daftar di <a href="https://resend.com" target="_blank" style="color:var(--primary)">resend.com</a> → verify domain → ambil API Key dari API Keys page. Free 3000 email/bulan.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:680px">
+          <div style="grid-column:span 2">
+            <label class="tm-label">API Key *</label>
+            <input type="text" id="dgRsApiKey" class="tm-input" placeholder="re_xxxxxxxxxxxx" autocomplete="off"/>
+          </div>
+          <div>
+            <label class="tm-label">From Email</label>
+            <input type="email" id="dgRsFromEmail" class="tm-input" placeholder="hello@domainlo.com" autocomplete="off"/>
+          </div>
+          <div>
+            <label class="tm-label">From Name</label>
+            <input type="text" id="dgRsFromName" class="tm-input" placeholder="Nonics Form Order" autocomplete="off"/>
+          </div>
+        </div>
+        <div style="margin-top:14px"><button class="btn-primary-sm" onclick="dgSaveResendConfig()"><i class="ti ti-device-floppy"></i><span>Simpan Resend</span></button></div>
+      </div>
+
+      <div style="background:var(--surface-2);border-radius:10px;padding:14px 16px;font-size:12px;color:var(--text-muted);line-height:1.7">
+        💡 <strong style="color:var(--text)">Status:</strong> Config disimpan tapi belum aktif. Phase 4 (Midtrans webhook + Snap token) &amp; Phase 5 (Resend email automation) bakal nyalain integrasinya.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DIGITAL PRODUCT MODAL — Add/Edit -->
+<div class="tm-modal-overlay" id="dgProdModal" onclick="dgCloseProdModal(event)" style="display:none">
+  <div class="tm-modal" onclick="event.stopPropagation()" style="max-width:560px">
+    <div class="tm-modal-head">
+      <div class="tm-modal-title" id="dgProdModalTitle">Produk Digital Baru</div>
+      <button class="tm-modal-close" onclick="dgCloseProdModal()" aria-label="Tutup"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="tm-modal-body">
+      <div class="tm-field"><label class="tm-label">Nama Produk *</label><input type="text" id="dgProdName" class="tm-input" placeholder="Contoh: Ebook Dropship Mastery"/></div>
+      <div class="tm-field-row">
+        <div class="tm-field"><label class="tm-label">Harga (Rp) *</label><input type="number" id="dgProdPrice" class="tm-input" placeholder="99000" min="1000"/></div>
+        <div class="tm-field"><label class="tm-label">Tipe</label><select id="dgProdType" class="tm-input"><option value="ebook">Ebook</option><option value="kursus">Kursus</option><option value="template">Template</option><option value="lainnya">Lainnya</option></select></div>
+      </div>
+      <div class="tm-field"><label class="tm-label">Deskripsi singkat</label><textarea id="dgProdDesc" class="tm-input" rows="2" placeholder="1-2 kalimat buat ditampilin di form purchase"></textarea></div>
+      <div class="tm-field">
+        <label class="tm-label">Tipe Akses *</label>
+        <select id="dgProdAccessType" class="tm-input" onchange="dgToggleAccessType()"><option value="link">🔗 Link Eksternal (Google Drive / Notion / Lynk)</option><option value="file">📎 Upload File (max 5MB di Phase 2)</option></select>
+      </div>
+      <div class="tm-field" id="dgProdAccessLinkBlock">
+        <label class="tm-label">URL Akses</label>
+        <input type="url" id="dgProdAccessUrl" class="tm-input" placeholder="https://drive.google.com/drive/folders/..."/>
+        <div class="tm-hint">Customer dapat link ini setelah Mark Paid → Grant Access.</div>
+      </div>
+      <div class="tm-field" id="dgProdAccessFileBlock" style="display:none">
+        <label class="tm-label">Upload File</label>
+        <input type="file" onchange="dgHandleFileSelect(this)" style="font-size:12px"/>
+        <div id="dgProdFileInfo" style="font-size:11px;color:var(--text-muted);margin-top:5px"></div>
+        <div class="tm-hint">Max 5MB di Phase 2 (disimpan di localStorage). Phase 4 nanti pakai Firebase Storage untuk file besar.</div>
+      </div>
+      <div id="dgProdError" class="tm-error" style="display:none"></div>
+    </div>
+    <div class="tm-modal-foot">
+      <button class="btn-outline-sm" onclick="dgCloseProdModal()">Batal</button>
+      <button class="btn-primary-sm" onclick="dgSaveProd()"><i class="ti ti-device-floppy"></i><span>Simpan Produk</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- DIGITAL ORDER MANUAL MODAL -->
+<div class="tm-modal-overlay" id="dgOrderModal" onclick="dgCloseOrderModal(event)" style="display:none">
+  <div class="tm-modal" onclick="event.stopPropagation()" style="max-width:500px">
+    <div class="tm-modal-head">
+      <div class="tm-modal-title" id="dgOrderModalTitle">Tambah Pesanan Manual</div>
+      <button class="tm-modal-close" onclick="dgCloseOrderModal()" aria-label="Tutup"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="tm-modal-body">
+      <div class="tm-field"><label class="tm-label">Produk *</label><select id="dgOrderProd" class="tm-input"></select></div>
+      <div class="tm-field"><label class="tm-label">Email Pelanggan *</label><input type="email" id="dgOrderEmail" class="tm-input" placeholder="customer@email.com"/></div>
+      <div class="tm-field-row">
+        <div class="tm-field"><label class="tm-label">Nama Pelanggan *</label><input type="text" id="dgOrderName" class="tm-input" placeholder="Nama lengkap"/></div>
+        <div class="tm-field"><label class="tm-label">WhatsApp</label><input type="text" id="dgOrderWa" class="tm-input" placeholder="08xxx" inputmode="numeric"/></div>
+      </div>
+      <div class="tm-hint">Pesanan masuk dengan status "Pending". Klik <strong>Mark Paid</strong> di list pesanan setelah customer transfer.</div>
+      <div id="dgOrderError" class="tm-error" style="display:none"></div>
+    </div>
+    <div class="tm-modal-foot">
+      <button class="btn-outline-sm" onclick="dgCloseOrderModal()">Batal</button>
+      <button class="btn-primary-sm" onclick="dgSaveOrder()"><i class="ti ti-device-floppy"></i><span>Simpan Pesanan</span></button>
     </div>
   </div>
 </div>
@@ -9215,12 +9408,661 @@ function showDigitalPanel(name){
     b.classList.toggle('active', b.getAttribute('data-dignav') === name);
   });
   // Panel-specific init
-  if(name === 'payment' && typeof dgRefreshPwStatus === 'function') dgRefreshPwStatus();
+  if(name === 'overview' && typeof renderDgDashboard === 'function') renderDgDashboard();
+  else if(name === 'produk' && typeof renderDgProds === 'function') renderDgProds();
+  else if(name === 'pesanan' && typeof renderDgOrders === 'function') renderDgOrders();
+  else if(name === 'pelanggan' && typeof renderDgCustomers === 'function') renderDgCustomers();
+  else if(name === 'payment'){
+    if(typeof dgRefreshPwStatus === 'function') dgRefreshPwStatus();
+    if(typeof dgLoadPaymentConfig === 'function') dgLoadPaymentConfig();
+  }
+}
+
+/* ═════════════════════════════════════════════
+   ADMIN DIGITAL — Phase 2 data helpers
+═════════════════════════════════════════════ */
+var DG_PRODS_KEY = 'od_prods_digital';
+var DG_ORDERS_KEY = 'od_orders_digital';
+var DG_CUSTS_KEY = 'od_customers_digital';
+var DG_MIDTRANS_KEY = 'od_midtrans_config';
+var DG_RESEND_KEY = 'od_resend_config';
+
+function dgLsGet(key, fallback){
+  try { var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+  catch(e){ return fallback; }
+}
+function dgLsSet(key, val){
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch(e){ console.warn('LS set fail:', e); }
+}
+function getDgProds(){ return dgLsGet(DG_PRODS_KEY, []) || []; }
+function setDgProds(list){ dgLsSet(DG_PRODS_KEY, list); }
+function getDgOrders(){ return dgLsGet(DG_ORDERS_KEY, []) || []; }
+function setDgOrders(list){ dgLsSet(DG_ORDERS_KEY, list); }
+function getDgCustomers(){ return dgLsGet(DG_CUSTS_KEY, []) || []; }
+function setDgCustomers(list){ dgLsSet(DG_CUSTS_KEY, list); }
+
+function dgSlugify(name){
+  return String(name || '')
+    .toLowerCase().trim()
+    .replace(/[^a-z0-9\s-]/g,'')
+    .replace(/\s+/g,'-')
+    .replace(/-+/g,'-')
+    .slice(0, 50);
+}
+
+function dgFmtRp(n){
+  if(typeof n !== 'number') n = parseInt(n, 10) || 0;
+  return 'Rp ' + n.toLocaleString('id-ID');
+}
+
+function dgFmtDate(ts){
+  if(!ts) return '—';
+  var d = new Date(ts);
+  if(isNaN(d.getTime())) return '—';
+  var pad = function(n){ return n<10?'0'+n:''+n; };
+  return pad(d.getDate())+'-'+pad(d.getMonth()+1)+'-'+d.getFullYear()+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+}
+
+function dgGenPassword(len){
+  len = len || 8;
+  var chars = 'abcdefghjkmnpqrstuvwxyz23456789';
+  var s = '';
+  for(var i=0;i<len;i++) s += chars[Math.floor(Math.random()*chars.length)];
+  return s;
+}
+
+/* ═════════════════════════════════════════════
+   ADMIN DIGITAL — Phase 2 PRODUK CRUD
+═════════════════════════════════════════════ */
+var dgEditProdId = null;
+var dgProdSearch = '';
+var dgProdTypeFilter = '';
+
+var DG_PROD_TYPES = [
+  { id:'ebook', label:'Ebook', icon:'ti-book', color:'#4338CA', bg:'#EEF2FF' },
+  { id:'kursus', label:'Kursus', icon:'ti-school', color:'#065F46', bg:'#ECFDF5' },
+  { id:'template', label:'Template', icon:'ti-template', color:'#92400E', bg:'#FEF3C7' },
+  { id:'lainnya', label:'Lainnya', icon:'ti-package', color:'#6B21A8', bg:'#F3E8FF' }
+];
+
+function dgProdTypeMeta(typeId){
+  var found = DG_PROD_TYPES.find(function(t){ return t.id === typeId; });
+  return found || DG_PROD_TYPES[3]; // fallback lainnya
 }
 
 function dgNewProd(){
-  // Stub Phase 1 — bakal di-implement di Phase 2
-  toast('📦 Produk Digital baru — Phase 2 coming soon');
+  dgEditProdId = null;
+  document.getElementById('dgProdModalTitle').textContent = 'Produk Digital Baru';
+  document.getElementById('dgProdName').value = '';
+  document.getElementById('dgProdPrice').value = '';
+  document.getElementById('dgProdDesc').value = '';
+  document.getElementById('dgProdType').value = 'ebook';
+  document.getElementById('dgProdAccessType').value = 'link';
+  document.getElementById('dgProdAccessUrl').value = '';
+  var fileInfo = document.getElementById('dgProdFileInfo');
+  if(fileInfo){ fileInfo.textContent = ''; fileInfo.dataset.b64 = ''; fileInfo.dataset.name = ''; fileInfo.dataset.size = ''; fileInfo.dataset.mime = ''; }
+  document.getElementById('dgProdError').style.display = 'none';
+  dgToggleAccessType();
+  document.getElementById('dgProdModal').style.display = 'flex';
+}
+
+function dgEditProd(id){
+  var p = getDgProds().find(function(x){ return x.id === id; });
+  if(!p){ toast('⚠️ Produk tidak ditemukan'); return; }
+  dgEditProdId = id;
+  document.getElementById('dgProdModalTitle').textContent = 'Edit Produk Digital';
+  document.getElementById('dgProdName').value = p.name || '';
+  document.getElementById('dgProdPrice').value = p.price || '';
+  document.getElementById('dgProdDesc').value = p.description || '';
+  document.getElementById('dgProdType').value = p.type || 'ebook';
+  document.getElementById('dgProdAccessType').value = p.accessType || 'link';
+  document.getElementById('dgProdAccessUrl').value = p.accessUrl || '';
+  var fileInfo = document.getElementById('dgProdFileInfo');
+  if(fileInfo){
+    if(p.accessType === 'file' && p.fileName){
+      fileInfo.textContent = p.fileName + ' (' + (p.fileSize ? (Math.round(p.fileSize/1024) + ' KB') : '?') + ') — pilih file baru kalau mau ganti';
+      fileInfo.dataset.b64 = p.fileBase64 || '';
+      fileInfo.dataset.name = p.fileName || '';
+      fileInfo.dataset.size = String(p.fileSize || '');
+      fileInfo.dataset.mime = p.fileMime || '';
+    } else {
+      fileInfo.textContent = ''; fileInfo.dataset.b64 = ''; fileInfo.dataset.name = ''; fileInfo.dataset.size = ''; fileInfo.dataset.mime = '';
+    }
+  }
+  document.getElementById('dgProdError').style.display = 'none';
+  dgToggleAccessType();
+  document.getElementById('dgProdModal').style.display = 'flex';
+}
+
+function dgCloseProdModal(ev){
+  if(ev && ev.target !== ev.currentTarget) return;
+  document.getElementById('dgProdModal').style.display = 'none';
+  dgEditProdId = null;
+}
+
+function dgToggleAccessType(){
+  var t = document.getElementById('dgProdAccessType').value;
+  var linkBlock = document.getElementById('dgProdAccessLinkBlock');
+  var fileBlock = document.getElementById('dgProdAccessFileBlock');
+  if(linkBlock) linkBlock.style.display = t === 'link' ? '' : 'none';
+  if(fileBlock) fileBlock.style.display = t === 'file' ? '' : 'none';
+}
+
+function dgHandleFileSelect(input){
+  if(!input.files || !input.files[0]) return;
+  var f = input.files[0];
+  var maxBytes = 5 * 1024 * 1024; // 5MB cap untuk Phase 2 (localStorage limit ~10MB total)
+  if(f.size > maxBytes){
+    toast('⚠️ File terlalu besar (max 5MB di Phase 2). Phase 4 nanti pakai Firebase Storage, bisa GB-an.');
+    input.value = '';
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function(ev){
+    var fileInfo = document.getElementById('dgProdFileInfo');
+    if(fileInfo){
+      fileInfo.dataset.b64 = ev.target.result || '';
+      fileInfo.dataset.name = f.name;
+      fileInfo.dataset.size = String(f.size);
+      fileInfo.dataset.mime = f.type || 'application/octet-stream';
+      fileInfo.textContent = f.name + ' (' + Math.round(f.size/1024) + ' KB) — siap simpan';
+    }
+  };
+  reader.readAsDataURL(f);
+}
+
+function dgSaveProd(){
+  var name = (document.getElementById('dgProdName').value || '').trim();
+  var price = parseInt(document.getElementById('dgProdPrice').value, 10) || 0;
+  var desc = (document.getElementById('dgProdDesc').value || '').trim();
+  var type = document.getElementById('dgProdType').value;
+  var accessType = document.getElementById('dgProdAccessType').value;
+  var accessUrl = (document.getElementById('dgProdAccessUrl').value || '').trim();
+  var fileInfo = document.getElementById('dgProdFileInfo');
+  var errEl = document.getElementById('dgProdError');
+  function showErr(msg){ errEl.textContent = msg; errEl.style.display = 'block'; }
+  errEl.style.display = 'none';
+  if(!name){ showErr('Nama produk wajib diisi.'); return; }
+  if(price < 1000){ showErr('Harga minimal Rp 1.000.'); return; }
+  if(accessType === 'link' && !accessUrl){ showErr('Link akses wajib diisi (URL Google Drive / Notion / dll).'); return; }
+  if(accessType === 'file' && !fileInfo.dataset.b64){ showErr('File belum dipilih.'); return; }
+
+  var prods = getDgProds();
+  if(dgEditProdId){
+    var i = prods.findIndex(function(p){ return p.id === dgEditProdId; });
+    if(i < 0){ showErr('Produk tidak ditemukan.'); return; }
+    prods[i] = Object.assign({}, prods[i], {
+      name: name, price: price, description: desc, type: type,
+      accessType: accessType,
+      accessUrl: accessType === 'link' ? accessUrl : '',
+      fileBase64: accessType === 'file' ? (fileInfo.dataset.b64 || prods[i].fileBase64 || '') : '',
+      fileName: accessType === 'file' ? (fileInfo.dataset.name || prods[i].fileName || '') : '',
+      fileSize: accessType === 'file' ? (parseInt(fileInfo.dataset.size, 10) || prods[i].fileSize || 0) : 0,
+      fileMime: accessType === 'file' ? (fileInfo.dataset.mime || prods[i].fileMime || '') : ''
+    });
+    toast('✅ Produk digital diperbarui');
+  } else {
+    var nowId = Date.now();
+    prods.push({
+      id: nowId,
+      name: name,
+      price: price,
+      description: desc,
+      type: type,
+      accessType: accessType,
+      accessUrl: accessType === 'link' ? accessUrl : '',
+      fileBase64: accessType === 'file' ? (fileInfo.dataset.b64 || '') : '',
+      fileName: accessType === 'file' ? (fileInfo.dataset.name || '') : '',
+      fileSize: accessType === 'file' ? (parseInt(fileInfo.dataset.size, 10) || 0) : 0,
+      fileMime: accessType === 'file' ? (fileInfo.dataset.mime || '') : '',
+      slug: dgSlugify(name),
+      active: true,
+      createdAt: nowId
+    });
+    toast('✅ Produk digital baru ditambahkan');
+  }
+  setDgProds(prods);
+  dgCloseProdModal();
+  renderDgProds();
+}
+
+function dgDeleteProd(id){
+  var p = getDgProds().find(function(x){ return x.id === id; });
+  if(!p) return;
+  if(!confirmDestructive('Hapus produk "'+p.name+'"?\n\nPesanan & customer yang udah beli produk ini ga akan ke-affect, tapi link form-nya bakal gagal.', '⚠️ Yakin hapus produk "'+p.name+'"?')) return;
+  setDgProds(getDgProds().filter(function(x){ return x.id !== id; }));
+  toast('🗑️ Produk digital dihapus');
+  renderDgProds();
+}
+
+function dgToggleProdActive(id){
+  var prods = getDgProds();
+  var i = prods.findIndex(function(p){ return p.id === id; });
+  if(i < 0) return;
+  prods[i].active = !(prods[i].active !== false);
+  setDgProds(prods);
+  toast(prods[i].active ? '✅ Produk diaktifkan' : '🔒 Produk dinonaktifkan');
+  renderDgProds();
+}
+
+function dgCopyProdLink(id){
+  var p = getDgProds().find(function(x){ return x.id === id; });
+  if(!p) return;
+  var url = window.location.origin + '/?digital=' + (p.slug || p.id);
+  try {
+    navigator.clipboard.writeText(url);
+    toast('📋 Link form purchase di-copy: ' + url);
+  } catch(e){
+    prompt('Copy link manual:', url);
+  }
+}
+
+function renderDgProds(){
+  var prods = getDgProds().slice();
+  // Search
+  var q = (dgProdSearch || '').toLowerCase();
+  if(q) prods = prods.filter(function(p){ return (p.name||'').toLowerCase().indexOf(q) >= 0; });
+  // Type filter
+  if(dgProdTypeFilter) prods = prods.filter(function(p){ return (p.type||'') === dgProdTypeFilter; });
+  // Sort A → Z
+  prods.sort(function(a,b){ return (a.name||'').localeCompare(b.name||'', 'id', { sensitivity:'base' }); });
+
+  var countEl = document.getElementById('dgProdCount');
+  if(countEl){
+    var total = getDgProds().length;
+    var activeCnt = getDgProds().filter(function(p){ return p.active !== false; }).length;
+    countEl.textContent = total + ' produk · ' + activeCnt + ' aktif';
+  }
+
+  var body = document.getElementById('dgProdTableBody');
+  if(!body) return;
+  if(!prods.length){
+    body.innerHTML = '<div style="padding:40px 16px;text-align:center;color:var(--text-muted);font-size:13px"><div style="font-size:28px;margin-bottom:8px;opacity:.5">💻</div>'+(q || dgProdTypeFilter ? 'Tidak ada produk cocok filter' : 'Belum ada produk digital. Klik <strong>+ Produk Digital Baru</strong> buat mulai.')+'</div>';
+    return;
+  }
+  body.innerHTML = prods.map(function(p){
+    var meta = dgProdTypeMeta(p.type);
+    var rowCls = 'dg-prod-row' + (p.active === false ? ' is-off' : '');
+    var accessLabel = p.accessType === 'file' ? ('📎 ' + esc(p.fileName || 'file')) : '🔗 Link';
+    var statusBadge = p.active === false
+      ? '<span style="background:var(--surface-2);color:var(--text-muted);padding:3px 9px;border-radius:99px;font-size:10px;font-weight:500">Off</span>'
+      : '<span style="background:var(--green-soft);color:var(--green);padding:3px 9px;border-radius:99px;font-size:10px;font-weight:500">Aktif</span>';
+    return '<div class="'+rowCls+'">' +
+      '<div class="dg-prod-cover" style="background:'+meta.bg+';color:'+meta.color+'"><i class="ti '+meta.icon+'"></i></div>' +
+      '<div class="dg-prod-info">' +
+        '<div class="dg-prod-name">'+esc(p.name)+'</div>' +
+        '<div class="dg-prod-meta"><span class="dg-prod-type" style="background:'+meta.bg+';color:'+meta.color+'">'+esc(meta.label)+'</span><span>'+accessLabel+'</span><span>'+esc(dgFmtDate(p.createdAt))+'</span></div>' +
+      '</div>' +
+      '<div class="dg-prod-price">'+esc(dgFmtRp(p.price))+'</div>' +
+      '<div>'+statusBadge+'</div>' +
+      '<div class="dg-prod-actions">' +
+        '<button class="tm-icon-btn" onclick="dgCopyProdLink('+p.id+')" title="Copy link purchase"><i class="ti ti-link"></i></button>' +
+        '<button class="tm-icon-btn" onclick="dgEditProd('+p.id+')" title="Edit"><i class="ti ti-pencil"></i></button>' +
+        '<button class="tm-icon-btn" onclick="dgToggleProdActive('+p.id+')" title="'+(p.active===false?'Aktifkan':'Nonaktifkan')+'"><i class="ti '+(p.active===false?'ti-toggle-right':'ti-toggle-left')+'"></i></button>' +
+        '<button class="tm-icon-btn danger" onclick="dgDeleteProd('+p.id+')" title="Hapus"><i class="ti ti-trash"></i></button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function dgOnProdSearch(){
+  dgProdSearch = (document.getElementById('dgProdSearch') || {}).value || '';
+  renderDgProds();
+}
+function dgOnProdTypeFilter(v){
+  dgProdTypeFilter = v;
+  document.querySelectorAll('.dg-prod-type-tab').forEach(function(t){
+    t.classList.toggle('active', (t.getAttribute('data-dgtype')||'') === v);
+  });
+  renderDgProds();
+}
+
+/* ═════════════════════════════════════════════
+   ADMIN DIGITAL — Phase 2 PESANAN
+═════════════════════════════════════════════ */
+var dgOrderStatusFilter = '';
+var dgOrderSearch = '';
+
+function dgOpenOrderModal(){
+  document.getElementById('dgOrderModalTitle').textContent = 'Tambah Pesanan Manual';
+  // Populate produk dropdown
+  var sel = document.getElementById('dgOrderProd');
+  var prods = getDgProds().filter(function(p){ return p.active !== false; });
+  if(sel){
+    sel.innerHTML = prods.length ? prods.map(function(p){ return '<option value="'+p.id+'">'+esc(p.name)+' — '+esc(dgFmtRp(p.price))+'</option>'; }).join('') : '<option value="">— Belum ada produk aktif —</option>';
+  }
+  document.getElementById('dgOrderEmail').value = '';
+  document.getElementById('dgOrderName').value = '';
+  document.getElementById('dgOrderWa').value = '';
+  document.getElementById('dgOrderError').style.display = 'none';
+  document.getElementById('dgOrderModal').style.display = 'flex';
+}
+
+function dgCloseOrderModal(ev){
+  if(ev && ev.target !== ev.currentTarget) return;
+  document.getElementById('dgOrderModal').style.display = 'none';
+}
+
+function dgSaveOrder(){
+  var prodId = parseInt(document.getElementById('dgOrderProd').value, 10);
+  var email = (document.getElementById('dgOrderEmail').value || '').trim().toLowerCase();
+  var name = (document.getElementById('dgOrderName').value || '').trim();
+  var wa = (document.getElementById('dgOrderWa').value || '').trim();
+  var errEl = document.getElementById('dgOrderError');
+  function showErr(msg){ errEl.textContent = msg; errEl.style.display = 'block'; }
+  errEl.style.display = 'none';
+  if(!prodId){ showErr('Pilih produk dulu.'); return; }
+  if(!email || !/^\S+@\S+\.\S+$/.test(email)){ showErr('Email tidak valid.'); return; }
+  if(!name){ showErr('Nama wajib diisi.'); return; }
+  var prod = getDgProds().find(function(p){ return p.id === prodId; });
+  if(!prod){ showErr('Produk tidak ditemukan.'); return; }
+
+  var orders = getDgOrders();
+  var orderId = Date.now();
+  orders.push({
+    id: orderId,
+    productId: prodId,
+    productName: prod.name,
+    productPrice: prod.price,
+    customerEmail: email,
+    customerName: name,
+    customerWa: wa,
+    status: 'pending',
+    accessStatus: 'pending',
+    createdAt: orderId
+  });
+  setDgOrders(orders);
+  toast('✅ Pesanan manual ditambah — mark paid dari list pesanan');
+  dgCloseOrderModal();
+  renderDgOrders();
+  renderDgDashboard();
+}
+
+function dgMarkPaid(orderId){
+  var orders = getDgOrders();
+  var i = orders.findIndex(function(o){ return o.id === orderId; });
+  if(i < 0) return;
+  orders[i].status = 'paid';
+  orders[i].paidAt = Date.now();
+  setDgOrders(orders);
+  toast('💰 Pesanan ditandai PAID — klik Grant Access buat kirim ke customer');
+  renderDgOrders();
+  renderDgDashboard();
+}
+
+function dgGrantAccess(orderId){
+  var orders = getDgOrders();
+  var i = orders.findIndex(function(o){ return o.id === orderId; });
+  if(i < 0) return;
+  var order = orders[i];
+  if(order.status !== 'paid'){ toast('⚠️ Mark Paid dulu sebelum Grant Access'); return; }
+  // Create or update customer
+  var custs = getDgCustomers();
+  var custIdx = custs.findIndex(function(c){ return (c.email||'').toLowerCase() === order.customerEmail.toLowerCase(); });
+  var newPw = null;
+  if(custIdx < 0){
+    newPw = dgGenPassword(8);
+    custs.push({
+      id: Date.now(),
+      email: order.customerEmail,
+      password: newPw,
+      name: order.customerName,
+      wa: order.customerWa,
+      productIds: [order.productId],
+      active: true,
+      createdAt: Date.now()
+    });
+  } else {
+    if(!custs[custIdx].productIds) custs[custIdx].productIds = [];
+    if(custs[custIdx].productIds.indexOf(order.productId) < 0) custs[custIdx].productIds.push(order.productId);
+    custs[custIdx].name = custs[custIdx].name || order.customerName;
+    custs[custIdx].wa = custs[custIdx].wa || order.customerWa;
+  }
+  setDgCustomers(custs);
+  orders[i].accessStatus = 'granted';
+  orders[i].grantedAt = Date.now();
+  setDgOrders(orders);
+  var msg = '✅ Akses granted. ';
+  if(newPw){
+    msg += 'Customer baru — password: ' + newPw + ' (kasih ke customer via WA/email).';
+    setTimeout(function(){
+      if(confirm('Customer baru:\n\nEmail: '+order.customerEmail+'\nPassword: '+newPw+'\n\nCopy ke clipboard?')){
+        try { navigator.clipboard.writeText('Email: '+order.customerEmail+'\nPassword: '+newPw+'\nLogin: '+window.location.origin); } catch(e){}
+      }
+    }, 100);
+  } else {
+    msg += 'Customer existing — pakai password yang sudah ada.';
+  }
+  toast(msg);
+  renderDgOrders();
+  renderDgCustomers();
+  renderDgDashboard();
+}
+
+function dgCancelOrder(orderId){
+  if(!confirmDestructive('Batalkan pesanan ini?', '⚠️ Yakin batalkan pesanan?')) return;
+  var orders = getDgOrders();
+  var i = orders.findIndex(function(o){ return o.id === orderId; });
+  if(i < 0) return;
+  orders[i].status = 'failed';
+  setDgOrders(orders);
+  toast('🗑️ Pesanan dibatalkan');
+  renderDgOrders();
+  renderDgDashboard();
+}
+
+function renderDgOrders(){
+  var orders = getDgOrders().slice();
+  // Search
+  var q = (dgOrderSearch || '').toLowerCase();
+  if(q) orders = orders.filter(function(o){
+    return (o.customerName||'').toLowerCase().indexOf(q) >= 0
+        || (o.customerEmail||'').toLowerCase().indexOf(q) >= 0
+        || (o.productName||'').toLowerCase().indexOf(q) >= 0;
+  });
+  if(dgOrderStatusFilter) orders = orders.filter(function(o){ return o.status === dgOrderStatusFilter; });
+  // Sort newest first
+  orders.sort(function(a,b){ return (b.createdAt||0) - (a.createdAt||0); });
+
+  // Status counts
+  var all = getDgOrders();
+  var setText = function(id, val){ var e=document.getElementById(id); if(e) e.textContent = val; };
+  setText('dgOrdCountAll', all.length);
+  setText('dgOrdCountPending', all.filter(function(o){ return o.status === 'pending'; }).length);
+  setText('dgOrdCountPaid', all.filter(function(o){ return o.status === 'paid' && o.accessStatus !== 'granted'; }).length);
+  setText('dgOrdCountGranted', all.filter(function(o){ return o.accessStatus === 'granted'; }).length);
+
+  var body = document.getElementById('dgOrderTableBody');
+  if(!body) return;
+  if(!orders.length){
+    body.innerHTML = '<div style="padding:40px 16px;text-align:center;color:var(--text-muted);font-size:13px"><div style="font-size:28px;margin-bottom:8px;opacity:.5">📥</div>'+(q || dgOrderStatusFilter ? 'Tidak ada pesanan cocok filter' : 'Belum ada pesanan. Klik <strong>+ Pesanan Manual</strong> atau tunggu order dari form (Phase 4).')+'</div>';
+    return;
+  }
+  body.innerHTML = orders.map(function(o){
+    var statusMap = {
+      pending: { bg:'var(--orange-soft)', col:'var(--orange)', lbl:'Pending' },
+      paid: { bg:'var(--blue-soft)', col:'var(--blue)', lbl:'Paid' },
+      failed: { bg:'var(--red-soft)', col:'var(--red)', lbl:'Failed' }
+    };
+    var s = statusMap[o.status] || statusMap.pending;
+    var accessBadge = o.accessStatus === 'granted'
+      ? '<span style="background:var(--green-soft);color:var(--green);padding:3px 9px;border-radius:99px;font-size:10px;font-weight:500">✓ Granted</span>'
+      : '<span style="background:var(--surface-2);color:var(--text-muted);padding:3px 9px;border-radius:99px;font-size:10px;font-weight:500">Belum</span>';
+    var actions = '';
+    if(o.status === 'pending') actions += '<button class="btn-primary-sm" style="padding:5px 10px;font-size:11px" onclick="dgMarkPaid('+o.id+')"><i class="ti ti-check" style="font-size:12px"></i>Mark Paid</button>';
+    else if(o.status === 'paid' && o.accessStatus !== 'granted') actions += '<button class="btn-primary-sm" style="padding:5px 10px;font-size:11px;background:linear-gradient(135deg,#10B981,#059669)" onclick="dgGrantAccess('+o.id+')"><i class="ti ti-key" style="font-size:12px"></i>Grant Access</button>';
+    if(o.status !== 'failed') actions += ' <button class="tm-icon-btn danger" onclick="dgCancelOrder('+o.id+')" title="Batalkan"><i class="ti ti-x"></i></button>';
+    return '<div class="dg-order-row">' +
+      '<div class="dg-order-cust"><div class="dg-order-name">'+esc(o.customerName||'-')+'</div><div class="dg-order-email">'+esc(o.customerEmail||'')+'</div></div>' +
+      '<div class="dg-order-prod">'+esc(o.productName||'-')+'</div>' +
+      '<div class="dg-order-price">'+esc(dgFmtRp(o.productPrice))+'</div>' +
+      '<div><span style="background:'+s.bg+';color:'+s.col+';padding:3px 9px;border-radius:99px;font-size:10px;font-weight:500">'+s.lbl+'</span></div>' +
+      '<div>'+accessBadge+'</div>' +
+      '<div class="dg-order-date">'+esc(dgFmtDate(o.createdAt))+'</div>' +
+      '<div class="dg-order-actions">'+actions+'</div>' +
+    '</div>';
+  }).join('');
+}
+
+function dgOnOrderSearch(){
+  dgOrderSearch = (document.getElementById('dgOrderSearch') || {}).value || '';
+  renderDgOrders();
+}
+function dgOnOrderStatusFilter(s){
+  dgOrderStatusFilter = s;
+  document.querySelectorAll('.dg-order-status-tab').forEach(function(t){
+    t.classList.toggle('active', (t.getAttribute('data-dgstat')||'') === s);
+  });
+  renderDgOrders();
+}
+
+/* ═════════════════════════════════════════════
+   ADMIN DIGITAL — Phase 2 PELANGGAN
+═════════════════════════════════════════════ */
+var dgCustSearch = '';
+
+function renderDgCustomers(){
+  var custs = getDgCustomers().slice();
+  var q = (dgCustSearch || '').toLowerCase();
+  if(q) custs = custs.filter(function(c){
+    return (c.email||'').toLowerCase().indexOf(q) >= 0
+        || (c.name||'').toLowerCase().indexOf(q) >= 0
+        || (c.wa||'').indexOf(q) >= 0;
+  });
+  custs.sort(function(a,b){ return (b.createdAt||0) - (a.createdAt||0); });
+
+  var countEl = document.getElementById('dgCustCount');
+  if(countEl) countEl.textContent = getDgCustomers().length + ' pelanggan';
+
+  var body = document.getElementById('dgCustTableBody');
+  if(!body) return;
+  if(!custs.length){
+    body.innerHTML = '<div style="padding:40px 16px;text-align:center;color:var(--text-muted);font-size:13px"><div style="font-size:28px;margin-bottom:8px;opacity:.5">👥</div>Belum ada pelanggan. Pelanggan otomatis ke-create saat lo klik <strong>Grant Access</strong> di Pesanan.</div>';
+    return;
+  }
+  var prods = getDgProds();
+  body.innerHTML = custs.map(function(c){
+    var prodCount = (c.productIds || []).length;
+    var prodNames = (c.productIds || []).map(function(pid){
+      var p = prods.find(function(x){ return x.id === pid; });
+      return p ? p.name : '?';
+    }).join(', ');
+    return '<div class="dg-cust-row">' +
+      '<div class="dg-cust-avatar">'+esc((c.name||c.email||'?')[0].toUpperCase())+'</div>' +
+      '<div class="dg-cust-info"><div class="dg-cust-name">'+esc(c.name||'-')+'</div><div class="dg-cust-email">'+esc(c.email||'')+'</div></div>' +
+      '<div class="dg-cust-wa">'+esc(c.wa||'—')+'</div>' +
+      '<div class="dg-cust-pw"><span>••••••</span><button class="tm-icon-btn" onclick="dgCopyCustCred('+c.id+')" title="Copy email+password"><i class="ti ti-copy"></i></button></div>' +
+      '<div class="dg-cust-prods"><strong>'+prodCount+'</strong> produk'+(prodNames?'<div style="font-size:10px;color:var(--text-muted);margin-top:2px">'+esc(prodNames.substring(0,60))+(prodNames.length>60?'…':'')+'</div>':'')+'</div>' +
+      '<div class="dg-cust-date">'+esc(dgFmtDate(c.createdAt))+'</div>' +
+      '<div class="dg-cust-actions">' +
+        '<button class="tm-icon-btn" onclick="dgResetCustPw('+c.id+')" title="Reset password"><i class="ti ti-key"></i></button>' +
+        '<button class="tm-icon-btn danger" onclick="dgDeleteCust('+c.id+')" title="Hapus"><i class="ti ti-trash"></i></button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function dgCopyCustCred(id){
+  var c = getDgCustomers().find(function(x){ return x.id === id; });
+  if(!c) return;
+  var text = 'Email: '+c.email+'\nPassword: '+c.password+'\nLogin: '+window.location.origin;
+  try { navigator.clipboard.writeText(text); toast('📋 Credential di-copy ke clipboard'); }
+  catch(e){ prompt('Copy manual:', text); }
+}
+function dgResetCustPw(id){
+  if(!confirmDestructive('Reset password customer?', '⚠️ Password lama bakal expired, password baru dikirim ke customer.')) return;
+  var custs = getDgCustomers();
+  var i = custs.findIndex(function(c){ return c.id === id; });
+  if(i < 0) return;
+  custs[i].password = dgGenPassword(8);
+  setDgCustomers(custs);
+  toast('🔑 Password reset: '+custs[i].password+' (copy & kirim ke '+custs[i].email+')');
+  renderDgCustomers();
+}
+function dgDeleteCust(id){
+  var c = getDgCustomers().find(function(x){ return x.id === id; });
+  if(!c) return;
+  if(!confirmDestructive('Hapus customer "'+(c.name||c.email)+'"?\n\nMereka ga bisa login lagi, tapi history pesanan tetep ada.', '⚠️ Yakin hapus customer?')) return;
+  setDgCustomers(getDgCustomers().filter(function(x){ return x.id !== id; }));
+  toast('🗑️ Customer dihapus');
+  renderDgCustomers();
+}
+function dgOnCustSearch(){
+  dgCustSearch = (document.getElementById('dgCustSearch') || {}).value || '';
+  renderDgCustomers();
+}
+
+/* ═════════════════════════════════════════════
+   ADMIN DIGITAL — Phase 2 DASHBOARD (overview stats)
+═════════════════════════════════════════════ */
+function renderDgDashboard(){
+  var orders = getDgOrders();
+  var custs = getDgCustomers();
+  var prods = getDgProds();
+  var paidOrders = orders.filter(function(o){ return o.status === 'paid'; });
+  var revenue = paidOrders.reduce(function(sum, o){ return sum + (o.productPrice || 0); }, 0);
+  var todayStart = new Date(); todayStart.setHours(0,0,0,0);
+  var ordersToday = orders.filter(function(o){ return (o.createdAt||0) >= todayStart.getTime(); }).length;
+
+  var setText = function(id, val){ var e=document.getElementById(id); if(e) e.textContent = val; };
+  setText('dgStatRevenue', dgFmtRp(revenue));
+  setText('dgStatSales', paidOrders.length);
+  setText('dgStatCustomers', custs.length);
+  setText('dgStatProducts', prods.filter(function(p){ return p.active !== false; }).length);
+  setText('dgStatOrdersToday', ordersToday);
+
+  // Recent orders
+  var recent = orders.slice().sort(function(a,b){ return (b.createdAt||0) - (a.createdAt||0); }).slice(0, 5);
+  var recentEl = document.getElementById('dgRecentOrders');
+  if(recentEl){
+    if(!recent.length){
+      recentEl.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">Belum ada pesanan.</div>';
+    } else {
+      recentEl.innerHTML = recent.map(function(o){
+        var statusCol = o.status === 'paid' ? 'var(--green)' : (o.status === 'failed' ? 'var(--red)' : 'var(--orange)');
+        return '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12.5px">' +
+          '<div style="width:30px;height:30px;border-radius:50%;background:var(--surface-2);color:var(--text-muted);display:flex;align-items:center;justify-content:center;font-weight:500">'+esc((o.customerName||'?')[0].toUpperCase())+'</div>' +
+          '<div style="flex:1;min-width:0"><div style="font-weight:500;color:var(--text)">'+esc(o.customerName||'-')+' · '+esc(o.productName||'-')+'</div><div style="font-size:11px;color:var(--text-muted);font-family:\'SF Mono\',Menlo,monospace">'+esc(dgFmtDate(o.createdAt))+'</div></div>' +
+          '<div style="color:var(--green);font-family:\'SF Mono\',Menlo,monospace;font-weight:500">'+esc(dgFmtRp(o.productPrice))+'</div>' +
+          '<div style="background:rgba(0,0,0,.06);color:'+statusCol+';padding:2px 8px;border-radius:99px;font-size:10px;font-weight:500;text-transform:uppercase">'+esc(o.status)+'</div>' +
+        '</div>';
+      }).join('');
+    }
+  }
+}
+
+/* ═════════════════════════════════════════════
+   ADMIN DIGITAL — Phase 2 PAYMENT CONFIG (Midtrans + Resend)
+═════════════════════════════════════════════ */
+function dgLoadPaymentConfig(){
+  var mid = dgLsGet(DG_MIDTRANS_KEY, {});
+  var rs = dgLsGet(DG_RESEND_KEY, {});
+  var setVal = function(id, v){ var e=document.getElementById(id); if(e) e.value = v || ''; };
+  setVal('dgMtServer', mid.serverKey);
+  setVal('dgMtClient', mid.clientKey);
+  var prodCb = document.getElementById('dgMtProd');
+  if(prodCb) prodCb.checked = !!mid.isProduction;
+  setVal('dgRsApiKey', rs.apiKey);
+  setVal('dgRsFromEmail', rs.fromEmail);
+  setVal('dgRsFromName', rs.fromName);
+}
+
+function dgSaveMidtransConfig(){
+  var server = (document.getElementById('dgMtServer').value || '').trim();
+  var client = (document.getElementById('dgMtClient').value || '').trim();
+  var isProduction = document.getElementById('dgMtProd').checked;
+  if(!server || !client){ toast('⚠️ Server Key dan Client Key wajib diisi.'); return; }
+  dgLsSet(DG_MIDTRANS_KEY, { serverKey: server, clientKey: client, isProduction: isProduction });
+  toast('✅ Midtrans config disimpan — Phase 4 akan pakai ini buat generate Snap token');
+}
+
+function dgSaveResendConfig(){
+  var apiKey = (document.getElementById('dgRsApiKey').value || '').trim();
+  var fromEmail = (document.getElementById('dgRsFromEmail').value || '').trim();
+  var fromName = (document.getElementById('dgRsFromName').value || '').trim();
+  if(!apiKey){ toast('⚠️ Resend API Key wajib diisi.'); return; }
+  dgLsSet(DG_RESEND_KEY, { apiKey: apiKey, fromEmail: fromEmail, fromName: fromName });
+  toast('✅ Resend config disimpan — Phase 5 akan pakai ini buat kirim email');
 }
 
 /* Password Admin Digital — set/change/reset */
