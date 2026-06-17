@@ -2229,7 +2229,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-12-cs-picker-dropdown';
+window.__APP_VERSION = '2026-06-12-fix-fixed-save';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -6625,7 +6625,7 @@ function saveProd(){
   let saveSoloId = null;
   if(csIds.length < 2){
     saveMode = 'equal'; // satu CS = equal aja, irrelevant mode-nya
-  } else if(distribMode === 'custom'){
+  } else if(distribMode === 'custom' || distribMode === 'fixed'){
     csIds.forEach(function(id){ saveWeights[id] = distribWeights[id] || 0; });
   } else if(distribMode === 'solo'){
     saveSoloId = distribSoloId;
