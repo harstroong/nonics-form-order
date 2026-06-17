@@ -2229,7 +2229,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-12-fix-fixed-save';
+window.__APP_VERSION = '2026-06-12-fixed-fallback';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -6831,21 +6831,24 @@ window['ooSub${p.id}']=function(){
         }
         chosenCsId = (picked !== null) ? picked : csIds[0];
       } else if(dMode === 'fixed' && weights){
-        /* Fixed mode: pick CS where current_count < (weight * cycles_done + weight).
-           Implementasi paling simple: pick CS dengan rasio (counts[id] / weights[id]) terendah */
+        /* Fixed mode: pick CS dengan rasio (counts[id] / weights[id]) terendah */
         chosenCsId = null;
         var bestRatio = Infinity;
+        var anyWeight = false;
         for(var fi=0; fi<csIds.length; fi++){
           var fid = csIds[fi];
           var fw = weights[fid] || 0;
           if(fw <= 0) continue;
+          anyWeight = true;
           var fc = counts[fid] || 0;
           var ratio = fc / fw;
           if(ratio < bestRatio){ bestRatio = ratio; chosenCsId = fid; }
         }
-        if(!chosenCsId){
-          // Fallback kalau semua weight 0 — pakai CS pertama
+        if(!anyWeight){
+          /* Safety: semua weight 0 → fallback ke equal round-robin (least-loaded) */
           chosenCsId = csIds[0];
+          var minC2 = counts[chosenCsId] || 0;
+          csIds.forEach(function(id){ var c2 = counts[id] || 0; if(c2 < minC2){ minC2 = c2; chosenCsId = id; } });
         }
       } else {
         chosenCsId = csIds[0];
