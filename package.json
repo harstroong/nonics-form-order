@@ -1,0 +1,16 @@
+{
+  "name": "nonics-form-order",
+  "version": "1.0.0",
+  "description": "Nonics Form Order — Vercel serverless backend for Midtrans payment gateway",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "midtrans-client": "^1.4.3"
+  },
+  "engines": {
+    "node": ">=18.x"
+  }
+}
