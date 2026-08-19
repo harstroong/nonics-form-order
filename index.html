@@ -2313,7 +2313,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-13-dg-dashboard-v2';
+window.__APP_VERSION = '2026-06-14-split-landing-form';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -4905,6 +4905,15 @@ document.addEventListener('DOMContentLoaded', function(){
 
       <!-- Section: Landing Page -->
       <div class="dg-prod-section" id="dgProdSec-landing" style="display:none">
+        <div class="tm-field" style="background:linear-gradient(135deg,#EFF6FF,#F0F9FF);border:1px solid #BFDBFE;border-radius:10px;padding:12px 14px;margin-bottom:14px">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin:0">
+            <input type="checkbox" id="dgProdLandingEnabled" checked style="width:16px;height:16px;cursor:pointer;accent-color:#0EA5E9"/>
+            <div style="flex:1">
+              <div style="font-weight:600;color:#0369A1;font-size:13px;display:flex;align-items:center;gap:6px"><i class="ti ti-layout" style="font-size:14px"></i>Aktifkan Landing Page</div>
+              <div style="font-size:11.5px;color:#0C4A6E;margin-top:3px;line-height:1.5">✅ <strong>ON:</strong> URL <code>?digital=slug</code> nunjukin landing page lengkap (hero, benefit, testi, FAQ) dengan tombol CTA yang nge-link ke form checkout terpisah di <code>?form=slug</code>.<br/>⚡ <strong>OFF:</strong> URL <code>?digital=slug</code> <em>langsung</em> ke form checkout — no landing page. Bagus buat retargeting / warm audience.</div>
+            </div>
+          </label>
+        </div>
         <div class="tm-field"><label class="tm-label">Hero Headline (H1 utama)</label><input type="text" id="dgProdHeroTitle" class="tm-input" placeholder="Contoh: Kuasai Teacher Planner 2026/2027 — 300+ Template Siap Pakai"/><div class="tm-hint">Judul gede di paling atas landing page.</div></div>
         <div class="tm-field"><label class="tm-label">Hero Subheadline</label><textarea id="dgProdHeroSub" class="tm-input" rows="2" placeholder="Contoh: Hemat 40+ jam kerja per semester. Template siap edit di Canva & Google Docs."></textarea></div>
         <div class="tm-field"><label class="tm-label">Cover Image URL</label><input type="url" id="dgProdCoverUrl" class="tm-input" placeholder="https://... (paste URL gambar hero, kosongkan kalo mau pakai icon default)"/><div class="tm-hint">Rekomendasi ratio 16:9 (ex: 1200x675px). Upload gambar lo dulu ke Imgbb/Cloudinary/GDrive, terus paste link-nya.</div></div>
@@ -10246,6 +10255,8 @@ function dgNewProd(){
   setV('dgProdLongDesc');
   setV('dgProdTestimonials');
   setV('dgProdFAQ');
+  var lechk = document.getElementById('dgProdLandingEnabled');
+  if(lechk) lechk.checked = true; // new product default: landing ON
   var fileInfo = document.getElementById('dgProdFileInfo');
   if(fileInfo){ fileInfo.textContent = ''; fileInfo.dataset.b64 = ''; fileInfo.dataset.name = ''; fileInfo.dataset.size = ''; fileInfo.dataset.mime = ''; }
   document.getElementById('dgProdError').style.display = 'none';
@@ -10274,6 +10285,8 @@ function dgEditProd(id){
   setV('dgProdLongDesc', p.longDesc);
   setV('dgProdTestimonials', p.testimonials);
   setV('dgProdFAQ', p.faq);
+  var lechk2 = document.getElementById('dgProdLandingEnabled');
+  if(lechk2) lechk2.checked = (p.landingEnabled !== false); // default TRUE for backward compat
   var fileInfo = document.getElementById('dgProdFileInfo');
   if(fileInfo){
     if(p.accessType === 'file' && p.fileName){
@@ -10353,6 +10366,8 @@ function dgSaveProd(){
   if(accessType === 'link' && !accessUrl){ showErr('Link akses wajib diisi (URL Google Drive / Notion / dll).'); dgSwitchProdSection('access'); return; }
   if(accessType === 'file' && !fileInfo.dataset.b64){ showErr('File belum dipilih.'); dgSwitchProdSection('access'); return; }
 
+  var lechkS = document.getElementById('dgProdLandingEnabled');
+  var landingEnabled = lechkS ? !!lechkS.checked : true;
   var landingFields = {
     heroTitle: heroTitle,
     heroSub: heroSub,
@@ -10360,7 +10375,8 @@ function dgSaveProd(){
     benefits: benefits,
     longDesc: longDesc,
     testimonials: testimonials,
-    faq: faq
+    faq: faq,
+    landingEnabled: landingEnabled
   };
 
   var prods = getDgProds();
@@ -10422,14 +10438,28 @@ function dgToggleProdActive(id){
 }
 
 function dgCopyProdLink(id){
+  // Landing page URL — hanya relevan kalau landingEnabled=true
   var p = getDgProds().find(function(x){ return x.id === id; });
   if(!p) return;
   var url = window.location.origin + '/?digital=' + (p.slug || p.id);
   try {
     navigator.clipboard.writeText(url);
-    toast('📋 Link form purchase di-copy: ' + url);
+    toast('📋 Link landing page di-copy: ' + url);
   } catch(e){
-    prompt('Copy link manual:', url);
+    prompt('Copy link landing page manual:', url);
+  }
+}
+
+function dgCopyFormLink(id){
+  // Form order URL — pure checkout, no landing bloat
+  var p = getDgProds().find(function(x){ return x.id === id; });
+  if(!p) return;
+  var url = window.location.origin + '/?form=' + (p.slug || p.id);
+  try {
+    navigator.clipboard.writeText(url);
+    toast('📋 Link form order di-copy: ' + url);
+  } catch(e){
+    prompt('Copy link form order manual:', url);
   }
 }
 
@@ -10472,7 +10502,10 @@ function renderDgProds(){
       '<div class="dg-prod-price">'+esc(dgFmtRp(p.price))+'</div>' +
       '<div>'+statusBadge+'</div>' +
       '<div class="dg-prod-actions">' +
-        '<button class="tm-icon-btn" onclick="dgCopyProdLink('+p.id+')" title="Copy link purchase"><i class="ti ti-link"></i></button>' +
+        (p.landingEnabled !== false
+          ? '<button class="tm-icon-btn" onclick="dgCopyProdLink('+p.id+')" title="Copy link Landing Page"><i class="ti ti-layout"></i></button>'
+          : '') +
+        '<button class="tm-icon-btn" onclick="dgCopyFormLink('+p.id+')" title="Copy link Form Order"><i class="ti ti-forms"></i></button>' +
         '<button class="tm-icon-btn" onclick="dgEditProd('+p.id+')" title="Edit"><i class="ti ti-pencil"></i></button>' +
         '<button class="tm-icon-btn" onclick="dgToggleProdActive('+p.id+')" title="'+(p.active===false?'Aktifkan':'Nonaktifkan')+'"><i class="ti '+(p.active===false?'ti-toggle-right':'ti-toggle-left')+'"></i></button>' +
         '<button class="tm-icon-btn danger" onclick="dgDeleteProd('+p.id+')" title="Hapus"><i class="ti ti-trash"></i></button>' +
@@ -11215,20 +11248,23 @@ var __checkoutProduct = null;
 var __checkoutSnapLoaded = false;
 
 function checkoutMaybeRoute(){
-  // Cek URL param ?digital={slug-atau-id}
+  // Cek URL param ?digital={slug} atau ?form={slug}
   var params = new URLSearchParams(window.location.search);
   var slug = params.get('digital');
+  var formSlug = params.get('form');
+  var forceForm = false;
+  if(formSlug){ slug = formSlug; forceForm = true; }
   if(!slug) return false;
   // Tutup view lain, buka checkout
   var ids = ['viewLogin','viewDashboard','viewCS','viewDashboardDigital','viewMember'];
   ids.forEach(function(id){ var el = document.getElementById(id); if(el){ el.style.display='none'; el.classList && el.classList.remove('show'); } });
   var co = document.getElementById('viewDigitalCheckout');
   if(co) co.style.display = 'block';
-  initCheckout(slug);
+  initCheckout(slug, forceForm);
   return true;
 }
 
-function initCheckout(slug){
+function initCheckout(slug, forceForm){
   var prods = (typeof getDgProds === 'function') ? getDgProds() : [];
   var prod = prods.find(function(p){ return p.slug === slug || String(p.id) === String(slug); });
   if(!prod || prod.active === false){
@@ -11240,6 +11276,71 @@ function initCheckout(slug){
 
   // Set page title
   try { document.title = prod.name + ' — Nonics'; } catch(e){}
+
+  // Determine mode: form-only (?form=slug OR landingEnabled=false) vs full landing page
+  var isFormOnly = !!forceForm || (prod.landingEnabled === false);
+  if(isFormOnly){
+    // Hide all landing sections
+    ['lpHero','lpBenefits','lpLongDesc','lpTestimonials','lpFAQ'].forEach(function(id){
+      var el = document.getElementById(id); if(el) el.style.display = 'none';
+    });
+    // Compact lpForm padding + lighter background
+    var lpFormEl = document.getElementById('lpForm');
+    if(lpFormEl){
+      lpFormEl.style.padding = '24px 20px 48px';
+      lpFormEl.style.background = '#FAFAFA';
+      lpFormEl.style.minHeight = 'calc(100vh - 80px)';
+    }
+    // Show top mini header with product name (kayak OrderHero)
+    var formHeader = document.getElementById('lpFormTopBar');
+    if(!formHeader){
+      formHeader = document.createElement('div');
+      formHeader.id = 'lpFormTopBar';
+      formHeader.style.cssText = 'background:#fff;border-bottom:1px solid #E2E8F0;padding:12px 20px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.04);position:sticky;top:0;z-index:5';
+      formHeader.innerHTML = '<div style="display:flex;align-items:center;gap:10px;max-width:520px;width:100%"><div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#0EA5E9,#0369A1);color:#fff;display:flex;align-items:center;justify-content:center"><i class="ti ti-shopping-cart" style="font-size:16px"></i></div><div style="flex:1;min-width:0"><div style="font-size:11px;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px">Form Order</div><div id="lpFormTopBarTitle" style="font-size:13.5px;font-weight:600;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(prod.name)+'</div></div><div style="font-size:11px;color:#10B981;display:flex;align-items:center;gap:3px"><i class="ti ti-lock" style="font-size:12px"></i>Secure</div></div>';
+      var coEl = document.getElementById('viewDigitalCheckout');
+      if(coEl) coEl.insertBefore(formHeader, coEl.firstChild);
+    } else {
+      formHeader.style.display = '';
+      var ttl = document.getElementById('lpFormTopBarTitle'); if(ttl) ttl.textContent = prod.name;
+    }
+    // Change form heading — shorter for form-only mode
+    var lpFormH = lpFormEl ? lpFormEl.querySelector('h2') : null;
+    if(lpFormH) lpFormH.textContent = 'Selesaikan Pesanan';
+  } else {
+    // Full landing mode — hide top bar leftover, HIDE lpForm (form terpisah ke ?form=slug), inject final CTA
+    var topBar = document.getElementById('lpFormTopBar');
+    if(topBar) topBar.style.display = 'none';
+    var lpFormElF = document.getElementById('lpForm');
+    if(lpFormElF) lpFormElF.style.display = 'none'; // hide inline form — user click CTA → ?form=slug
+    var lpHeroEl = document.getElementById('lpHero'); if(lpHeroEl) lpHeroEl.style.display = '';
+    // Inject / update final CTA section (below FAQ)
+    var finalCTA = document.getElementById('lpFinalCTA');
+    var slug = prod.slug || prod.id;
+    var formUrl = window.location.pathname + '?form=' + encodeURIComponent(slug);
+    if(!finalCTA){
+      finalCTA = document.createElement('section');
+      finalCTA.id = 'lpFinalCTA';
+      finalCTA.style.cssText = 'padding:56px 20px;background:linear-gradient(135deg,#0F172A 0%,#1E40AF 100%);color:#fff;text-align:center';
+      var faqSecEl = document.getElementById('lpFAQ');
+      if(faqSecEl && faqSecEl.parentNode){
+        faqSecEl.parentNode.insertBefore(finalCTA, faqSecEl.nextSibling);
+      } else {
+        var coEl2 = document.getElementById('viewDigitalCheckout');
+        var footerEl = coEl2 ? coEl2.querySelector('footer') : null;
+        if(footerEl) footerEl.parentNode.insertBefore(finalCTA, footerEl);
+      }
+    }
+    finalCTA.style.display = '';
+    finalCTA.innerHTML =
+      '<div style="max-width:640px;margin:0 auto">' +
+        '<div style="display:inline-flex;align-items:center;gap:6px;background:rgba(16,185,129,.15);color:#6EE7B7;padding:5px 14px;border-radius:99px;font-size:11px;font-weight:500;margin-bottom:18px;text-transform:uppercase;letter-spacing:.5px"><i class="ti ti-flame" style="font-size:13px"></i>Siap Beli?</div>' +
+        '<h2 style="font-size:28px;font-weight:600;margin:0 0 12px;line-height:1.3">Klik tombol di bawah — checkout aman via QRIS, Bank, e-Wallet</h2>' +
+        '<p style="font-size:14px;color:#CBD5E1;margin:0 0 24px;line-height:1.6">Setelah bayar, akses produk langsung dikirim ke email + WhatsApp kamu dalam beberapa menit.</p>' +
+        '<a href="'+formUrl+'" style="display:inline-flex;align-items:center;gap:10px;background:#10B981;color:#fff;text-decoration:none;padding:16px 36px;border-radius:12px;font-size:16px;font-weight:600;box-shadow:0 12px 32px rgba(16,185,129,.4);transition:transform .15s" onmouseover="this.style.transform=\'translateY(-2px)\'" onmouseout="this.style.transform=\'\'"><i class="ti ti-shopping-cart" style="font-size:20px"></i>Beli Sekarang · '+dgFmtRp(prod.price)+'</a>' +
+        '<div style="margin-top:18px;font-size:11.5px;color:#94A3B8;display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap"><span><i class="ti ti-shield-check" style="font-size:13px;vertical-align:-2px"></i> Aman via Midtrans</span><span><i class="ti ti-bolt" style="font-size:13px;vertical-align:-2px"></i> Instant Delivery</span><span><i class="ti ti-mail" style="font-size:13px;vertical-align:-2px"></i> Email Otomatis</span></div>' +
+      '</div>';
+  }
 
   // HERO section
   var heroType = document.getElementById('lpHeroType');
@@ -11351,6 +11452,13 @@ function initCheckout(slug){
 }
 
 function lpScrollToForm(){
+  // Kalau produk pakai landing page (landingEnabled=true), CTA nge-navigate ke form URL terpisah
+  if(__checkoutProduct && __checkoutProduct.landingEnabled !== false){
+    var slug = __checkoutProduct.slug || __checkoutProduct.id;
+    window.location.href = window.location.pathname + '?form=' + encodeURIComponent(slug);
+    return;
+  }
+  // Fallback: scroll ke form section (kalau ada, mode legacy)
   var el = document.getElementById('lpForm');
   if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   setTimeout(function(){
