@@ -762,6 +762,54 @@ tr:hover td{background:var(--surface-2)}
 .prod-filter-select:focus{outline:none;border-color:var(--primary)}
 .prod-filter-info{font-size:11px;color:var(--text-muted);font-family:'SF Mono',Menlo,monospace}
 
+/* OrderHero-style toolbar */
+.prod-toolbar{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--border);gap:12px;flex-wrap:wrap;background:var(--surface)}
+.prod-toolbar-left,.prod-toolbar-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.prod-tb-btn{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px;transition:all .12s;white-space:nowrap}
+.prod-tb-btn:hover:not(:disabled){background:var(--surface-2);border-color:var(--text-muted)}
+.prod-tb-btn:disabled{opacity:.4;cursor:not-allowed}
+.prod-tb-btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.prod-tb-btn.primary:hover:not(:disabled){filter:brightness(1.1)}
+.prod-tb-btn.danger{color:var(--red);border-color:var(--red-light)}
+.prod-tb-btn.danger:hover:not(:disabled){background:var(--red-light)}
+.prod-tb-btn i{font-size:14px}
+.prod-tb-dropdown{position:relative}
+.prod-tb-menu{position:absolute;top:100%;left:0;margin-top:4px;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow-lg);min-width:180px;z-index:50;padding:4px;display:none}
+.prod-tb-menu.open{display:block}
+.prod-tb-menu-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:5px;cursor:pointer;font-size:12px;color:var(--text);border:none;background:none;width:100%;text-align:left;font-family:inherit}
+.prod-tb-menu-item:hover{background:var(--surface-2)}
+.prod-tb-menu-item i{font-size:14px;width:16px;color:var(--text-muted)}
+.prod-tb-select{width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:var(--surface);color:var(--text);font-family:inherit;margin:4px 0 8px}
+.prod-tb-search{position:relative;display:flex;align-items:center}
+.prod-tb-search i{position:absolute;left:8px;font-size:14px;color:var(--text-muted);pointer-events:none}
+.prod-tb-search input{padding:7px 10px 7px 28px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:var(--surface);color:var(--text);font-family:inherit;width:180px;transition:border-color .12s}
+.prod-tb-search input:focus{outline:none;border-color:var(--primary);width:220px}
+.prod-tb-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+.prod-tb-toggle input{display:none}
+.prod-tb-toggle-slider{width:32px;height:18px;background:#CBD5E1;border-radius:99px;position:relative;transition:background .15s}
+.prod-tb-toggle-slider::before{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:transform .15s;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.prod-tb-toggle input:checked + .prod-tb-toggle-slider{background:var(--green)}
+.prod-tb-toggle input:checked + .prod-tb-toggle-slider::before{transform:translateX(14px)}
+.prod-tb-toggle-label{font-size:12px;color:var(--text);font-weight:500}
+@media(max-width:900px){
+  .prod-tb-search input{width:120px}
+  .prod-tb-search input:focus{width:180px}
+  .prod-tb-btn span{display:none}
+}
+
+/* OrderHero-style product row */
+.prod-cell-check{width:32px;text-align:center}
+.prod-cell-thumb{width:50px}
+.prod-cell-thumb-img{width:44px;height:44px;border-radius:8px;object-fit:cover;background:#F1F5F9;display:block}
+.prod-cell-thumb-placeholder{width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,#F1F5F9,#E2E8F0);display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:20px}
+.prod-cell-form-link{display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--primary);text-decoration:none;margin-top:2px;font-weight:400}
+.prod-cell-form-link:hover{text-decoration:underline}
+.prod-cell-form-link i{font-size:11px}
+.prod-cell-num{font-family:'SF Mono',Menlo,monospace;font-size:12px;color:var(--text);text-align:right}
+.prod-cell-num.muted{color:var(--text-muted)}
+.prod-cell-num.paid{color:var(--green);font-weight:500}
+.prod-cell-num.dash{color:var(--text-muted);font-family:inherit}
+
 .prod-table-wrap{}
 .prod-table{width:100%;border-collapse:collapse;font-size:12px}
 .prod-table thead tr{background:var(--surface-2)}
@@ -2335,7 +2383,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-17-vercel-backend';
+window.__APP_VERSION = '2026-06-19-produk-orderhero';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -3633,35 +3681,71 @@ document.addEventListener('DOMContentLoaded', function(){
       <!-- ── PRODUK ── -->
       <div class="panel" id="panel-produk">
 
-        <!-- Header gede (sama style sama Leads) -->
+        <!-- Header — cuma title kiri, actions header di-hide (dipindah ke toolbar) -->
         <div class="team-header">
           <div>
             <div class="team-title">Produk</div>
             <div class="team-sub" id="prodHeaderSub">—</div>
           </div>
-          <div class="team-actions-header">
+          <div class="team-actions-header" id="prodHeaderActions" style="display:none">
             <button class="btn-primary-sm" onclick="showProdForm(null)"><i class="ti ti-plus"></i><span>Tambah Produk</span></button>
           </div>
         </div>
 
         <!-- Product List -->
         <div class="card" id="prodListCard" style="padding:0;overflow:hidden">
-          <!-- Header lama di-hide, count masih di-akses lewat ID -->
-          <div class="prod-header" style="display:none">
-            <span id="prodHeaderCount">0 produk</span>
+          <!-- Legacy count -->
+          <div class="prod-header" style="display:none"><span id="prodHeaderCount">0 produk</span></div>
+
+          <!-- Toolbar (OrderHero-style) -->
+          <div class="prod-toolbar">
+            <div class="prod-toolbar-left">
+              <button class="prod-tb-btn primary" onclick="showProdForm(null)"><i class="ti ti-plus"></i>Tambah Produk</button>
+              <button class="prod-tb-btn danger" id="prodBulkDeleteBtn" onclick="bulkDeleteProds()" disabled><i class="ti ti-trash"></i>Hapus</button>
+              <div class="prod-tb-dropdown">
+                <button class="prod-tb-btn" onclick="toggleProdTbMenu('tindakan', event)"><i class="ti ti-adjustments"></i>Tindakan<i class="ti ti-chevron-down" style="font-size:12px"></i></button>
+                <div class="prod-tb-menu" id="prodTbMenu-tindakan">
+                  <button class="prod-tb-menu-item" onclick="bulkToggleActive(true)"><i class="ti ti-check"></i>Aktifkan Terpilih</button>
+                  <button class="prod-tb-menu-item" onclick="bulkToggleActive(false)"><i class="ti ti-x"></i>Nonaktifkan Terpilih</button>
+                  <button class="prod-tb-menu-item" onclick="bulkDuplicate()"><i class="ti ti-copy"></i>Duplikasi Terpilih</button>
+                </div>
+              </div>
+              <div class="prod-tb-dropdown">
+                <button class="prod-tb-btn" onclick="toggleProdTbMenu('ekspor', event)"><i class="ti ti-download"></i>Ekspor<i class="ti ti-chevron-down" style="font-size:12px"></i></button>
+                <div class="prod-tb-menu" id="prodTbMenu-ekspor">
+                  <button class="prod-tb-menu-item" onclick="exportProdsCSV()"><i class="ti ti-file-spreadsheet"></i>CSV</button>
+                  <button class="prod-tb-menu-item" onclick="exportProdsJSON()"><i class="ti ti-file-code"></i>JSON</button>
+                </div>
+              </div>
+              <button class="prod-tb-btn" onclick="document.getElementById('prodImportInput').click()"><i class="ti ti-upload"></i>Impor</button>
+              <input type="file" id="prodImportInput" accept=".csv,.json" style="display:none" onchange="importProdsFile(this)"/>
+            </div>
+            <div class="prod-toolbar-right">
+              <label class="prod-tb-toggle" title="Filter cuma produk dropship">
+                <input type="checkbox" id="prodDropshipFilter" onchange="renderProdList()"/>
+                <span class="prod-tb-toggle-slider"></span>
+                <span class="prod-tb-toggle-label">Produk Dropship</span>
+              </label>
+              <button class="prod-tb-btn" onclick="toggleProdTbMenu('filter', event)"><i class="ti ti-filter"></i>Filter</button>
+              <div class="prod-tb-menu" id="prodTbMenu-filter" style="min-width:220px">
+                <div style="padding:8px 12px;font-size:11px;color:var(--text-muted);font-weight:500;text-transform:uppercase;letter-spacing:.4px">Owner</div>
+                <select id="prodOwnerFilter" class="prod-tb-select" onchange="renderProdList()">
+                  <option value="">Semua Owner</option>
+                  <option value="admin">Admin Only</option>
+                </select>
+              </div>
+              <div class="prod-tb-search">
+                <i class="ti ti-search"></i>
+                <input id="prodSearch" type="text" placeholder="Cari…" oninput="renderProdList()"/>
+              </div>
+            </div>
           </div>
 
-          <!-- Filter strip -->
-          <div class="prod-filter-strip">
-            <div class="prod-search">
-              <i class="ti ti-search" aria-hidden="true"></i>
-              <input id="prodSearch" type="text" placeholder="Cari nama produk…" oninput="renderProdList()"/>
-            </div>
-            <select id="prodOwnerFilter" class="prod-filter-select" onchange="renderProdList()">
-              <option value="">Semua Owner</option>
-              <option value="admin">Admin</option>
-            </select>
+          <!-- Filter strip lama di-hide (owner filter dipindah ke menu Filter di toolbar) -->
+          <div class="prod-filter-strip" style="display:none">
+            <div class="prod-search"><i class="ti ti-search"></i><input type="text"/></div>
             <span class="prod-filter-info" id="prodOwnerInfo"></span>
+            <div id="prodOwnerFilterBar"></div>
           </div>
 
           <!-- Table -->
@@ -3693,14 +3777,40 @@ document.addEventListener('DOMContentLoaded', function(){
 
           <!-- Tab: Info Produk -->
           <div class="card" id="ppanel-info" style="border-radius:0;border-top:none;margin-bottom:0;border-left:1px solid var(--border);border-right:1px solid var(--border)">
-            <div class="form-row">
-              <div class="form-group">
-                <label class="label">Nama Produk / Campaign *</label>
-                <input class="input" id="fName" type="text" placeholder="Lampu Jagung 3 Warna"/>
+            <div style="display:grid;grid-template-columns:120px 1fr;gap:20px;align-items:start;margin-bottom:16px">
+              <!-- Cover image -->
+              <div>
+                <label class="label" style="display:block;margin-bottom:6px">Cover</label>
+                <div id="fCoverPreview" style="width:120px;height:120px;border-radius:10px;background:#F1F5F9;border:2px dashed #CBD5E1;display:flex;align-items:center;justify-content:center;color:#94A3B8;cursor:pointer;overflow:hidden;position:relative" onclick="document.getElementById('fCoverInput').click()">
+                  <div id="fCoverPlaceholder" style="text-align:center;font-size:11px"><i class="ti ti-photo-plus" style="font-size:28px;display:block;margin-bottom:4px"></i>Upload<br/>Gambar</div>
+                  <img id="fCoverImg" src="" style="display:none;width:100%;height:100%;object-fit:cover"/>
+                </div>
+                <input type="file" id="fCoverInput" accept="image/*" style="display:none" onchange="handleProdCoverUpload(this)"/>
+                <div style="display:flex;gap:4px;margin-top:6px">
+                  <button type="button" class="btn btn-outline" style="flex:1;padding:5px 8px;font-size:10.5px" onclick="document.getElementById('fCoverInput').click()"><i class="ti ti-upload" style="font-size:11px"></i> Pilih</button>
+                  <button type="button" class="btn btn-outline" style="flex:1;padding:5px 8px;font-size:10.5px" onclick="clearProdCover()"><i class="ti ti-trash" style="font-size:11px"></i> Hapus</button>
+                </div>
+                <div style="font-size:10px;color:var(--text-muted);margin-top:4px;text-align:center">Max 500KB · JPG/PNG</div>
               </div>
-              <div class="form-group">
-                <label class="label">Harga (Opsional)</label>
-                <input class="input" id="fPrice" type="text" placeholder="Rp 99.000"/>
+              <div>
+                <div class="form-group">
+                  <label class="label">Nama Produk / Campaign *</label>
+                  <input class="input" id="fName" type="text" placeholder="Lampu Jagung 3 Warna"/>
+                </div>
+                <div class="form-row" style="margin-top:12px">
+                  <div class="form-group">
+                    <label class="label">Harga Jual (Opsional)</label>
+                    <input class="input" id="fPrice" type="text" placeholder="Rp 99.000"/>
+                  </div>
+                  <div class="form-group">
+                    <label class="label">HPP <span style="color:var(--text-muted);font-weight:400">(Modal)</span></label>
+                    <input class="input" id="fHpp" type="text" placeholder="Rp 45.000"/>
+                  </div>
+                </div>
+                <div class="form-group" style="margin-top:12px">
+                  <label class="label">Inventaris <span style="color:var(--text-muted);font-weight:400">(Stok)</span></label>
+                  <input class="input" id="fInventaris" type="number" placeholder="100" min="0"/>
+                </div>
               </div>
             </div>
             <div class="form-group">
@@ -5197,7 +5307,7 @@ document.addEventListener('DOMContentLoaded', function(){
           <div id="checkoutPayGrid" class="lp-pay-grid">
             <!-- diisi via JS renderCheckoutPayGrid() -->
           </div>
-          <div id="checkoutPayHint" style="font-size:11px;color:#94A3B8;margin-top:8px;text-align:center">Pilih 1 metode pembayaran di atas untuk lanjut</div>
+          <div id="checkoutPayHint" style="font-size:11px;color:#94A3B8;margin-top:8px;text-align:center">Pilih dulu 1 metode preferensi lo — semua metode aktif bakal muncul di popup pembayaran</div>
         </div>
 
         <div id="checkoutError" class="tm-error" style="display:none;margin:14px 0"></div>
@@ -6456,20 +6566,43 @@ function renderProdList(){
     return prodSortDir === 'asc' ? cmp : -cmp;
   });
 
+  // Dropship filter
+  var dropshipFilterEl = document.getElementById('prodDropshipFilter');
+  if(dropshipFilterEl && dropshipFilterEl.checked){
+    prods = prods.filter(function(p){ return p.isDropship === true; });
+  }
+
   // Build table
   const csList = getCSList();
   const palette = ['#7F77DD','#5DCAA5','#F0997B','#FBBF24','#3B82F6','#EC4899','#10B981'];
 
+  // Hitung order count per produk dari leads collection
+  var allLeads = (typeof LS !== 'undefined' && LS.g) ? LS.g('od_leads', []) : [];
+  var leadCountMap = {};
+  allLeads.forEach(function(l){
+    var pid = l.productId || l.prodId;
+    if(pid){ leadCountMap[pid] = (leadCountMap[pid] || 0) + 1; }
+  });
+
   var sortArrow = prodSortDir === 'asc' ? 'ti-arrow-up' : 'ti-arrow-down';
   var sortLabel = prodSortDir === 'asc' ? 'A→Z' : 'Z→A';
   let html = '<table class="prod-table"><thead><tr>' +
+    '<th class="prod-cell-check"><input type="checkbox" id="prodCheckAll" onclick="toggleAllProdCheck(this)" title="Pilih semua"/></th>' +
+    '<th class="prod-cell-thumb"></th>' +
     '<th class="prod-th-sortable" onclick="toggleProdSort()" title="Klik untuk ubah urutan A→Z / Z→A">' +
-      'Produk <i class="ti '+sortArrow+'" style="font-size:12px;vertical-align:-1px;color:var(--green);margin-left:3px"></i>' +
+      'Nama <i class="ti '+sortArrow+'" style="font-size:12px;vertical-align:-1px;color:var(--green);margin-left:3px"></i>' +
       '<span class="prod-th-sortbadge">'+sortLabel+'</span>' +
     '</th>' +
-    '<th>Harga</th>' +
-    '<th>CS</th>' +
+    '<th style="text-align:right">Harga</th>' +
+    '<th style="text-align:right">HPP</th>' +
+    '<th style="text-align:right">Inventaris</th>' +
+    '<th style="text-align:right">Order</th>' +
+    '<th style="text-align:right">Sudah Dibayar</th>' +
+    '<th style="text-align:right">Rasio Bayar</th>' +
+    '<th style="text-align:right">Jumlah Terjual</th>' +
+    '<th style="text-align:right">Pendapatan Bersih</th>' +
     '<th>Owner</th>' +
+    '<th>CS</th>' +
     '<th class="col-action">Aksi</th>' +
     '</tr></thead><tbody>';
 
@@ -6482,12 +6615,24 @@ function renderProdList(){
       (distMode === 'custom' ? 'Custom' :
         (distMode === 'solo' ? 'Solo' : 'Rata'));
 
-    // Owner cell (sebagai kolom sendiri)
+    // Thumbnail
+    var thumbCell;
+    if(p.coverImage){
+      thumbCell = '<img class="prod-cell-thumb-img" src="'+esc(p.coverImage)+'" alt="cover"/>';
+    } else {
+      thumbCell = '<div class="prod-cell-thumb-placeholder"><i class="ti ti-package"></i></div>';
+    }
+
+    // Form link (URL embed / direct form)
+    var formUrl = '#'; // Kalau ada slug/URL khusus, ganti di sini
+    var formLink = '<a class="prod-cell-form-link" onclick="event.stopPropagation();copyProdEmbed('+p.id+')" title="Copy embed code"><i class="ti ti-external-link"></i>Form</a>';
+
+    // Owner cell
     let ownerCell = '';
     if(p.ownerRole === 'advertiser'){
-      ownerCell = '<span class="prod-cell-owner advertiser"><i class="ti ti-user" style="font-size:11px;vertical-align:-1px;margin-right:3px" aria-hidden="true"></i>' + esc(p.ownerName || 'Advertiser') + '</span>';
+      ownerCell = '<span class="prod-cell-owner advertiser"><i class="ti ti-user" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>' + esc(p.ownerName || 'Advertiser') + '</span>';
     } else {
-      ownerCell = '<span class="prod-cell-owner admin"><i class="ti ti-shield-check" style="font-size:11px;vertical-align:-1px;margin-right:3px" aria-hidden="true"></i>Admin</span>';
+      ownerCell = '<span class="prod-cell-owner admin"><i class="ti ti-shield-check" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>Admin</span>';
     }
 
     // CS cell
@@ -6507,8 +6652,8 @@ function renderProdList(){
       '</div>';
     }
 
-    // Action — only ⋯ icon (context menu)
-    const action = '<button class="prod-cell-action-btn" onclick="event.stopPropagation();toggleProdContextMenu(' + p.id + ', event)" title="Aksi"><i class="ti ti-dots" aria-hidden="true"></i></button>' +
+    // Action
+    const action = '<button class="prod-cell-action-btn" onclick="event.stopPropagation();toggleProdContextMenu(' + p.id + ', event)" title="Aksi"><i class="ti ti-dots"></i></button>' +
       '<div class="prod-context-menu" id="prodCtxMenu-'+p.id+'">' +
         '<button class="prod-context-item" onclick="showProdForm('+p.id+');closeProdContextMenu()"><i class="ti ti-settings"></i>Kelola</button>' +
         '<button class="prod-context-item" onclick="copyProdEmbed('+p.id+');closeProdContextMenu()"><i class="ti ti-copy"></i>Copy Embed Code</button>' +
@@ -6516,21 +6661,224 @@ function renderProdList(){
         '<button class="prod-context-item danger" onclick="deleteProd('+p.id+');closeProdContextMenu()"><i class="ti ti-trash"></i>Hapus Produk</button>' +
       '</div>';
 
-    // Warning icon kalau no CS — kasih di kolom Produk biar tetap visible
-    const warnIcon = !hasCS ? '<i class="ti ti-alert-circle prod-cell-warn" title="Belum ada CS — embed gak akan jalan"></i>' : '';
+    const warnIcon = !hasCS ? '<i class="ti ti-alert-circle prod-cell-warn" title="Belum ada CS"></i>' : '';
+
+    // Stats
+    var orderCount = leadCountMap[p.id] || 0;
+    var priceCell = p.price ? '<span class="prod-cell-num">Rp '+esc(p.price)+'</span>' : '<span class="prod-cell-num dash">—</span>';
+    var hppCell = p.hpp ? '<span class="prod-cell-num muted">Rp '+esc(p.hpp)+'</span>' : '<span class="prod-cell-num dash">—</span>';
+    var invCell = (typeof p.inventaris === 'number') ? '<span class="prod-cell-num">'+p.inventaris+'</span>' : '<span class="prod-cell-num dash">—</span>';
+    var orderCell = orderCount > 0 ? '<span class="prod-cell-num">'+orderCount+'</span>' : '<span class="prod-cell-num dash">0</span>';
+    // Payment stats — belum ada tracking, tampilkan '-' semua
+    var paidCell = '<span class="prod-cell-num dash">—</span>';
+    var rasioCell = '<span class="prod-cell-num dash">—</span>';
+    var terjualCell = '<span class="prod-cell-num dash">—</span>';
+    var pendapatanCell = '<span class="prod-cell-num dash">Rp0</span>';
 
     const altClass = (i % 2 === 1) ? 'is-alt' : '';
-    html += '<tr class="'+altClass+'" onclick="showProdForm('+p.id+')">' +
-      '<td><span class="prod-cell-name">'+esc(p.name)+'</span>'+warnIcon+'</td>' +
-      '<td>'+(p.price ? '<span class="prod-cell-price">Rp '+esc(p.price)+'</span>' : '<span style="color:var(--text-muted)">—</span>')+'</td>' +
-      '<td>'+csCell+'</td>' +
+    html += '<tr class="'+altClass+'" data-prodid="'+p.id+'" onclick="showProdForm('+p.id+')">' +
+      '<td class="prod-cell-check" onclick="event.stopPropagation()"><input type="checkbox" class="prod-row-check" data-prodid="'+p.id+'" onchange="updateBulkDeleteState()"/></td>' +
+      '<td class="prod-cell-thumb">'+thumbCell+'</td>' +
+      '<td><div><span class="prod-cell-name">'+esc(p.name)+'</span>'+warnIcon+'</div>'+formLink+'</td>' +
+      '<td style="text-align:right">'+priceCell+'</td>' +
+      '<td style="text-align:right">'+hppCell+'</td>' +
+      '<td style="text-align:right">'+invCell+'</td>' +
+      '<td style="text-align:right">'+orderCell+'</td>' +
+      '<td style="text-align:right">'+paidCell+'</td>' +
+      '<td style="text-align:right">'+rasioCell+'</td>' +
+      '<td style="text-align:right">'+terjualCell+'</td>' +
+      '<td style="text-align:right">'+pendapatanCell+'</td>' +
       '<td>'+ownerCell+'</td>' +
+      '<td>'+csCell+'</td>' +
       '<td style="text-align:right;position:relative">'+action+'</td>' +
     '</tr>';
   });
 
   html += '</tbody></table>';
   el.innerHTML = html;
+  updateBulkDeleteState();
+}
+
+/* ═════════════════════════════════════════════
+   TOOLBAR HELPERS (bulk actions, ekspor, impor)
+═════════════════════════════════════════════ */
+function toggleProdTbMenu(name, ev){
+  if(ev){ ev.stopPropagation(); }
+  // Close all first
+  document.querySelectorAll('.prod-tb-menu.open').forEach(function(m){
+    if(m.id !== 'prodTbMenu-' + name) m.classList.remove('open');
+  });
+  var menu = document.getElementById('prodTbMenu-' + name);
+  if(menu){
+    menu.classList.toggle('open');
+    if(menu.classList.contains('open')){
+      setTimeout(function(){
+        document.addEventListener('click', function h(e){
+          if(!menu.contains(e.target)){ menu.classList.remove('open'); document.removeEventListener('click', h); }
+        });
+      }, 0);
+    }
+  }
+}
+
+function getCheckedProdIds(){
+  var ids = [];
+  document.querySelectorAll('.prod-row-check:checked').forEach(function(cb){
+    var id = parseInt(cb.getAttribute('data-prodid'), 10);
+    if(id) ids.push(id);
+  });
+  return ids;
+}
+
+function toggleAllProdCheck(master){
+  document.querySelectorAll('.prod-row-check').forEach(function(cb){ cb.checked = master.checked; });
+  updateBulkDeleteState();
+}
+
+function updateBulkDeleteState(){
+  var checked = getCheckedProdIds().length;
+  var btn = document.getElementById('prodBulkDeleteBtn');
+  if(btn){
+    btn.disabled = checked === 0;
+    btn.innerHTML = '<i class="ti ti-trash"></i>Hapus' + (checked > 0 ? ' ('+checked+')' : '');
+  }
+  var master = document.getElementById('prodCheckAll');
+  if(master){
+    var all = document.querySelectorAll('.prod-row-check').length;
+    master.checked = checked > 0 && checked === all;
+    master.indeterminate = checked > 0 && checked < all;
+  }
+}
+
+function bulkDeleteProds(){
+  var ids = getCheckedProdIds();
+  if(!ids.length) return;
+  if(typeof confirmDestructive === 'function'){
+    if(!confirmDestructive('Hapus '+ids.length+' produk terpilih?\n\nEmbed code untuk produk-produk ini bakal berhenti nerima lead.', '⚠️ Yakin hapus '+ids.length+' produk?')) return;
+  } else {
+    if(!confirm('Hapus '+ids.length+' produk terpilih?')) return;
+  }
+  var prods = getProds().filter(function(p){ return ids.indexOf(p.id) < 0; });
+  LS.s('od_prods', prods);
+  toast('🗑️ '+ids.length+' produk dihapus');
+  renderProdList();
+}
+
+function bulkToggleActive(active){
+  var ids = getCheckedProdIds();
+  if(!ids.length){ toast('⚠️ Pilih dulu produk yang mau di-toggle'); return; }
+  var prods = getProds();
+  var changed = 0;
+  prods.forEach(function(p){ if(ids.indexOf(p.id) >= 0){ p.active = active; changed++; } });
+  LS.s('od_prods', prods);
+  toast('✅ '+changed+' produk '+(active?'diaktifkan':'dinonaktifkan'));
+  renderProdList();
+  document.querySelectorAll('.prod-tb-menu.open').forEach(function(m){ m.classList.remove('open'); });
+}
+
+function bulkDuplicate(){
+  var ids = getCheckedProdIds();
+  if(!ids.length){ toast('⚠️ Pilih dulu produk yang mau di-duplicate'); return; }
+  var prods = getProds();
+  var copies = 0;
+  ids.forEach(function(id){
+    var src = prods.find(function(p){ return p.id === id; });
+    if(src){
+      var copy = Object.assign({}, src, { id: Date.now() + copies, name: src.name + ' (Copy)' });
+      prods.push(copy); copies++;
+    }
+  });
+  LS.s('od_prods', prods);
+  toast('✅ '+copies+' produk di-duplicate');
+  renderProdList();
+  document.querySelectorAll('.prod-tb-menu.open').forEach(function(m){ m.classList.remove('open'); });
+}
+
+function exportProdsCSV(){
+  var prods = getProds();
+  var headers = ['id','name','price','hpp','inventaris','desc','ownerRole','ownerName','csIds','active'];
+  var rows = [headers.join(',')];
+  prods.forEach(function(p){
+    var row = headers.map(function(h){
+      var v = p[h];
+      if(Array.isArray(v)) v = v.join('|');
+      if(v == null) v = '';
+      v = String(v).replace(/"/g,'""');
+      if(/[,"\n]/.test(v)) v = '"'+v+'"';
+      return v;
+    });
+    rows.push(row.join(','));
+  });
+  var csv = rows.join('\n');
+  var blob = new Blob([csv], { type:'text/csv' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'produk-'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  toast('📥 CSV ke-download ('+prods.length+' produk)');
+  document.querySelectorAll('.prod-tb-menu.open').forEach(function(m){ m.classList.remove('open'); });
+}
+
+function exportProdsJSON(){
+  var prods = getProds();
+  var blob = new Blob([JSON.stringify(prods, null, 2)], { type:'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'produk-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  toast('📥 JSON ke-download ('+prods.length+' produk)');
+  document.querySelectorAll('.prod-tb-menu.open').forEach(function(m){ m.classList.remove('open'); });
+}
+
+function importProdsFile(input){
+  if(!input || !input.files || !input.files[0]) return;
+  var f = input.files[0];
+  var reader = new FileReader();
+  reader.onload = function(ev){
+    var text = ev.target.result;
+    var imported = [];
+    try {
+      if(f.name.toLowerCase().endsWith('.json')){
+        imported = JSON.parse(text);
+        if(!Array.isArray(imported)) throw new Error('JSON harus array of products');
+      } else {
+        // CSV parse simple
+        var lines = text.split(/\r?\n/).filter(Boolean);
+        if(lines.length < 2) throw new Error('CSV kosong');
+        var headers = lines[0].split(',').map(function(h){ return h.trim(); });
+        for(var i=1;i<lines.length;i++){
+          var vals = lines[i].split(',');
+          var obj = {};
+          headers.forEach(function(h, idx){
+            var v = (vals[idx]||'').trim().replace(/^"|"$/g,'').replace(/""/g,'"');
+            if(h === 'csIds') v = v ? v.split('|').map(function(x){ return parseInt(x,10); }).filter(Boolean) : [];
+            else if(h === 'id' || h === 'inventaris') v = v ? parseInt(v,10) : null;
+            else if(h === 'active') v = v === 'true';
+            obj[h] = v;
+          });
+          if(!obj.id) obj.id = Date.now() + i;
+          imported.push(obj);
+        }
+      }
+      if(!imported.length){ toast('⚠️ Gak ada produk yang berhasil di-import'); return; }
+      var existing = getProds();
+      var existingIds = existing.map(function(p){ return p.id; });
+      var merged = existing.slice();
+      var added = 0;
+      imported.forEach(function(p){
+        if(existingIds.indexOf(p.id) < 0){ merged.push(p); added++; }
+      });
+      LS.s('od_prods', merged);
+      toast('✅ '+added+' produk di-import');
+      renderProdList();
+    } catch(e){
+      toast('⚠️ Import gagal: '+e.message);
+    }
+    input.value = '';
+  };
+  reader.readAsText(f);
 }
 
 /* Context menu helpers buat Produk row */
@@ -6597,6 +6945,17 @@ function showProdForm(id){
     document.getElementById('fName').value = p.name;
     document.getElementById('fPrice').value = p.price || '';
     document.getElementById('fDesc').value = p.desc || '';
+    document.getElementById('fHpp').value = p.hpp || '';
+    document.getElementById('fInventaris').value = (typeof p.inventaris === 'number') ? p.inventaris : '';
+    // Load cover image kalau ada
+    if(p.coverImage){
+      var img = document.getElementById('fCoverImg');
+      var ph = document.getElementById('fCoverPlaceholder');
+      if(img){ img.src = p.coverImage; img.style.display = ''; img.dataset.b64 = p.coverImage; }
+      if(ph) ph.style.display = 'none';
+    } else {
+      clearProdCover();
+    }
     document.getElementById('fProdWA').value = p.produkWA || p.name || '';
     document.getElementById('fGreeting').value = p.greeting || '';
     document.getElementById('fGTM').value = p.gtmId || '';
@@ -6613,7 +6972,8 @@ function showProdForm(id){
     generateProdEmbed(p);
   } else {
     document.getElementById('prodFormTitle').textContent = '➕ Tambah Produk Baru';
-    ['fName','fPrice','fDesc','fProdWA','fGreeting','fGTM','fConv'].forEach(i => document.getElementById(i).value = '');
+    ['fName','fPrice','fDesc','fHpp','fInventaris','fProdWA','fGreeting','fGTM','fConv'].forEach(i => { var el=document.getElementById(i); if(el) el.value = ''; });
+    clearProdCover();
     document.getElementById('prodEmbedInline').textContent = 'Simpan produk dulu untuk generate embed code...';
     document.getElementById('prodEmbedIframe').textContent = 'Simpan produk dulu untuk generate embed code...';
     renderCSSelectorForProd([]);
@@ -6997,6 +7357,34 @@ function updateProdGreetingPreview(){
   document.getElementById('prodGreetingPreview').textContent = preview || '(isi template greeting di menu CS & Greeting atau override di sini)';
 }
 
+function handleProdCoverUpload(input){
+  if(!input || !input.files || !input.files[0]) return;
+  var f = input.files[0];
+  if(f.size > 500 * 1024){
+    toast('⚠️ File terlalu besar (max 500KB). Kompres dulu di tinypng.com atau squoosh.app');
+    input.value = '';
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function(ev){
+    var b64 = ev.target.result || '';
+    var img = document.getElementById('fCoverImg');
+    var ph = document.getElementById('fCoverPlaceholder');
+    if(img){ img.src = b64; img.style.display = ''; img.dataset.b64 = b64; }
+    if(ph) ph.style.display = 'none';
+    toast('✅ Cover di-upload, klik Simpan buat commit');
+  };
+  reader.readAsDataURL(f);
+}
+function clearProdCover(){
+  var img = document.getElementById('fCoverImg');
+  var ph = document.getElementById('fCoverPlaceholder');
+  var inp = document.getElementById('fCoverInput');
+  if(img){ img.src = ''; img.style.display = 'none'; img.dataset.b64 = ''; }
+  if(ph) ph.style.display = '';
+  if(inp) inp.value = '';
+}
+
 function saveProd(){
   const name = document.getElementById('fName').value.trim();
   if(!name){ toast('⚠️ Nama produk wajib diisi'); switchProdTab('info'); return; }
@@ -7039,6 +7427,11 @@ function saveProd(){
 
   const price = document.getElementById('fPrice').value.trim();
   const desc = document.getElementById('fDesc').value.trim();
+  const hpp = (document.getElementById('fHpp')||{}).value ? document.getElementById('fHpp').value.trim() : '';
+  var invEl = document.getElementById('fInventaris');
+  const inventaris = invEl && invEl.value !== '' ? parseInt(invEl.value, 10) || 0 : null;
+  var coverImgEl = document.getElementById('fCoverImg');
+  const coverImage = coverImgEl && coverImgEl.dataset && coverImgEl.dataset.b64 ? coverImgEl.dataset.b64 : '';
   const produkWA = document.getElementById('fProdWA').value.trim() || name;
   const greeting = document.getElementById('fGreeting').value.trim();
   const gtmId = document.getElementById('fGTM').value.trim();
@@ -7073,13 +7466,13 @@ function saveProd(){
       const oldCounts = prods[i].csLeadCounts || {};
       const newCounts = {};
       csIds.forEach(id => { newCounts[id] = oldCounts[id] || 0; });
-      prods[i] = {...prods[i], name, price, desc, csId, csIds, csLeadCounts:newCounts, waNum, produkWA, greeting, gtmId, convLabel, distribMode:saveMode, csWeights:saveWeights, distribSoloId:saveSoloId};
+      prods[i] = {...prods[i], name, price, desc, hpp, inventaris, coverImage, csId, csIds, csLeadCounts:newCounts, waNum, produkWA, greeting, gtmId, convLabel, distribMode:saveMode, csWeights:saveWeights, distribSoloId:saveSoloId};
       savedProd = prods[i];
     }
   } else {
     const newCounts = {};
     csIds.forEach(id => { newCounts[id] = 0; });
-    savedProd = {id: Date.now(), name, price, desc, csId, csIds, csLeadCounts:newCounts, waNum, produkWA, greeting, gtmId, convLabel, distribMode:saveMode, csWeights:saveWeights, distribSoloId:saveSoloId};
+    savedProd = {id: Date.now(), name, price, desc, hpp, inventaris, coverImage, csId, csIds, csLeadCounts:newCounts, waNum, produkWA, greeting, gtmId, convLabel, distribMode:saveMode, csWeights:saveWeights, distribSoloId:saveSoloId};
     // Tag ownership: kalau advertiser yang bikin, simpan owner info
     if(currentAdUser){
       savedProd.ownerRole = 'advertiser';
