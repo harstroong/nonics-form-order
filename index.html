@@ -1537,6 +1537,24 @@ tr:hover td{background:var(--surface-2)}
 /* ═══════════════════════════════════════════
    ADMIN DIGITAL — Phase 2 panels CSS
 ═══════════════════════════════════════════ */
+@media(max-width:720px){
+  #lpHeroGrid{grid-template-columns:1fr !important;gap:24px !important}
+  #lpHeroTitle{font-size:26px !important}
+  #lpHeroSub{font-size:14px !important}
+  #lpHeroPrice{font-size:28px !important}
+}
+#lpFAQ details[open] summary span{transform:rotate(45deg);display:inline-block;transition:transform .2s}
+#lpFAQ details summary span{transition:transform .2s;display:inline-block}
+
+.dg-sec-tab{
+  flex:1;background:none;border:none;cursor:pointer;font-family:inherit;
+  padding:8px 10px;border-radius:6px;font-size:12px;font-weight:500;color:var(--text-muted);
+  display:inline-flex;align-items:center;justify-content:center;gap:5px;
+  transition:all .12s;
+}
+.dg-sec-tab:hover{color:var(--text)}
+.dg-sec-tab.active{background:var(--surface);color:var(--primary);box-shadow:0 1px 2px rgba(0,0,0,.06);font-weight:600}
+
 .dg-guide-step{
   display:flex;align-items:flex-start;gap:12px;padding:12px 14px;
   background:var(--surface-2);border-radius:10px;cursor:pointer;
@@ -2246,7 +2264,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-12-dg-guide';
+window.__APP_VERSION = '2026-06-12-landing-page';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -4703,33 +4721,60 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <!-- DIGITAL PRODUCT MODAL — Add/Edit -->
 <div class="tm-modal-overlay" id="dgProdModal" onclick="dgCloseProdModal(event)" style="display:none">
-  <div class="tm-modal" onclick="event.stopPropagation()" style="max-width:560px">
+  <div class="tm-modal" onclick="event.stopPropagation()" style="max-width:640px">
     <div class="tm-modal-head">
       <div class="tm-modal-title" id="dgProdModalTitle">Produk Digital Baru</div>
       <button class="tm-modal-close" onclick="dgCloseProdModal()" aria-label="Tutup"><i class="ti ti-x"></i></button>
     </div>
     <div class="tm-modal-body">
-      <div class="tm-field"><label class="tm-label">Nama Produk *</label><input type="text" id="dgProdName" class="tm-input" placeholder="Contoh: Ebook Dropship Mastery"/></div>
-      <div class="tm-field-row">
-        <div class="tm-field"><label class="tm-label">Harga (Rp) *</label><input type="number" id="dgProdPrice" class="tm-input" placeholder="99000" min="1000"/></div>
-        <div class="tm-field"><label class="tm-label">Tipe</label><select id="dgProdType" class="tm-input"><option value="ebook">Ebook</option><option value="kursus">Kursus</option><option value="template">Template</option><option value="lainnya">Lainnya</option></select></div>
+
+      <!-- Section tabs -->
+      <div style="display:flex;gap:4px;background:var(--surface-2);padding:3px;border-radius:8px;margin-bottom:14px">
+        <button type="button" class="dg-sec-tab active" data-dgsec="basic" onclick="dgSwitchProdSection('basic')"><i class="ti ti-package" style="font-size:13px"></i>Basic</button>
+        <button type="button" class="dg-sec-tab" data-dgsec="landing" onclick="dgSwitchProdSection('landing')"><i class="ti ti-layout" style="font-size:13px"></i>Landing Page</button>
+        <button type="button" class="dg-sec-tab" data-dgsec="access" onclick="dgSwitchProdSection('access')"><i class="ti ti-key" style="font-size:13px"></i>Akses</button>
       </div>
-      <div class="tm-field"><label class="tm-label">Deskripsi singkat</label><textarea id="dgProdDesc" class="tm-input" rows="2" placeholder="1-2 kalimat buat ditampilin di form purchase"></textarea></div>
-      <div class="tm-field">
-        <label class="tm-label">Tipe Akses *</label>
-        <select id="dgProdAccessType" class="tm-input" onchange="dgToggleAccessType()"><option value="link">🔗 Link Eksternal (Google Drive / Notion / Lynk)</option><option value="file">📎 Upload File (max 5MB di Phase 2)</option></select>
+
+      <!-- Section: Basic -->
+      <div class="dg-prod-section" id="dgProdSec-basic">
+        <div class="tm-field"><label class="tm-label">Nama Produk *</label><input type="text" id="dgProdName" class="tm-input" placeholder="Contoh: Ebook Dropship Mastery"/></div>
+        <div class="tm-field-row">
+          <div class="tm-field"><label class="tm-label">Harga (Rp) *</label><input type="number" id="dgProdPrice" class="tm-input" placeholder="99000" min="1000"/></div>
+          <div class="tm-field"><label class="tm-label">Tipe</label><select id="dgProdType" class="tm-input"><option value="ebook">Ebook</option><option value="kursus">Kursus</option><option value="template">Template</option><option value="lainnya">Lainnya</option></select></div>
+        </div>
+        <div class="tm-field"><label class="tm-label">Deskripsi singkat</label><textarea id="dgProdDesc" class="tm-input" rows="2" placeholder="1-2 kalimat singkat"></textarea><div class="tm-hint">Muncul di card produk (mini) — buat detail panjang isi di tab Landing Page.</div></div>
       </div>
-      <div class="tm-field" id="dgProdAccessLinkBlock">
-        <label class="tm-label">URL Akses</label>
-        <input type="url" id="dgProdAccessUrl" class="tm-input" placeholder="https://drive.google.com/drive/folders/..."/>
-        <div class="tm-hint">Customer dapat link ini setelah Mark Paid → Grant Access.</div>
+
+      <!-- Section: Landing Page -->
+      <div class="dg-prod-section" id="dgProdSec-landing" style="display:none">
+        <div class="tm-field"><label class="tm-label">Hero Headline (H1 utama)</label><input type="text" id="dgProdHeroTitle" class="tm-input" placeholder="Contoh: Kuasai Teacher Planner 2026/2027 — 300+ Template Siap Pakai"/><div class="tm-hint">Judul gede di paling atas landing page.</div></div>
+        <div class="tm-field"><label class="tm-label">Hero Subheadline</label><textarea id="dgProdHeroSub" class="tm-input" rows="2" placeholder="Contoh: Hemat 40+ jam kerja per semester. Template siap edit di Canva & Google Docs."></textarea></div>
+        <div class="tm-field"><label class="tm-label">Cover Image URL</label><input type="url" id="dgProdCoverUrl" class="tm-input" placeholder="https://... (paste URL gambar hero, kosongkan kalo mau pakai icon default)"/><div class="tm-hint">Rekomendasi ratio 16:9 (ex: 1200x675px). Upload gambar lo dulu ke Imgbb/Cloudinary/GDrive, terus paste link-nya.</div></div>
+        <div class="tm-field"><label class="tm-label">Benefit / Fitur (satu per baris)</label><textarea id="dgProdBenefits" class="tm-input" rows="5" placeholder="300+ template siap pakai&#10;Hemat 40+ jam kerja&#10;Bisa diedit di Canva & Google Docs&#10;Bonus: template rapor otomatis"></textarea><div class="tm-hint">Tampil sebagai bullet list dengan ✓ hijau di landing page.</div></div>
+        <div class="tm-field"><label class="tm-label">Detail Deskripsi Panjang</label><textarea id="dgProdLongDesc" class="tm-input" rows="6" placeholder="Ceritakan produk lo detail: apa isinya, siapa target-nya, kenapa worth it, dll. Bisa multi-paragraf."></textarea><div class="tm-hint">Muncul di section "Tentang Produk Ini" di landing page.</div></div>
+        <div class="tm-field"><label class="tm-label">Testimoni (opsional, satu per baris format: Nama | Testimoni)</label><textarea id="dgProdTestimonials" class="tm-input" rows="4" placeholder="Bu Ratih | Template-nya rapi banget, langsung bisa dipakai. Ngirit waktu prep banyak!&#10;Pak Budi | Materinya lengkap. Worth every penny."></textarea><div class="tm-hint">Format: <code>Nama | Isi testimoni</code> — pisah dengan garis baru untuk multiple testimoni.</div></div>
+        <div class="tm-field"><label class="tm-label">FAQ (opsional, format: Pertanyaan | Jawaban)</label><textarea id="dgProdFAQ" class="tm-input" rows="4" placeholder="Format file apa saja? | PDF + Canva template + Google Docs link&#10;Bisa diakses seumur hidup? | Ya, sekali beli akses selamanya"></textarea><div class="tm-hint">Format: <code>Pertanyaan | Jawaban</code> — pisah dengan garis baru.</div></div>
       </div>
-      <div class="tm-field" id="dgProdAccessFileBlock" style="display:none">
-        <label class="tm-label">Upload File</label>
-        <input type="file" onchange="dgHandleFileSelect(this)" style="font-size:12px"/>
-        <div id="dgProdFileInfo" style="font-size:11px;color:var(--text-muted);margin-top:5px"></div>
-        <div class="tm-hint">Max 5MB di Phase 2 (disimpan di localStorage). Phase 4 nanti pakai Firebase Storage untuk file besar.</div>
+
+      <!-- Section: Akses -->
+      <div class="dg-prod-section" id="dgProdSec-access" style="display:none">
+        <div class="tm-field">
+          <label class="tm-label">Tipe Akses *</label>
+          <select id="dgProdAccessType" class="tm-input" onchange="dgToggleAccessType()"><option value="link">🔗 Link Eksternal (Google Drive / Notion / Lynk)</option><option value="file">📎 Upload File (max 5MB)</option></select>
+        </div>
+        <div class="tm-field" id="dgProdAccessLinkBlock">
+          <label class="tm-label">URL Akses</label>
+          <input type="url" id="dgProdAccessUrl" class="tm-input" placeholder="https://drive.google.com/drive/folders/..."/>
+          <div class="tm-hint">Customer dapat link ini setelah Mark Paid → Grant Access.</div>
+        </div>
+        <div class="tm-field" id="dgProdAccessFileBlock" style="display:none">
+          <label class="tm-label">Upload File</label>
+          <input type="file" onchange="dgHandleFileSelect(this)" style="font-size:12px"/>
+          <div id="dgProdFileInfo" style="font-size:11px;color:var(--text-muted);margin-top:5px"></div>
+          <div class="tm-hint">Max 5MB (disimpan di localStorage). Buat file besar, pakai link eksternal.</div>
+        </div>
       </div>
+
       <div id="dgProdError" class="tm-error" style="display:none"></div>
     </div>
     <div class="tm-modal-foot">
@@ -4848,58 +4893,118 @@ document.addEventListener('DOMContentLoaded', function(){
      Aktif kalau URL ?digital={slug-atau-id}
      Customer isi: Nama + Email + WA → klik Bayar → Midtrans Snap popup
 ═══════════════════════════════════ -->
-<div id="viewDigitalCheckout" style="display:none;min-height:100vh;background:linear-gradient(180deg,#FAFAFA 0%,#F1F5F9 100%);padding:24px 16px">
-  <div style="max-width:520px;margin:0 auto">
-    <div style="text-align:center;margin-bottom:24px">
-      <div style="display:inline-flex;align-items:center;gap:8px;background:#fff;padding:6px 14px;border-radius:99px;border:0.5px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,.04)">
-        <div style="width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,#0EA5E9,#0369A1);display:flex;align-items:center;justify-content:center;color:#fff"><i class="ti ti-cloud-data-connection" style="font-size:13px"></i></div>
-        <div style="font-size:12px;font-weight:500;color:var(--text)">Nonics<span style="color:#0EA5E9;font-weight:400"> · Digital</span></div>
-      </div>
-    </div>
+<div id="viewDigitalCheckout" style="display:none;min-height:100vh;background:#FAFAFA">
 
-    <div id="checkoutProductCard" style="background:#fff;border:0.5px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px;box-shadow:0 4px 16px rgba(0,0,0,.06)">
-      <div id="checkoutCover" style="aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;background:#EEF2FF">
-        <i class="ti ti-package" style="font-size:64px;color:#4338CA"></i>
+  <!-- HERO SECTION -->
+  <section id="lpHero" style="background:linear-gradient(180deg,#0F172A 0%,#1E293B 100%);color:#fff;padding:40px 20px 60px">
+    <div style="max-width:960px;margin:0 auto">
+      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);padding:6px 14px;border-radius:99px;margin-bottom:24px">
+        <div style="width:20px;height:20px;border-radius:5px;background:linear-gradient(135deg,#0EA5E9,#0369A1);display:flex;align-items:center;justify-content:center;color:#fff"><i class="ti ti-cloud-data-connection" style="font-size:12px"></i></div>
+        <div style="font-size:11px;font-weight:500">Nonics · Digital</div>
       </div>
-      <div style="padding:20px 24px">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-          <span id="checkoutType" style="background:#EEF2FF;color:#4338CA;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:500">Ebook</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:36px;align-items:center" id="lpHeroGrid">
+        <div>
+          <span id="lpHeroType" style="display:inline-block;background:rgba(14,165,233,.15);color:#7DD3FC;padding:5px 12px;border-radius:99px;font-size:11px;font-weight:500;margin-bottom:14px">Ebook</span>
+          <h1 id="lpHeroTitle" style="font-size:36px;font-weight:600;line-height:1.2;margin:0 0 14px;color:#fff">—</h1>
+          <p id="lpHeroSub" style="font-size:16px;line-height:1.6;color:#CBD5E1;margin:0 0 24px"></p>
+          <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:24px">
+            <div id="lpHeroPrice" style="font-size:36px;font-weight:600;color:#10B981;font-family:'SF Mono',Menlo,monospace">Rp 0</div>
+            <div style="font-size:13px;color:#94A3B8">akses seumur hidup</div>
+          </div>
+          <button onclick="lpScrollToForm()" style="background:#10B981;color:#fff;border:none;padding:14px 28px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(16,185,129,.35)">
+            <i class="ti ti-shopping-cart" style="font-size:18px"></i> Beli Sekarang
+          </button>
         </div>
-        <div id="checkoutName" style="font-size:18px;font-weight:500;color:var(--text);margin-bottom:6px">—</div>
-        <div id="checkoutDesc" style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:14px"></div>
-        <div style="display:flex;align-items:baseline;gap:8px;padding-top:14px;border-top:1px solid var(--border)">
-          <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;font-weight:500">Total</div>
-          <div id="checkoutPrice" style="font-size:24px;font-weight:500;color:#10B981;font-family:'SF Mono',Menlo,monospace">Rp 0</div>
+        <div>
+          <div id="lpHeroCover" style="aspect-ratio:16/10;border-radius:14px;overflow:hidden;background:linear-gradient(135deg,#EEF2FF,#DBEAFE);display:flex;align-items:center;justify-content:center;box-shadow:0 16px 48px rgba(0,0,0,.4)">
+            <i class="ti ti-package" style="font-size:80px;color:#4338CA"></i>
+          </div>
         </div>
       </div>
     </div>
+  </section>
 
-    <div id="checkoutForm" style="background:#fff;border:0.5px solid var(--border);border-radius:16px;padding:20px 24px;box-shadow:0 4px 16px rgba(0,0,0,.06)">
-      <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:14px">Data Pembeli</div>
-      <div class="tm-field"><label class="tm-label">Email *</label><input type="email" id="checkoutEmail" class="tm-input" placeholder="email@kamu.com" autocomplete="email" inputmode="email"/></div>
-      <div class="tm-field"><label class="tm-label">Nama Lengkap *</label><input type="text" id="checkoutNama" class="tm-input" placeholder="Sesuai identitas" autocomplete="name"/></div>
-      <div class="tm-field"><label class="tm-label">Nomor WhatsApp *</label><input type="tel" id="checkoutWa" class="tm-input" placeholder="08xxx" inputmode="numeric" autocomplete="tel"/></div>
-
-      <div id="checkoutError" class="tm-error" style="display:none;margin-bottom:14px"></div>
-
-      <button id="checkoutPayBtn" onclick="checkoutPayNow()" style="width:100%;background:linear-gradient(135deg,#0EA5E9,#0369A1);color:#fff;border:none;padding:14px;border-radius:10px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s">
-        <i class="ti ti-credit-card" style="font-size:18px"></i>
-        <span id="checkoutPayBtnText">Bayar Sekarang</span>
-      </button>
-      <div style="margin-top:12px;font-size:11px;color:var(--text-muted);text-align:center;line-height:1.6">Bayar via Midtrans · QRIS / Bank Transfer / GoPay / OVO / DANA / Credit Card<br/>Setelah bayar, akses produk dikirim ke email kamu.</div>
+  <!-- BENEFITS -->
+  <section id="lpBenefits" style="padding:48px 20px;background:#fff;display:none">
+    <div style="max-width:960px;margin:0 auto">
+      <h2 style="font-size:24px;font-weight:600;color:#0F172A;text-align:center;margin:0 0 32px">Yang Kamu Dapat</h2>
+      <div id="lpBenefitsList" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px"></div>
     </div>
+  </section>
 
-    <div id="checkoutResult" style="display:none;background:#fff;border:0.5px solid var(--border);border-radius:16px;padding:32px 24px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.06)">
-      <div id="checkoutResultIcon" style="font-size:48px;margin-bottom:12px"></div>
-      <div id="checkoutResultTitle" style="font-size:18px;font-weight:500;color:var(--text);margin-bottom:8px"></div>
-      <div id="checkoutResultMsg" style="font-size:13px;color:var(--text-muted);line-height:1.7;margin-bottom:18px"></div>
-      <div id="checkoutResultActions"></div>
+  <!-- LONG DESCRIPTION -->
+  <section id="lpLongDesc" style="padding:48px 20px;background:#F8FAFC;display:none">
+    <div style="max-width:720px;margin:0 auto">
+      <h2 style="font-size:24px;font-weight:600;color:#0F172A;margin:0 0 20px">Tentang Produk Ini</h2>
+      <div id="lpLongDescContent" style="font-size:15px;line-height:1.8;color:#334155;white-space:pre-wrap"></div>
     </div>
+  </section>
 
-    <div style="text-align:center;margin-top:18px;font-size:11px;color:var(--text-muted)">
-      <i class="ti ti-shield-check" style="font-size:12px;vertical-align:-2px"></i> Pembayaran aman & terenkripsi · Powered by Midtrans
+  <!-- TESTIMONIALS -->
+  <section id="lpTestimonials" style="padding:48px 20px;background:#fff;display:none">
+    <div style="max-width:960px;margin:0 auto">
+      <h2 style="font-size:24px;font-weight:600;color:#0F172A;text-align:center;margin:0 0 32px">Testimoni Pengguna</h2>
+      <div id="lpTestimonialsList" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px"></div>
     </div>
-  </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="lpFAQ" style="padding:48px 20px;background:#F8FAFC;display:none">
+    <div style="max-width:720px;margin:0 auto">
+      <h2 style="font-size:24px;font-weight:600;color:#0F172A;text-align:center;margin:0 0 32px">Pertanyaan Umum</h2>
+      <div id="lpFAQList" style="display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+  </section>
+
+  <!-- PURCHASE FORM -->
+  <section id="lpForm" style="padding:48px 20px;background:linear-gradient(180deg,#F1F5F9 0%,#E2E8F0 100%)">
+    <div style="max-width:520px;margin:0 auto">
+      <h2 style="font-size:24px;font-weight:600;color:#0F172A;text-align:center;margin:0 0 8px">Checkout</h2>
+      <p style="text-align:center;color:#64748B;font-size:14px;margin:0 0 24px">Isi data di bawah, langsung bayar via QRIS / VA / e-wallet</p>
+
+      <div id="checkoutProductCard" style="background:#fff;border-radius:14px;padding:18px 20px;margin-bottom:16px;box-shadow:0 4px 16px rgba(15,23,42,.06);display:flex;align-items:center;gap:14px">
+        <div id="checkoutCover" style="width:64px;height:64px;border-radius:10px;background:#EEF2FF;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">
+          <i class="ti ti-package" style="font-size:32px;color:#4338CA"></i>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div id="checkoutName" style="font-size:14px;font-weight:600;color:#0F172A;line-height:1.3;margin-bottom:4px">—</div>
+          <div id="checkoutType" style="display:inline-block;background:#EEF2FF;color:#4338CA;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:500">Ebook</div>
+        </div>
+        <div id="checkoutPrice" style="font-size:20px;font-weight:600;color:#10B981;font-family:'SF Mono',Menlo,monospace;text-align:right">Rp 0</div>
+      </div>
+
+      <div id="checkoutForm" style="background:#fff;border-radius:14px;padding:20px 24px;box-shadow:0 4px 16px rgba(15,23,42,.06)">
+        <div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:14px">Data Pembeli</div>
+        <div class="tm-field"><label class="tm-label">Email *</label><input type="email" id="checkoutEmail" class="tm-input" placeholder="email@kamu.com" autocomplete="email" inputmode="email"/></div>
+        <div class="tm-field"><label class="tm-label">Nama Lengkap *</label><input type="text" id="checkoutNama" class="tm-input" placeholder="Sesuai identitas" autocomplete="name"/></div>
+        <div class="tm-field"><label class="tm-label">Nomor WhatsApp *</label><input type="tel" id="checkoutWa" class="tm-input" placeholder="08xxx" inputmode="numeric" autocomplete="tel"/></div>
+
+        <div id="checkoutError" class="tm-error" style="display:none;margin-bottom:14px"></div>
+
+        <button id="checkoutPayBtn" onclick="checkoutPayNow()" style="width:100%;background:linear-gradient(135deg,#10B981,#059669);color:#fff;border:none;padding:15px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s;box-shadow:0 6px 18px rgba(16,185,129,.3)">
+          <i class="ti ti-credit-card" style="font-size:18px"></i>
+          <span id="checkoutPayBtnText">Bayar Sekarang</span>
+        </button>
+        <div style="margin-top:12px;font-size:11px;color:#94A3B8;text-align:center;line-height:1.6"><i class="ti ti-shield-check" style="font-size:12px;vertical-align:-2px"></i> Pembayaran aman via Midtrans<br/>QRIS · Bank Transfer · GoPay · OVO · DANA · Credit Card</div>
+      </div>
+
+      <div id="checkoutResult" style="display:none;background:#fff;border-radius:14px;padding:32px 24px;text-align:center;box-shadow:0 4px 16px rgba(15,23,42,.06)">
+        <div id="checkoutResultIcon" style="font-size:48px;margin-bottom:12px"></div>
+        <div id="checkoutResultTitle" style="font-size:18px;font-weight:600;color:#0F172A;margin-bottom:8px"></div>
+        <div id="checkoutResultMsg" style="font-size:13px;color:#64748B;line-height:1.7;margin-bottom:18px"></div>
+        <div id="checkoutResultActions"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer style="padding:24px 20px;background:#0F172A;color:#94A3B8;text-align:center;font-size:12px">
+    <div style="display:inline-flex;align-items:center;gap:6px;margin-bottom:8px">
+      <div style="width:16px;height:16px;border-radius:4px;background:linear-gradient(135deg,#0EA5E9,#0369A1);display:flex;align-items:center;justify-content:center"><i class="ti ti-bolt" style="font-size:10px"></i></div>
+      <span style="font-size:11px">Nonics Form Order</span>
+    </div>
+    <div>Aman & terenkripsi · Powered by Midtrans</div>
+  </footer>
 </div>
 
 <!-- ═══════════════════════════════════
@@ -9956,6 +10061,15 @@ function dgProdTypeMeta(typeId){
   return found || DG_PROD_TYPES[3]; // fallback lainnya
 }
 
+function dgSwitchProdSection(name){
+  document.querySelectorAll('.dg-prod-section').forEach(function(s){ s.style.display = 'none'; });
+  var target = document.getElementById('dgProdSec-'+name);
+  if(target) target.style.display = '';
+  document.querySelectorAll('.dg-sec-tab').forEach(function(t){
+    t.classList.toggle('active', t.getAttribute('data-dgsec') === name);
+  });
+}
+
 function dgNewProd(){
   dgEditProdId = null;
   document.getElementById('dgProdModalTitle').textContent = 'Produk Digital Baru';
@@ -9965,10 +10079,20 @@ function dgNewProd(){
   document.getElementById('dgProdType').value = 'ebook';
   document.getElementById('dgProdAccessType').value = 'link';
   document.getElementById('dgProdAccessUrl').value = '';
+  // Landing page fields — reset
+  var setV = function(id, v){ var e=document.getElementById(id); if(e) e.value = v || ''; };
+  setV('dgProdHeroTitle');
+  setV('dgProdHeroSub');
+  setV('dgProdCoverUrl');
+  setV('dgProdBenefits');
+  setV('dgProdLongDesc');
+  setV('dgProdTestimonials');
+  setV('dgProdFAQ');
   var fileInfo = document.getElementById('dgProdFileInfo');
   if(fileInfo){ fileInfo.textContent = ''; fileInfo.dataset.b64 = ''; fileInfo.dataset.name = ''; fileInfo.dataset.size = ''; fileInfo.dataset.mime = ''; }
   document.getElementById('dgProdError').style.display = 'none';
   dgToggleAccessType();
+  dgSwitchProdSection('basic');
   document.getElementById('dgProdModal').style.display = 'flex';
 }
 
@@ -9983,6 +10107,15 @@ function dgEditProd(id){
   document.getElementById('dgProdType').value = p.type || 'ebook';
   document.getElementById('dgProdAccessType').value = p.accessType || 'link';
   document.getElementById('dgProdAccessUrl').value = p.accessUrl || '';
+  // Landing page fields — load
+  var setV = function(id, v){ var e=document.getElementById(id); if(e) e.value = v || ''; };
+  setV('dgProdHeroTitle', p.heroTitle);
+  setV('dgProdHeroSub', p.heroSub);
+  setV('dgProdCoverUrl', p.coverUrl);
+  setV('dgProdBenefits', p.benefits);
+  setV('dgProdLongDesc', p.longDesc);
+  setV('dgProdTestimonials', p.testimonials);
+  setV('dgProdFAQ', p.faq);
   var fileInfo = document.getElementById('dgProdFileInfo');
   if(fileInfo){
     if(p.accessType === 'file' && p.fileName){
@@ -9997,6 +10130,7 @@ function dgEditProd(id){
   }
   document.getElementById('dgProdError').style.display = 'none';
   dgToggleAccessType();
+  dgSwitchProdSection('basic');
   document.getElementById('dgProdModal').style.display = 'flex';
 }
 
@@ -10044,14 +10178,32 @@ function dgSaveProd(){
   var type = document.getElementById('dgProdType').value;
   var accessType = document.getElementById('dgProdAccessType').value;
   var accessUrl = (document.getElementById('dgProdAccessUrl').value || '').trim();
+  // Landing page fields
+  var heroTitle = (document.getElementById('dgProdHeroTitle').value || '').trim();
+  var heroSub = (document.getElementById('dgProdHeroSub').value || '').trim();
+  var coverUrl = (document.getElementById('dgProdCoverUrl').value || '').trim();
+  var benefits = (document.getElementById('dgProdBenefits').value || '').trim();
+  var longDesc = (document.getElementById('dgProdLongDesc').value || '').trim();
+  var testimonials = (document.getElementById('dgProdTestimonials').value || '').trim();
+  var faq = (document.getElementById('dgProdFAQ').value || '').trim();
   var fileInfo = document.getElementById('dgProdFileInfo');
   var errEl = document.getElementById('dgProdError');
   function showErr(msg){ errEl.textContent = msg; errEl.style.display = 'block'; }
   errEl.style.display = 'none';
-  if(!name){ showErr('Nama produk wajib diisi.'); return; }
-  if(price < 1000){ showErr('Harga minimal Rp 1.000.'); return; }
-  if(accessType === 'link' && !accessUrl){ showErr('Link akses wajib diisi (URL Google Drive / Notion / dll).'); return; }
-  if(accessType === 'file' && !fileInfo.dataset.b64){ showErr('File belum dipilih.'); return; }
+  if(!name){ showErr('Nama produk wajib diisi.'); dgSwitchProdSection('basic'); return; }
+  if(price < 1000){ showErr('Harga minimal Rp 1.000.'); dgSwitchProdSection('basic'); return; }
+  if(accessType === 'link' && !accessUrl){ showErr('Link akses wajib diisi (URL Google Drive / Notion / dll).'); dgSwitchProdSection('access'); return; }
+  if(accessType === 'file' && !fileInfo.dataset.b64){ showErr('File belum dipilih.'); dgSwitchProdSection('access'); return; }
+
+  var landingFields = {
+    heroTitle: heroTitle,
+    heroSub: heroSub,
+    coverUrl: coverUrl,
+    benefits: benefits,
+    longDesc: longDesc,
+    testimonials: testimonials,
+    faq: faq
+  };
 
   var prods = getDgProds();
   if(dgEditProdId){
@@ -10065,11 +10217,11 @@ function dgSaveProd(){
       fileName: accessType === 'file' ? (fileInfo.dataset.name || prods[i].fileName || '') : '',
       fileSize: accessType === 'file' ? (parseInt(fileInfo.dataset.size, 10) || prods[i].fileSize || 0) : 0,
       fileMime: accessType === 'file' ? (fileInfo.dataset.mime || prods[i].fileMime || '') : ''
-    });
+    }, landingFields);
     toast('✅ Produk digital diperbarui');
   } else {
     var nowId = Date.now();
-    prods.push({
+    prods.push(Object.assign({
       id: nowId,
       name: name,
       price: price,
@@ -10084,7 +10236,7 @@ function dgSaveProd(){
       slug: dgSlugify(name),
       active: true,
       createdAt: nowId
-    });
+    }, landingFields));
     toast('✅ Produk digital baru ditambahkan');
   }
   setDgProds(prods);
@@ -10758,32 +10910,134 @@ function checkoutMaybeRoute(){
 }
 
 function initCheckout(slug){
-  // Cari produk berdasarkan slug atau id
   var prods = (typeof getDgProds === 'function') ? getDgProds() : [];
   var prod = prods.find(function(p){ return p.slug === slug || String(p.id) === String(slug); });
   if(!prod || prod.active === false){
-    // Produk ga ditemukan / non-aktif
     showCheckoutResult('error', 'Produk tidak tersedia', 'Link yang kamu buka tidak valid atau produk udah dinonaktifkan oleh admin.', '');
     return;
   }
   __checkoutProduct = prod;
   var meta = dgProdTypeMeta(prod.type);
-  // Render product card
+
+  // Set page title
+  try { document.title = prod.name + ' — Nonics'; } catch(e){}
+
+  // HERO section
+  var heroType = document.getElementById('lpHeroType');
+  if(heroType){ heroType.textContent = meta.label; }
+  var heroTitle = document.getElementById('lpHeroTitle');
+  if(heroTitle){ heroTitle.textContent = prod.heroTitle || prod.name; }
+  var heroSub = document.getElementById('lpHeroSub');
+  if(heroSub){
+    var subText = prod.heroSub || prod.description || '';
+    heroSub.textContent = subText;
+    heroSub.style.display = subText ? '' : 'none';
+  }
+  var heroPrice = document.getElementById('lpHeroPrice');
+  if(heroPrice) heroPrice.textContent = dgFmtRp(prod.price);
+  var heroCover = document.getElementById('lpHeroCover');
+  if(heroCover){
+    if(prod.coverUrl){
+      heroCover.style.background = 'url("'+prod.coverUrl.replace(/"/g,'\\"')+'") center/cover no-repeat';
+      heroCover.innerHTML = '';
+    } else {
+      heroCover.style.background = 'linear-gradient(135deg, '+meta.bg+', #fff)';
+      heroCover.innerHTML = '<i class="ti '+meta.icon+'" style="font-size:96px;color:'+meta.color+'"></i>';
+    }
+  }
+  // Responsive: kalau mobile, hero jadi 1 kolom
+  var heroGrid = document.getElementById('lpHeroGrid');
+  if(heroGrid){
+    if(window.innerWidth < 720){ heroGrid.style.gridTemplateColumns = '1fr'; }
+  }
+
+  // BENEFITS section
+  var benefitsSec = document.getElementById('lpBenefits');
+  var benefitsList = document.getElementById('lpBenefitsList');
+  var benefits = (prod.benefits || '').split('\n').map(function(s){ return s.trim(); }).filter(Boolean);
+  if(benefits.length && benefitsSec && benefitsList){
+    benefitsSec.style.display = '';
+    benefitsList.innerHTML = benefits.map(function(b){
+      return '<div style="display:flex;align-items:flex-start;gap:10px;padding:14px;background:#F8FAFC;border-radius:10px">' +
+        '<div style="width:26px;height:26px;border-radius:50%;background:#10B981;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-check" style="font-size:14px"></i></div>' +
+        '<div style="font-size:14px;color:#334155;line-height:1.5;padding-top:2px">'+esc(b)+'</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  // LONG DESCRIPTION section
+  var longSec = document.getElementById('lpLongDesc');
+  var longEl = document.getElementById('lpLongDescContent');
+  if(prod.longDesc && longSec && longEl){
+    longSec.style.display = '';
+    longEl.textContent = prod.longDesc;
+  }
+
+  // TESTIMONIALS section
+  var testSec = document.getElementById('lpTestimonials');
+  var testList = document.getElementById('lpTestimonialsList');
+  var testimonials = (prod.testimonials || '').split('\n').map(function(s){
+    var parts = s.split('|');
+    if(parts.length < 2) return null;
+    return { name: parts[0].trim(), text: parts.slice(1).join('|').trim() };
+  }).filter(function(x){ return x && x.text; });
+  if(testimonials.length && testSec && testList){
+    testSec.style.display = '';
+    testList.innerHTML = testimonials.map(function(t){
+      var initial = (t.name || '?').charAt(0).toUpperCase();
+      return '<div style="background:#F8FAFC;border-radius:12px;padding:18px 20px;border:1px solid #E2E8F0">' +
+        '<div style="font-size:14px;color:#334155;line-height:1.7;font-style:italic;margin-bottom:14px">"'+esc(t.text)+'"</div>' +
+        '<div style="display:flex;align-items:center;gap:10px">' +
+          '<div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0EA5E9,#0369A1);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600">'+esc(initial)+'</div>' +
+          '<div style="font-size:13px;font-weight:600;color:#0F172A">'+esc(t.name)+'</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  // FAQ section
+  var faqSec = document.getElementById('lpFAQ');
+  var faqList = document.getElementById('lpFAQList');
+  var faqs = (prod.faq || '').split('\n').map(function(s){
+    var parts = s.split('|');
+    if(parts.length < 2) return null;
+    return { q: parts[0].trim(), a: parts.slice(1).join('|').trim() };
+  }).filter(function(x){ return x && x.q; });
+  if(faqs.length && faqSec && faqList){
+    faqSec.style.display = '';
+    faqList.innerHTML = faqs.map(function(f, idx){
+      return '<details style="background:#fff;border:1px solid #E2E8F0;border-radius:10px;padding:14px 18px"'+(idx===0?' open':'')+'>' +
+        '<summary style="font-size:14px;font-weight:600;color:#0F172A;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center">'+esc(f.q)+'<span style="color:#94A3B8;font-size:18px">+</span></summary>' +
+        '<div style="font-size:14px;color:#475569;line-height:1.7;margin-top:10px;padding-top:10px;border-top:1px solid #F1F5F9">'+esc(f.a)+'</div>' +
+      '</details>';
+    }).join('');
+  }
+
+  // PURCHASE FORM section — mini product card
   var coverEl = document.getElementById('checkoutCover');
   if(coverEl){
-    coverEl.style.background = meta.bg;
-    coverEl.innerHTML = '<i class="ti '+meta.icon+'" style="font-size:64px;color:'+meta.color+'"></i>';
+    if(prod.coverUrl){
+      coverEl.style.background = 'url("'+prod.coverUrl.replace(/"/g,'\\"')+'") center/cover no-repeat';
+      coverEl.innerHTML = '';
+    } else {
+      coverEl.style.background = meta.bg;
+      coverEl.innerHTML = '<i class="ti '+meta.icon+'" style="font-size:32px;color:'+meta.color+'"></i>';
+    }
   }
   var typeEl = document.getElementById('checkoutType');
   if(typeEl){ typeEl.textContent = meta.label; typeEl.style.background = meta.bg; typeEl.style.color = meta.color; }
   var nameEl = document.getElementById('checkoutName'); if(nameEl) nameEl.textContent = prod.name;
-  var descEl = document.getElementById('checkoutDesc');
-  if(descEl){
-    descEl.textContent = prod.description || '';
-    descEl.style.display = prod.description ? '' : 'none';
-  }
   var priceEl = document.getElementById('checkoutPrice');
   if(priceEl) priceEl.textContent = dgFmtRp(prod.price);
+}
+
+function lpScrollToForm(){
+  var el = document.getElementById('lpForm');
+  if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  setTimeout(function(){
+    var emailEl = document.getElementById('checkoutEmail');
+    if(emailEl) emailEl.focus();
+  }, 600);
 }
 
 function checkoutPayNow(){
