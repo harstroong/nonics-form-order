@@ -2335,7 +2335,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-15-digijual-form-embed';
+window.__APP_VERSION = '2026-06-17-vercel-backend';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -11596,17 +11596,23 @@ function checkoutPayNow(){
     return;
   }
 
-  // Call Firebase Cloud Function untuk dapet Snap token
-  var fbCfg = (typeof getFBConfig === 'function') ? getFBConfig() : null;
-  if(!fbCfg || !fbCfg.projectId){
-    showCheckoutErr('Konfigurasi server belum lengkap. Hubungi admin.');
-    resetPayBtn();
-    return;
+  // Endpoint backend: prefer Vercel Serverless Function (relative), fallback Firebase Function
+  // Vercel: deploy folder /api/ → auto endpoint /api/create-snap-token (same origin, no CORS)
+  // Firebase (legacy): https://{region}-{projectId}.cloudfunctions.net/createSnapToken
+  var url;
+  if(mid.backend === 'firebase'){
+    var fbCfg = (typeof getFBConfig === 'function') ? getFBConfig() : null;
+    if(!fbCfg || !fbCfg.projectId){
+      showCheckoutErr('Firebase config belum lengkap. Hubungi admin.');
+      resetPayBtn();
+      return;
+    }
+    var region = (mid.region || 'asia-southeast2');
+    url = 'https://' + region + '-' + fbCfg.projectId + '.cloudfunctions.net/createSnapToken';
+  } else {
+    // Default: Vercel Serverless (relative URL — otomatis pake domain saat ini)
+    url = '/api/create-snap-token';
   }
-  var endpoint = 'https://' + fbCfg.region || 'asia-southeast2' ;
-  // Conventional endpoint: https://{region}-{projectId}.cloudfunctions.net/createSnapToken
-  var region = (mid.region || 'asia-southeast2');
-  var url = 'https://' + region + '-' + fbCfg.projectId + '.cloudfunctions.net/createSnapToken';
 
   fetch(url, {
     method: 'POST',
@@ -11638,7 +11644,15 @@ function checkoutPayNow(){
   })
   .catch(function(err){
     console.error('Checkout error:', err);
-    showCheckoutErr('Gagal memproses pembayaran: ' + (err.message || 'Server tidak terjawab') + '. Silakan coba lagi atau hubungi admin.');
+    var msg = err && err.message ? err.message : '';
+    // Network / CORS / function-not-deployed → graceful fallback ke manual mode
+    var isNetError = /Failed to fetch|NetworkError|CORS|ECONNREFUSED|timeout|404|Not Found/i.test(msg);
+    if(isNetError){
+      console.warn('[Checkout] Backend unreachable — fallback ke manual mode');
+      saveCheckoutOrderManual(order);
+      return;
+    }
+    showCheckoutErr('Gagal memproses pembayaran: ' + (msg || 'Server tidak terjawab') + '. Silakan coba lagi atau hubungi admin.');
     resetPayBtn();
   });
 }
@@ -11647,7 +11661,7 @@ function resetPayBtn(){
   var btn = document.getElementById('checkoutPayBtn');
   var btnText = document.getElementById('checkoutPayBtnText');
   if(btn){ btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = ''; }
-  if(btnText) btnText.textContent = 'Bayar Sekarang';
+  if(btnText) btnText.textContent = 'YA, Saya Pesan Sekarang!';
 }
 
 function showCheckoutErr(msg){
