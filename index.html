@@ -1546,6 +1546,28 @@ tr:hover td{background:var(--surface-2)}
 #lpFAQ details[open] summary span{transform:rotate(45deg);display:inline-block;transition:transform .2s}
 #lpFAQ details summary span{transition:transform .2s;display:inline-block}
 
+/* Form fields (checkout) */
+.lp-field{margin-bottom:14px}
+.lp-label{display:block;font-size:12.5px;font-weight:500;color:#334155;margin-bottom:6px}
+.lp-input{width:100%;box-sizing:border-box;padding:12px 14px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:14px;font-family:inherit;color:#0F172A;background:#fff;transition:border-color .15s,box-shadow .15s}
+.lp-input:focus{outline:none;border-color:#0EA5E9;box-shadow:0 0 0 3px rgba(14,165,233,.12)}
+.lp-input::placeholder{color:#94A3B8}
+.lp-input-wa{display:flex;align-items:center;border:1.5px solid #E2E8F0;border-radius:9px;background:#fff;overflow:hidden;transition:border-color .15s,box-shadow .15s}
+.lp-input-wa:focus-within{border-color:#0EA5E9;box-shadow:0 0 0 3px rgba(14,165,233,.12)}
+.lp-wa-flag{display:flex;align-items:center;gap:6px;padding:12px 12px 12px 14px;background:#F8FAFC;border-right:1px solid #E2E8F0;cursor:default;user-select:none}
+.lp-input-wa input{background:transparent}
+.lp-input-wa input:focus{outline:none;box-shadow:none}
+
+/* Payment grid */
+.lp-pay-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
+@media(max-width:520px){.lp-pay-grid{grid-template-columns:repeat(2,1fr)}}
+.lp-pay-item{background:#fff;border:1.5px solid #E2E8F0;border-radius:10px;padding:12px 8px;cursor:pointer;text-align:center;transition:all .15s;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:74px}
+.lp-pay-item:hover{border-color:#94A3B8;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.05)}
+.lp-pay-item.is-selected{border-color:#DC2626;background:#FEF2F2;box-shadow:0 0 0 3px rgba(220,38,38,.08)}
+.lp-pay-item.is-selected::before{content:"✓";position:absolute;top:4px;right:6px;color:#DC2626;font-weight:700;font-size:12px}
+.lp-pay-icon{width:36px;height:24px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:10px;letter-spacing:.3px;border-radius:4px;color:#fff}
+.lp-pay-lbl{font-size:10.5px;font-weight:500;color:#334155;line-height:1.2;text-align:center}
+
 .dg-sec-tab{
   flex:1;background:none;border:none;cursor:pointer;font-family:inherit;
   padding:8px 10px;border-radius:6px;font-size:12px;font-weight:500;color:var(--text-muted);
@@ -2313,7 +2335,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-14-split-landing-form';
+window.__APP_VERSION = '2026-06-15-digijual-form-embed';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -4910,7 +4932,7 @@ document.addEventListener('DOMContentLoaded', function(){
             <input type="checkbox" id="dgProdLandingEnabled" checked style="width:16px;height:16px;cursor:pointer;accent-color:#0EA5E9"/>
             <div style="flex:1">
               <div style="font-weight:600;color:#0369A1;font-size:13px;display:flex;align-items:center;gap:6px"><i class="ti ti-layout" style="font-size:14px"></i>Aktifkan Landing Page</div>
-              <div style="font-size:11.5px;color:#0C4A6E;margin-top:3px;line-height:1.5">✅ <strong>ON:</strong> URL <code>?digital=slug</code> nunjukin landing page lengkap (hero, benefit, testi, FAQ) dengan tombol CTA yang nge-link ke form checkout terpisah di <code>?form=slug</code>.<br/>⚡ <strong>OFF:</strong> URL <code>?digital=slug</code> <em>langsung</em> ke form checkout — no landing page. Bagus buat retargeting / warm audience.</div>
+              <div style="font-size:11.5px;color:#0C4A6E;margin-top:3px;line-height:1.5">✅ <strong>ON (default):</strong> Landing page lengkap di atas (hero, benefit, testi, FAQ) + form checkout embed di bawah (scroll ke "ISI FORM"). Gaya <em>Digijual</em> — cocok buat cold audience / iklan.<br/>⚡ <strong>OFF:</strong> Skip landing page — customer langsung liat form checkout doang. Cocok buat warm audience / retargeting / WA blast.</div>
             </div>
           </label>
         </div>
@@ -5125,9 +5147,13 @@ document.addEventListener('DOMContentLoaded', function(){
 
   <!-- PURCHASE FORM -->
   <section id="lpForm" style="padding:48px 20px;background:linear-gradient(180deg,#F1F5F9 0%,#E2E8F0 100%)">
-    <div style="max-width:520px;margin:0 auto">
-      <h2 style="font-size:24px;font-weight:600;color:#0F172A;text-align:center;margin:0 0 8px">Checkout</h2>
-      <p style="text-align:center;color:#64748B;font-size:14px;margin:0 0 24px">Isi data di bawah, langsung bayar via QRIS / VA / e-wallet</p>
+    <div style="max-width:560px;margin:0 auto">
+      <!-- Attention header (gaya digijual) -->
+      <div id="lpFormAttentionHead" style="text-align:center;margin-bottom:20px">
+        <div style="font-size:24px;margin-bottom:6px">⬇️</div>
+        <div style="font-size:15px;font-weight:700;color:#0F172A;line-height:1.4;text-transform:uppercase;letter-spacing:.3px">Isi Form di Bawah Ini<br/><span style="color:#DC2626">Untuk Dapatkan Promo Terbatasnya</span></div>
+        <div style="font-size:24px;margin-top:6px">⬇️</div>
+      </div>
 
       <div id="checkoutProductCard" style="background:#fff;border-radius:14px;padding:18px 20px;margin-bottom:16px;box-shadow:0 4px 16px rgba(15,23,42,.06);display:flex;align-items:center;gap:14px">
         <div id="checkoutCover" style="width:64px;height:64px;border-radius:10px;background:#EEF2FF;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">
@@ -5140,19 +5166,47 @@ document.addEventListener('DOMContentLoaded', function(){
         <div id="checkoutPrice" style="font-size:20px;font-weight:600;color:#10B981;font-family:'SF Mono',Menlo,monospace;text-align:right">Rp 0</div>
       </div>
 
-      <div id="checkoutForm" style="background:#fff;border-radius:14px;padding:20px 24px;box-shadow:0 4px 16px rgba(15,23,42,.06)">
-        <div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:14px">Data Pembeli</div>
-        <div class="tm-field"><label class="tm-label">Email *</label><input type="email" id="checkoutEmail" class="tm-input" placeholder="email@kamu.com" autocomplete="email" inputmode="email"/></div>
-        <div class="tm-field"><label class="tm-label">Nama Lengkap *</label><input type="text" id="checkoutNama" class="tm-input" placeholder="Sesuai identitas" autocomplete="name"/></div>
-        <div class="tm-field"><label class="tm-label">Nomor WhatsApp *</label><input type="tel" id="checkoutWa" class="tm-input" placeholder="08xxx" inputmode="numeric" autocomplete="tel"/></div>
+      <div id="checkoutForm" style="background:#fff;border-radius:14px;padding:22px 24px;box-shadow:0 4px 16px rgba(15,23,42,.06)">
+        <div style="font-size:15px;font-weight:600;color:#0F172A;margin-bottom:16px;display:flex;align-items:center;gap:6px"><i class="ti ti-user" style="color:#0EA5E9"></i>Lengkapi Data:</div>
 
-        <div id="checkoutError" class="tm-error" style="display:none;margin-bottom:14px"></div>
+        <div class="lp-field">
+          <label class="lp-label">Nama Lengkap <span style="color:#DC2626">*</span></label>
+          <input type="text" id="checkoutNama" class="lp-input" placeholder="Nama sesuai identitas" autocomplete="name"/>
+        </div>
 
-        <button id="checkoutPayBtn" onclick="checkoutPayNow()" style="width:100%;background:linear-gradient(135deg,#10B981,#059669);color:#fff;border:none;padding:15px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s;box-shadow:0 6px 18px rgba(16,185,129,.3)">
-          <i class="ti ti-credit-card" style="font-size:18px"></i>
-          <span id="checkoutPayBtnText">Bayar Sekarang</span>
+        <div class="lp-field">
+          <label class="lp-label">No. WhatsApp <span style="color:#DC2626">*</span></label>
+          <div class="lp-input-wa">
+            <div class="lp-wa-flag" title="Indonesia">
+              <span style="display:inline-block;width:20px;height:14px;background:linear-gradient(180deg,#DC2626 50%,#fff 50%);border-radius:2px;border:1px solid #E2E8F0"></span>
+              <span style="font-weight:600;color:#334155;font-size:13px">+62</span>
+              <i class="ti ti-chevron-down" style="font-size:12px;color:#94A3B8"></i>
+            </div>
+            <input type="tel" id="checkoutWa" class="lp-input" placeholder="81234567890" inputmode="numeric" autocomplete="tel" style="border:0;padding-left:8px;flex:1"/>
+          </div>
+        </div>
+
+        <div class="lp-field">
+          <label class="lp-label">Email <span style="color:#DC2626">*</span></label>
+          <input type="email" id="checkoutEmail" class="lp-input" placeholder="email@kamu.com" autocomplete="email" inputmode="email"/>
+        </div>
+
+        <!-- Payment method grid -->
+        <div class="lp-field" style="margin-top:8px">
+          <label class="lp-label" style="display:flex;align-items:center;gap:6px"><i class="ti ti-credit-card" style="color:#0EA5E9;font-size:14px"></i>Metode Pembayaran:</label>
+          <div id="checkoutPayGrid" class="lp-pay-grid">
+            <!-- diisi via JS renderCheckoutPayGrid() -->
+          </div>
+          <div id="checkoutPayHint" style="font-size:11px;color:#94A3B8;margin-top:8px;text-align:center">Pilih 1 metode pembayaran di atas untuk lanjut</div>
+        </div>
+
+        <div id="checkoutError" class="tm-error" style="display:none;margin:14px 0"></div>
+
+        <button id="checkoutPayBtn" onclick="checkoutPayNow()" style="width:100%;background:linear-gradient(135deg,#DC2626,#B91C1C);color:#fff;border:none;padding:17px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .15s;box-shadow:0 8px 22px rgba(220,38,38,.35);text-transform:uppercase;letter-spacing:.5px;margin-top:6px">
+          <span id="checkoutPayBtnText">YA, Saya Pesan Sekarang!</span>
+          <i class="ti ti-arrow-right" style="font-size:18px"></i>
         </button>
-        <div style="margin-top:12px;font-size:11px;color:#94A3B8;text-align:center;line-height:1.6"><i class="ti ti-shield-check" style="font-size:12px;vertical-align:-2px"></i> Pembayaran aman via Midtrans<br/>QRIS · Bank Transfer · GoPay · OVO · DANA · Credit Card</div>
+        <div style="margin-top:14px;font-size:11px;color:#94A3B8;text-align:center;line-height:1.7"><i class="ti ti-shield-check" style="font-size:12px;vertical-align:-2px;color:#10B981"></i> Pembayaran 100% Aman · <i class="ti ti-lock" style="font-size:12px;vertical-align:-2px;color:#10B981"></i> Terenkripsi via Midtrans<br/><span style="opacity:.7">Data lo terlindungi & tidak dishare ke pihak ketiga</span></div>
       </div>
 
       <div id="checkoutResult" style="display:none;background:#fff;border-radius:14px;padding:32px 24px;text-align:center;box-shadow:0 4px 16px rgba(15,23,42,.06)">
@@ -10502,10 +10556,7 @@ function renderDgProds(){
       '<div class="dg-prod-price">'+esc(dgFmtRp(p.price))+'</div>' +
       '<div>'+statusBadge+'</div>' +
       '<div class="dg-prod-actions">' +
-        (p.landingEnabled !== false
-          ? '<button class="tm-icon-btn" onclick="dgCopyProdLink('+p.id+')" title="Copy link Landing Page"><i class="ti ti-layout"></i></button>'
-          : '') +
-        '<button class="tm-icon-btn" onclick="dgCopyFormLink('+p.id+')" title="Copy link Form Order"><i class="ti ti-forms"></i></button>' +
+        '<button class="tm-icon-btn" onclick="dgCopyProdLink('+p.id+')" title="Copy link '+(p.landingEnabled === false ? 'Form Order' : 'Landing Page')+'"><i class="ti '+(p.landingEnabled === false ? 'ti-forms' : 'ti-link')+'"></i></button>' +
         '<button class="tm-icon-btn" onclick="dgEditProd('+p.id+')" title="Edit"><i class="ti ti-pencil"></i></button>' +
         '<button class="tm-icon-btn" onclick="dgToggleProdActive('+p.id+')" title="'+(p.active===false?'Aktifkan':'Nonaktifkan')+'"><i class="ti '+(p.active===false?'ti-toggle-right':'ti-toggle-left')+'"></i></button>' +
         '<button class="tm-icon-btn danger" onclick="dgDeleteProd('+p.id+')" title="Hapus"><i class="ti ti-trash"></i></button>' +
@@ -11246,14 +11297,59 @@ function renderMemberProfile(){
 ═════════════════════════════════════════════ */
 var __checkoutProduct = null;
 var __checkoutSnapLoaded = false;
+var __checkoutSelectedPayment = ''; // Midtrans enabled_payments id
+
+// Payment method catalog — Midtrans enabled_payments IDs
+// https://api-docs.midtrans.com/#snap-preferences
+var LP_PAY_METHODS = [
+  { id:'qris',        label:'QRIS',        badge:'QR',   color:'#0F172A', desc:'Scan QR (semua e-wallet)' },
+  { id:'gopay',       label:'GoPay',       badge:'GP',   color:'#00A9E0', desc:'GoPay App' },
+  { id:'shopeepay',   label:'ShopeePay',   badge:'SP',   color:'#F04E23', desc:'ShopeePay App' },
+  { id:'qris',        label:'DANA',        badge:'DN',   color:'#118EEA', desc:'via QRIS DANA', alt:true },
+  { id:'qris',        label:'OVO',         badge:'OV',   color:'#4C3494', desc:'via QRIS OVO', alt:true },
+  { id:'bca_va',      label:'BCA VA',      badge:'BCA',  color:'#005BAA' },
+  { id:'echannel',    label:'Mandiri VA',  badge:'MDR',  color:'#003C71' },
+  { id:'bni_va',      label:'BNI VA',      badge:'BNI',  color:'#F26421' },
+  { id:'bri_va',      label:'BRI VA',      badge:'BRI',  color:'#003B7B' },
+  { id:'cimb_va',     label:'CIMB VA',     badge:'CIMB', color:'#A6192E' },
+  { id:'permata_va',  label:'Permata VA',  badge:'PMT',  color:'#1B4B9C' },
+  { id:'credit_card', label:'Kartu Kredit',badge:'CC',   color:'#0F172A' }
+];
+
+function renderCheckoutPayGrid(){
+  var grid = document.getElementById('checkoutPayGrid');
+  if(!grid) return;
+  grid.innerHTML = LP_PAY_METHODS.map(function(m, i){
+    return '<div class="lp-pay-item" data-payidx="'+i+'" onclick="selectCheckoutPayment('+i+')">' +
+      '<div class="lp-pay-icon" style="background:'+m.color+'">'+m.badge+'</div>' +
+      '<div class="lp-pay-lbl">'+m.label+'</div>' +
+    '</div>';
+  }).join('');
+}
+
+function selectCheckoutPayment(idx){
+  var m = LP_PAY_METHODS[idx];
+  if(!m) return;
+  __checkoutSelectedPayment = m.id;
+  window.__checkoutSelectedPayLabel = m.label;
+  document.querySelectorAll('.lp-pay-item').forEach(function(el){
+    el.classList.toggle('is-selected', parseInt(el.getAttribute('data-payidx'),10) === idx);
+  });
+  var hint = document.getElementById('checkoutPayHint');
+  if(hint){ hint.textContent = '✅ Terpilih: '+m.label+(m.desc?' — '+m.desc:''); hint.style.color = '#059669'; }
+}
 
 function checkoutMaybeRoute(){
-  // Cek URL param ?digital={slug} atau ?form={slug}
+  // URL routing: ?digital={slug} → landing page + form embed (kayak digijual)
+  // ?form={slug} tetep didukung buat backward compat (alias, hasilnya sama karena form udah embed)
   var params = new URLSearchParams(window.location.search);
   var slug = params.get('digital');
   var formSlug = params.get('form');
   var forceForm = false;
-  if(formSlug){ slug = formSlug; forceForm = true; }
+  if(formSlug){
+    slug = formSlug;
+    forceForm = true; // legacy: buka langsung form-only mode (skip landing)
+  }
   if(!slug) return false;
   // Tutup view lain, buka checkout
   var ids = ['viewLogin','viewDashboard','viewCS','viewDashboardDigital','viewMember'];
@@ -11308,38 +11404,20 @@ function initCheckout(slug, forceForm){
     var lpFormH = lpFormEl ? lpFormEl.querySelector('h2') : null;
     if(lpFormH) lpFormH.textContent = 'Selesaikan Pesanan';
   } else {
-    // Full landing mode — hide top bar leftover, HIDE lpForm (form terpisah ke ?form=slug), inject final CTA
+    // Full landing mode — landing sections di atas, form EMBED di bawah (gaya digijual)
     var topBar = document.getElementById('lpFormTopBar');
     if(topBar) topBar.style.display = 'none';
     var lpFormElF = document.getElementById('lpForm');
-    if(lpFormElF) lpFormElF.style.display = 'none'; // hide inline form — user click CTA → ?form=slug
-    var lpHeroEl = document.getElementById('lpHero'); if(lpHeroEl) lpHeroEl.style.display = '';
-    // Inject / update final CTA section (below FAQ)
-    var finalCTA = document.getElementById('lpFinalCTA');
-    var slug = prod.slug || prod.id;
-    var formUrl = window.location.pathname + '?form=' + encodeURIComponent(slug);
-    if(!finalCTA){
-      finalCTA = document.createElement('section');
-      finalCTA.id = 'lpFinalCTA';
-      finalCTA.style.cssText = 'padding:56px 20px;background:linear-gradient(135deg,#0F172A 0%,#1E40AF 100%);color:#fff;text-align:center';
-      var faqSecEl = document.getElementById('lpFAQ');
-      if(faqSecEl && faqSecEl.parentNode){
-        faqSecEl.parentNode.insertBefore(finalCTA, faqSecEl.nextSibling);
-      } else {
-        var coEl2 = document.getElementById('viewDigitalCheckout');
-        var footerEl = coEl2 ? coEl2.querySelector('footer') : null;
-        if(footerEl) footerEl.parentNode.insertBefore(finalCTA, footerEl);
-      }
+    if(lpFormElF){
+      lpFormElF.style.display = '';
+      lpFormElF.style.padding = '48px 20px';
+      lpFormElF.style.background = 'linear-gradient(180deg,#F1F5F9 0%,#E2E8F0 100%)';
+      lpFormElF.style.minHeight = '';
     }
-    finalCTA.style.display = '';
-    finalCTA.innerHTML =
-      '<div style="max-width:640px;margin:0 auto">' +
-        '<div style="display:inline-flex;align-items:center;gap:6px;background:rgba(16,185,129,.15);color:#6EE7B7;padding:5px 14px;border-radius:99px;font-size:11px;font-weight:500;margin-bottom:18px;text-transform:uppercase;letter-spacing:.5px"><i class="ti ti-flame" style="font-size:13px"></i>Siap Beli?</div>' +
-        '<h2 style="font-size:28px;font-weight:600;margin:0 0 12px;line-height:1.3">Klik tombol di bawah — checkout aman via QRIS, Bank, e-Wallet</h2>' +
-        '<p style="font-size:14px;color:#CBD5E1;margin:0 0 24px;line-height:1.6">Setelah bayar, akses produk langsung dikirim ke email + WhatsApp kamu dalam beberapa menit.</p>' +
-        '<a href="'+formUrl+'" style="display:inline-flex;align-items:center;gap:10px;background:#10B981;color:#fff;text-decoration:none;padding:16px 36px;border-radius:12px;font-size:16px;font-weight:600;box-shadow:0 12px 32px rgba(16,185,129,.4);transition:transform .15s" onmouseover="this.style.transform=\'translateY(-2px)\'" onmouseout="this.style.transform=\'\'"><i class="ti ti-shopping-cart" style="font-size:20px"></i>Beli Sekarang · '+dgFmtRp(prod.price)+'</a>' +
-        '<div style="margin-top:18px;font-size:11.5px;color:#94A3B8;display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap"><span><i class="ti ti-shield-check" style="font-size:13px;vertical-align:-2px"></i> Aman via Midtrans</span><span><i class="ti ti-bolt" style="font-size:13px;vertical-align:-2px"></i> Instant Delivery</span><span><i class="ti ti-mail" style="font-size:13px;vertical-align:-2px"></i> Email Otomatis</span></div>' +
-      '</div>';
+    var lpHeroEl = document.getElementById('lpHero'); if(lpHeroEl) lpHeroEl.style.display = '';
+    // Hide legacy lpFinalCTA if it exists (leftover dari version sebelumnya)
+    var oldCTA = document.getElementById('lpFinalCTA');
+    if(oldCTA) oldCTA.style.display = 'none';
   }
 
   // HERO section
@@ -11449,21 +11527,22 @@ function initCheckout(slug, forceForm){
   var nameEl = document.getElementById('checkoutName'); if(nameEl) nameEl.textContent = prod.name;
   var priceEl = document.getElementById('checkoutPrice');
   if(priceEl) priceEl.textContent = dgFmtRp(prod.price);
+
+  // Render payment method grid + reset selection
+  __checkoutSelectedPayment = '';
+  window.__checkoutSelectedPayLabel = '';
+  renderCheckoutPayGrid();
+  var hint0 = document.getElementById('checkoutPayHint');
+  if(hint0){ hint0.textContent = 'Pilih 1 metode pembayaran di atas untuk lanjut'; hint0.style.color = ''; }
 }
 
 function lpScrollToForm(){
-  // Kalau produk pakai landing page (landingEnabled=true), CTA nge-navigate ke form URL terpisah
-  if(__checkoutProduct && __checkoutProduct.landingEnabled !== false){
-    var slug = __checkoutProduct.slug || __checkoutProduct.id;
-    window.location.href = window.location.pathname + '?form=' + encodeURIComponent(slug);
-    return;
-  }
-  // Fallback: scroll ke form section (kalau ada, mode legacy)
+  // Scroll ke form section (form embed di landing page yang sama)
   var el = document.getElementById('lpForm');
   if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   setTimeout(function(){
-    var emailEl = document.getElementById('checkoutEmail');
-    if(emailEl) emailEl.focus();
+    var namaEl = document.getElementById('checkoutNama');
+    if(namaEl) namaEl.focus();
   }, 600);
 }
 
@@ -11472,10 +11551,20 @@ function checkoutPayNow(){
   var email = (document.getElementById('checkoutEmail').value || '').trim().toLowerCase();
   var nama = (document.getElementById('checkoutNama').value || '').trim();
   var wa = (document.getElementById('checkoutWa').value || '').trim();
-  if(!/^\S+@\S+\.\S+$/.test(email)){ showCheckoutErr('Email tidak valid.'); return; }
-  if(!nama){ showCheckoutErr('Nama wajib diisi.'); return; }
+  if(!nama){ showCheckoutErr('Nama Lengkap wajib diisi.'); return; }
   var waDigits = wa.replace(/\D/g,'');
   if(waDigits.length < 9 || waDigits.length > 15){ showCheckoutErr('Nomor WhatsApp tidak valid (9-15 digit).'); return; }
+  if(!/^\S+@\S+\.\S+$/.test(email)){ showCheckoutErr('Email tidak valid.'); return; }
+  if(!__checkoutSelectedPayment){
+    showCheckoutErr('Pilih metode pembayaran dulu.');
+    var payGridEl = document.getElementById('checkoutPayGrid');
+    if(payGridEl) payGridEl.scrollIntoView({ behavior:'smooth', block:'center' });
+    return;
+  }
+  // Normalize WA to +62 format
+  if(waDigits.charAt(0) === '0') waDigits = '62' + waDigits.substring(1);
+  else if(waDigits.substring(0,2) !== '62') waDigits = '62' + waDigits;
+  wa = '+' + waDigits;
   // Disable button
   var btn = document.getElementById('checkoutPayBtn');
   var btnText = document.getElementById('checkoutPayBtnText');
@@ -11494,6 +11583,8 @@ function checkoutPayNow(){
     status: 'pending',
     accessStatus: 'pending',
     paymentMethod: 'midtrans',
+    paymentChannel: __checkoutSelectedPayment,
+    paymentChannelLabel: window.__checkoutSelectedPayLabel || '',
     createdAt: Date.now()
   };
 
@@ -11527,7 +11618,11 @@ function checkoutPayNow(){
       productPrice: __checkoutProduct.price,
       customerEmail: email,
       customerName: nama,
-      customerWa: wa
+      customerWa: wa,
+      // Filter Snap ke 1 metode aja (dari grid selection)
+      enabledPayments: __checkoutSelectedPayment ? [__checkoutSelectedPayment] : undefined,
+      paymentChannel: __checkoutSelectedPayment,
+      paymentChannelLabel: window.__checkoutSelectedPayLabel || ''
     })
   })
   .then(function(res){
