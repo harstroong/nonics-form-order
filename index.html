@@ -2383,7 +2383,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-20-produk-cleanup';
+window.__APP_VERSION = '2026-06-21-produk-multisort';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -3726,14 +3726,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 <span class="prod-tb-toggle-slider"></span>
                 <span class="prod-tb-toggle-label">Produk Dropship</span>
               </label>
-              <button class="prod-tb-btn" onclick="toggleProdTbMenu('filter', event)"><i class="ti ti-filter"></i>Filter</button>
-              <div class="prod-tb-menu" id="prodTbMenu-filter" style="min-width:220px">
-                <div style="padding:8px 12px;font-size:11px;color:var(--text-muted);font-weight:500;text-transform:uppercase;letter-spacing:.4px">Owner</div>
-                <select id="prodOwnerFilter" class="prod-tb-select" onchange="renderProdList()">
-                  <option value="">Semua Owner</option>
-                  <option value="admin">Admin Only</option>
-                </select>
-              </div>
+              <button class="prod-tb-btn" id="prodFilterBtn" onclick="openProdFilterModal()"><i class="ti ti-filter"></i>Filter<span id="prodFilterCountBadge" style="display:none;background:var(--primary);color:#fff;padding:0 6px;border-radius:99px;font-size:10px;margin-left:2px;font-weight:600">0</span></button>
               <div class="prod-tb-search">
                 <i class="ti ti-search"></i>
                 <input id="prodSearch" type="text" placeholder="Cari…" oninput="renderProdList()"/>
@@ -6471,10 +6464,18 @@ function exportCSV(){
 let editProdId=null;
 let activeProdTab='info';
 
-// Sort direction state untuk Produk table (default A → Z)
+// Sort state untuk Produk table (default: nama A → Z)
+var prodSortCol = 'name';
 var prodSortDir = 'asc';
-function toggleProdSort(){
-  prodSortDir = (prodSortDir === 'asc') ? 'desc' : 'asc';
+function toggleProdSort(col){
+  // Backward compat: kalau dipanggil tanpa arg, default 'name'
+  col = col || 'name';
+  if(prodSortCol === col){
+    prodSortDir = (prodSortDir === 'asc') ? 'desc' : 'asc';
+  } else {
+    prodSortCol = col;
+    prodSortDir = 'asc';
+  }
   renderProdList();
 }
 function renderProdList(){
@@ -6558,14 +6559,6 @@ function renderProdList(){
     return;
   }
 
-  // Sort by name (case-insensitive, locale-aware buat huruf Indo)
-  prods.sort(function(a, b){
-    var an = (a.name || '').toLowerCase();
-    var bn = (b.name || '').toLowerCase();
-    var cmp = an.localeCompare(bn, 'id', { sensitivity: 'base', numeric: true });
-    return prodSortDir === 'asc' ? cmp : -cmp;
-  });
-
   // Dropship filter
   var dropshipFilterEl = document.getElementById('prodDropshipFilter');
   if(dropshipFilterEl && dropshipFilterEl.checked){
@@ -6587,25 +6580,64 @@ function renderProdList(){
   });
   var leadCountMap = {};
   filteredLeads.forEach(function(l){
-    // Cocokin by productId dulu, kalau gak ada by product name
     var pid = l.productId || l.prodId;
     if(pid){ leadCountMap[pid] = (leadCountMap[pid] || 0) + 1; return; }
     if(l.produk){ leadCountMap['name:'+l.produk] = (leadCountMap['name:'+l.produk] || 0) + 1; }
   });
 
-  var sortArrow = prodSortDir === 'asc' ? 'ti-arrow-up' : 'ti-arrow-down';
-  var sortLabel = prodSortDir === 'asc' ? 'A→Z' : 'Z→A';
+  // Helper: dapatkan sort value per produk berdasarkan kolom aktif
+  function getSortVal(p, col){
+    if(col === 'name') return (p.name || '').toLowerCase();
+    if(col === 'price'){
+      var raw = String(p.price || '').replace(/[^\d]/g,'');
+      return raw ? parseInt(raw, 10) : 0;
+    }
+    if(col === 'order'){
+      return (leadCountMap[p.id] || 0) + (leadCountMap['name:'+p.name] || 0);
+    }
+    if(col === 'owner'){
+      return (p.ownerRole === 'advertiser') ? ('adv:'+(p.ownerName||'').toLowerCase()) : 'admin';
+    }
+    if(col === 'cs'){
+      var csIds = (p.csIds && p.csIds.length) ? p.csIds : (p.csId ? [p.csId] : []);
+      var names = csIds.map(function(id){ var c = csList.find(function(x){ return x.id === id; }); return c ? c.name.toLowerCase() : ''; }).filter(Boolean).sort();
+      return names[0] || 'zzz'; // no-cs ke bawah
+    }
+    return '';
+  }
+
+  // Sort — locale-aware for strings, numeric for numbers
+  prods.sort(function(a, b){
+    var av = getSortVal(a, prodSortCol);
+    var bv = getSortVal(b, prodSortCol);
+    var cmp;
+    if(typeof av === 'number' && typeof bv === 'number'){
+      cmp = av - bv;
+    } else {
+      cmp = String(av).localeCompare(String(bv), 'id', { sensitivity:'base', numeric:true });
+    }
+    return prodSortDir === 'asc' ? cmp : -cmp;
+  });
+
+  // Helper: render header sortable
+  function sortHead(col, label, alignRight){
+    var isActive = prodSortCol === col;
+    var arrow = isActive ? (prodSortDir === 'asc' ? 'ti-arrow-up' : 'ti-arrow-down') : 'ti-arrows-sort';
+    var color = isActive ? 'var(--green)' : 'var(--text-muted)';
+    var alignStyle = alignRight ? 'text-align:right;' : '';
+    return '<th class="prod-th-sortable" style="'+alignStyle+'" onclick="toggleProdSort(\''+col+'\')" title="Klik untuk sort">'+
+      label + ' <i class="ti '+arrow+'" style="font-size:12px;vertical-align:-1px;color:'+color+';margin-left:3px"></i>'+
+    '</th>';
+  }
+
   let html = '<table class="prod-table"><thead><tr>' +
     '<th class="prod-cell-check"><input type="checkbox" id="prodCheckAll" onclick="toggleAllProdCheck(this)" title="Pilih semua"/></th>' +
     '<th class="prod-cell-thumb"></th>' +
-    '<th class="prod-th-sortable" onclick="toggleProdSort()" title="Klik untuk ubah urutan A→Z / Z→A">' +
-      'Nama <i class="ti '+sortArrow+'" style="font-size:12px;vertical-align:-1px;color:var(--green);margin-left:3px"></i>' +
-      '<span class="prod-th-sortbadge">'+sortLabel+'</span>' +
-    '</th>' +
-    '<th style="text-align:right">Harga</th>' +
-    '<th style="text-align:right">Order</th>' +
-    '<th>Owner</th>' +
-    '<th>CS</th>' +
+    sortHead('name', 'Nama') +
+    sortHead('price', 'Harga', true) +
+    sortHead('order', 'Order', true) +
+    sortHead('owner', 'Owner') +
+    sortHead('cs', 'CS') +
     '<th class="col-action">Aksi</th>' +
     '</tr></thead><tbody>';
 
