@@ -1567,6 +1567,55 @@ tr:hover td{background:var(--surface-2)}
   font-size:13px;font-weight:600;font-family:'SF Mono',Menlo,monospace;
 }
 
+.dg-dash-row{display:grid;gap:14px;margin-bottom:14px}
+@media(max-width:900px){.dg-dash-row{grid-template-columns:1fr !important}}
+
+.dg-balance-card{
+  background:linear-gradient(135deg,#1E40AF 0%,#0369A1 50%,#0EA5E9 100%);
+  color:#fff;border-radius:14px;overflow:hidden;
+  box-shadow:0 8px 24px rgba(3,105,161,.25);display:flex;flex-direction:column;
+}
+.dg-balance-head{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.15)}
+.dg-balance-body{padding:16px 20px;flex:1}
+.dg-balance-value{font-size:34px;font-weight:700;letter-spacing:-.5px;font-family:'SF Mono',Menlo,monospace}
+
+.dg-side-card{
+  background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:16px 18px;
+}
+.dg-side-head{
+  display:flex;align-items:center;gap:6px;
+  font-size:14px;font-weight:600;color:var(--text);margin-bottom:12px;
+}
+.dg-quick-btn{
+  background:var(--surface-2);border:1px solid var(--border);border-radius:10px;
+  padding:14px 12px;cursor:pointer;font-family:inherit;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  font-size:11.5px;color:var(--text);font-weight:500;
+  transition:background .12s,transform .12s,box-shadow .12s;
+}
+.dg-quick-btn:hover{background:var(--surface);transform:translateY(-1px);box-shadow:0 4px 12px rgba(15,23,42,.06)}
+
+.dg-chart-card{
+  background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:16px 18px;
+}
+
+.dg-ring-row{
+  display:flex;align-items:center;gap:12px;padding:10px 4px;
+}
+.dg-ring-icon{
+  width:34px;height:34px;border-radius:10px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.dg-ring-icon i{font-size:16px}
+.dg-ring-info{flex:1;min-width:0}
+.dg-ring-title{font-size:13px;font-weight:500;color:var(--text)}
+.dg-ring-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+.dg-ring-val{font-size:15px;font-weight:600;color:var(--text);font-family:'SF Mono',Menlo,monospace;text-align:right;flex-shrink:0}
+
+/* SVG chart bar */
+.dg-chart-bar{fill:url(#dgBarGrad);transition:opacity .15s}
+.dg-chart-bar:hover{opacity:.8}
+
 .dg-stat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
 .dg-stat-card{background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:14px 16px}
 .dg-stat-label{font-size:10px;color:var(--text-muted);letter-spacing:.5px;font-weight:500;margin-bottom:6px}
@@ -2264,7 +2313,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-12-landing-page';
+window.__APP_VERSION = '2026-06-13-dg-dashboard-v2';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -4577,16 +4626,125 @@ document.addEventListener('DOMContentLoaded', function(){
         </div>
       </div>
 
-      <div class="dg-stat-grid">
-        <div class="dg-stat-card"><div class="dg-stat-label">REVENUE TOTAL</div><div class="dg-stat-value" id="dgStatRevenue" style="color:#10B981">Rp 0</div></div>
-        <div class="dg-stat-card"><div class="dg-stat-label">SALES (PAID)</div><div class="dg-stat-value" id="dgStatSales">0</div></div>
-        <div class="dg-stat-card"><div class="dg-stat-label">CUSTOMERS</div><div class="dg-stat-value" id="dgStatCustomers">0</div></div>
-        <div class="dg-stat-card"><div class="dg-stat-label">PRODUK AKTIF</div><div class="dg-stat-value" id="dgStatProducts">0</div></div>
-        <div class="dg-stat-card"><div class="dg-stat-label">ORDER HARI INI</div><div class="dg-stat-value" id="dgStatOrdersToday">0</div></div>
+      <!-- Row 1: Balance card + Aksi Cepat -->
+      <div class="dg-dash-row" style="grid-template-columns:1fr 1fr">
+        <!-- Balance Card (blue gradient) -->
+        <div class="dg-balance-card">
+          <div class="dg-balance-head">
+            <div style="display:flex;align-items:center;gap:8px"><i class="ti ti-wallet" style="font-size:18px"></i><span style="font-size:14px;font-weight:500">ePayment Balance</span></div>
+          </div>
+          <div class="dg-balance-body">
+            <div style="font-size:11px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Total Saldo</div>
+            <div class="dg-balance-value" id="dgStatRevenue">Rp 0</div>
+            <div style="height:1px;background:rgba(255,255,255,.15);margin:16px 0"></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span style="opacity:.85"><i class="ti ti-check" style="font-size:13px;vertical-align:-2px"></i> Available (Paid)</span><span id="dgStatAvailable" style="font-family:'SF Mono',Menlo,monospace">Rp 0</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span style="opacity:.85"><i class="ti ti-clock" style="font-size:13px;vertical-align:-2px"></i> On-Hold (Pending)</span><span id="dgStatOnHold" style="font-family:'SF Mono',Menlo,monospace">Rp 0</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span style="opacity:.85"><i class="ti ti-trending-up" style="font-size:13px;vertical-align:-2px"></i> Lifetime Gross</span><span id="dgStatLifetime" style="font-family:'SF Mono',Menlo,monospace">Rp 0</span></div>
+          </div>
+          <div style="text-align:center;padding:12px;border-top:1px solid rgba(255,255,255,.15);font-size:11px;opacity:.7">Powered by Nonics · Digital</div>
+        </div>
+
+        <!-- Aksi Cepat -->
+        <div class="dg-side-card">
+          <div class="dg-side-head"><i class="ti ti-bolt" style="font-size:16px;color:#F59E0B"></i>Aksi Cepat</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <button class="dg-quick-btn" onclick="showDigitalPanel('produk');dgNewProd()"><i class="ti ti-plus" style="font-size:18px;color:#0EA5E9"></i><span>Produk Baru</span></button>
+            <button class="dg-quick-btn" onclick="dgOpenOrderModal()"><i class="ti ti-receipt-plus" style="font-size:18px;color:#10B981"></i><span>Pesanan Manual</span></button>
+            <button class="dg-quick-btn" onclick="showDigitalPanel('produk')"><i class="ti ti-link" style="font-size:18px;color:#7C3AED"></i><span>Copy Link</span></button>
+            <button class="dg-quick-btn" onclick="showDigitalPanel('payment')"><i class="ti ti-credit-card" style="font-size:18px;color:#F59E0B"></i><span>Payment</span></button>
+          </div>
+          <div style="margin-top:14px;padding:12px;background:#F0F9FF;border:1px solid #BAE6FD;border-radius:10px;font-size:12px;color:#0369A1;line-height:1.6">
+            💡 <strong>Tips:</strong> Klik "Panduan Cepat" di atas kalau lo baru pertama pakai
+          </div>
+        </div>
       </div>
-      <div style="background:#fff;border:0.5px solid var(--border);border-radius:12px;overflow:hidden;">
-        <div style="padding:14px 18px;border-bottom:1px solid var(--border);font-size:13px;font-weight:500;color:var(--text);display:flex;justify-content:space-between;align-items:center"><span><i class="ti ti-clock" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>5 Pesanan Terbaru</span><button class="btn-outline-sm" style="padding:5px 10px;font-size:11px" onclick="showDigitalPanel('pesanan')">Semua →</button></div>
-        <div id="dgRecentOrders"></div>
+
+      <!-- Row 2: Bar chart + Ringkasan -->
+      <div class="dg-dash-row" style="grid-template-columns:2fr 1fr">
+        <!-- Chart card -->
+        <div class="dg-chart-card">
+          <div class="dg-side-head" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
+            <div style="display:flex;align-items:center;gap:6px"><i class="ti ti-chart-bar" style="font-size:16px;color:#0EA5E9"></i>Total Penjualan Harian</div>
+            <select id="dgChartRange" onchange="renderDgChart()" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:5px 10px;font-size:11px;color:var(--text);cursor:pointer">
+              <option value="7">7 Hari Terakhir</option>
+              <option value="14">14 Hari</option>
+              <option value="30">30 Hari</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:24px;margin-top:10px;margin-bottom:14px;flex-wrap:wrap">
+            <div>
+              <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Total Omset</div>
+              <div style="display:flex;align-items:baseline;gap:6px">
+                <div style="font-size:22px;font-weight:600;color:var(--text);font-family:'SF Mono',Menlo,monospace" id="dgChartOmset">Rp 0</div>
+                <span id="dgChartOmsetGrowth" style="font-size:11px;color:var(--green);font-weight:500"></span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Total Order</div>
+              <div style="display:flex;align-items:baseline;gap:6px">
+                <div style="font-size:22px;font-weight:600;color:var(--text);font-family:'SF Mono',Menlo,monospace" id="dgChartOrders">0</div>
+                <span id="dgChartOrdersGrowth" style="font-size:11px;color:var(--green);font-weight:500"></span>
+              </div>
+            </div>
+          </div>
+          <div id="dgChartArea" style="min-height:240px;position:relative">
+            <div style="text-align:center;padding:40px 20px;color:var(--text-muted);font-size:12px">Chart loading...</div>
+          </div>
+        </div>
+
+        <!-- Ringkasan card -->
+        <div class="dg-side-card">
+          <div class="dg-side-head"><i class="ti ti-chart-pie" style="font-size:16px;color:#7C3AED"></i>Ringkasan</div>
+          <div style="display:flex;flex-direction:column;gap:2px;margin-top:6px">
+            <div class="dg-ring-row">
+              <div class="dg-ring-icon" style="background:#EEF2FF;color:#4338CA"><i class="ti ti-currency-dollar"></i></div>
+              <div class="dg-ring-info"><div class="dg-ring-title">Total Sales</div><div class="dg-ring-sub" id="dgRingSalesSub">— pending</div></div>
+              <div class="dg-ring-val" id="dgRingSalesVal">Rp 0</div>
+            </div>
+            <div class="dg-ring-row">
+              <div class="dg-ring-icon" style="background:#ECFDF5;color:#065F46"><i class="ti ti-shopping-cart"></i></div>
+              <div class="dg-ring-info"><div class="dg-ring-title">Total Order</div><div class="dg-ring-sub" id="dgRingOrderSub">— pending</div></div>
+              <div class="dg-ring-val" id="dgRingOrderVal">0</div>
+            </div>
+            <div class="dg-ring-row">
+              <div class="dg-ring-icon" style="background:#FEF3C7;color:#92400E"><i class="ti ti-tag"></i></div>
+              <div class="dg-ring-info"><div class="dg-ring-title">Total Produk</div><div class="dg-ring-sub">aktif ready jual</div></div>
+              <div class="dg-ring-val" id="dgRingProdVal">0</div>
+            </div>
+            <div class="dg-ring-row">
+              <div class="dg-ring-icon" style="background:#FCE7F3;color:#9D174D"><i class="ti ti-users"></i></div>
+              <div class="dg-ring-info"><div class="dg-ring-title">Total Pelanggan</div><div class="dg-ring-sub" id="dgRingCustSub">customer aktif</div></div>
+              <div class="dg-ring-val" id="dgRingCustVal">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 3: Produk Terbaru + Orders Terbaru -->
+      <div class="dg-dash-row" style="grid-template-columns:1fr 1fr">
+        <div class="dg-side-card">
+          <div class="dg-side-head" style="justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:6px"><i class="ti ti-package" style="font-size:16px;color:#0EA5E9"></i>Produk Terbaru</div>
+            <button class="btn-outline-sm" style="padding:5px 10px;font-size:11px" onclick="showDigitalPanel('produk')">Lihat Semua →</button>
+          </div>
+          <div id="dgRecentProducts" style="margin-top:8px"></div>
+        </div>
+
+        <div class="dg-side-card">
+          <div class="dg-side-head" style="justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:6px"><i class="ti ti-shopping-cart" style="font-size:16px;color:#10B981"></i>Orders Terbaru</div>
+            <button class="btn-outline-sm" style="padding:5px 10px;font-size:11px" onclick="showDigitalPanel('pesanan')">Lihat Semua →</button>
+          </div>
+          <div id="dgRecentOrders" style="margin-top:8px"></div>
+        </div>
+      </div>
+
+      <!-- Hidden legacy stat elements — keep for backward compat -->
+      <div style="display:none">
+        <span id="dgStatSales">0</span>
+        <span id="dgStatCustomers">0</span>
+        <span id="dgStatProducts">0</span>
+        <span id="dgStatOrdersToday">0</span>
       </div>
     </div>
 
@@ -10618,37 +10776,198 @@ function renderDgDashboard(){
   var custs = getDgCustomers();
   var prods = getDgProds();
   var paidOrders = orders.filter(function(o){ return o.status === 'paid'; });
+  var pendingOrders = orders.filter(function(o){ return o.status === 'pending'; });
   var revenue = paidOrders.reduce(function(sum, o){ return sum + (o.productPrice || 0); }, 0);
+  var onHold = pendingOrders.reduce(function(sum, o){ return sum + (o.productPrice || 0); }, 0);
   var todayStart = new Date(); todayStart.setHours(0,0,0,0);
   var ordersToday = orders.filter(function(o){ return (o.createdAt||0) >= todayStart.getTime(); }).length;
 
   var setText = function(id, val){ var e=document.getElementById(id); if(e) e.textContent = val; };
+  // Balance card
   setText('dgStatRevenue', dgFmtRp(revenue));
+  setText('dgStatAvailable', dgFmtRp(revenue));
+  setText('dgStatOnHold', dgFmtRp(onHold));
+  setText('dgStatLifetime', dgFmtRp(revenue + onHold));
+  // Legacy
   setText('dgStatSales', paidOrders.length);
   setText('dgStatCustomers', custs.length);
   setText('dgStatProducts', prods.filter(function(p){ return p.active !== false; }).length);
   setText('dgStatOrdersToday', ordersToday);
 
-  // Recent orders
-  var recent = orders.slice().sort(function(a,b){ return (b.createdAt||0) - (a.createdAt||0); }).slice(0, 5);
-  var recentEl = document.getElementById('dgRecentOrders');
-  if(recentEl){
-    if(!recent.length){
-      recentEl.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">Belum ada pesanan.</div>';
+  // Ringkasan
+  setText('dgRingSalesVal', dgFmtRp(revenue));
+  setText('dgRingSalesSub', pendingOrders.length ? ('↑ '+pendingOrders.length+' pending ('+dgFmtRp(onHold)+')') : 'tidak ada pending');
+  setText('dgRingOrderVal', orders.length);
+  setText('dgRingOrderSub', pendingOrders.length ? ('↑ '+pendingOrders.length+' pending') : 'semua terkonfirmasi');
+  setText('dgRingProdVal', prods.filter(function(p){ return p.active !== false; }).length);
+  setText('dgRingCustVal', custs.length);
+  setText('dgRingCustSub', custs.length ? ('dari '+orders.length+' total order') : 'belum ada customer');
+
+  // Recent products
+  var recentProds = prods.slice().sort(function(a,b){ return (b.createdAt||0) - (a.createdAt||0); }).slice(0, 4);
+  var recentProdsEl = document.getElementById('dgRecentProducts');
+  if(recentProdsEl){
+    if(!recentProds.length){
+      recentProdsEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:12px">Belum ada produk. Klik <strong>+ Produk Baru</strong> di atas.</div>';
     } else {
-      recentEl.innerHTML = recent.map(function(o){
-        var statusCol = o.status === 'paid' ? 'var(--green)' : (o.status === 'failed' ? 'var(--red)' : 'var(--orange)');
-        return '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12.5px">' +
-          '<div style="width:30px;height:30px;border-radius:50%;background:var(--surface-2);color:var(--text-muted);display:flex;align-items:center;justify-content:center;font-weight:500">'+esc((o.customerName||'?')[0].toUpperCase())+'</div>' +
-          '<div style="flex:1;min-width:0"><div style="font-weight:500;color:var(--text)">'+esc(o.customerName||'-')+' · '+esc(o.productName||'-')+'</div><div style="font-size:11px;color:var(--text-muted);font-family:\'SF Mono\',Menlo,monospace">'+esc(dgFmtDate(o.createdAt))+'</div></div>' +
-          '<div style="color:var(--green);font-family:\'SF Mono\',Menlo,monospace;font-weight:500">'+esc(dgFmtRp(o.productPrice))+'</div>' +
-          '<div style="background:rgba(0,0,0,.06);color:'+statusCol+';padding:2px 8px;border-radius:99px;font-size:10px;font-weight:500;text-transform:uppercase">'+esc(o.status)+'</div>' +
+      recentProdsEl.innerHTML = recentProds.map(function(p){
+        var meta = (typeof dgProdTypeMeta === 'function') ? dgProdTypeMeta(p.type) : { bg:'#EEF2FF', color:'#4338CA', icon:'ti-package', label:'Produk' };
+        return '<div style="display:flex;align-items:center;gap:10px;padding:10px 6px;border-bottom:1px solid var(--border);font-size:12.5px">' +
+          '<div style="width:36px;height:36px;border-radius:8px;background:'+meta.bg+';color:'+meta.color+';display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti '+meta.icon+'" style="font-size:16px"></i></div>' +
+          '<div style="flex:1;min-width:0">' +
+            '<div style="font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(p.name)+'</div>' +
+            '<div style="font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:6px;margin-top:2px"><span style="color:var(--green);font-weight:500;font-family:\'SF Mono\',Menlo,monospace">'+esc(dgFmtRp(p.price))+'</span> · <span>'+esc(meta.label)+'</span></div>' +
+          '</div>' +
+          '<span style="background:'+(p.active===false?'var(--surface-2)':'var(--green-soft)')+';color:'+(p.active===false?'var(--text-muted)':'var(--green)')+';padding:2px 8px;border-radius:99px;font-size:10px;font-weight:500">'+(p.active===false?'Off':'Aktif')+'</span>' +
         '</div>';
       }).join('');
     }
   }
+
+  // Recent orders (redesigned)
+  var recent = orders.slice().sort(function(a,b){ return (b.createdAt||0) - (a.createdAt||0); }).slice(0, 4);
+  var recentEl = document.getElementById('dgRecentOrders');
+  if(recentEl){
+    if(!recent.length){
+      recentEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:12px">Belum ada pesanan.</div>';
+    } else {
+      recentEl.innerHTML = recent.map(function(o){
+        var statusMap = { paid:{bg:'#DCFCE7',col:'#065F46',lbl:'paid'}, failed:{bg:'#FEE2E2',col:'#991B1B',lbl:'failed'}, pending:{bg:'#FEF3C7',col:'#92400E',lbl:'pending'} };
+        var s = statusMap[o.status] || statusMap.pending;
+        return '<div style="display:flex;align-items:center;gap:10px;padding:10px 6px;border-bottom:1px solid var(--border);font-size:12.5px">' +
+          '<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#5B21B6);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:500;flex-shrink:0">'+esc((o.customerName||'?').charAt(0).toUpperCase())+'</div>' +
+          '<div style="flex:1;min-width:0">' +
+            '<div style="font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(o.customerName||'-')+'</div>' +
+            '<div style="font-size:11px;color:var(--text-muted);font-family:\'SF Mono\',Menlo,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(dgFmtRp(o.productPrice))+' · '+esc(String(o.id).slice(-8).toUpperCase())+'</div>' +
+          '</div>' +
+          '<span style="background:'+s.bg+';color:'+s.col+';padding:2px 8px;border-radius:99px;font-size:10px;font-weight:500;text-transform:lowercase">'+esc(s.lbl)+'</span>' +
+        '</div>';
+      }).join('');
+    }
+  }
+
+  // Bar chart
+  renderDgChart();
+
   // Restore guide visibility state
   if(typeof dgRestoreGuideState === 'function') dgRestoreGuideState();
+}
+
+function renderDgChart(){
+  var rangeEl = document.getElementById('dgChartRange');
+  var days = rangeEl ? parseInt(rangeEl.value, 10) || 7 : 7;
+  var orders = getDgOrders();
+  var now = new Date();
+  var todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  var msDay = 86400000;
+
+  var buckets = [];
+  var totalOmset = 0, totalOrders = 0;
+  for(var i=days-1;i>=0;i--){
+    var start = todayStart - i*msDay;
+    var end = start + msDay;
+    var dayOrders = orders.filter(function(o){
+      return (o.createdAt||0) >= start && (o.createdAt||0) < end && o.status === 'paid';
+    });
+    var sum = dayOrders.reduce(function(s,o){ return s + (o.productPrice||0); }, 0);
+    totalOmset += sum;
+    totalOrders += dayOrders.length;
+    var d = new Date(start);
+    var months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    buckets.push({
+      label: d.getDate() + ' ' + months[d.getMonth()],
+      shortLbl: d.getDate() + '/' + (d.getMonth()+1),
+      value: sum,
+      count: dayOrders.length
+    });
+  }
+
+  // Previous period untuk growth calculation
+  var prevOmset = 0, prevOrders = 0;
+  for(var j=days*2-1;j>=days;j--){
+    var pStart = todayStart - j*msDay;
+    var pEnd = pStart + msDay;
+    orders.forEach(function(o){
+      if((o.createdAt||0) >= pStart && (o.createdAt||0) < pEnd && o.status === 'paid'){
+        prevOmset += o.productPrice || 0;
+        prevOrders += 1;
+      }
+    });
+  }
+  var growthOmset = prevOmset > 0 ? Math.round(((totalOmset - prevOmset)/prevOmset)*100) : (totalOmset > 0 ? 100 : 0);
+  var growthOrders = prevOrders > 0 ? Math.round(((totalOrders - prevOrders)/prevOrders)*100) : (totalOrders > 0 ? 100 : 0);
+
+  var setText = function(id, val){ var e=document.getElementById(id); if(e) e.textContent = val; };
+  setText('dgChartOmset', dgFmtRp(totalOmset));
+  setText('dgChartOrders', totalOrders);
+  var growthEl = document.getElementById('dgChartOmsetGrowth');
+  if(growthEl){
+    if(prevOmset > 0 || totalOmset > 0){
+      growthEl.textContent = (growthOmset >= 0 ? '↑ +' : '↓ ') + Math.abs(growthOmset) + '%';
+      growthEl.style.color = growthOmset >= 0 ? 'var(--green)' : 'var(--red)';
+    } else { growthEl.textContent = ''; }
+  }
+  var growthOrdEl = document.getElementById('dgChartOrdersGrowth');
+  if(growthOrdEl){
+    if(prevOrders > 0 || totalOrders > 0){
+      growthOrdEl.textContent = (growthOrders >= 0 ? '↑ +' : '↓ ') + Math.abs(growthOrders) + '%';
+      growthOrdEl.style.color = growthOrders >= 0 ? 'var(--green)' : 'var(--red)';
+    } else { growthOrdEl.textContent = ''; }
+  }
+
+  var maxVal = Math.max.apply(null, buckets.map(function(b){ return b.value; }));
+  if(maxVal === 0) maxVal = 1;
+
+  // SVG chart
+  var chartAreaEl = document.getElementById('dgChartArea');
+  if(!chartAreaEl) return;
+
+  var w = 640, h = 240;
+  var padL = 40, padR = 12, padT = 20, padB = 32;
+  var chartW = w - padL - padR;
+  var chartH = h - padT - padB;
+  var barW = (chartW / buckets.length) * 0.62;
+  var gap = (chartW / buckets.length) - barW;
+
+  // Y-axis labels (0, 25%, 50%, 75%, max)
+  var yLines = [];
+  for(var yi=0;yi<=4;yi++){
+    var v = (maxVal * yi / 4);
+    var y = padT + chartH - (chartH * yi / 4);
+    yLines.push({ y: y, val: v });
+  }
+
+  var svg = '<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;max-height:280px">' +
+    '<defs><linearGradient id="dgBarGrad" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0%" stop-color="#0EA5E9"/><stop offset="100%" stop-color="#1E40AF"/>' +
+    '</linearGradient></defs>';
+
+  // Y grid lines + labels
+  yLines.forEach(function(l){
+    svg += '<line x1="'+padL+'" y1="'+l.y+'" x2="'+(w-padR)+'" y2="'+l.y+'" stroke="#E2E8F0" stroke-width="0.5" stroke-dasharray="2,2"/>';
+    var lbl = l.val >= 1000000 ? (Math.round(l.val/100000)/10 + 'jt') : (l.val >= 1000 ? (Math.round(l.val/1000) + 'rb') : Math.round(l.val));
+    svg += '<text x="'+(padL-6)+'" y="'+(l.y+4)+'" text-anchor="end" font-size="10" fill="#94A3B8" font-family="\'SF Mono\',Menlo,monospace">'+lbl+'</text>';
+  });
+
+  // Bars + labels
+  buckets.forEach(function(b, idx){
+    var x = padL + idx * (chartW / buckets.length) + gap/2;
+    var barH = (b.value / maxVal) * chartH;
+    var y = padT + chartH - barH;
+    if(barH > 0){
+      svg += '<rect class="dg-chart-bar" x="'+x+'" y="'+y+'" width="'+barW+'" height="'+barH+'" rx="4"><title>'+b.label+': '+dgFmtRp(b.value)+' ('+b.count+' order)</title></rect>';
+      if(b.value >= maxVal*0.15){
+        var vlbl = b.value >= 1000000 ? (Math.round(b.value/100000)/10 + 'jt') : (b.value >= 1000 ? (Math.round(b.value/1000) + 'rb') : Math.round(b.value));
+        svg += '<text x="'+(x+barW/2)+'" y="'+(y-5)+'" text-anchor="middle" font-size="10" fill="#0F172A" font-weight="600" font-family="\'SF Mono\',Menlo,monospace">'+vlbl+'</text>';
+      }
+    }
+    // X-axis date label
+    var dateLbl = days <= 7 ? b.label : b.shortLbl;
+    svg += '<text x="'+(x+barW/2)+'" y="'+(padT+chartH+18)+'" text-anchor="middle" font-size="10" fill="#94A3B8">'+esc(dateLbl)+'</text>';
+  });
+
+  svg += '</svg>';
+  chartAreaEl.innerHTML = svg;
 }
 
 /* ═════════════════════════════════════════════
