@@ -2383,7 +2383,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-21-produk-multisort';
+window.__APP_VERSION = '2026-06-22-filter-modal';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -3475,6 +3475,59 @@ document.addEventListener('DOMContentLoaded', function(){
         <div class="tm-modal-foot">
           <button class="btn-outline-sm" onclick="closeCustomPeriod()">Batal</button>
           <button class="btn-primary-sm" onclick="applyCustomPeriod()"><i class="ti ti-check"></i><span>Apply Periode</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter Produk Modal (OrderHero-style) -->
+    <div class="tm-modal-overlay" id="prodFilterModal" onclick="closeProdFilterModal(event)" style="display:none">
+      <div class="tm-modal" onclick="event.stopPropagation()" style="max-width:480px">
+        <div class="tm-modal-head">
+          <div class="tm-modal-title"><i class="ti ti-filter" style="vertical-align:-2px;margin-right:5px"></i>Filter Produk</div>
+          <button class="tm-modal-close" onclick="closeProdFilterModal()" aria-label="Tutup"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="tm-modal-body">
+          <div class="tm-field">
+            <label class="tm-label">Kategori Produk</label>
+            <select id="pfKategori" class="tm-input">
+              <option value="">Semua Kategori</option>
+              <!-- Kategori di-auto-populate dari produk yang ada -->
+            </select>
+            <div class="tm-hint">Kategori auto-populate dari field <code>kategori</code> per produk (kalau ada).</div>
+          </div>
+
+          <div class="tm-field">
+            <label class="tm-label">Product Source</label>
+            <select id="pfSource" class="tm-input">
+              <option value="">Semua Owner</option>
+              <option value="admin">👤 Admin Only</option>
+              <option value="advertiser">📊 Advertiser Only</option>
+            </select>
+          </div>
+
+          <div class="tm-field">
+            <label class="tm-label">Status</label>
+            <select id="pfStatus" class="tm-input">
+              <option value="">Semua</option>
+              <option value="active">🟢 Aktif</option>
+              <option value="inactive">⚫ Nonaktif</option>
+            </select>
+          </div>
+
+          <div class="tm-field">
+            <label class="tm-label">Klasifikasi Produk</label>
+            <select id="pfKlasifikasi" class="tm-input">
+              <option value="">Semua</option>
+              <option value="withcs">✅ Ada CS Ter-assign</option>
+              <option value="nocs">⚠️ Belum Ada CS</option>
+            </select>
+          </div>
+        </div>
+        <div class="tm-modal-foot">
+          <button class="btn-outline-sm" onclick="resetProdFilter()"><i class="ti ti-x"></i><span>Reset</span></button>
+          <div style="flex:1"></div>
+          <button class="btn-outline-sm" onclick="closeProdFilterModal()">Tutup</button>
+          <button class="btn-primary-sm" onclick="applyProdFilter()"><i class="ti ti-check"></i><span>Terapkan Filter</span></button>
         </div>
       </div>
     </div>
@@ -6565,6 +6618,33 @@ function renderProdList(){
     prods = prods.filter(function(p){ return p.isDropship === true; });
   }
 
+  // Filter Produk modal state
+  var pfs = window.__prodFilterState || {};
+  if(pfs.kategori){
+    prods = prods.filter(function(p){ return (p.kategori||'') === pfs.kategori; });
+  }
+  if(pfs.source === 'admin'){
+    prods = prods.filter(function(p){ return p.ownerRole === 'admin' || !p.ownerRole; });
+  } else if(pfs.source === 'advertiser'){
+    prods = prods.filter(function(p){ return p.ownerRole === 'advertiser'; });
+  }
+  if(pfs.status === 'active'){
+    prods = prods.filter(function(p){ return p.active !== false; });
+  } else if(pfs.status === 'inactive'){
+    prods = prods.filter(function(p){ return p.active === false; });
+  }
+  if(pfs.klasifikasi === 'withcs'){
+    prods = prods.filter(function(p){
+      var ids = (p.csIds && p.csIds.length) ? p.csIds : (p.csId ? [p.csId] : []);
+      return ids.length > 0;
+    });
+  } else if(pfs.klasifikasi === 'nocs'){
+    prods = prods.filter(function(p){
+      var ids = (p.csIds && p.csIds.length) ? p.csIds : (p.csId ? [p.csId] : []);
+      return ids.length === 0;
+    });
+  }
+
   // Build table
   const csList = getCSList();
   const palette = ['#7F77DD','#5DCAA5','#F0997B','#FBBF24','#3B82F6','#EC4899','#10B981'];
@@ -6719,6 +6799,73 @@ function renderProdList(){
   html += '</tbody></table>';
   el.innerHTML = html;
   updateBulkDeleteState();
+}
+
+/* ═════════════════════════════════════════════
+   FILTER PRODUK MODAL (OrderHero-style)
+═════════════════════════════════════════════ */
+window.__prodFilterState = { kategori: '', source: '', status: '', klasifikasi: '' };
+
+function openProdFilterModal(){
+  // Populate kategori dropdown dari produk existing (kalau ada field kategori)
+  var kSel = document.getElementById('pfKategori');
+  if(kSel){
+    var kats = new Set();
+    getProds().forEach(function(p){ if(p.kategori) kats.add(p.kategori); });
+    var cur = window.__prodFilterState.kategori;
+    var opts = '<option value="">Semua Kategori</option>';
+    Array.from(kats).sort().forEach(function(k){
+      opts += '<option value="'+esc(k)+'">'+esc(k)+'</option>';
+    });
+    kSel.innerHTML = opts;
+    if(cur) kSel.value = cur;
+  }
+  // Restore state ke UI
+  var s = window.__prodFilterState;
+  var sourceEl = document.getElementById('pfSource'); if(sourceEl) sourceEl.value = s.source || '';
+  var statusEl = document.getElementById('pfStatus'); if(statusEl) statusEl.value = s.status || '';
+  var klasEl = document.getElementById('pfKlasifikasi'); if(klasEl) klasEl.value = s.klasifikasi || '';
+  document.getElementById('prodFilterModal').style.display = 'flex';
+}
+
+function closeProdFilterModal(ev){
+  if(ev && ev.target !== ev.currentTarget) return;
+  document.getElementById('prodFilterModal').style.display = 'none';
+}
+
+function applyProdFilter(){
+  window.__prodFilterState = {
+    kategori: (document.getElementById('pfKategori')||{}).value || '',
+    source: (document.getElementById('pfSource')||{}).value || '',
+    status: (document.getElementById('pfStatus')||{}).value || '',
+    klasifikasi: (document.getElementById('pfKlasifikasi')||{}).value || ''
+  };
+  updateProdFilterBadge();
+  renderProdList();
+  closeProdFilterModal();
+}
+
+function resetProdFilter(){
+  window.__prodFilterState = { kategori: '', source: '', status: '', klasifikasi: '' };
+  ['pfKategori','pfSource','pfStatus','pfKlasifikasi'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.value = '';
+  });
+  updateProdFilterBadge();
+  renderProdList();
+}
+
+function updateProdFilterBadge(){
+  var s = window.__prodFilterState || {};
+  var count = 0;
+  if(s.kategori) count++;
+  if(s.source) count++;
+  if(s.status) count++;
+  if(s.klasifikasi) count++;
+  var badge = document.getElementById('prodFilterCountBadge');
+  if(badge){
+    if(count > 0){ badge.style.display = ''; badge.textContent = count; }
+    else { badge.style.display = 'none'; }
+  }
 }
 
 /* ═════════════════════════════════════════════
