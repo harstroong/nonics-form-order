@@ -1537,6 +1537,18 @@ tr:hover td{background:var(--surface-2)}
 /* ═══════════════════════════════════════════
    ADMIN DIGITAL — Phase 2 panels CSS
 ═══════════════════════════════════════════ */
+.dg-guide-step{
+  display:flex;align-items:flex-start;gap:12px;padding:12px 14px;
+  background:var(--surface-2);border-radius:10px;cursor:pointer;
+  transition:background .12s,transform .12s;
+}
+.dg-guide-step:hover{background:var(--surface);transform:translateY(-1px);box-shadow:0 4px 12px rgba(15,23,42,.06)}
+.dg-guide-num{
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:600;font-family:'SF Mono',Menlo,monospace;
+}
+
 .dg-stat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
 .dg-stat-card{background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:14px 16px}
 .dg-stat-label{font-size:10px;color:var(--text-muted);letter-spacing:.5px;font-weight:500;margin-bottom:6px}
@@ -2234,7 +2246,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-12-login-light-fix';
+window.__APP_VERSION = '2026-06-12-dg-guide';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -4460,9 +4472,93 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="team-header">
         <div><div class="team-title">Dashboard Digital</div><div class="team-sub">Overview produk digital — sales, revenue, customers</div></div>
         <div class="team-actions-header">
+          <button class="btn-outline-sm" onclick="dgToggleGuide()"><i class="ti ti-help-circle"></i><span id="dgGuideToggleLabel">Panduan Cepat</span></button>
           <button class="btn-outline-sm" onclick="showDigitalPanel('pesanan')"><i class="ti ti-receipt"></i><span>Lihat Semua Pesanan</span></button>
         </div>
       </div>
+
+      <div id="dgGuideBox" style="background:#fff;border:1px solid var(--border);border-left:4px solid #0EA5E9;border-radius:12px;padding:18px 22px;margin-bottom:18px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+          <div style="font-size:15px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px"><i class="ti ti-book-2" style="font-size:18px;color:#0EA5E9"></i>Panduan Cepat — Adm. Digital</div>
+          <button class="btn-outline-sm" style="padding:5px 10px;font-size:11px" onclick="dgHideGuide()"><i class="ti ti-x" style="font-size:12px"></i>Tutup</button>
+        </div>
+        <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.7">
+          Panduan flow jualan produk digital dari 0 sampai customer bisa akses:
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:14px">
+
+          <div class="dg-guide-step" onclick="showDigitalPanel('payment')">
+            <div class="dg-guide-num" style="background:#F3E8FF;color:#6B21A8">1</div>
+            <div>
+              <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px">Setup Password</div>
+              <div style="font-size:11.5px;color:var(--text-muted);line-height:1.6">Set password Admin Digital di menu <strong>Payment</strong> (opsional, terpisah dari Admin Fisik)</div>
+            </div>
+          </div>
+
+          <div class="dg-guide-step" onclick="showDigitalPanel('produk');setTimeout(dgNewProd,100)">
+            <div class="dg-guide-num" style="background:#DBEAFE;color:#1E40AF">2</div>
+            <div>
+              <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px">Bikin Produk Digital</div>
+              <div style="font-size:11.5px;color:var(--text-muted);line-height:1.6">Menu <strong>Produk</strong> → klik + Produk Digital Baru → isi nama, harga, tipe (Ebook/Kursus/Template), pilih akses via link atau upload file</div>
+            </div>
+          </div>
+
+          <div class="dg-guide-step" onclick="showDigitalPanel('produk')">
+            <div class="dg-guide-num" style="background:#FEF3C7;color:#92400E">3</div>
+            <div>
+              <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px">Share Link ke Customer</div>
+              <div style="font-size:11.5px;color:var(--text-muted);line-height:1.6">Di list produk, klik ikon 🔗 → link purchase auto di-copy → share ke calon customer via WA/IG/FB/iklan</div>
+            </div>
+          </div>
+
+          <div class="dg-guide-step" onclick="showDigitalPanel('pesanan')">
+            <div class="dg-guide-num" style="background:#ECFDF5;color:#065F46">4</div>
+            <div>
+              <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px">Customer Order Masuk</div>
+              <div style="font-size:11.5px;color:var(--text-muted);line-height:1.6">Customer isi form → order muncul di menu <strong>Pesanan</strong> dengan status "Pending"</div>
+            </div>
+          </div>
+
+          <div class="dg-guide-step" onclick="showDigitalPanel('pesanan')">
+            <div class="dg-guide-num" style="background:#FCE7F3;color:#9D174D">5</div>
+            <div>
+              <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px">Konfirmasi Bayar (Manual)</div>
+              <div style="font-size:11.5px;color:var(--text-muted);line-height:1.6">Chat customer via WA → kasih rekening → setelah transfer, klik <strong>Mark Paid</strong> di baris order</div>
+            </div>
+          </div>
+
+          <div class="dg-guide-step" onclick="showDigitalPanel('pesanan')">
+            <div class="dg-guide-num" style="background:#E0F2FE;color:#0369A1">6</div>
+            <div>
+              <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px">Grant Access</div>
+              <div style="font-size:11.5px;color:var(--text-muted);line-height:1.6">Klik <strong>Grant Access</strong> → dashboard auto-generate password → popup credentials — copy & kirim ke customer via WA/email</div>
+            </div>
+          </div>
+
+          <div class="dg-guide-step" onclick="showDigitalPanel('pelanggan')">
+            <div class="dg-guide-num" style="background:#F1F5F9;color:#334155">7</div>
+            <div>
+              <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px">Customer Akses Produk</div>
+              <div style="font-size:11.5px;color:var(--text-muted);line-height:1.6">Customer login tab <strong>Customer</strong> pakai email + password → landing di My Library → klik Buka Akses</div>
+            </div>
+          </div>
+
+          <div class="dg-guide-step" onclick="showDigitalPanel('payment')">
+            <div class="dg-guide-num" style="background:#FEE2E2;color:#991B1B">8</div>
+            <div>
+              <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px">Upgrade Otomatis (Opsional)</div>
+              <div style="font-size:11.5px;color:var(--text-muted);line-height:1.6">Kalau volume udah tinggi, setup Midtrans + Firebase Functions di <strong>Payment</strong> — semua otomatis (no manual approve)</div>
+            </div>
+          </div>
+
+        </div>
+
+        <div style="background:var(--surface-2);border-radius:8px;padding:10px 14px;margin-top:14px;font-size:11.5px;color:var(--text-secondary);line-height:1.7">
+          💡 <strong style="color:var(--text)">Tips:</strong> Buat tes end-to-end, bikin 1 produk dummy (harga Rp 1.000), share link ke diri sendiri via incognito browser, isi form, terus mark paid + grant access. Login sebagai customer, lihat produk kebuka. Habis itu lo udah paham 100% flow-nya.
+        </div>
+      </div>
+
       <div class="dg-stat-grid">
         <div class="dg-stat-card"><div class="dg-stat-label">REVENUE TOTAL</div><div class="dg-stat-value" id="dgStatRevenue" style="color:#10B981">Rp 0</div></div>
         <div class="dg-stat-card"><div class="dg-stat-label">SALES (PAID)</div><div class="dg-stat-value" id="dgStatSales">0</div></div>
@@ -10399,6 +10495,38 @@ function renderDgDashboard(){
       }).join('');
     }
   }
+  // Restore guide visibility state
+  if(typeof dgRestoreGuideState === 'function') dgRestoreGuideState();
+}
+
+/* ═════════════════════════════════════════════
+   ADMIN DIGITAL — Panduan (Guide) toggle
+═════════════════════════════════════════════ */
+var DG_GUIDE_KEY = 'od_dg_guide_hidden';
+function dgToggleGuide(){
+  var box = document.getElementById('dgGuideBox');
+  if(!box) return;
+  var hidden = box.style.display === 'none';
+  box.style.display = hidden ? '' : 'none';
+  try { localStorage.setItem(DG_GUIDE_KEY, hidden ? '0' : '1'); } catch(e){}
+  var lbl = document.getElementById('dgGuideToggleLabel');
+  if(lbl) lbl.textContent = hidden ? 'Tutup Panduan' : 'Panduan Cepat';
+}
+function dgHideGuide(){
+  var box = document.getElementById('dgGuideBox');
+  if(box) box.style.display = 'none';
+  try { localStorage.setItem(DG_GUIDE_KEY, '1'); } catch(e){}
+  var lbl = document.getElementById('dgGuideToggleLabel');
+  if(lbl) lbl.textContent = 'Panduan Cepat';
+}
+function dgRestoreGuideState(){
+  var box = document.getElementById('dgGuideBox');
+  if(!box) return;
+  var hidden = false;
+  try { hidden = localStorage.getItem(DG_GUIDE_KEY) === '1'; } catch(e){}
+  box.style.display = hidden ? 'none' : '';
+  var lbl = document.getElementById('dgGuideToggleLabel');
+  if(lbl) lbl.textContent = hidden ? 'Panduan Cepat' : 'Tutup Panduan';
 }
 
 /* ═════════════════════════════════════════════
