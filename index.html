@@ -2383,7 +2383,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-19-produk-orderhero';
+window.__APP_VERSION = '2026-06-20-produk-cleanup';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -6576,12 +6576,21 @@ function renderProdList(){
   const csList = getCSList();
   const palette = ['#7F77DD','#5DCAA5','#F0997B','#FBBF24','#3B82F6','#EC4899','#10B981'];
 
-  // Hitung order count per produk dari leads collection
+  // Hitung order count per produk dari leads collection — filtered by global period
   var allLeads = (typeof LS !== 'undefined' && LS.g) ? LS.g('od_leads', []) : [];
+  var dateRange = (typeof getDateFilterRange === 'function') ? getDateFilterRange('prod') : { from: 0, to: Date.now() };
+  var rangeFrom = dateRange.from || 0;
+  var rangeTo = dateRange.to || Date.now();
+  var filteredLeads = allLeads.filter(function(l){
+    var t = l.ts || l.createdAt || 0;
+    return t >= rangeFrom && t <= rangeTo;
+  });
   var leadCountMap = {};
-  allLeads.forEach(function(l){
+  filteredLeads.forEach(function(l){
+    // Cocokin by productId dulu, kalau gak ada by product name
     var pid = l.productId || l.prodId;
-    if(pid){ leadCountMap[pid] = (leadCountMap[pid] || 0) + 1; }
+    if(pid){ leadCountMap[pid] = (leadCountMap[pid] || 0) + 1; return; }
+    if(l.produk){ leadCountMap['name:'+l.produk] = (leadCountMap['name:'+l.produk] || 0) + 1; }
   });
 
   var sortArrow = prodSortDir === 'asc' ? 'ti-arrow-up' : 'ti-arrow-down';
@@ -6594,13 +6603,7 @@ function renderProdList(){
       '<span class="prod-th-sortbadge">'+sortLabel+'</span>' +
     '</th>' +
     '<th style="text-align:right">Harga</th>' +
-    '<th style="text-align:right">HPP</th>' +
-    '<th style="text-align:right">Inventaris</th>' +
     '<th style="text-align:right">Order</th>' +
-    '<th style="text-align:right">Sudah Dibayar</th>' +
-    '<th style="text-align:right">Rasio Bayar</th>' +
-    '<th style="text-align:right">Jumlah Terjual</th>' +
-    '<th style="text-align:right">Pendapatan Bersih</th>' +
     '<th>Owner</th>' +
     '<th>CS</th>' +
     '<th class="col-action">Aksi</th>' +
@@ -6663,17 +6666,10 @@ function renderProdList(){
 
     const warnIcon = !hasCS ? '<i class="ti ti-alert-circle prod-cell-warn" title="Belum ada CS"></i>' : '';
 
-    // Stats
-    var orderCount = leadCountMap[p.id] || 0;
+    // Order count — cocokin by product ID atau by product name (fallback)
+    var orderCount = (leadCountMap[p.id] || 0) + (leadCountMap['name:'+p.name] || 0);
     var priceCell = p.price ? '<span class="prod-cell-num">Rp '+esc(p.price)+'</span>' : '<span class="prod-cell-num dash">—</span>';
-    var hppCell = p.hpp ? '<span class="prod-cell-num muted">Rp '+esc(p.hpp)+'</span>' : '<span class="prod-cell-num dash">—</span>';
-    var invCell = (typeof p.inventaris === 'number') ? '<span class="prod-cell-num">'+p.inventaris+'</span>' : '<span class="prod-cell-num dash">—</span>';
     var orderCell = orderCount > 0 ? '<span class="prod-cell-num">'+orderCount+'</span>' : '<span class="prod-cell-num dash">0</span>';
-    // Payment stats — belum ada tracking, tampilkan '-' semua
-    var paidCell = '<span class="prod-cell-num dash">—</span>';
-    var rasioCell = '<span class="prod-cell-num dash">—</span>';
-    var terjualCell = '<span class="prod-cell-num dash">—</span>';
-    var pendapatanCell = '<span class="prod-cell-num dash">Rp0</span>';
 
     const altClass = (i % 2 === 1) ? 'is-alt' : '';
     html += '<tr class="'+altClass+'" data-prodid="'+p.id+'" onclick="showProdForm('+p.id+')">' +
@@ -6681,13 +6677,7 @@ function renderProdList(){
       '<td class="prod-cell-thumb">'+thumbCell+'</td>' +
       '<td><div><span class="prod-cell-name">'+esc(p.name)+'</span>'+warnIcon+'</div>'+formLink+'</td>' +
       '<td style="text-align:right">'+priceCell+'</td>' +
-      '<td style="text-align:right">'+hppCell+'</td>' +
-      '<td style="text-align:right">'+invCell+'</td>' +
       '<td style="text-align:right">'+orderCell+'</td>' +
-      '<td style="text-align:right">'+paidCell+'</td>' +
-      '<td style="text-align:right">'+rasioCell+'</td>' +
-      '<td style="text-align:right">'+terjualCell+'</td>' +
-      '<td style="text-align:right">'+pendapatanCell+'</td>' +
       '<td>'+ownerCell+'</td>' +
       '<td>'+csCell+'</td>' +
       '<td style="text-align:right;position:relative">'+action+'</td>' +
