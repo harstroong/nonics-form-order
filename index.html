@@ -2634,7 +2634,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-07-02-prod-detail-view';
+window.__APP_VERSION = '2026-07-03-date-range-fix';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -14635,27 +14635,37 @@ function getDateRange(preset, customStart, customEnd){
     case 'yesterday':
       from = startOfToday.getTime() - D; to = startOfToday.getTime() - 1;
       label = 'Kemarin'; break;
-    case '3days':
+    case '3d': case '3days':
       from = startOfToday.getTime() - 2*D; to = endOfToday.getTime();
-      label = '3 hari terakhir'; break;
-    case '7days':
+      label = '3 Hari Terakhir'; break;
+    case '7d': case '7days':
       from = startOfToday.getTime() - 6*D; to = endOfToday.getTime();
-      label = '7 hari terakhir'; break;
-    case '30days':
+      label = '7 Hari Terakhir'; break;
+    case '14d': case '14days':
+      from = startOfToday.getTime() - 13*D; to = endOfToday.getTime();
+      label = '14 Hari Terakhir'; break;
+    case '30d': case '30days':
       from = startOfToday.getTime() - 29*D; to = endOfToday.getTime();
-      label = '30 hari terakhir'; break;
+      label = '30 Hari Terakhir'; break;
+    case '90d': case '90days':
+      from = startOfToday.getTime() - 89*D; to = endOfToday.getTime();
+      label = '90 Hari Terakhir'; break;
     case 'thismonth':
       from = new Date(now.getFullYear(), now.getMonth(), 1, 0,0,0,0).getTime();
       to = endOfToday.getTime();
       label = 'Bulan ini'; break;
+    case 'lastmonth':
+      from = new Date(now.getFullYear(), now.getMonth()-1, 1, 0,0,0,0).getTime();
+      to = new Date(now.getFullYear(), now.getMonth(), 0, 23,59,59,999).getTime();
+      label = 'Bulan lalu'; break;
     case 'custom':
       from = customStart ? new Date(customStart+'T00:00:00').getTime() : 0;
       to = customEnd ? new Date(customEnd+'T23:59:59').getTime() : endOfToday.getTime();
       label = (customStart||'?')+' s/d '+(customEnd||'?'); break;
-    case 'lifetime':
+    case 'all': case 'lifetime':
     default:
       from = 0; to = endOfToday.getTime();
-      label = 'Semua waktu';
+      label = 'Semua Waktu';
   }
   return {from, to, preset, label};
 }
@@ -14666,10 +14676,7 @@ function getDateFilterRange(prefix){
   var isCSScope = (prefix === 'cs');
   if(!isCSScope && window.__globalPeriod && window.__globalPeriod !== 'custom-disabled'){
     const g = window.__globalPeriod;
-    if(g === 'today') return getDateRange('today');
-    if(g === 'yesterday') return getDateRange('yesterday');
-    if(g === '7d') return getDateRange('7d');
-    if(g === '30d') return getDateRange('30d');
+    if(g === 'today' || g === 'yesterday' || g === '3d' || g === '7d' || g === '14d' || g === '30d' || g === '90d' || g === 'thismonth' || g === 'lastmonth') return getDateRange(g);
     if(g === 'all') return getDateRange('lifetime');
     if(g === 'custom' && window.__globalPeriodCustom){
       return getDateRange('custom', window.__globalPeriodCustom.from, window.__globalPeriodCustom.to);
@@ -14723,15 +14730,14 @@ function updateDatePickerLabel(){
   var lbl = document.getElementById('datePickerLabel');
   if(!lbl) return;
   var g = window.__globalPeriod || 'today';
-  var text = 'Hari ini';
-  if(g === 'yesterday') text = 'Kemarin';
-  else if(g === '7d') text = '7 Hari Terakhir';
-  else if(g === '30d') text = '30 Hari Terakhir';
-  else if(g === '90d') text = '90 Hari Terakhir';
-  else if(g === 'all') text = 'Semua Waktu';
-  else if(g === 'thismonth') text = 'Bulan ini';
-  else if(g === 'lastmonth') text = 'Bulan lalu';
-  else if(g === 'custom' && window.__globalPeriodCustom){
+  var map = {
+    'today':'Hari ini', 'yesterday':'Kemarin',
+    '3d':'3 Hari Terakhir', '7d':'7 Hari Terakhir', '14d':'14 Hari Terakhir',
+    '30d':'30 Hari Terakhir', '90d':'90 Hari Terakhir',
+    'thismonth':'Bulan ini', 'lastmonth':'Bulan lalu', 'all':'Semua Waktu'
+  };
+  var text = map[g] || 'Hari ini';
+  if(g === 'custom' && window.__globalPeriodCustom){
     var c = window.__globalPeriodCustom;
     text = (c.from||'?') + ' — ' + (c.to||'?');
   }
@@ -14889,17 +14895,9 @@ function dpClickDay(year, month, day){
 function applyDatePicker(){
   var st = window.__dpState;
   var preset = st.preset;
-  // Kalau preset masih "kelihatan" preset standar, pake setGlobalPeriod langsung
   var stdPresets = ['today','yesterday','7d','30d','90d','all','thismonth','lastmonth'];
   if(stdPresets.indexOf(preset) >= 0){
-    // For thismonth/lastmonth/90d — fall back to custom range since setGlobalPeriod doesn't have those
-    if(preset === 'thismonth' || preset === 'lastmonth' || preset === '90d'){
-      var fmt = function(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
-      window.__globalPeriodCustom = { from: fmt(st.rangeStart), to: fmt(st.rangeEnd) };
-      setGlobalPeriod('custom');
-    } else {
-      setGlobalPeriod(preset);
-    }
+    setGlobalPeriod(preset); // getDateRange sekarang support semua
   } else {
     // Manual range picked via calendar clicks
     var fmt2 = function(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
