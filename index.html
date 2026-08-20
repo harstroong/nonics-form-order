@@ -2491,7 +2491,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-23-produk-20section';
+window.__APP_VERSION = '2026-06-24-produk-12section';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -4058,59 +4058,10 @@ document.addEventListener('DOMContentLoaded', function(){
             </div>
           </div>
 
-          <!-- 4. KODE UNIK -->
+          <!-- 4. TUGASKAN PRODUK KE (CS + Distribusi + Shipper/Admin) -->
           <div class="pfv2-section" data-sec="4">
             <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
-              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">4</span><i class="ti ti-hash pfv2-sec-icon"></i>Kode Unik</div>
-              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
-            </div>
-            <div class="pfv2-sec-body">
-              <div class="pfv2-hint" style="margin-bottom:10px">Pengaturan kode unik untuk pembayaran — buat harga jadi unik (misal Rp 99.017 bukan Rp 99.000) biar customer transfer mudah diverifikasi.</div>
-              <label class="pfv2-toggle">
-                <input type="checkbox" id="fKodeUnikEnabled"/>
-                <span class="pfv2-toggle-slider"></span>
-                <span class="pfv2-toggle-txt">Aktifkan Kode Unik<div class="pfv2-toggle-desc">Tambahkan 3-digit acak ke harga (Rp 99.017 · Rp 99.234 · dst)</div></span>
-              </label>
-              <div id="fKodeUnikCfg" style="display:none;margin-top:10px">
-                <div class="pfv2-field">
-                  <label class="pfv2-label">Range Kode Unik</label>
-                  <div class="pfv2-row">
-                    <input class="pfv2-input" id="fKodeUnikMin" type="number" placeholder="Min: 1" min="1" value="1"/>
-                    <input class="pfv2-input" id="fKodeUnikMax" type="number" placeholder="Max: 999" max="999" value="999"/>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 5. RESELLER -->
-          <div class="pfv2-section" data-sec="5">
-            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
-              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">5</span><i class="ti ti-share pfv2-sec-icon"></i>Reseller</div>
-              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
-            </div>
-            <div class="pfv2-sec-body">
-              <label class="pfv2-toggle">
-                <input type="checkbox" id="fResellerEnabled"/>
-                <span class="pfv2-toggle-slider"></span>
-                <span class="pfv2-toggle-txt">Aktifkan reseller untuk produk ini<div class="pfv2-toggle-desc">Reseller bisa dapat link tracked untuk produk ini + komisi</div></span>
-              </label>
-              <div id="fResellerCfg" style="display:none;margin-top:10px">
-                <div class="pfv2-field">
-                  <label class="pfv2-label">Komisi Reseller</label>
-                  <div class="pfv2-row">
-                    <input class="pfv2-input" id="fResellerKomisi" type="number" placeholder="10" min="0"/>
-                    <select class="pfv2-input" id="fResellerKomisiTipe"><option value="percent">% (persen)</option><option value="fixed">Rp (nominal tetap)</option></select>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 6. TUGASKAN PRODUK KE (CS + Distribusi + Shipper/Admin) -->
-          <div class="pfv2-section" data-sec="6">
-            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
-              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">6</span><i class="ti ti-users pfv2-sec-icon"></i>Tugaskan Produk Ke</div>
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">4</span><i class="ti ti-users pfv2-sec-icon"></i>Tugaskan Produk Ke</div>
               <i class="ti ti-chevron-down pfv2-sec-chev"></i>
             </div>
             <div class="pfv2-sec-body" id="ppanel-cs">
@@ -4191,10 +4142,10 @@ document.addEventListener('DOMContentLoaded', function(){
             </div>
           </div>
 
-          <!-- 7. TEMPLATE -->
-          <div class="pfv2-section" data-sec="7">
+          <!-- 5. TEMPLATE -->
+          <div class="pfv2-section" data-sec="5">
             <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
-              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">7</span><i class="ti ti-layout pfv2-sec-icon"></i>Template Checkout</div>
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">5</span><i class="ti ti-layout pfv2-sec-icon"></i>Template Checkout</div>
               <i class="ti ti-chevron-down pfv2-sec-chev"></i>
             </div>
             <div class="pfv2-sec-body">
@@ -4236,80 +4187,10 @@ document.addEventListener('DOMContentLoaded', function(){
             </div>
           </div>
 
-          <!-- 8. PROGRESSIVE FORM -->
-          <div class="pfv2-section" data-sec="8">
+          <!-- 6. LABEL GARANSI -->
+          <div class="pfv2-section" data-sec="6">
             <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
-              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">8</span><i class="ti ti-list-check pfv2-sec-icon"></i>Progressive Form</div>
-              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
-            </div>
-            <div class="pfv2-sec-body">
-              <label class="pfv2-toggle">
-                <input type="checkbox" id="fProgressiveForm"/>
-                <span class="pfv2-toggle-slider"></span>
-                <span class="pfv2-toggle-txt">Aktifkan Progressive Form<div class="pfv2-toggle-desc">Field ditampilkan bertahap (step-by-step) — kurangi cognitive load buat customer</div></span>
-              </label>
-              <div class="pfv2-hint" style="margin-top:10px">💡 Cocok untuk form panjang (Alamat + Provinsi + Kota + Kecamatan). Customer isi step by step, gak overwhelmed.</div>
-            </div>
-          </div>
-
-          <!-- 9. HEADER -->
-          <div class="pfv2-section" data-sec="9">
-            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
-              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">9</span><i class="ti ti-heading pfv2-sec-icon"></i>Header</div>
-              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
-            </div>
-            <div class="pfv2-sec-body">
-              <div class="pfv2-field">
-                <label class="pfv2-label">Unggah Gambar Header <span style="color:var(--text-muted);font-weight:400">(logo)</span></label>
-                <div style="display:flex;align-items:center;gap:10px">
-                  <div id="fHeaderPreview" style="width:80px;height:80px;border-radius:8px;background:#F1F5F9;border:2px dashed #CBD5E1;display:flex;align-items:center;justify-content:center;color:#94A3B8;cursor:pointer;overflow:hidden" onclick="document.getElementById('fHeaderInput').click()">
-                    <i class="ti ti-photo-plus" style="font-size:24px"></i>
-                    <img id="fHeaderImg" src="" style="display:none;width:100%;height:100%;object-fit:contain"/>
-                  </div>
-                  <div style="flex:1">
-                    <button type="button" class="btn btn-outline" style="padding:6px 12px;font-size:12px" onclick="document.getElementById('fHeaderInput').click()"><i class="ti ti-upload"></i> Pilih Gambar</button>
-                    <button type="button" class="btn btn-outline" style="padding:6px 12px;font-size:12px;margin-left:5px" onclick="clearHeaderImg()"><i class="ti ti-trash"></i> Hapus</button>
-                    <div class="pfv2-hint" style="margin-top:4px">Rekomendasi PNG transparan, tinggi ≤ 80px</div>
-                  </div>
-                </div>
-                <input type="file" id="fHeaderInput" accept="image/*" style="display:none" onchange="handleHeaderImgUpload(this)"/>
-              </div>
-              <label class="pfv2-toggle" style="margin-bottom:6px">
-                <input type="checkbox" id="fHeaderShowTitle"/>
-                <span class="pfv2-toggle-slider"></span>
-                <span class="pfv2-toggle-txt">Tampilkan judul di atas keranjang</span>
-              </label>
-              <label class="pfv2-toggle">
-                <input type="checkbox" id="fHeaderShowTagline"/>
-                <span class="pfv2-toggle-slider"></span>
-                <span class="pfv2-toggle-txt">Tampilkan tagline di atas keranjang</span>
-              </label>
-              <div class="pfv2-field" style="margin-top:10px">
-                <label class="pfv2-label">Tagline (jika ditampilkan)</label>
-                <input class="pfv2-input" id="fHeaderTagline" type="text" placeholder="Contoh: Belanja aman, garansi 100%"/>
-              </div>
-            </div>
-          </div>
-
-          <!-- 10. GAMBAR CHECKOUT -->
-          <div class="pfv2-section" data-sec="10">
-            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
-              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">10</span><i class="ti ti-photo-check pfv2-sec-icon"></i>Gambar di Checkout</div>
-              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
-            </div>
-            <div class="pfv2-sec-body">
-              <label class="pfv2-toggle">
-                <input type="checkbox" id="fShowCoverAtCheckout" checked/>
-                <span class="pfv2-toggle-slider"></span>
-                <span class="pfv2-toggle-txt">Tampilkan gambar produk di halaman checkout<div class="pfv2-toggle-desc">Kalau off, checkout tampil polos tanpa gambar produk (form only)</div></span>
-              </label>
-            </div>
-          </div>
-
-          <!-- 11. LABEL GARANSI -->
-          <div class="pfv2-section" data-sec="11">
-            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
-              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">11</span><i class="ti ti-shield-check pfv2-sec-icon"></i>Label Garansi</div>
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">6</span><i class="ti ti-shield-check pfv2-sec-icon"></i>Label Garansi</div>
               <i class="ti ti-chevron-down pfv2-sec-chev"></i>
             </div>
             <div class="pfv2-sec-body">
@@ -4331,10 +4212,10 @@ document.addEventListener('DOMContentLoaded', function(){
             </div>
           </div>
 
-          <!-- 12. VARIASI PRODUK -->
-          <div class="pfv2-section" data-sec="12">
+          <!-- 7. VARIASI PRODUK -->
+          <div class="pfv2-section" data-sec="7">
             <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
-              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">12</span><i class="ti ti-adjustments pfv2-sec-icon"></i>Variasi Produk</div>
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">7</span><i class="ti ti-adjustments pfv2-sec-icon"></i>Variasi Produk</div>
               <i class="ti ti-chevron-down pfv2-sec-chev"></i>
             </div>
             <div class="pfv2-sec-body">
@@ -4344,10 +4225,10 @@ document.addEventListener('DOMContentLoaded', function(){
             </div>
           </div>
 
-          <!-- 13. BIDANG YANG DIMINTA -->
-          <div class="pfv2-section" data-sec="13">
+          <!-- 8. BIDANG YANG DIMINTA -->
+          <div class="pfv2-section" data-sec="8">
             <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
-              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">13</span><i class="ti ti-forms pfv2-sec-icon"></i>Bidang yang Diminta</div>
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">8</span><i class="ti ti-forms pfv2-sec-icon"></i>Bidang yang Diminta</div>
               <i class="ti ti-chevron-down pfv2-sec-chev"></i>
             </div>
             <div class="pfv2-sec-body">
@@ -4357,25 +4238,10 @@ document.addEventListener('DOMContentLoaded', function(){
             </div>
           </div>
 
-          <!-- 14. DROPSHIP -->
-          <div class="pfv2-section" data-sec="14">
+          <!-- 9. TOMBOL BELI -->
+          <div class="pfv2-section" data-sec="9">
             <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
-              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">14</span><i class="ti ti-truck-delivery pfv2-sec-icon"></i>Dropship</div>
-              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
-            </div>
-            <div class="pfv2-sec-body">
-              <label class="pfv2-toggle">
-                <input type="checkbox" id="fDropshipEnabled"/>
-                <span class="pfv2-toggle-slider"></span>
-                <span class="pfv2-toggle-txt">Aktifkan dropship di keranjang<div class="pfv2-toggle-desc">Field nama pengirim + WA pengirim muncul di form untuk dropshipper</div></span>
-              </label>
-            </div>
-          </div>
-
-          <!-- 15. TOMBOL BELI -->
-          <div class="pfv2-section" data-sec="15">
-            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
-              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">15</span><i class="ti ti-shopping-cart pfv2-sec-icon"></i>Tombol Beli</div>
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">9</span><i class="ti ti-shopping-cart pfv2-sec-icon"></i>Tombol Beli</div>
               <i class="ti ti-chevron-down pfv2-sec-chev"></i>
             </div>
             <div class="pfv2-sec-body">
@@ -4399,46 +4265,10 @@ document.addEventListener('DOMContentLoaded', function(){
             </div>
           </div>
 
-          <!-- 16. VIDEO -->
-          <div class="pfv2-section" data-sec="16">
+          <!-- 10. TRACKING -->
+          <div class="pfv2-section" data-sec="10" id="ppanel-gtm">
             <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
-              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">16</span><i class="ti ti-video pfv2-sec-icon"></i>Video</div>
-              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
-            </div>
-            <div class="pfv2-sec-body">
-              <div class="pfv2-hint" style="margin-bottom:10px">Tambahkan video YouTube untuk mempresentasikan produk lebih jelas.</div>
-              <div class="pfv2-field">
-                <label class="pfv2-label">URL Video YouTube</label>
-                <input class="pfv2-input" id="fVideoUrl" type="url" placeholder="https://www.youtube.com/watch?v=XXXXXXX"/>
-                <div class="pfv2-hint">Video muncul di sidebar/checkout sesuai template (Section 7).</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 17. KONTEN -->
-          <div class="pfv2-section" data-sec="17">
-            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
-              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">17</span><i class="ti ti-align-left pfv2-sec-icon"></i>Konten Tambahan</div>
-              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
-            </div>
-            <div class="pfv2-sec-body">
-              <div class="pfv2-hint" style="margin-bottom:10px">Deskripsi panjang produk, benefit, atau info tambahan. Muncul di halaman checkout.</div>
-              <div class="pfv2-field">
-                <label class="pfv2-label">Heading (opsional)</label>
-                <input class="pfv2-input" id="fKontenHeading" type="text" placeholder="Contoh: Tentang Produk"/>
-              </div>
-              <div class="pfv2-field">
-                <label class="pfv2-label">Konten (text / HTML sederhana)</label>
-                <textarea class="pfv2-input" id="fKontenBody" rows="6" placeholder="Deskripsi produk, benefit, garansi, dll..."></textarea>
-                <div class="pfv2-hint">Support: line break otomatis, <strong>bold</strong>, <em>italic</em>. Untuk HTML lain gunakan Landing Page.</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 18. TRACKING -->
-          <div class="pfv2-section" data-sec="18" id="ppanel-gtm">
-            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
-              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">18</span><i class="ti ti-chart-line pfv2-sec-icon"></i>Tracking & Analytics</div>
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">10</span><i class="ti ti-chart-line pfv2-sec-icon"></i>Tracking & Analytics</div>
               <i class="ti ti-chevron-down pfv2-sec-chev"></i>
             </div>
             <div class="pfv2-sec-body">
@@ -4500,10 +4330,10 @@ document.addEventListener('DOMContentLoaded', function(){
             </div>
           </div>
 
-          <!-- 19. HALAMAN SUKSES -->
-          <div class="pfv2-section" data-sec="19">
+          <!-- 11. HALAMAN SUKSES -->
+          <div class="pfv2-section" data-sec="11">
             <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
-              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">19</span><i class="ti ti-checkbox pfv2-sec-icon"></i>Halaman Sukses</div>
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">11</span><i class="ti ti-checkbox pfv2-sec-icon"></i>Halaman Sukses</div>
               <i class="ti ti-chevron-down pfv2-sec-chev"></i>
             </div>
             <div class="pfv2-sec-body">
@@ -4524,10 +4354,10 @@ document.addEventListener('DOMContentLoaded', function(){
             </div>
           </div>
 
-          <!-- 20. SAVE / EMBED -->
-          <div class="pfv2-section" data-sec="20" id="ppanel-embed">
+          <!-- 12. SAVE / EMBED -->
+          <div class="pfv2-section" data-sec="12" id="ppanel-embed">
             <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
-              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">20</span><i class="ti ti-device-floppy pfv2-sec-icon"></i>Simpan & Embed Code</div>
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">12</span><i class="ti ti-device-floppy pfv2-sec-icon"></i>Simpan & Embed Code</div>
               <i class="ti ti-chevron-down pfv2-sec-chev"></i>
             </div>
             <div class="pfv2-sec-body">
@@ -4581,7 +4411,7 @@ document.addEventListener('DOMContentLoaded', function(){
           <!-- Legacy hidden panels — keep for compat with existing JS -->
           <div style="display:none">
             <button id="ptab-info" onclick="toggleProdSec(document.querySelector('[data-sec=&quot;1&quot;] .pfv2-sec-head'))"></button>
-            <button id="ptab-cs" onclick="toggleProdSec(document.querySelector('[data-sec=&quot;6&quot;] .pfv2-sec-head'))"></button>
+            <button id="ptab-cs" onclick="toggleProdSec(document.querySelector('[data-sec=&quot;4&quot;] .pfv2-sec-head'))"></button>
           </div>
 
         </div>
@@ -8215,7 +8045,7 @@ function switchProdTab(tab){
   // Backward compat — old code calls this. Now v2 uses accordion sections.
   // Map old tab names to new section data-sec numbers + expand + scroll.
   activeProdTab = tab;
-  var mapping = { info: 1, cs: 6, gtm: 18, embed: 20 };
+  var mapping = { info: 1, cs: 4, gtm: 10, embed: 12 };
   var secNum = mapping[tab];
   if(!secNum) return;
   var section = document.querySelector('[data-sec="'+secNum+'"]');
