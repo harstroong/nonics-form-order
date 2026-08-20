@@ -1263,6 +1263,21 @@ tr:hover td{background:var(--surface-2)}
 .tn-dropdown-header .av{width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, var(--sb-accent), var(--sb-accent-2)); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:500}
 .tn-dropdown-header .un{font-size:13.5px; font-weight:500; color:var(--text)}
 .tn-dropdown-header .ur{font-size:11px; color:var(--text-muted); margin-top:1px}
+
+/* OrderHero-style avatar dropdown */
+.tn-avatar-menu{min-width:280px;padding:0;overflow:hidden}
+.tn-av-header{background:linear-gradient(135deg,var(--primary),var(--sb-accent-2));color:#fff;padding:16px 18px}
+.tn-av-name-row{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.tn-av-name{font-size:15px;font-weight:600;color:#fff}
+.tn-av-role{font-size:11px;font-weight:500;color:rgba(255,255,255,.7);letter-spacing:.3px}
+.tn-av-email{font-size:12px;color:rgba(255,255,255,.85);margin-top:4px;word-break:break-all}
+.tn-av-menu{padding:6px 0}
+.tn-av-item{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:13px;color:var(--text);background:none;border:none;cursor:pointer;font-family:inherit;width:100%;text-align:left;transition:background .1s}
+.tn-av-item:hover{background:var(--surface-2)}
+.tn-av-item i{font-size:16px;color:var(--primary);width:20px;text-align:center;flex-shrink:0}
+.tn-av-item.danger{color:var(--red)}
+.tn-av-item.danger i{color:var(--red)}
+.tn-av-divider{height:1px;background:var(--border);margin:6px 0}
 .tn-dd-section{padding:8px 12px 4px}
 .tn-dd-section-label{font-size:10px; color:var(--text-muted); letter-spacing:.5px; font-weight:500; margin-bottom:6px; text-transform:uppercase; display:flex; justify-content:space-between; align-items:center}
 .tn-theme-toggle{display:flex; background:var(--surface-2); border-radius:7px; padding:3px; gap:2px}
@@ -2498,7 +2513,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-29-logo-appicon';
+window.__APP_VERSION = '2026-06-30-profile-dropdown';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -3475,12 +3490,26 @@ document.addEventListener('DOMContentLoaded', function(){
 
         <div class="tn-nav-wrap">
           <button class="tn-avatar" id="tnAvatar" onclick="toggleTnDropdown('avatarMenu', event)" aria-haspopup="true" aria-expanded="false" title="Akun">A</button>
-          <div class="tn-dropdown" id="avatarMenu" role="menu" style="min-width:260px">
-            <div class="tn-dropdown-header">
-              <div class="av">A</div>
-              <div><div class="un">Administrator</div><div class="ur">Super Admin</div></div>
+          <div class="tn-dropdown tn-avatar-menu" id="avatarMenu" role="menu">
+            <!-- Colored header block (OrderHero-style) -->
+            <div class="tn-av-header">
+              <div class="tn-av-name-row">
+                <span class="tn-av-name" id="tnAvUserName">Administrator</span>
+                <span class="tn-av-role" id="tnAvUserRole">(ADMIN)</span>
+              </div>
+              <div class="tn-av-email" id="tnAvUserEmail">admin@nonics.local</div>
             </div>
 
+            <!-- Menu items -->
+            <div class="tn-av-menu">
+              <button class="tn-av-item" onclick="tnCloseAllDropdowns();openProfilModal()"><i class="ti ti-user-circle"></i>Profil</button>
+              <button class="tn-av-item" onclick="tnCloseAllDropdowns();showPanel('settings')"><i class="ti ti-settings"></i>Pengaturan</button>
+              <button class="tn-av-item" onclick="tnCloseAllDropdowns();openWhatsNewModal()"><i class="ti ti-rss"></i>Yang Terbaru</button>
+            </div>
+
+            <div class="tn-av-divider"></div>
+
+            <!-- Appearance -->
             <div class="tn-dd-section">
               <div class="tn-dd-section-label">Appearance</div>
               <div class="tn-theme-toggle" role="group" aria-label="Theme">
@@ -3502,9 +3531,8 @@ document.addEventListener('DOMContentLoaded', function(){
               </div>
             </div>
 
-            <div class="tn-dropdown-divider"></div>
-            <button class="tn-dropdown-item" onclick="tnCloseAllDropdowns();showPanel('settings')"><i class="ti ti-settings"></i> Pengaturan</button>
-            <button class="tn-dropdown-item danger" onclick="tnCloseAllDropdowns();doLogout()"><i class="ti ti-logout"></i> Logout</button>
+            <div class="tn-av-divider"></div>
+            <button class="tn-av-item danger" onclick="tnCloseAllDropdowns();doLogout()"><i class="ti ti-power"></i>Keluar</button>
           </div>
         </div>
       </div>
@@ -6117,7 +6145,148 @@ function toggleTnDropdown(id, ev){
     menu.classList.add('open');
     var trigger = menu.previousElementSibling;
     if(trigger) trigger.setAttribute('aria-expanded','true');
+    // Refresh user info kalau ini avatar menu
+    if(id === 'avatarMenu') refreshTnAvatarInfo();
   }
+}
+
+/* ═════════════════════════════════════════════
+   PROFIL / YANG TERBARU MODALS + AVATAR INFO
+═════════════════════════════════════════════ */
+function refreshTnAvatarInfo(){
+  var nameEl = document.getElementById('tnAvUserName');
+  var roleEl = document.getElementById('tnAvUserRole');
+  var emailEl = document.getElementById('tnAvUserEmail');
+  var avatarBtn = document.getElementById('tnAvatar');
+  var name = 'Administrator', role = 'ADMIN', email = '';
+  try {
+    if(typeof currentAdUser !== 'undefined' && currentAdUser){
+      name = currentAdUser.name || currentAdUser.username || 'Advertiser';
+      role = 'ADVERTISER';
+      email = currentAdUser.email || '';
+    } else {
+      // Admin — try to read from cfg / stored user
+      var cfg = (typeof getCfg === 'function') ? getCfg() : {};
+      email = cfg.adminEmail || (cfg.storeName ? cfg.storeName.toLowerCase().replace(/\s+/g,'')+'@nonics.local' : 'admin@nonics.local');
+      if(cfg.adminName) name = cfg.adminName;
+    }
+  } catch(e){}
+  if(nameEl) nameEl.textContent = name;
+  if(roleEl) roleEl.textContent = '('+role+')';
+  if(emailEl) emailEl.textContent = email;
+  if(avatarBtn) avatarBtn.textContent = (name || 'A').charAt(0).toUpperCase();
+}
+
+function openProfilModal(){
+  var m = document.getElementById('profilModal');
+  if(!m){
+    // Inject modal on first use
+    var html = '<div class="tm-modal-overlay" id="profilModal" onclick="closeProfilModal(event)" style="display:none">' +
+      '<div class="tm-modal" onclick="event.stopPropagation()" style="max-width:440px">' +
+        '<div class="tm-modal-head">' +
+          '<div class="tm-modal-title"><i class="ti ti-user-circle" style="vertical-align:-2px;margin-right:5px"></i>Profil</div>' +
+          '<button class="tm-modal-close" onclick="closeProfilModal()"><i class="ti ti-x"></i></button>' +
+        '</div>' +
+        '<div class="tm-modal-body">' +
+          '<div class="tm-field"><label class="tm-label">Nama Tampilan</label><input type="text" id="profModalName" class="tm-input"/></div>' +
+          '<div class="tm-field"><label class="tm-label">Email</label><input type="email" id="profModalEmail" class="tm-input" placeholder="email@domain.com"/></div>' +
+          '<div class="tm-hint" style="margin-top:6px">Info profil disimpan lokal + Cloud Sync. Muncul di header + akun dropdown.</div>' +
+        '</div>' +
+        '<div class="tm-modal-foot">' +
+          '<button class="btn-outline-sm" onclick="closeProfilModal()">Batal</button>' +
+          '<button class="btn-primary-sm" onclick="saveProfilModal()"><i class="ti ti-device-floppy"></i><span>Simpan</span></button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+    document.body.insertAdjacentHTML('beforeend', html);
+    m = document.getElementById('profilModal');
+  }
+  // Prefill
+  var cfg = (typeof getCfg === 'function') ? getCfg() : {};
+  var nm = (typeof currentAdUser !== 'undefined' && currentAdUser) ? (currentAdUser.name || currentAdUser.username) : (cfg.adminName || 'Administrator');
+  var em = (typeof currentAdUser !== 'undefined' && currentAdUser) ? (currentAdUser.email||'') : (cfg.adminEmail || '');
+  document.getElementById('profModalName').value = nm;
+  document.getElementById('profModalEmail').value = em;
+  m.style.display = 'flex';
+}
+function closeProfilModal(ev){
+  if(ev && ev.target !== ev.currentTarget) return;
+  var m = document.getElementById('profilModal');
+  if(m) m.style.display = 'none';
+}
+function saveProfilModal(){
+  var nm = (document.getElementById('profModalName').value || '').trim();
+  var em = (document.getElementById('profModalEmail').value || '').trim();
+  if(!nm){ toast('⚠️ Nama wajib diisi'); return; }
+  if(em && !/^\S+@\S+\.\S+$/.test(em)){ toast('⚠️ Email tidak valid'); return; }
+  try {
+    if(typeof currentAdUser !== 'undefined' && currentAdUser){
+      currentAdUser.name = nm;
+      currentAdUser.email = em;
+      // Persist via ad_users update kalau ada
+      try {
+        var users = LS.g('od_ad_users', []);
+        var i = users.findIndex(function(u){ return u.id === currentAdUser.id; });
+        if(i >= 0){ users[i].name = nm; users[i].email = em; LS.s('od_ad_users', users); }
+      } catch(e){}
+    } else {
+      // Admin — save ke cfg
+      var cfg = getCfg();
+      cfg.adminName = nm;
+      cfg.adminEmail = em;
+      if(typeof saveCfg === 'function') saveCfg(cfg);
+      else LS.s('od_cfg', cfg);
+    }
+    toast('✅ Profil disimpan');
+    closeProfilModal();
+    refreshTnAvatarInfo();
+  } catch(e){ toast('⚠️ Gagal simpan: '+e.message); }
+}
+
+function openWhatsNewModal(){
+  var m = document.getElementById('whatsNewModal');
+  if(!m){
+    var version = window.__APP_VERSION || 'unknown';
+    var loadedAt = window.__JS_LOADED_AT ? new Date(window.__JS_LOADED_AT).toLocaleString('id-ID') : '-';
+    var html = '<div class="tm-modal-overlay" id="whatsNewModal" onclick="closeWhatsNewModal(event)" style="display:none">' +
+      '<div class="tm-modal" onclick="event.stopPropagation()" style="max-width:520px">' +
+        '<div class="tm-modal-head">' +
+          '<div class="tm-modal-title"><i class="ti ti-rss" style="vertical-align:-2px;margin-right:5px"></i>Yang Terbaru</div>' +
+          '<button class="tm-modal-close" onclick="closeWhatsNewModal()"><i class="ti ti-x"></i></button>' +
+        '</div>' +
+        '<div class="tm-modal-body">' +
+          '<div style="display:flex;align-items:center;gap:12px;background:var(--primary-soft);padding:12px 14px;border-radius:10px;margin-bottom:14px">' +
+            '<div style="width:40px;height:40px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px"><i class="ti ti-rocket"></i></div>' +
+            '<div><div style="font-size:13px;font-weight:600;color:var(--primary)">Versi Terkini</div><div style="font-size:12px;color:var(--text-muted);font-family:\'SF Mono\',Menlo,monospace">'+esc(version)+'</div></div>' +
+          '</div>' +
+          '<div style="font-size:12.5px;line-height:1.7;color:var(--text)">' +
+            '<div style="font-weight:600;margin-bottom:8px">Update terakhir:</div>' +
+            '<ul style="margin:0;padding-left:18px;color:var(--text-muted)">' +
+              '<li>Logo Nonics Order baru + branding refresh</li>' +
+              '<li>Profil dropdown menu (yang lo liat sekarang)</li>' +
+              '<li>Preview realtime di Produk form</li>' +
+              '<li>Facebook Pixel + TikTok Pixel tracking</li>' +
+              '<li>12 section Produk config (dari 20)</li>' +
+              '<li>Filter Produk modal (OrderHero-style)</li>' +
+            '</ul>' +
+          '</div>' +
+          '<div class="tm-hint" style="margin-top:14px;font-family:\'SF Mono\',Menlo,monospace;font-size:10.5px">Loaded: '+esc(loadedAt)+'</div>' +
+        '</div>' +
+        '<div class="tm-modal-foot">' +
+          '<button class="btn-outline-sm" onclick="closeWhatsNewModal()">Tutup</button>' +
+          '<button class="btn-primary-sm" onclick="location.reload()"><i class="ti ti-refresh"></i><span>Cek Update</span></button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+    document.body.insertAdjacentHTML('beforeend', html);
+    m = document.getElementById('whatsNewModal');
+  }
+  m.style.display = 'flex';
+}
+function closeWhatsNewModal(ev){
+  if(ev && ev.target !== ev.currentTarget) return;
+  var m = document.getElementById('whatsNewModal');
+  if(m) m.style.display = 'none';
 }
 function tnCloseAllDropdowns(){
   document.querySelectorAll('.tn-dropdown.open').forEach(function(m){
