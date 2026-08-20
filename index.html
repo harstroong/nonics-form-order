@@ -951,6 +951,114 @@ tr:hover td{background:var(--surface-2)}
 .preview-trust{display:flex;justify-content:center;gap:14px;margin-top:12px}
 .preview-trust span{font-size:11px;color:#888}
 
+/* ═══════════════════════════════════════════
+   PRODUK FORM V2 — 20 sections + sticky preview
+═══════════════════════════════════════════ */
+.prod-form-v2{background:#F8FAFC;min-height:100vh;margin:-20px;padding:0;border-radius:0}
+[data-theme="dark"] .prod-form-v2{background:#0F172A}
+.pfv2-header{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.pfv2-header-left{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
+.pfv2-back-btn{background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:8px;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-family:inherit;transition:background .12s}
+.pfv2-back-btn:hover{background:var(--surface)}
+.pfv2-crumb{font-size:11px;color:var(--text-muted);letter-spacing:.3px}
+.pfv2-title{font-size:15px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:400px}
+.pfv2-header-right{display:flex;align-items:center;gap:10px}
+.pfv2-preview-toggle{display:inline-flex;background:var(--surface-2);border-radius:8px;padding:3px}
+.pfv2-preview-toggle button{background:transparent;border:none;padding:7px 12px;font-size:12px;color:var(--text-muted);cursor:pointer;border-radius:6px;font-family:inherit;display:inline-flex;align-items:center;gap:5px;transition:all .12s;font-weight:500}
+.pfv2-preview-toggle button.active{background:var(--surface);color:var(--primary);box-shadow:0 1px 2px rgba(0,0,0,.06);font-weight:600}
+.pfv2-preview-toggle button i{font-size:14px}
+.pfv2-body{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px;padding:20px 24px 40px;max-width:1400px;margin:0 auto}
+.pfv2-left{display:flex;flex-direction:column;gap:14px;min-width:0}
+.pfv2-right{position:sticky;top:70px;align-self:start;max-height:calc(100vh - 90px);overflow-y:auto}
+.pfv2-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:box-shadow .15s}
+.pfv2-section:hover{box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.pfv2-sec-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--surface);border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+.pfv2-sec-head:hover{background:var(--surface-2)}
+.pfv2-sec-head-title{display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:600;color:var(--text);min-width:0;flex:1}
+.pfv2-sec-num{background:var(--primary-soft);color:var(--primary);width:22px;height:22px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;flex-shrink:0}
+.pfv2-sec-icon{color:var(--primary);font-size:16px;flex-shrink:0}
+.pfv2-sec-body{padding:16px 18px 20px}
+.pfv2-sec-chev{color:var(--text-muted);transition:transform .15s;flex-shrink:0}
+.pfv2-section.collapsed .pfv2-sec-body{display:none}
+.pfv2-section.collapsed .pfv2-sec-chev{transform:rotate(-90deg)}
+.pfv2-info-card{background:var(--primary-soft);border:1px solid var(--primary-light);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--primary);line-height:1.6;display:flex;align-items:flex-start;gap:8px}
+.pfv2-info-card i{font-size:15px;flex-shrink:0;margin-top:1px}
+.pfv2-info-card code{background:rgba(0,0,0,.08);padding:1px 5px;border-radius:3px;font-size:11px}
+.pfv2-hint{font-size:11px;color:var(--text-muted);margin-top:5px;line-height:1.5}
+.pfv2-field{margin-bottom:14px}
+.pfv2-field:last-child{margin-bottom:0}
+.pfv2-label{display:block;font-size:12px;font-weight:500;color:var(--text);margin-bottom:6px}
+.pfv2-label .req{color:var(--red)}
+.pfv2-input{width:100%;box-sizing:border-box;padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;color:var(--text);background:var(--surface);transition:border-color .12s,box-shadow .12s}
+.pfv2-input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
+.pfv2-input:disabled{background:var(--surface-2);color:var(--text-muted);cursor:not-allowed}
+.pfv2-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pfv2-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.pfv2-toggle{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface-2);border-radius:8px;cursor:pointer;user-select:none}
+.pfv2-toggle input{display:none}
+.pfv2-toggle-slider{width:36px;height:20px;background:#CBD5E1;border-radius:99px;position:relative;transition:background .15s;flex-shrink:0}
+.pfv2-toggle-slider::before{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .15s;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.pfv2-toggle input:checked + .pfv2-toggle-slider{background:var(--green)}
+.pfv2-toggle input:checked + .pfv2-toggle-slider::before{transform:translateX(16px)}
+.pfv2-toggle-txt{flex:1;font-size:13px;color:var(--text);font-weight:500}
+.pfv2-toggle-desc{font-size:11px;color:var(--text-muted);margin-top:2px;font-weight:400}
+.pfv2-status-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.pfv2-status-btn{background:var(--surface);border:1.5px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .12s;text-align:center}
+.pfv2-status-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.pfv2-status-btn:not(.active):hover{background:var(--surface-2)}
+.pfv2-template-picker{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.pfv2-template-card{border:2px solid var(--border);border-radius:8px;padding:8px;text-align:center;cursor:pointer;background:var(--surface);transition:border-color .12s}
+.pfv2-template-card:hover{border-color:var(--text-muted)}
+.pfv2-template-card.active{border-color:var(--primary);background:var(--primary-soft)}
+.pfv2-template-mini{display:grid;gap:3px;padding:6px;background:var(--surface-2);border-radius:5px;height:56px;margin-bottom:6px}
+.pfv2-template-mini.sidebar-right{grid-template-columns:1fr 1fr}
+.pfv2-template-mini.sidebar-left{grid-template-columns:1fr 1fr}
+.pfv2-template-mini.no-sidebar{grid-template-columns:1fr}
+.pfv2-template-mini > div{background:#CBD5E1;border-radius:3px}
+.pfv2-template-lbl{font-size:11px;font-weight:500;color:var(--text)}
+.pfv2-color-picker{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.pfv2-color-swatch{width:28px;height:28px;border-radius:6px;border:2px solid transparent;cursor:pointer;transition:transform .1s}
+.pfv2-color-swatch:hover{transform:scale(1.05)}
+.pfv2-color-swatch.active{border-color:var(--primary)}
+.pfv2-image-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(90px,1fr));gap:8px;margin-top:8px}
+.pfv2-image-slot{aspect-ratio:1;border-radius:8px;background:var(--surface-2);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-muted);cursor:pointer;font-size:11px;text-align:center;overflow:hidden;position:relative}
+.pfv2-image-slot:hover{border-color:var(--primary)}
+.pfv2-image-slot.filled{border-style:solid;border-color:var(--border);cursor:default}
+.pfv2-image-slot img{width:100%;height:100%;object-fit:cover}
+.pfv2-image-slot .del-btn{position:absolute;top:3px;right:3px;background:rgba(220,38,38,.9);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.pfv2-image-slot.is-primary::after{content:"⭐";position:absolute;top:3px;left:3px;font-size:14px}
+.pfv2-field-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:6px}
+.pfv2-field-row-check{width:16px;height:16px;cursor:pointer}
+.pfv2-field-row-name{flex:1;font-size:13px;color:var(--text);display:flex;align-items:center;gap:5px}
+.pfv2-field-row-name .req{color:var(--red)}
+.pfv2-field-row-btns{display:flex;gap:3px}
+.pfv2-field-row-btn{background:var(--surface-2);border:none;color:var(--text-muted);padding:4px 7px;border-radius:5px;cursor:pointer;font-size:12px}
+.pfv2-field-row-btn:hover{background:var(--border);color:var(--text)}
+.pfv2-variant-card{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px}
+.pfv2-preview-frame{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;transition:max-width .2s}
+.pfv2-preview-frame.desktop{max-width:100%}
+.pfv2-preview-frame.mobile{max-width:280px;margin:0 auto}
+.pfv2-preview-title{font-size:11px;color:var(--text-muted);text-align:center;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:6px}
+.pfv2-preview-mockup{background:#fff;border-radius:8px;padding:14px;font-size:11px;color:#334155;min-height:400px}
+.pfv2-preview-mockup .pv-headline{font-size:14px;font-weight:600;color:#0F172A;margin-bottom:10px}
+.pfv2-preview-mockup .pv-input{background:#F1F5F9;border:1px solid #E2E8F0;border-radius:6px;padding:8px 10px;margin-bottom:6px;color:#94A3B8;font-size:11px}
+.pfv2-preview-mockup .pv-btn{background:#10B981;color:#fff;padding:10px;border-radius:6px;text-align:center;font-weight:600;margin-top:8px}
+.pfv2-preview-mockup .pv-cover{width:100%;aspect-ratio:16/10;background:#F1F5F9;border-radius:6px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;color:#CBD5E1;font-size:24px}
+.pfv2-preview-mockup .pv-cover img{width:100%;height:100%;object-fit:cover;border-radius:6px}
+.pfv2-preview-mockup .pv-price{font-size:16px;font-weight:600;color:#10B981;font-family:'SF Mono',Menlo,monospace;margin:6px 0 10px}
+
+@media(max-width:900px){
+  .pfv2-body{grid-template-columns:1fr;padding:14px}
+  .pfv2-right{position:static;max-height:none;order:2}
+  .pfv2-left{order:1}
+  .pfv2-title{max-width:200px;font-size:13px}
+  .pfv2-header{padding:10px 14px}
+  .pfv2-preview-toggle button span{display:none}
+  .pfv2-row,.pfv2-row-3{grid-template-columns:1fr}
+  .pfv2-template-picker{grid-template-columns:1fr}
+  .pfv2-status-btns{grid-template-columns:1fr}
+}
+
 /* PRODUCT TABS */
 .prod-tab{
   padding:11px 18px;font-size:13px;font-weight:600;border:none;
@@ -2383,7 +2491,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-22-filter-modal';
+window.__APP_VERSION = '2026-06-23-produk-20section';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -3798,205 +3906,688 @@ document.addEventListener('DOMContentLoaded', function(){
           <div id="prodList" class="prod-table-wrap"></div>
         </div>
 
-        <!-- Product Detail Form (hidden by default) -->
-        <div id="prodFormCard" style="display:none">
-          <!-- Header -->
-          <div class="card" style="margin-bottom:0;border-radius:var(--radius) var(--radius) 0 0;border-bottom:2px solid var(--primary)">
-            <div style="display:flex;align-items:center;justify-content:space-between">
-              <div>
-                <div class="card-title" id="prodFormTitle" style="margin-bottom:2px">➕ Tambah Produk Baru</div>
-                <div style="font-size:13px;color:var(--text-muted)">Konfigurasi lengkap per produk/campaign</div>
+        <!-- Product Detail Form v2 (20-section OrderHero-style layout, hidden by default) -->
+        <div id="prodFormCard" class="prod-form-v2" style="display:none">
+
+          <!-- Header sticky -->
+          <div class="pfv2-header">
+            <div class="pfv2-header-left">
+              <button class="pfv2-back-btn" onclick="cancelProd()" title="Kembali"><i class="ti ti-arrow-left"></i></button>
+              <div style="min-width:0">
+                <div class="pfv2-crumb">Produk / <span id="prodFormBreadcrumb">Baru</span></div>
+                <div class="pfv2-title" id="prodFormTitle">Tambah Produk Baru</div>
               </div>
-              <button class="btn btn-ghost" onclick="cancelProd()" style="font-size:20px;padding:4px 10px">✕</button>
+            </div>
+            <div class="pfv2-header-right">
+              <div class="pfv2-preview-toggle">
+                <button id="pfv2PreviewBtnDesktop" class="active" onclick="setPfv2PreviewMode('desktop')"><i class="ti ti-device-desktop"></i><span>Desktop</span></button>
+                <button id="pfv2PreviewBtnMobile" onclick="setPfv2PreviewMode('mobile')"><i class="ti ti-device-mobile"></i><span>Mobile</span></button>
+              </div>
+              <button class="btn-primary-sm" onclick="saveProd()"><i class="ti ti-device-floppy"></i><span>Simpan</span></button>
             </div>
           </div>
 
-          <!-- Tabs inside product form -->
-          <div style="background:#fff;border-left:1px solid var(--border);border-right:1px solid var(--border)">
-            <div style="display:flex;border-bottom:1px solid var(--border);overflow-x:auto">
-              <button class="prod-tab active" id="ptab-info" onclick="switchProdTab('info')">📦 Info Produk</button>
-              <button class="prod-tab" id="ptab-cs" onclick="switchProdTab('cs')">💬 CS & Greeting</button>
-              <button class="prod-tab" id="ptab-gtm" onclick="switchProdTab('gtm')">📊 GTM Tracking</button>
-              <button class="prod-tab" id="ptab-embed" onclick="switchProdTab('embed')">🔗 Embed</button>
+          <div class="pfv2-body">
+
+          <!-- ═════════ LEFT: 20 SECTIONS ═════════ -->
+          <div class="pfv2-left">
+
+          <!-- 1. INFORMASI / OPSI PRODUK -->
+          <div class="pfv2-section" data-sec="1">
+            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">1</span><i class="ti ti-info-circle pfv2-sec-icon"></i>Informasi / Opsi Produk</div>
+              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
+            </div>
+            <div class="pfv2-sec-body" id="ppanel-info">
+              <div class="pfv2-field">
+                <label class="pfv2-label">Nama Produk <span class="req">*</span> <span style="color:var(--text-muted);font-weight:400">— akan muncul di form & pesan CS</span></label>
+                <input class="pfv2-input" id="fName" type="text" placeholder="Contoh: Lampu Jagung 3 Warna"/>
+              </div>
+              <div class="pfv2-field">
+                <label class="pfv2-label">URL Halaman Checkout</label>
+                <input class="pfv2-input" id="fUrlSlug" type="text" placeholder="lampu-jagung-3-warna"/>
+                <div class="pfv2-hint">Auto-generate dari nama produk jika kosong. Akan jadi: <code id="fUrlSlugPreview">/lampu-jagung-3-warna</code></div>
+              </div>
+              <div class="pfv2-row">
+                <div class="pfv2-field">
+                  <label class="pfv2-label">Kode Produk <span style="color:var(--text-muted);font-weight:400">(SKU)</span></label>
+                  <input class="pfv2-input" id="fKode" type="text" placeholder="LMP-JGN-001"/>
+                </div>
+                <div class="pfv2-field">
+                  <label class="pfv2-label">Klasifikasi Produk</label>
+                  <select class="pfv2-input" id="fKlasifikasi"><option value="fisik">Fisik</option><option value="digital">Digital</option></select>
+                </div>
+              </div>
+              <div class="pfv2-row">
+                <div class="pfv2-field">
+                  <label class="pfv2-label">Kategori Produk</label>
+                  <input class="pfv2-input" id="fKategori" type="text" placeholder="Contoh: Rumah Tangga" list="fKategoriList"/>
+                  <datalist id="fKategoriList"></datalist>
+                </div>
+                <div class="pfv2-field">
+                  <label class="pfv2-label">Koleksi Produk</label>
+                  <input class="pfv2-input" id="fKoleksi" type="text" placeholder="Contoh: Best Seller 2026"/>
+                </div>
+              </div>
+              <div class="pfv2-field">
+                <label class="pfv2-label">Status Produk</label>
+                <div class="pfv2-status-btns">
+                  <button type="button" class="pfv2-status-btn" data-status="archived" onclick="setProdStatus('archived')"><i class="ti ti-archive" style="font-size:14px;vertical-align:-2px;margin-right:4px"></i>Diarsipkan</button>
+                  <button type="button" class="pfv2-status-btn" data-status="test" onclick="setProdStatus('test')"><i class="ti ti-flask" style="font-size:14px;vertical-align:-2px;margin-right:4px"></i>Test Mode</button>
+                  <button type="button" class="pfv2-status-btn active" data-status="live" onclick="setProdStatus('live')"><i class="ti ti-broadcast" style="font-size:14px;vertical-align:-2px;margin-right:4px"></i>Live</button>
+                </div>
+                <input type="hidden" id="fStatus" value="live"/>
+              </div>
+              <div class="pfv2-field">
+                <label class="pfv2-toggle">
+                  <input type="checkbox" id="fCaptcha"/>
+                  <span class="pfv2-toggle-slider"></span>
+                  <span class="pfv2-toggle-txt">Aktifkan Captcha untuk pengunjung mencurigakan<div class="pfv2-toggle-desc">Cek reCAPTCHA v3 sebelum submit form (kurangi spam)</div></span>
+                </label>
+              </div>
+              <div class="pfv2-field">
+                <label class="pfv2-label">Deskripsi Singkat (Opsional)</label>
+                <input class="pfv2-input" id="fDesc" type="text" placeholder="Garansi 1 tahun, stok terbatas..."/>
+              </div>
             </div>
           </div>
 
-          <!-- Tab: Info Produk -->
-          <div class="card" id="ppanel-info" style="border-radius:0;border-top:none;margin-bottom:0;border-left:1px solid var(--border);border-right:1px solid var(--border)">
-            <div style="display:grid;grid-template-columns:120px 1fr;gap:20px;align-items:start;margin-bottom:16px">
-              <!-- Cover image -->
-              <div>
-                <label class="label" style="display:block;margin-bottom:6px">Cover</label>
-                <div id="fCoverPreview" style="width:120px;height:120px;border-radius:10px;background:#F1F5F9;border:2px dashed #CBD5E1;display:flex;align-items:center;justify-content:center;color:#94A3B8;cursor:pointer;overflow:hidden;position:relative" onclick="document.getElementById('fCoverInput').click()">
-                  <div id="fCoverPlaceholder" style="text-align:center;font-size:11px"><i class="ti ti-photo-plus" style="font-size:28px;display:block;margin-bottom:4px"></i>Upload<br/>Gambar</div>
-                  <img id="fCoverImg" src="" style="display:none;width:100%;height:100%;object-fit:cover"/>
-                </div>
-                <input type="file" id="fCoverInput" accept="image/*" style="display:none" onchange="handleProdCoverUpload(this)"/>
-                <div style="display:flex;gap:4px;margin-top:6px">
-                  <button type="button" class="btn btn-outline" style="flex:1;padding:5px 8px;font-size:10.5px" onclick="document.getElementById('fCoverInput').click()"><i class="ti ti-upload" style="font-size:11px"></i> Pilih</button>
-                  <button type="button" class="btn btn-outline" style="flex:1;padding:5px 8px;font-size:10.5px" onclick="clearProdCover()"><i class="ti ti-trash" style="font-size:11px"></i> Hapus</button>
-                </div>
-                <div style="font-size:10px;color:var(--text-muted);margin-top:4px;text-align:center">Max 500KB · JPG/PNG</div>
+          <!-- 2. GAMBAR (multi) -->
+          <div class="pfv2-section" data-sec="2">
+            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">2</span><i class="ti ti-photo pfv2-sec-icon"></i>Gambar Produk</div>
+              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
+            </div>
+            <div class="pfv2-sec-body">
+              <div class="pfv2-hint">Unggah hingga <strong>10 gambar</strong>. Klik ⭐ untuk set primary. Max 500KB per gambar.</div>
+              <div class="pfv2-image-grid" id="fImagesGrid"></div>
+              <input type="file" id="fImagesInput" accept="image/*" multiple style="display:none" onchange="handleMultiImageUpload(this)"/>
+              <!-- Legacy single cover — hidden, still writes to fCoverImg for backward compat -->
+              <div style="display:none">
+                <div id="fCoverPreview"><div id="fCoverPlaceholder"></div><img id="fCoverImg"/></div>
+                <input type="file" id="fCoverInput" accept="image/*" onchange="handleProdCoverUpload(this)"/>
               </div>
-              <div>
-                <div class="form-group">
-                  <label class="label">Nama Produk / Campaign *</label>
-                  <input class="input" id="fName" type="text" placeholder="Lampu Jagung 3 Warna"/>
+            </div>
+          </div>
+
+          <!-- 3. PENGATURAN HARGA -->
+          <div class="pfv2-section" data-sec="3">
+            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">3</span><i class="ti ti-currency-dollar pfv2-sec-icon"></i>Pengaturan Harga</div>
+              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
+            </div>
+            <div class="pfv2-sec-body">
+              <div class="pfv2-field">
+                <label class="pfv2-label">Tipe Produk</label>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+                  <button type="button" class="pfv2-status-btn active" id="fTipeSimple" onclick="setProdTipe('simple')">Simple</button>
+                  <button type="button" class="pfv2-status-btn" id="fTipeVariable" onclick="setProdTipe('variable')">Variable</button>
                 </div>
-                <div class="form-row" style="margin-top:12px">
-                  <div class="form-group">
-                    <label class="label">Harga Jual (Opsional)</label>
-                    <input class="input" id="fPrice" type="text" placeholder="Rp 99.000"/>
+                <input type="hidden" id="fTipe" value="simple"/>
+              </div>
+              <div id="fHargaSimpleBox">
+                <div class="pfv2-row">
+                  <div class="pfv2-field">
+                    <label class="pfv2-label">Harga Normal <span style="color:var(--text-muted);font-weight:400">(coret)</span></label>
+                    <input class="pfv2-input" id="fHargaNormal" type="text" placeholder="Rp 150.000"/>
                   </div>
-                  <div class="form-group">
-                    <label class="label">HPP <span style="color:var(--text-muted);font-weight:400">(Modal)</span></label>
-                    <input class="input" id="fHpp" type="text" placeholder="Rp 45.000"/>
+                  <div class="pfv2-field">
+                    <label class="pfv2-label">Harga Jual <span class="req">*</span></label>
+                    <input class="pfv2-input" id="fPrice" type="text" placeholder="Rp 99.000"/>
                   </div>
                 </div>
-                <div class="form-group" style="margin-top:12px">
-                  <label class="label">Inventaris <span style="color:var(--text-muted);font-weight:400">(Stok)</span></label>
-                  <input class="input" id="fInventaris" type="number" placeholder="100" min="0"/>
-                </div>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="label">Deskripsi (Opsional)</label>
-              <input class="input" id="fDesc" type="text" placeholder="Garansi 1 tahun, stok terbatas..."/>
-            </div>
-          </div>
-
-          <!-- Tab: CS & Greeting -->
-          <div class="card" id="ppanel-cs" style="display:none;border-radius:0;border-top:none;margin-bottom:0;border-left:1px solid var(--border);border-right:1px solid var(--border)">
-
-            <!-- Step 2: Pilih CS -->
-            <div style="margin-bottom:20px">
-              <div class="label" style="margin-bottom:4px">Step 2 — Pilih CS untuk Produk Ini *</div>
-              <div style="font-size:13px;color:var(--text-muted);margin-bottom:10px">
-                Tambah satu per satu via dropdown. Lead bakal dibagi sesuai mode distribusi (Step 2B).
-              </div>
-
-              <!-- Selected CS rows + Add button -->
-              <div id="csSelectedRows" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
-
-              <div class="cs-picker-wrap" style="position:relative">
-                <button type="button" class="cs-picker-toggle" onclick="toggleCSPickerDropdown(event)" id="csPickerToggle">
-                  <span><i class="ti ti-plus" style="font-size:14px;vertical-align:-2px;margin-right:4px"></i>Tambah CS</span>
-                  <i class="ti ti-chevron-down" style="font-size:14px"></i>
-                </button>
-                <div class="cs-picker-dropdown" id="csPickerDropdown">
-                  <div class="cs-picker-search-wrap">
-                    <i class="ti ti-search"></i>
-                    <input type="text" id="csPickerSearch" placeholder="Cari nama CS..." oninput="renderCSPickerOptions()" autocomplete="off"/>
+                <div class="pfv2-row">
+                  <div class="pfv2-field">
+                    <label class="pfv2-label">HPP <span style="color:var(--text-muted);font-weight:400">(Modal)</span></label>
+                    <input class="pfv2-input" id="fHpp" type="text" placeholder="Rp 45.000"/>
                   </div>
-                  <div class="cs-picker-options" id="csPickerOptions"></div>
+                  <div class="pfv2-field">
+                    <label class="pfv2-label">Inventaris <span style="color:var(--text-muted);font-weight:400">(Stok)</span></label>
+                    <input class="pfv2-input" id="fInventaris" type="number" placeholder="100" min="0"/>
+                  </div>
+                </div>
+                <div class="pfv2-field">
+                  <label class="pfv2-label">Harga Grosir <span style="color:var(--text-muted);font-weight:400">(opsional, tiered pricing)</span></label>
+                  <div id="fGrosirList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
+                  <button type="button" class="btn btn-outline" style="padding:6px 12px;font-size:12px" onclick="addGrosirRow()"><i class="ti ti-plus" style="font-size:13px"></i> Tambah Harga Grosir</button>
+                </div>
+              </div>
+              <div id="fHargaVariableBox" style="display:none">
+                <div class="pfv2-info-card"><i class="ti ti-info-circle"></i><div>Kelola variasi & harga di <strong>Section 12 (Variasi Produk)</strong> di bawah.</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. KODE UNIK -->
+          <div class="pfv2-section" data-sec="4">
+            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">4</span><i class="ti ti-hash pfv2-sec-icon"></i>Kode Unik</div>
+              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
+            </div>
+            <div class="pfv2-sec-body">
+              <div class="pfv2-hint" style="margin-bottom:10px">Pengaturan kode unik untuk pembayaran — buat harga jadi unik (misal Rp 99.017 bukan Rp 99.000) biar customer transfer mudah diverifikasi.</div>
+              <label class="pfv2-toggle">
+                <input type="checkbox" id="fKodeUnikEnabled"/>
+                <span class="pfv2-toggle-slider"></span>
+                <span class="pfv2-toggle-txt">Aktifkan Kode Unik<div class="pfv2-toggle-desc">Tambahkan 3-digit acak ke harga (Rp 99.017 · Rp 99.234 · dst)</div></span>
+              </label>
+              <div id="fKodeUnikCfg" style="display:none;margin-top:10px">
+                <div class="pfv2-field">
+                  <label class="pfv2-label">Range Kode Unik</label>
+                  <div class="pfv2-row">
+                    <input class="pfv2-input" id="fKodeUnikMin" type="number" placeholder="Min: 1" min="1" value="1"/>
+                    <input class="pfv2-input" id="fKodeUnikMax" type="number" placeholder="Max: 999" max="999" value="999"/>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. RESELLER -->
+          <div class="pfv2-section" data-sec="5">
+            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">5</span><i class="ti ti-share pfv2-sec-icon"></i>Reseller</div>
+              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
+            </div>
+            <div class="pfv2-sec-body">
+              <label class="pfv2-toggle">
+                <input type="checkbox" id="fResellerEnabled"/>
+                <span class="pfv2-toggle-slider"></span>
+                <span class="pfv2-toggle-txt">Aktifkan reseller untuk produk ini<div class="pfv2-toggle-desc">Reseller bisa dapat link tracked untuk produk ini + komisi</div></span>
+              </label>
+              <div id="fResellerCfg" style="display:none;margin-top:10px">
+                <div class="pfv2-field">
+                  <label class="pfv2-label">Komisi Reseller</label>
+                  <div class="pfv2-row">
+                    <input class="pfv2-input" id="fResellerKomisi" type="number" placeholder="10" min="0"/>
+                    <select class="pfv2-input" id="fResellerKomisiTipe"><option value="percent">% (persen)</option><option value="fixed">Rp (nominal tetap)</option></select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6. TUGASKAN PRODUK KE (CS + Distribusi + Shipper/Admin) -->
+          <div class="pfv2-section" data-sec="6">
+            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">6</span><i class="ti ti-users pfv2-sec-icon"></i>Tugaskan Produk Ke</div>
+              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
+            </div>
+            <div class="pfv2-sec-body" id="ppanel-cs">
+              <label class="pfv2-toggle" style="margin-bottom:12px">
+                <input type="checkbox" id="fOverrideCSRotator" checked/>
+                <span class="pfv2-toggle-slider"></span>
+                <span class="pfv2-toggle-txt">Override Global CS Rotator<div class="pfv2-toggle-desc">Pakai CS khusus untuk produk ini, bukan rotator global</div></span>
+              </label>
+
+              <!-- Tabs CS / Shipper / Admin -->
+              <div style="display:flex;gap:4px;background:var(--surface-2);padding:3px;border-radius:8px;margin-bottom:12px">
+                <button type="button" class="dg-sec-tab active" data-tugassec="cs" onclick="switchTugasSec('cs')"><i class="ti ti-headset"></i>Customer Service</button>
+                <button type="button" class="dg-sec-tab" data-tugassec="shipper" onclick="switchTugasSec('shipper')"><i class="ti ti-truck"></i>Shipper</button>
+                <button type="button" class="dg-sec-tab" data-tugassec="admin" onclick="switchTugasSec('admin')"><i class="ti ti-user-check"></i>Admin</button>
+              </div>
+
+              <!-- Sub-section: CS (existing logic) -->
+              <div id="tugasSec-cs">
+                <div id="csSelectedRows" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
+                <div class="cs-picker-wrap" style="position:relative">
+                  <button type="button" class="cs-picker-toggle" onclick="toggleCSPickerDropdown(event)" id="csPickerToggle">
+                    <span><i class="ti ti-plus" style="font-size:14px;vertical-align:-2px;margin-right:4px"></i>Tambah CS</span>
+                    <i class="ti ti-chevron-down" style="font-size:14px"></i>
+                  </button>
+                  <div class="cs-picker-dropdown" id="csPickerDropdown">
+                    <div class="cs-picker-search-wrap"><i class="ti ti-search"></i><input type="text" id="csPickerSearch" placeholder="Cari nama CS..." oninput="renderCSPickerOptions()" autocomplete="off"/></div>
+                    <div class="cs-picker-options" id="csPickerOptions"></div>
+                  </div>
+                </div>
+                <div id="errCSSelect" style="font-size:12px;color:var(--red);display:none;margin-top:8px">⚠️ Pilih minimal 1 CS</div>
+                <div id="csSelectorList" style="display:none"></div>
+                <div id="distribSection" style="margin-top:16px;display:none">
+                  <div class="pfv2-label" style="margin-bottom:4px">Distribusi Lead</div>
+                  <div class="pfv2-hint" style="margin-bottom:10px">Atur cara lead dibagi ke CS yang dipilih.</div>
+                  <div id="distribModeCards" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px"></div>
+                  <div id="distribCustomBox" style="display:none;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px">
+                    <div style="font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.4px">Set persentase per CS</div>
+                    <div id="distribCustomList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
+                    <div id="distribTotal" style="padding:8px 12px;border-radius:6px;font-size:12px;display:flex;align-items:center;gap:6px"></div>
+                  </div>
+                  <div id="distribSoloBox" style="display:none;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px">
+                    <div style="font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.4px">Pilih 1 CS yang dapat semua lead</div>
+                    <div id="distribSoloList" style="display:flex;flex-direction:column;gap:8px"></div>
+                  </div>
+                </div>
+                <div class="pfv2-field" style="margin-top:16px">
+                  <label class="pfv2-label">Nama Produk untuk Pesan WA</label>
+                  <input class="pfv2-input" id="fProdWA" type="text" placeholder="Lampu Jagung 3 Warna" oninput="updateProdGreetingPreview()"/>
+                  <div class="pfv2-hint">Mengisi variabel <code>{produk}</code> di pesan WA otomatis</div>
+                </div>
+                <div class="pfv2-field">
+                  <label class="pfv2-label">Template Greeting (Override — opsional)</label>
+                  <textarea class="pfv2-input" id="fGreeting" rows="6" style="font-family:monospace" placeholder="Kosongkan untuk pakai template global..." oninput="updateProdGreetingPreview()"></textarea>
+                  <div class="pfv2-hint">Variabel: <code>{nama}</code> <code>{wa}</code> <code>{produk}</code> <code>{toko}</code></div>
+                </div>
+                <div class="pfv2-label" style="margin-bottom:6px">Preview Pesan WA:</div>
+                <div style="background:#e8f5e9;border-radius:10px 10px 10px 0;padding:12px 14px;font-size:12px;line-height:1.7;color:#1b5e20;font-family:monospace;white-space:pre-wrap;max-height:150px;overflow-y:auto;border:1px solid #c8e6c9" id="prodGreetingPreview"></div>
+              </div>
+
+              <!-- Sub-section: Shipper -->
+              <div id="tugasSec-shipper" style="display:none">
+                <div class="pfv2-hint" style="margin-bottom:10px">Pilih tim pengiriman/shipper untuk produk ini (opsional).</div>
+                <div class="pfv2-field">
+                  <label class="pfv2-label">Shipper</label>
+                  <select class="pfv2-input" id="fShipperId"><option value="">-- Pilih Shipper --</option></select>
+                  <div class="pfv2-hint">Belum ada shipper? Tambahkan di menu Team Members → tag "Shipper".</div>
                 </div>
               </div>
 
-              <div id="errCSSelect" style="font-size:12px;color:var(--red);display:none;margin-top:8px">⚠️ Pilih minimal 1 CS</div>
-
-              <a onclick="showPanel('team')" style="font-size:12px;color:var(--primary);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px;margin-top:10px">
-                <i class="ti ti-external-link" style="font-size:13px"></i> Tambah CS baru di menu Team Members
-              </a>
-
-              <!-- Legacy hidden list — keep for compat -->
-              <div id="csSelectorList" style="display:none"></div>
-            </div>
-
-            <!-- Step 2b: Distribusi Lead (muncul kalau >=2 CS dipilih) -->
-            <div id="distribSection" style="margin-bottom:20px;display:none">
-              <div class="label" style="margin-bottom:4px">Step 2b — Distribusi Lead</div>
-              <div style="font-size:13px;color:var(--text-muted);margin-bottom:10px">Atur cara lead dibagi ke CS yang dipilih.</div>
-
-              <div id="distribModeCards" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px"></div>
-
-              <div id="distribCustomBox" style="display:none;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px">
-                <div style="font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.4px">Set persentase per CS</div>
-                <div id="distribCustomList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
-                <div id="distribTotal" style="padding:8px 12px;border-radius:6px;font-size:12px;display:flex;align-items:center;gap:6px"></div>
-              </div>
-
-              <div id="distribSoloBox" style="display:none;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px">
-                <div style="font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.4px">Pilih 1 CS yang dapat semua lead</div>
-                <div id="distribSoloList" style="display:flex;flex-direction:column;gap:8px"></div>
-              </div>
-            </div>
-
-            <div class="card-divider"></div>
-
-            <!-- Produk name for WA -->
-            <div class="form-group">
-              <label class="label">Nama Produk untuk Pesan WA</label>
-              <input class="input" id="fProdWA" type="text" placeholder="Lampu Jagung 3 Warna" oninput="updateProdGreetingPreview()"/>
-              <div class="hint">Mengisi variabel <code>{produk}</code> di pesan WA otomatis</div>
-            </div>
-
-            <!-- Greeting override -->
-            <div class="form-group">
-              <label class="label">Template Greeting (Override — opsional)</label>
-              <textarea class="input" id="fGreeting" rows="8" style="font-family:monospace;font-size:13px" placeholder="Kosongkan untuk pakai template global dari menu CS & Greeting..." oninput="updateProdGreetingPreview()"></textarea>
-              <div class="hint">Variabel: <code>{nama}</code> <code>{wa}</code> <code>{produk}</code> <code>{toko}</code> <code>{alamat}</code> <code>{kota}</code> <code>{kecamatan}</code></div>
-            </div>
-
-            <!-- Preview -->
-            <div class="label" style="margin-bottom:8px">Preview Pesan WA:</div>
-            <div style="background:#e8f5e9;border-radius:10px 10px 10px 0;padding:14px 16px;font-size:13px;line-height:1.8;color:#1b5e20;font-family:monospace;white-space:pre-wrap;max-height:180px;overflow-y:auto;border:1px solid #c8e6c9" id="prodGreetingPreview"></div>
-          </div>
-
-          <!-- Tab: GTM -->
-          <div class="card" id="ppanel-gtm" style="display:none;border-radius:0;border-top:none;margin-bottom:0;border-left:1px solid var(--border);border-right:1px solid var(--border)">
-            <div style="background:var(--primary-light);border-radius:8px;padding:10px 14px;margin-bottom:18px;font-size:13px;color:var(--primary)">
-              💡 Kosongkan untuk menggunakan GTM global dari menu <strong>GTM Tracking</strong>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="label">GTM Container ID (Override)</label>
-                <input class="input" id="fGTM" type="text" placeholder="GTM-XXXXXXX (atau kosongkan)"/>
-                <div class="hint">Jika diisi, override GTM ID global khusus produk ini</div>
-              </div>
-              <div class="form-group">
-                <label class="label">Google Ads Conversion Label</label>
-                <input class="input" id="fConv" type="text" placeholder="AW-XXXXXXXXX/YYYY"/>
-                <div class="hint">Conversion label spesifik untuk campaign produk ini</div>
-              </div>
-            </div>
-            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px;font-size:13px;color:#166534;line-height:1.8">
-              <strong>Events yang dikirim saat form disubmit:</strong><br/>
-              • <code>generate_lead</code> → GTM dataLayer<br/>
-              • <code>conversion</code> → Google Ads (jika Conversion Label diisi)<br/>
-              • Data yang dikirim: nama customer, nama produk ini
-            </div>
-          </div>
-
-          <!-- Tab: Embed -->
-          <div class="card" id="ppanel-embed" style="display:none;border-radius:0;border-top:none;margin-bottom:0;border-left:1px solid var(--border);border-right:1px solid var(--border)">
-            <div style="background:#fff3cd;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:#856404">
-              ⚠️ Simpan produk dulu agar embed code ter-generate dengan konfigurasi terbaru
-            </div>
-            <div style="margin-bottom:16px">
-              <div style="font-size:14px;font-weight:700;margin-bottom:4px">📄 Embed Inline</div>
-              <div style="font-size:13px;color:var(--text-muted);margin-bottom:10px">Copy-paste ke landing page — tidak perlu hosting</div>
-              <div class="code-wrap">
-                <div class="code-box" id="prodEmbedInline" style="max-height:200px">Simpan produk dulu untuk generate embed code...</div>
-                <button class="copy-btn" onclick="copyCode('prodEmbedInline',this)">Copy Code</button>
-              </div>
-            </div>
-            <div>
-              <div style="font-size:14px;font-weight:700;margin-bottom:4px">🖼️ iFrame Embed</div>
-              <div style="font-size:13px;color:var(--text-muted);margin-bottom:10px">Upload file ke hosting, ganti URL_FORM_DISINI</div>
-              <div class="code-wrap">
-                <div class="code-box" id="prodEmbedIframe">Simpan produk dulu untuk generate embed code...</div>
-                <button class="copy-btn" onclick="copyCode('prodEmbedIframe',this)">Copy Code</button>
+              <!-- Sub-section: Admin -->
+              <div id="tugasSec-admin" style="display:none">
+                <div class="pfv2-hint" style="margin-bottom:10px">Pilih admin yang bertanggung jawab atas produk ini.</div>
+                <div class="pfv2-field">
+                  <label class="pfv2-label">Admin</label>
+                  <select class="pfv2-input" id="fAdminId"><option value="">-- Pilih Admin --</option></select>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Form Footer -->
-          <div style="background:#fff;border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);padding:16px 24px;display:flex;gap:10px;align-items:center">
-            <button class="btn btn-primary btn-lg" onclick="saveProd()">💾 Simpan Produk</button>
-            <button class="btn btn-outline" onclick="cancelProd()">Batal</button>
-            <div style="margin-left:auto;font-size:12px;color:var(--text-muted)">Setelah simpan, embed code otomatis ter-update</div>
+          <!-- 7. TEMPLATE -->
+          <div class="pfv2-section" data-sec="7">
+            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">7</span><i class="ti ti-layout pfv2-sec-icon"></i>Template Checkout</div>
+              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
+            </div>
+            <div class="pfv2-sec-body">
+              <div class="pfv2-field">
+                <label class="pfv2-label">Layout</label>
+                <div class="pfv2-template-picker">
+                  <div class="pfv2-template-card" data-tmpl="right" onclick="setProdTemplate('right')">
+                    <div class="pfv2-template-mini sidebar-right"><div></div><div></div></div>
+                    <div class="pfv2-template-lbl">Kanan Sidebar</div>
+                  </div>
+                  <div class="pfv2-template-card" data-tmpl="left" onclick="setProdTemplate('left')">
+                    <div class="pfv2-template-mini sidebar-left"><div></div><div></div></div>
+                    <div class="pfv2-template-lbl">Kiri Sidebar</div>
+                  </div>
+                  <div class="pfv2-template-card active" data-tmpl="none" onclick="setProdTemplate('none')">
+                    <div class="pfv2-template-mini no-sidebar"><div></div></div>
+                    <div class="pfv2-template-lbl">Tidak Sidebar</div>
+                  </div>
+                </div>
+                <input type="hidden" id="fTemplate" value="none"/>
+              </div>
+              <div class="pfv2-field">
+                <label class="pfv2-label">Warna Background</label>
+                <div class="pfv2-color-picker" id="fBgColorPicker">
+                  <div class="pfv2-color-swatch active" data-color="#FFFFFF" style="background:#FFFFFF;border-color:#E2E8F0" onclick="setProdBgColor('#FFFFFF')"></div>
+                  <div class="pfv2-color-swatch" data-color="#F0FDF4" style="background:#F0FDF4;border:1px solid #E2E8F0" onclick="setProdBgColor('#F0FDF4')"></div>
+                  <div class="pfv2-color-swatch" data-color="#F5F5DC" style="background:#F5F5DC;border:1px solid #E2E8F0" onclick="setProdBgColor('#F5F5DC')"></div>
+                  <div class="pfv2-color-swatch" data-color="#EFF6FF" style="background:#EFF6FF;border:1px solid #E2E8F0" onclick="setProdBgColor('#EFF6FF')"></div>
+                  <div class="pfv2-color-swatch" data-color="#FEF2F2" style="background:#FEF2F2;border:1px solid #E2E8F0" onclick="setProdBgColor('#FEF2F2')"></div>
+                  <div class="pfv2-color-swatch" data-color="#FDF4FF" style="background:#FDF4FF;border:1px solid #E2E8F0" onclick="setProdBgColor('#FDF4FF')"></div>
+                  <div class="pfv2-color-swatch" data-color="#0F172A" style="background:#0F172A" onclick="setProdBgColor('#0F172A')"></div>
+                </div>
+                <input type="hidden" id="fBgColor" value="#FFFFFF"/>
+              </div>
+              <div class="pfv2-field">
+                <label class="pfv2-label">Judul Section (opsional)</label>
+                <input class="pfv2-input" id="fSectionTitle" type="text" placeholder="Contoh: Selesaikan Pesanan Anda"/>
+              </div>
+            </div>
           </div>
+
+          <!-- 8. PROGRESSIVE FORM -->
+          <div class="pfv2-section" data-sec="8">
+            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">8</span><i class="ti ti-list-check pfv2-sec-icon"></i>Progressive Form</div>
+              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
+            </div>
+            <div class="pfv2-sec-body">
+              <label class="pfv2-toggle">
+                <input type="checkbox" id="fProgressiveForm"/>
+                <span class="pfv2-toggle-slider"></span>
+                <span class="pfv2-toggle-txt">Aktifkan Progressive Form<div class="pfv2-toggle-desc">Field ditampilkan bertahap (step-by-step) — kurangi cognitive load buat customer</div></span>
+              </label>
+              <div class="pfv2-hint" style="margin-top:10px">💡 Cocok untuk form panjang (Alamat + Provinsi + Kota + Kecamatan). Customer isi step by step, gak overwhelmed.</div>
+            </div>
+          </div>
+
+          <!-- 9. HEADER -->
+          <div class="pfv2-section" data-sec="9">
+            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">9</span><i class="ti ti-heading pfv2-sec-icon"></i>Header</div>
+              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
+            </div>
+            <div class="pfv2-sec-body">
+              <div class="pfv2-field">
+                <label class="pfv2-label">Unggah Gambar Header <span style="color:var(--text-muted);font-weight:400">(logo)</span></label>
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div id="fHeaderPreview" style="width:80px;height:80px;border-radius:8px;background:#F1F5F9;border:2px dashed #CBD5E1;display:flex;align-items:center;justify-content:center;color:#94A3B8;cursor:pointer;overflow:hidden" onclick="document.getElementById('fHeaderInput').click()">
+                    <i class="ti ti-photo-plus" style="font-size:24px"></i>
+                    <img id="fHeaderImg" src="" style="display:none;width:100%;height:100%;object-fit:contain"/>
+                  </div>
+                  <div style="flex:1">
+                    <button type="button" class="btn btn-outline" style="padding:6px 12px;font-size:12px" onclick="document.getElementById('fHeaderInput').click()"><i class="ti ti-upload"></i> Pilih Gambar</button>
+                    <button type="button" class="btn btn-outline" style="padding:6px 12px;font-size:12px;margin-left:5px" onclick="clearHeaderImg()"><i class="ti ti-trash"></i> Hapus</button>
+                    <div class="pfv2-hint" style="margin-top:4px">Rekomendasi PNG transparan, tinggi ≤ 80px</div>
+                  </div>
+                </div>
+                <input type="file" id="fHeaderInput" accept="image/*" style="display:none" onchange="handleHeaderImgUpload(this)"/>
+              </div>
+              <label class="pfv2-toggle" style="margin-bottom:6px">
+                <input type="checkbox" id="fHeaderShowTitle"/>
+                <span class="pfv2-toggle-slider"></span>
+                <span class="pfv2-toggle-txt">Tampilkan judul di atas keranjang</span>
+              </label>
+              <label class="pfv2-toggle">
+                <input type="checkbox" id="fHeaderShowTagline"/>
+                <span class="pfv2-toggle-slider"></span>
+                <span class="pfv2-toggle-txt">Tampilkan tagline di atas keranjang</span>
+              </label>
+              <div class="pfv2-field" style="margin-top:10px">
+                <label class="pfv2-label">Tagline (jika ditampilkan)</label>
+                <input class="pfv2-input" id="fHeaderTagline" type="text" placeholder="Contoh: Belanja aman, garansi 100%"/>
+              </div>
+            </div>
+          </div>
+
+          <!-- 10. GAMBAR CHECKOUT -->
+          <div class="pfv2-section" data-sec="10">
+            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">10</span><i class="ti ti-photo-check pfv2-sec-icon"></i>Gambar di Checkout</div>
+              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
+            </div>
+            <div class="pfv2-sec-body">
+              <label class="pfv2-toggle">
+                <input type="checkbox" id="fShowCoverAtCheckout" checked/>
+                <span class="pfv2-toggle-slider"></span>
+                <span class="pfv2-toggle-txt">Tampilkan gambar produk di halaman checkout<div class="pfv2-toggle-desc">Kalau off, checkout tampil polos tanpa gambar produk (form only)</div></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 11. LABEL GARANSI -->
+          <div class="pfv2-section" data-sec="11">
+            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">11</span><i class="ti ti-shield-check pfv2-sec-icon"></i>Label Garansi</div>
+              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
+            </div>
+            <div class="pfv2-sec-body">
+              <label class="pfv2-toggle" style="margin-bottom:10px">
+                <input type="checkbox" id="fWarrantyEnabled"/>
+                <span class="pfv2-toggle-slider"></span>
+                <span class="pfv2-toggle-txt">Tampilkan label jaminan di bagian atas halaman</span>
+              </label>
+              <div class="pfv2-field">
+                <label class="pfv2-label">Pilih Label</label>
+                <select class="pfv2-input" id="fWarrantyLabel">
+                  <option value="100% Jaminan Kepuasan">100% Jaminan Kepuasan</option>
+                  <option value="Garansi Uang Kembali">Garansi Uang Kembali</option>
+                  <option value="Garansi Produk Original">Garansi Produk Original</option>
+                  <option value="Pengiriman Aman & Terlacak">Pengiriman Aman & Terlacak</option>
+                  <option value="Transaksi Aman">Transaksi Aman</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- 12. VARIASI PRODUK -->
+          <div class="pfv2-section" data-sec="12">
+            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">12</span><i class="ti ti-adjustments pfv2-sec-icon"></i>Variasi Produk</div>
+              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
+            </div>
+            <div class="pfv2-sec-body">
+              <div class="pfv2-hint" style="background:#FEF3C7;color:#92400E;padding:10px 12px;border-radius:8px;margin-bottom:12px">⚠️ Hanya untuk produk yang memiliki variasi. Set Tipe Produk = <strong>Variable</strong> di Section 3.</div>
+              <div id="fVariantsList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
+              <button type="button" class="btn btn-outline" style="padding:7px 14px;font-size:12px" onclick="addVariant()"><i class="ti ti-plus"></i> Tambah Variasi</button>
+            </div>
+          </div>
+
+          <!-- 13. BIDANG YANG DIMINTA -->
+          <div class="pfv2-section" data-sec="13">
+            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">13</span><i class="ti ti-forms pfv2-sec-icon"></i>Bidang yang Diminta</div>
+              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
+            </div>
+            <div class="pfv2-sec-body">
+              <div class="pfv2-hint" style="margin-bottom:10px">Aktifkan field yang mau muncul di form checkout. Gunakan panah untuk atur urutan.</div>
+              <div id="fFormFieldsList"></div>
+              <button type="button" class="btn btn-outline" style="padding:7px 14px;font-size:12px;margin-top:10px" onclick="addCustomField()"><i class="ti ti-plus"></i> Tambahkan Field Custom</button>
+            </div>
+          </div>
+
+          <!-- 14. DROPSHIP -->
+          <div class="pfv2-section" data-sec="14">
+            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">14</span><i class="ti ti-truck-delivery pfv2-sec-icon"></i>Dropship</div>
+              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
+            </div>
+            <div class="pfv2-sec-body">
+              <label class="pfv2-toggle">
+                <input type="checkbox" id="fDropshipEnabled"/>
+                <span class="pfv2-toggle-slider"></span>
+                <span class="pfv2-toggle-txt">Aktifkan dropship di keranjang<div class="pfv2-toggle-desc">Field nama pengirim + WA pengirim muncul di form untuk dropshipper</div></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 15. TOMBOL BELI -->
+          <div class="pfv2-section" data-sec="15">
+            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">15</span><i class="ti ti-shopping-cart pfv2-sec-icon"></i>Tombol Beli</div>
+              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
+            </div>
+            <div class="pfv2-sec-body">
+              <div class="pfv2-info-card" style="margin-bottom:12px"><i class="ti ti-info-circle"></i><div>Setting global tombol Beli ada di menu <a onclick="showPanel('form')" style="color:inherit;text-decoration:underline;cursor:pointer">Form Builder</a>. Kosongkan di sini untuk pakai global, isi untuk override khusus produk.</div></div>
+              <div class="pfv2-field">
+                <label class="pfv2-label">Teks Tombol (override)</label>
+                <input class="pfv2-input" id="fBtnText" type="text" placeholder="Beli Sekarang ➜"/>
+              </div>
+              <div class="pfv2-field">
+                <label class="pfv2-label">Warna Tombol (override)</label>
+                <div class="pfv2-color-picker" id="fBtnColorPicker">
+                  <div class="pfv2-color-swatch" data-color="" style="background:linear-gradient(135deg,#e2e8f0 50%,#fff 50%);border:1px dashed #94A3B8" title="Pakai global" onclick="setProdBtnColor('')"></div>
+                  <div class="pfv2-color-swatch" data-color="#10B981" style="background:#10B981" onclick="setProdBtnColor('#10B981')"></div>
+                  <div class="pfv2-color-swatch" data-color="#F59E0B" style="background:#F59E0B" onclick="setProdBtnColor('#F59E0B')"></div>
+                  <div class="pfv2-color-swatch" data-color="#DC2626" style="background:#DC2626" onclick="setProdBtnColor('#DC2626')"></div>
+                  <div class="pfv2-color-swatch" data-color="#0EA5E9" style="background:#0EA5E9" onclick="setProdBtnColor('#0EA5E9')"></div>
+                  <div class="pfv2-color-swatch" data-color="#7C3AED" style="background:#7C3AED" onclick="setProdBtnColor('#7C3AED')"></div>
+                </div>
+                <input type="hidden" id="fProdBtnColor" value=""/>
+              </div>
+            </div>
+          </div>
+
+          <!-- 16. VIDEO -->
+          <div class="pfv2-section" data-sec="16">
+            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">16</span><i class="ti ti-video pfv2-sec-icon"></i>Video</div>
+              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
+            </div>
+            <div class="pfv2-sec-body">
+              <div class="pfv2-hint" style="margin-bottom:10px">Tambahkan video YouTube untuk mempresentasikan produk lebih jelas.</div>
+              <div class="pfv2-field">
+                <label class="pfv2-label">URL Video YouTube</label>
+                <input class="pfv2-input" id="fVideoUrl" type="url" placeholder="https://www.youtube.com/watch?v=XXXXXXX"/>
+                <div class="pfv2-hint">Video muncul di sidebar/checkout sesuai template (Section 7).</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 17. KONTEN -->
+          <div class="pfv2-section" data-sec="17">
+            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">17</span><i class="ti ti-align-left pfv2-sec-icon"></i>Konten Tambahan</div>
+              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
+            </div>
+            <div class="pfv2-sec-body">
+              <div class="pfv2-hint" style="margin-bottom:10px">Deskripsi panjang produk, benefit, atau info tambahan. Muncul di halaman checkout.</div>
+              <div class="pfv2-field">
+                <label class="pfv2-label">Heading (opsional)</label>
+                <input class="pfv2-input" id="fKontenHeading" type="text" placeholder="Contoh: Tentang Produk"/>
+              </div>
+              <div class="pfv2-field">
+                <label class="pfv2-label">Konten (text / HTML sederhana)</label>
+                <textarea class="pfv2-input" id="fKontenBody" rows="6" placeholder="Deskripsi produk, benefit, garansi, dll..."></textarea>
+                <div class="pfv2-hint">Support: line break otomatis, <strong>bold</strong>, <em>italic</em>. Untuk HTML lain gunakan Landing Page.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 18. TRACKING -->
+          <div class="pfv2-section" data-sec="18" id="ppanel-gtm">
+            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">18</span><i class="ti ti-chart-line pfv2-sec-icon"></i>Tracking & Analytics</div>
+              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
+            </div>
+            <div class="pfv2-sec-body">
+              <div class="pfv2-info-card" style="margin-bottom:14px"><i class="ti ti-info-circle"></i><div>Setting global tracking ada di menu <strong>GTM Tracking</strong>. Isi di sini untuk override khusus produk ini.</div></div>
+
+              <button type="button" class="btn btn-outline" style="padding:8px 14px;font-size:12px;margin-bottom:14px" onclick="toast('🔧 Server Side Tracking coming soon')"><i class="ti ti-settings"></i> Setup Server Side Tracking</button>
+
+              <!-- Facebook Pixel -->
+              <div style="background:var(--surface-2);border-radius:8px;padding:12px 14px;margin-bottom:10px">
+                <div style="font-weight:600;font-size:13px;margin-bottom:8px;display:flex;align-items:center;gap:6px"><i class="ti ti-brand-facebook" style="color:#1877F2"></i>Facebook Pixel</div>
+                <div class="pfv2-field" style="margin-bottom:8px">
+                  <label class="pfv2-label" style="font-size:11px">Pixel ID</label>
+                  <input class="pfv2-input" id="fFbPixelId" type="text" placeholder="1234567890"/>
+                </div>
+                <div class="pfv2-field" style="margin-bottom:0">
+                  <label class="pfv2-label" style="font-size:11px">Pixel Event</label>
+                  <select class="pfv2-input" id="fFbPixelEvent">
+                    <option value="">— Pilih Event —</option>
+                    <option value="Lead">Lead</option>
+                    <option value="ViewContent">ViewContent</option>
+                    <option value="AddToCart">AddToCart</option>
+                    <option value="InitiateCheckout">InitiateCheckout</option>
+                    <option value="Purchase">Purchase</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Google Tag Manager -->
+              <div style="background:var(--surface-2);border-radius:8px;padding:12px 14px;margin-bottom:10px">
+                <div style="font-weight:600;font-size:13px;margin-bottom:8px;display:flex;align-items:center;gap:6px"><i class="ti ti-tag" style="color:#4285F4"></i>Google Tag Manager</div>
+                <div class="pfv2-field" style="margin-bottom:8px">
+                  <label class="pfv2-label" style="font-size:11px">GTM ID</label>
+                  <input class="pfv2-input" id="fGTM" type="text" placeholder="GTM-XXXXXXX"/>
+                </div>
+                <div class="pfv2-field" style="margin-bottom:0">
+                  <label class="pfv2-label" style="font-size:11px">Google Ads Conversion Label</label>
+                  <input class="pfv2-input" id="fConv" type="text" placeholder="AW-XXXXXXXXX/YYYY"/>
+                </div>
+              </div>
+
+              <!-- TikTok Pixel -->
+              <div style="background:var(--surface-2);border-radius:8px;padding:12px 14px">
+                <div style="font-weight:600;font-size:13px;margin-bottom:8px;display:flex;align-items:center;gap:6px"><i class="ti ti-brand-tiktok" style="color:#000"></i>TikTok Pixel</div>
+                <div class="pfv2-field" style="margin-bottom:8px">
+                  <label class="pfv2-label" style="font-size:11px">TikTok Pixel ID</label>
+                  <input class="pfv2-input" id="fTtPixelId" type="text" placeholder="XXXXXXXXXXXXXXXXX"/>
+                </div>
+                <div class="pfv2-field" style="margin-bottom:0">
+                  <label class="pfv2-label" style="font-size:11px">TikTok Pixel Event</label>
+                  <select class="pfv2-input" id="fTtPixelEvent">
+                    <option value="">— Pilih Event —</option>
+                    <option value="ClickButton">ClickButton</option>
+                    <option value="SubmitForm">SubmitForm</option>
+                    <option value="CompleteRegistration">CompleteRegistration</option>
+                    <option value="PlaceAnOrder">PlaceAnOrder</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 19. HALAMAN SUKSES -->
+          <div class="pfv2-section" data-sec="19">
+            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">19</span><i class="ti ti-checkbox pfv2-sec-icon"></i>Halaman Sukses</div>
+              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
+            </div>
+            <div class="pfv2-sec-body">
+              <div class="pfv2-field">
+                <label class="pfv2-label">Saat pembelian selesai, arahkan pembeli menuju:</label>
+                <select class="pfv2-input" id="fSuccessAction" onchange="onSuccessActionChange()">
+                  <option value="wa_cs">Redirect ke WhatsApp (CS Number sesuai distribusi) — DEFAULT</option>
+                  <option value="wa_random">Redirect ke WhatsApp (CS Random)</option>
+                  <option value="success_page">Show Success Page</option>
+                  <option value="custom_url">Redirect ke Custom URL</option>
+                </select>
+              </div>
+              <div class="pfv2-field" id="fSuccessCustomBox" style="display:none">
+                <label class="pfv2-label">Custom URL</label>
+                <input class="pfv2-input" id="fSuccessCustomUrl" type="url" placeholder="https://landing-page-lo.com/thank-you"/>
+              </div>
+              <div class="pfv2-info-card" style="margin-top:10px"><i class="ti ti-info-circle"></i><div>Rotasi CS sesuai setting di <strong>Section 6</strong>. Default: Redirect ke WA CS yang di-assign (round-robin/weighted sesuai mode distribusi).</div></div>
+            </div>
+          </div>
+
+          <!-- 20. SAVE / EMBED -->
+          <div class="pfv2-section" data-sec="20" id="ppanel-embed">
+            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">20</span><i class="ti ti-device-floppy pfv2-sec-icon"></i>Simpan & Embed Code</div>
+              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
+            </div>
+            <div class="pfv2-sec-body">
+              <div class="pfv2-info-card" style="background:#FEF3C7;color:#92400E;border-color:#FDE68A;margin-bottom:12px"><i class="ti ti-alert-triangle"></i><div>Simpan produk dulu agar embed code ter-generate dengan konfigurasi terbaru.</div></div>
+              <div style="margin-bottom:14px">
+                <div style="font-size:13px;font-weight:600;margin-bottom:4px">📄 Embed Inline</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">Copy-paste ke landing page — tidak perlu hosting</div>
+                <div class="code-wrap">
+                  <div class="code-box" id="prodEmbedInline" style="max-height:180px">Simpan produk dulu untuk generate embed code...</div>
+                  <button class="copy-btn" onclick="copyCode('prodEmbedInline',this)">Copy</button>
+                </div>
+              </div>
+              <div style="margin-bottom:14px">
+                <div style="font-size:13px;font-weight:600;margin-bottom:4px">🖼️ iFrame Embed</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">Upload file ke hosting, ganti URL_FORM_DISINI</div>
+                <div class="code-wrap">
+                  <div class="code-box" id="prodEmbedIframe" style="max-height:120px">Simpan produk dulu untuk generate embed code...</div>
+                  <button class="copy-btn" onclick="copyCode('prodEmbedIframe',this)">Copy</button>
+                </div>
+              </div>
+              <div style="display:flex;gap:10px;margin-top:16px">
+                <button class="btn btn-primary btn-lg" style="flex:1" onclick="saveProd()"><i class="ti ti-device-floppy"></i> Simpan Produk</button>
+                <button class="btn btn-outline" onclick="cancelProd()">Batal</button>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <!-- ═════════ END LEFT ═════════ -->
+
+          <!-- ═════════ RIGHT: STICKY PREVIEW ═════════ -->
+          <div class="pfv2-right">
+            <div class="pfv2-preview-title"><i class="ti ti-eye"></i>Preview Realtime</div>
+            <div class="pfv2-preview-frame desktop" id="pfv2PreviewFrame">
+              <div class="pfv2-preview-mockup" id="pfv2PreviewMockup">
+                <div class="pv-headline">📦 <span id="pvName">Nama Produk</span></div>
+                <div class="pv-cover" id="pvCover">📷</div>
+                <div class="pv-price" id="pvPrice">Rp 0</div>
+                <div class="pv-input">Nama Lengkap</div>
+                <div class="pv-input">No. WhatsApp</div>
+                <div class="pv-input">Alamat Lengkap</div>
+                <div class="pv-btn" id="pvBtn">Beli Sekarang ➜</div>
+                <div style="text-align:center;font-size:9px;color:#94A3B8;margin-top:10px">Preview simplified — checkout actual tampil sesuai template.</div>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <!-- END pfv2-body -->
+
+          <!-- Legacy hidden panels — keep for compat with existing JS -->
+          <div style="display:none">
+            <button id="ptab-info" onclick="toggleProdSec(document.querySelector('[data-sec=&quot;1&quot;] .pfv2-sec-head'))"></button>
+            <button id="ptab-cs" onclick="toggleProdSec(document.querySelector('[data-sec=&quot;6&quot;] .pfv2-sec-head'))"></button>
+          </div>
+
         </div>
+
+        <!-- Legacy stub — orphan cleaned -->
+        <div style="display:none" id="ppanel-info-stub"></div>
 
       </div>
 
@@ -7105,55 +7696,170 @@ function showProdForm(id){
   editProdId = id;
   document.getElementById('prodListCard').style.display = 'none';
   document.getElementById('prodFormCard').style.display = 'block';
-  switchProdTab('info');
+
+  // Setter helper (safe untuk field yang mungkin belum ada di DOM)
+  var setV = function(elId, v){ var el = document.getElementById(elId); if(el) el.value = v || ''; };
+  var setChk = function(elId, v){ var el = document.getElementById(elId); if(el) el.checked = !!v; };
 
   if(id){
     const p = getProds().find(x => x.id === id);
     if(!p) return;
-    document.getElementById('prodFormTitle').textContent = '⚙️ Kelola Produk: ' + p.name;
-    document.getElementById('fName').value = p.name;
-    document.getElementById('fPrice').value = p.price || '';
-    document.getElementById('fDesc').value = p.desc || '';
-    document.getElementById('fHpp').value = p.hpp || '';
-    document.getElementById('fInventaris').value = (typeof p.inventaris === 'number') ? p.inventaris : '';
-    // Load cover image kalau ada
-    if(p.coverImage){
-      var img = document.getElementById('fCoverImg');
-      var ph = document.getElementById('fCoverPlaceholder');
-      if(img){ img.src = p.coverImage; img.style.display = ''; img.dataset.b64 = p.coverImage; }
-      if(ph) ph.style.display = 'none';
-    } else {
-      clearProdCover();
-    }
-    document.getElementById('fProdWA').value = p.produkWA || p.name || '';
-    document.getElementById('fGreeting').value = p.greeting || '';
-    document.getElementById('fGTM').value = p.gtmId || '';
-    document.getElementById('fConv').value = p.convLabel || '';
-    // Backward compat: csIds (array) baru, csId (single) lama
+    var brc = document.getElementById('prodFormBreadcrumb'); if(brc) brc.textContent = 'Edit';
+    document.getElementById('prodFormTitle').textContent = p.name;
+
+    // Section 1 — Informasi
+    setV('fName', p.name);
+    setV('fUrlSlug', p.urlSlug || (typeof dgSlugify === 'function' ? dgSlugify(p.name||'') : ''));
+    setV('fKode', p.kode);
+    setV('fKlasifikasi', p.klasifikasi || 'fisik');
+    setV('fKategori', p.kategori);
+    setV('fKoleksi', p.koleksi);
+    setChk('fCaptcha', p.captcha);
+    setV('fDesc', p.desc);
+    setProdStatus(p.status || (p.active === false ? 'archived' : 'live'));
+
+    // Section 2 — Multi image (migrate: pakai images[] baru, fallback coverImage lama)
+    window.__prodImages = (p.images && p.images.length)
+      ? p.images.map(function(img,i){ return typeof img === 'string' ? {b64:img,isPrimary:i===0} : img; })
+      : (p.coverImage ? [{b64:p.coverImage, isPrimary:true}] : []);
+    renderProdImages();
+
+    // Section 3 — Harga
+    setV('fHargaNormal', p.hargaNormal);
+    setV('fPrice', p.price);
+    setV('fHpp', p.hpp);
+    setV('fInventaris', (typeof p.inventaris === 'number') ? p.inventaris : '');
+    setProdTipe(p.tipe || 'simple');
+    window.__prodGrosir = (p.grosir || []).slice();
+    renderGrosirList();
+
+    // Section 4 — Kode Unik
+    setChk('fKodeUnikEnabled', p.kodeUnikEnabled);
+    setV('fKodeUnikMin', p.kodeUnikMin || 1);
+    setV('fKodeUnikMax', p.kodeUnikMax || 999);
+    var kuBox = document.getElementById('fKodeUnikCfg'); if(kuBox) kuBox.style.display = p.kodeUnikEnabled ? '' : 'none';
+
+    // Section 5 — Reseller
+    setChk('fResellerEnabled', p.resellerEnabled);
+    setV('fResellerKomisi', p.resellerKomisi);
+    setV('fResellerKomisiTipe', p.resellerKomisiTipe || 'percent');
+    var rsBox = document.getElementById('fResellerCfg'); if(rsBox) rsBox.style.display = p.resellerEnabled ? '' : 'none';
+
+    // Section 6 — Tugaskan Produk (CS existing + shipper/admin new)
+    setChk('fOverrideCSRotator', p.overrideCSRotator !== false);
+    setV('fProdWA', p.produkWA || p.name || '');
+    setV('fGreeting', p.greeting);
+    setV('fShipperId', p.shipperId);
+    setV('fAdminId', p.adminId);
     const initial = (p.csIds && p.csIds.length) ? p.csIds : (p.csId ? [p.csId] : []);
     renderCSSelectorForProd(initial);
-    // Load distribusi setting (default = equal kalau gak ada)
     distribMode = p.distribMode || 'equal';
     distribWeights = Object.assign({}, p.csWeights || {});
     distribSoloId = p.distribSoloId || null;
     renderDistribSection();
     updateProdGreetingPreview();
+    switchTugasSec('cs');
+
+    // Section 7 — Template
+    setProdTemplate(p.template || 'none');
+    setProdBgColor(p.bgColor || '#FFFFFF');
+    setV('fSectionTitle', p.sectionTitle);
+
+    // Section 8 — Progressive
+    setChk('fProgressiveForm', p.progressiveForm);
+
+    // Section 9 — Header
+    setChk('fHeaderShowTitle', p.headerShowTitle);
+    setChk('fHeaderShowTagline', p.headerShowTagline);
+    setV('fHeaderTagline', p.headerTagline);
+    if(p.headerImage){
+      var hImg = document.getElementById('fHeaderImg');
+      if(hImg){ hImg.src = p.headerImage; hImg.style.display = ''; hImg.dataset.b64 = p.headerImage; }
+      var hPrev = document.getElementById('fHeaderPreview');
+      if(hPrev){ var hIcon = hPrev.querySelector('i'); if(hIcon) hIcon.style.display = 'none'; }
+    } else clearHeaderImg();
+
+    // Section 10 — Gambar Checkout
+    setChk('fShowCoverAtCheckout', p.showCoverAtCheckout !== false);
+
+    // Section 11 — Label Garansi
+    setChk('fWarrantyEnabled', p.warrantyEnabled);
+    setV('fWarrantyLabel', p.warrantyLabel || '100% Jaminan Kepuasan');
+
+    // Section 12 — Variasi
+    window.__prodVariants = (p.variants || []).slice();
+    renderVariants();
+
+    // Section 13 — Bidang Diminta
+    window.__prodFields = (p.formFields && p.formFields.length) ? p.formFields.slice() : DEFAULT_FIELDS.slice();
+    renderFormFields();
+
+    // Section 14 — Dropship
+    setChk('fDropshipEnabled', p.isDropship || p.dropshipEnabled);
+
+    // Section 15 — Tombol Beli
+    setV('fBtnText', p.btnText);
+    setProdBtnColor(p.btnColor || '');
+
+    // Section 16 — Video
+    setV('fVideoUrl', p.videoUrl);
+
+    // Section 17 — Konten
+    setV('fKontenHeading', p.kontenHeading);
+    setV('fKontenBody', p.kontenBody);
+
+    // Section 18 — Tracking
+    setV('fFbPixelId', p.fbPixelId);
+    setV('fFbPixelEvent', p.fbPixelEvent);
+    setV('fGTM', p.gtmId);
+    setV('fConv', p.convLabel);
+    setV('fTtPixelId', p.ttPixelId);
+    setV('fTtPixelEvent', p.ttPixelEvent);
+
+    // Section 19 — Halaman Sukses
+    setV('fSuccessAction', p.successAction || 'wa_cs');
+    setV('fSuccessCustomUrl', p.successCustomUrl);
+    onSuccessActionChange();
+
+    // Section 20 — Embed
     generateProdEmbed(p);
   } else {
-    document.getElementById('prodFormTitle').textContent = '➕ Tambah Produk Baru';
-    ['fName','fPrice','fDesc','fHpp','fInventaris','fProdWA','fGreeting','fGTM','fConv'].forEach(i => { var el=document.getElementById(i); if(el) el.value = ''; });
-    clearProdCover();
+    var brc2 = document.getElementById('prodFormBreadcrumb'); if(brc2) brc2.textContent = 'Baru';
+    document.getElementById('prodFormTitle').textContent = 'Tambah Produk Baru';
+    // Reset semua field
+    ['fName','fUrlSlug','fKode','fKategori','fKoleksi','fDesc','fHargaNormal','fPrice','fHpp','fInventaris','fProdWA','fGreeting','fShipperId','fAdminId','fSectionTitle','fHeaderTagline','fBtnText','fVideoUrl','fKontenHeading','fKontenBody','fFbPixelId','fFbPixelEvent','fGTM','fConv','fTtPixelId','fTtPixelEvent','fSuccessCustomUrl','fResellerKomisi'].forEach(function(i){ var el=document.getElementById(i); if(el) el.value = ''; });
+    setV('fKlasifikasi','fisik'); setV('fResellerKomisiTipe','percent');
+    setV('fKodeUnikMin', 1); setV('fKodeUnikMax', 999);
+    setV('fWarrantyLabel', '100% Jaminan Kepuasan');
+    setV('fSuccessAction', 'wa_cs');
+    // Reset toggles
+    ['fCaptcha','fKodeUnikEnabled','fResellerEnabled','fProgressiveForm','fHeaderShowTitle','fHeaderShowTagline','fWarrantyEnabled','fDropshipEnabled'].forEach(function(id){ setChk(id, false); });
+    setChk('fShowCoverAtCheckout', true);
+    setChk('fOverrideCSRotator', true);
+    // Reset multi-value states
+    window.__prodImages = [];
+    window.__prodGrosir = [];
+    window.__prodVariants = [];
+    window.__prodFields = DEFAULT_FIELDS.slice();
+    renderProdImages(); renderGrosirList(); renderVariants(); renderFormFields();
+    setProdStatus('live'); setProdTipe('simple'); setProdTemplate('none');
+    setProdBgColor('#FFFFFF'); setProdBtnColor('');
+    switchTugasSec('cs'); onSuccessActionChange();
+    clearHeaderImg();
     document.getElementById('prodEmbedInline').textContent = 'Simpan produk dulu untuk generate embed code...';
     document.getElementById('prodEmbedIframe').textContent = 'Simpan produk dulu untuk generate embed code...';
     renderCSSelectorForProd([]);
-    // Reset distribusi ke equal
-    distribMode = 'equal';
-    distribWeights = {};
-    distribSoloId = null;
+    distribMode = 'equal'; distribWeights = {}; distribSoloId = null;
     renderDistribSection();
     updateProdGreetingPreview();
   }
-  document.getElementById('prodFormCard').scrollIntoView({behavior:'smooth'});
+  // Wire realtime preview
+  ['fName','fPrice','fBtnText'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el && !el.__pfv2Wired){ el.addEventListener('input', updatePfv2Preview); el.__pfv2Wired = true; }
+  });
+  updatePfv2Preview();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 let selectedCSId = null;       // backward compat (= selectedCSIds[0])
@@ -7506,11 +8212,321 @@ function updateDistribTotal(){
 }
 
 function switchProdTab(tab){
-  activeProdTab=tab;
-  ['info','cs','gtm','embed'].forEach(t=>{
-    document.getElementById('ptab-'+t).classList.toggle('active',t===tab);
-    document.getElementById('ppanel-'+t).style.display=t===tab?'block':'none';
+  // Backward compat — old code calls this. Now v2 uses accordion sections.
+  // Map old tab names to new section data-sec numbers + expand + scroll.
+  activeProdTab = tab;
+  var mapping = { info: 1, cs: 6, gtm: 18, embed: 20 };
+  var secNum = mapping[tab];
+  if(!secNum) return;
+  var section = document.querySelector('[data-sec="'+secNum+'"]');
+  if(section){
+    section.classList.remove('collapsed');
+    section.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+}
+
+function toggleProdSec(headEl){
+  if(!headEl) return;
+  var sec = headEl.closest('.pfv2-section');
+  if(sec) sec.classList.toggle('collapsed');
+}
+
+/* ═════════════════════════════════════════════
+   PFV2 — Preview mode + section state helpers
+═════════════════════════════════════════════ */
+function setPfv2PreviewMode(mode){
+  var frame = document.getElementById('pfv2PreviewFrame');
+  if(!frame) return;
+  frame.classList.remove('desktop','mobile');
+  frame.classList.add(mode);
+  var btnD = document.getElementById('pfv2PreviewBtnDesktop');
+  var btnM = document.getElementById('pfv2PreviewBtnMobile');
+  if(btnD) btnD.classList.toggle('active', mode === 'desktop');
+  if(btnM) btnM.classList.toggle('active', mode === 'mobile');
+}
+
+function setProdStatus(status){
+  document.getElementById('fStatus').value = status;
+  document.querySelectorAll('.pfv2-status-btn[data-status]').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-status') === status);
   });
+}
+
+function setProdTipe(tipe){
+  document.getElementById('fTipe').value = tipe;
+  var simpleB = document.getElementById('fTipeSimple');
+  var varB = document.getElementById('fTipeVariable');
+  if(simpleB) simpleB.classList.toggle('active', tipe === 'simple');
+  if(varB) varB.classList.toggle('active', tipe === 'variable');
+  var simpleBox = document.getElementById('fHargaSimpleBox');
+  var varBox = document.getElementById('fHargaVariableBox');
+  if(simpleBox) simpleBox.style.display = tipe === 'simple' ? '' : 'none';
+  if(varBox) varBox.style.display = tipe === 'variable' ? '' : 'none';
+}
+
+function setProdTemplate(tmpl){
+  document.getElementById('fTemplate').value = tmpl;
+  document.querySelectorAll('.pfv2-template-card').forEach(function(c){
+    c.classList.toggle('active', c.getAttribute('data-tmpl') === tmpl);
+  });
+  updatePfv2Preview();
+}
+
+function setProdBgColor(color){
+  document.getElementById('fBgColor').value = color;
+  document.querySelectorAll('#fBgColorPicker .pfv2-color-swatch').forEach(function(s){
+    s.classList.toggle('active', s.getAttribute('data-color') === color);
+  });
+  updatePfv2Preview();
+}
+
+function setProdBtnColor(color){
+  document.getElementById('fProdBtnColor').value = color;
+  document.querySelectorAll('#fBtnColorPicker .pfv2-color-swatch').forEach(function(s){
+    s.classList.toggle('active', s.getAttribute('data-color') === color);
+  });
+  updatePfv2Preview();
+}
+
+function switchTugasSec(name){
+  ['cs','shipper','admin'].forEach(function(n){
+    var sec = document.getElementById('tugasSec-'+n);
+    if(sec) sec.style.display = n === name ? '' : 'none';
+  });
+  document.querySelectorAll('[data-tugassec]').forEach(function(t){
+    t.classList.toggle('active', t.getAttribute('data-tugassec') === name);
+  });
+}
+
+function onSuccessActionChange(){
+  var val = (document.getElementById('fSuccessAction')||{}).value || '';
+  var box = document.getElementById('fSuccessCustomBox');
+  if(box) box.style.display = val === 'custom_url' ? '' : 'none';
+}
+
+/* ═════════════════════════════════════════════
+   MULTI-IMAGE UPLOAD (max 10)
+═════════════════════════════════════════════ */
+window.__prodImages = []; // array of {b64, isPrimary}
+
+function renderProdImages(){
+  var grid = document.getElementById('fImagesGrid');
+  if(!grid) return;
+  var html = '';
+  window.__prodImages.forEach(function(img, idx){
+    html += '<div class="pfv2-image-slot filled' + (img.isPrimary ? ' is-primary' : '') + '">' +
+      '<img src="'+img.b64+'"/>' +
+      '<button class="del-btn" onclick="removeProdImage('+idx+')" title="Hapus">×</button>' +
+      (img.isPrimary ? '' : '<button class="del-btn" style="right:auto;left:3px;background:rgba(59,130,246,.9);top:auto;bottom:3px" onclick="setPrimaryImage('+idx+')" title="Set primary">⭐</button>') +
+    '</div>';
+  });
+  if(window.__prodImages.length < 10){
+    html += '<div class="pfv2-image-slot" onclick="document.getElementById(\'fImagesInput\').click()"><i class="ti ti-plus" style="font-size:18px"></i></div>';
+  }
+  grid.innerHTML = html;
+  // Sync ke fCoverImg (backward compat: primary = cover)
+  var primary = window.__prodImages.find(function(i){ return i.isPrimary; }) || window.__prodImages[0];
+  var coverImg = document.getElementById('fCoverImg');
+  if(coverImg && primary){ coverImg.dataset.b64 = primary.b64; }
+  else if(coverImg){ coverImg.dataset.b64 = ''; }
+  updatePfv2Preview();
+}
+
+function handleMultiImageUpload(input){
+  if(!input || !input.files || !input.files.length) return;
+  var files = Array.from(input.files);
+  var remaining = 10 - window.__prodImages.length;
+  files.slice(0, remaining).forEach(function(f){
+    if(f.size > 500 * 1024){ toast('⚠️ "'+f.name+'" > 500KB, skipped'); return; }
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      window.__prodImages.push({ b64: ev.target.result, isPrimary: window.__prodImages.length === 0 });
+      renderProdImages();
+    };
+    reader.readAsDataURL(f);
+  });
+  input.value = '';
+}
+
+function removeProdImage(idx){
+  var wasP = window.__prodImages[idx] && window.__prodImages[idx].isPrimary;
+  window.__prodImages.splice(idx, 1);
+  if(wasP && window.__prodImages.length){ window.__prodImages[0].isPrimary = true; }
+  renderProdImages();
+}
+
+function setPrimaryImage(idx){
+  window.__prodImages.forEach(function(img, i){ img.isPrimary = i === idx; });
+  renderProdImages();
+}
+
+/* ═════════════════════════════════════════════
+   HEADER IMAGE UPLOAD
+═════════════════════════════════════════════ */
+function handleHeaderImgUpload(input){
+  if(!input || !input.files || !input.files[0]) return;
+  var f = input.files[0];
+  if(f.size > 300 * 1024){ toast('⚠️ Max 300KB'); input.value=''; return; }
+  var reader = new FileReader();
+  reader.onload = function(ev){
+    var img = document.getElementById('fHeaderImg');
+    if(img){ img.src = ev.target.result; img.style.display = ''; img.dataset.b64 = ev.target.result; }
+    var prev = document.getElementById('fHeaderPreview');
+    if(prev){ var icon = prev.querySelector('i'); if(icon) icon.style.display = 'none'; }
+  };
+  reader.readAsDataURL(f);
+}
+function clearHeaderImg(){
+  var img = document.getElementById('fHeaderImg');
+  if(img){ img.src = ''; img.style.display = 'none'; img.dataset.b64 = ''; }
+  var prev = document.getElementById('fHeaderPreview');
+  if(prev){ var icon = prev.querySelector('i'); if(icon) icon.style.display = ''; }
+  var inp = document.getElementById('fHeaderInput'); if(inp) inp.value = '';
+}
+
+/* ═════════════════════════════════════════════
+   GROSIR (tiered pricing)
+═════════════════════════════════════════════ */
+window.__prodGrosir = []; // [{qty, harga}]
+
+function renderGrosirList(){
+  var list = document.getElementById('fGrosirList');
+  if(!list) return;
+  list.innerHTML = window.__prodGrosir.map(function(g, idx){
+    return '<div style="display:grid;grid-template-columns:1fr 1fr auto;gap:6px;align-items:center">' +
+      '<input class="pfv2-input" style="padding:7px 10px" type="number" placeholder="Min Qty" value="'+(g.qty||'')+'" onchange="window.__prodGrosir['+idx+'].qty=parseInt(this.value,10)||0"/>' +
+      '<input class="pfv2-input" style="padding:7px 10px" type="text" placeholder="Rp harga" value="'+(g.harga||'')+'" onchange="window.__prodGrosir['+idx+'].harga=this.value"/>' +
+      '<button class="btn btn-outline" style="padding:6px 8px" onclick="removeGrosirRow('+idx+')"><i class="ti ti-x"></i></button>' +
+    '</div>';
+  }).join('');
+}
+function addGrosirRow(){
+  window.__prodGrosir.push({ qty:0, harga:'' });
+  renderGrosirList();
+}
+function removeGrosirRow(idx){
+  window.__prodGrosir.splice(idx,1); renderGrosirList();
+}
+
+/* ═════════════════════════════════════════════
+   VARIASI PRODUK
+═════════════════════════════════════════════ */
+window.__prodVariants = []; // [{nama, options:[{label, harga}]}]
+
+function renderVariants(){
+  var list = document.getElementById('fVariantsList');
+  if(!list) return;
+  list.innerHTML = window.__prodVariants.map(function(v, idx){
+    var optsHtml = (v.options||[]).map(function(o, oi){
+      return '<div style="display:grid;grid-template-columns:1fr 120px auto;gap:6px;margin-bottom:5px">' +
+        '<input class="pfv2-input" style="padding:6px 10px;font-size:12px" placeholder="Label (contoh: Merah)" value="'+esc(o.label||'')+'" onchange="window.__prodVariants['+idx+'].options['+oi+'].label=this.value"/>' +
+        '<input class="pfv2-input" style="padding:6px 10px;font-size:12px" placeholder="Rp" value="'+esc(o.harga||'')+'" onchange="window.__prodVariants['+idx+'].options['+oi+'].harga=this.value"/>' +
+        '<button class="btn btn-outline" style="padding:5px 8px" onclick="removeVariantOption('+idx+','+oi+')"><i class="ti ti-x" style="font-size:12px"></i></button>' +
+      '</div>';
+    }).join('');
+    return '<div class="pfv2-variant-card">' +
+      '<div style="display:flex;gap:6px;margin-bottom:8px">' +
+        '<input class="pfv2-input" placeholder="Nama Variasi (contoh: Warna, Ukuran)" value="'+esc(v.nama||'')+'" onchange="window.__prodVariants['+idx+'].nama=this.value"/>' +
+        '<button class="btn btn-outline" style="padding:6px 10px" onclick="removeVariant('+idx+')"><i class="ti ti-trash"></i></button>' +
+      '</div>' +
+      optsHtml +
+      '<button class="btn btn-outline" style="padding:5px 10px;font-size:11px" onclick="addVariantOption('+idx+')"><i class="ti ti-plus" style="font-size:12px"></i> Tambah Opsi</button>' +
+    '</div>';
+  }).join('');
+}
+function addVariant(){
+  window.__prodVariants.push({ nama:'', options:[{label:'', harga:''}] });
+  renderVariants();
+}
+function removeVariant(idx){ window.__prodVariants.splice(idx,1); renderVariants(); }
+function addVariantOption(idx){
+  if(!window.__prodVariants[idx].options) window.__prodVariants[idx].options = [];
+  window.__prodVariants[idx].options.push({ label:'', harga:'' });
+  renderVariants();
+}
+function removeVariantOption(idx, oi){
+  if(window.__prodVariants[idx] && window.__prodVariants[idx].options){
+    window.__prodVariants[idx].options.splice(oi,1);
+    renderVariants();
+  }
+}
+
+/* ═════════════════════════════════════════════
+   BIDANG YANG DIMINTA (form fields with reorder)
+═════════════════════════════════════════════ */
+var DEFAULT_FIELDS = [
+  { id:'nama', label:'Nama', required:true, enabled:true, custom:false },
+  { id:'wa', label:'No Handphone/WhatsApp', required:true, enabled:true, custom:false },
+  { id:'email', label:'Email', required:false, enabled:false, custom:false },
+  { id:'qty', label:'Jumlah Pesanan', required:false, enabled:false, custom:false },
+  { id:'catatan', label:'Catatan', required:false, enabled:false, custom:false },
+  { id:'alamat', label:'Alamat Lengkap', required:true, enabled:false, custom:false },
+  { id:'provinsi', label:'Provinsi', required:true, enabled:false, custom:false },
+  { id:'kota', label:'Kota/Kabupaten', required:true, enabled:false, custom:false },
+  { id:'kecamatan', label:'Kecamatan', required:true, enabled:false, custom:false },
+  { id:'kota_kec', label:'Kota / Kecamatan (gabung)', required:true, enabled:false, custom:false }
+];
+window.__prodFields = DEFAULT_FIELDS.slice();
+
+function renderFormFields(){
+  var list = document.getElementById('fFormFieldsList');
+  if(!list) return;
+  list.innerHTML = window.__prodFields.map(function(f, idx){
+    return '<div class="pfv2-field-row">' +
+      '<input type="checkbox" class="pfv2-field-row-check" '+(f.enabled?'checked':'')+' onchange="window.__prodFields['+idx+'].enabled=this.checked"/>' +
+      '<div class="pfv2-field-row-name">'+esc(f.label)+(f.required?' <span class="req">*</span>':'')+(f.custom?' <span style="font-size:9px;background:#DBEAFE;color:#1E40AF;padding:1px 5px;border-radius:99px">CUSTOM</span>':'')+'</div>' +
+      '<div class="pfv2-field-row-btns">' +
+        '<button class="pfv2-field-row-btn" onclick="moveField('+idx+',-1)" title="Naik"><i class="ti ti-chevron-up"></i></button>' +
+        '<button class="pfv2-field-row-btn" onclick="moveField('+idx+',1)" title="Turun"><i class="ti ti-chevron-down"></i></button>' +
+        (f.custom ? '<button class="pfv2-field-row-btn" onclick="removeCustomField('+idx+')" title="Hapus" style="color:var(--red)"><i class="ti ti-trash"></i></button>' : '') +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+function moveField(idx, delta){
+  var arr = window.__prodFields;
+  var newIdx = idx + delta;
+  if(newIdx < 0 || newIdx >= arr.length) return;
+  var tmp = arr[idx]; arr[idx] = arr[newIdx]; arr[newIdx] = tmp;
+  renderFormFields();
+}
+function addCustomField(){
+  var label = prompt('Nama field custom:');
+  if(!label) return;
+  window.__prodFields.push({ id:'custom_'+Date.now(), label:label.trim(), required:false, enabled:true, custom:true });
+  renderFormFields();
+}
+function removeCustomField(idx){
+  if(!window.__prodFields[idx] || !window.__prodFields[idx].custom) return;
+  window.__prodFields.splice(idx,1);
+  renderFormFields();
+}
+
+/* ═════════════════════════════════════════════
+   REALTIME PREVIEW
+═════════════════════════════════════════════ */
+function updatePfv2Preview(){
+  var name = (document.getElementById('fName')||{}).value || 'Nama Produk';
+  var price = (document.getElementById('fPrice')||{}).value || '';
+  var btnText = (document.getElementById('fBtnText')||{}).value || 'Beli Sekarang ➜';
+  var btnColor = (document.getElementById('fProdBtnColor')||{}).value || '#10B981';
+  var bg = (document.getElementById('fBgColor')||{}).value || '#FFFFFF';
+
+  var elName = document.getElementById('pvName'); if(elName) elName.textContent = name;
+  var elPrice = document.getElementById('pvPrice');
+  if(elPrice){ elPrice.textContent = price ? (price.indexOf('Rp')>=0 ? price : 'Rp '+price) : 'Rp 0'; }
+  var elBtn = document.getElementById('pvBtn');
+  if(elBtn){ elBtn.textContent = btnText; elBtn.style.background = btnColor; }
+  var mockup = document.getElementById('pfv2PreviewMockup');
+  if(mockup) mockup.style.background = bg;
+
+  var elCover = document.getElementById('pvCover');
+  if(elCover){
+    var primary = (window.__prodImages||[]).find(function(i){ return i.isPrimary; }) || (window.__prodImages||[])[0];
+    var covB64 = primary ? primary.b64 : ((document.getElementById('fCoverImg')||{}).dataset||{}).b64;
+    if(covB64){ elCover.innerHTML = '<img src="'+covB64+'"/>'; }
+    else { elCover.innerHTML = '📷'; }
+  }
 }
 
 function updateProdGreetingPreview(){
@@ -7599,8 +8615,99 @@ function saveProd(){
   const hpp = (document.getElementById('fHpp')||{}).value ? document.getElementById('fHpp').value.trim() : '';
   var invEl = document.getElementById('fInventaris');
   const inventaris = invEl && invEl.value !== '' ? parseInt(invEl.value, 10) || 0 : null;
+
+  // v2 fields — grab safely (element may not exist in legacy views)
+  var gv = function(id, dflt){ var el = document.getElementById(id); return el ? el.value : (dflt || ''); };
+  var gc = function(id){ var el = document.getElementById(id); return el ? !!el.checked : false; };
+
+  // Cover: primary from multi-image, fallback ke legacy fCoverImg
+  var primaryImg = (window.__prodImages||[]).find(function(i){ return i.isPrimary; }) || (window.__prodImages||[])[0];
   var coverImgEl = document.getElementById('fCoverImg');
-  const coverImage = coverImgEl && coverImgEl.dataset && coverImgEl.dataset.b64 ? coverImgEl.dataset.b64 : '';
+  const coverImage = primaryImg ? primaryImg.b64
+    : (coverImgEl && coverImgEl.dataset && coverImgEl.dataset.b64 ? coverImgEl.dataset.b64 : '');
+  var images = (window.__prodImages||[]).slice();
+
+  // Section 1 extras
+  var urlSlug = (gv('fUrlSlug') || '').trim() || (typeof dgSlugify === 'function' ? dgSlugify(name) : name.toLowerCase().replace(/\s+/g,'-'));
+  var kode = gv('fKode').trim();
+  var klasifikasi = gv('fKlasifikasi') || 'fisik';
+  var kategori = gv('fKategori').trim();
+  var koleksi = gv('fKoleksi').trim();
+  var captcha = gc('fCaptcha');
+  var status = gv('fStatus') || 'live';
+
+  // Section 3 extras
+  var tipe = gv('fTipe') || 'simple';
+  var hargaNormal = gv('fHargaNormal').trim();
+  var grosir = (window.__prodGrosir||[]).slice();
+
+  // Section 4
+  var kodeUnikEnabled = gc('fKodeUnikEnabled');
+  var kodeUnikMin = parseInt(gv('fKodeUnikMin'), 10) || 1;
+  var kodeUnikMax = parseInt(gv('fKodeUnikMax'), 10) || 999;
+
+  // Section 5
+  var resellerEnabled = gc('fResellerEnabled');
+  var resellerKomisi = gv('fResellerKomisi').trim();
+  var resellerKomisiTipe = gv('fResellerKomisiTipe') || 'percent';
+
+  // Section 6 extras
+  var overrideCSRotator = gc('fOverrideCSRotator');
+  var shipperId = gv('fShipperId');
+  var adminId = gv('fAdminId');
+
+  // Section 7
+  var template = gv('fTemplate') || 'none';
+  var bgColor = gv('fBgColor') || '#FFFFFF';
+  var sectionTitle = gv('fSectionTitle').trim();
+
+  // Section 8
+  var progressiveForm = gc('fProgressiveForm');
+
+  // Section 9
+  var headerImgEl = document.getElementById('fHeaderImg');
+  var headerImage = headerImgEl && headerImgEl.dataset && headerImgEl.dataset.b64 ? headerImgEl.dataset.b64 : '';
+  var headerShowTitle = gc('fHeaderShowTitle');
+  var headerShowTagline = gc('fHeaderShowTagline');
+  var headerTagline = gv('fHeaderTagline').trim();
+
+  // Section 10
+  var showCoverAtCheckout = document.getElementById('fShowCoverAtCheckout') ? gc('fShowCoverAtCheckout') : true;
+
+  // Section 11
+  var warrantyEnabled = gc('fWarrantyEnabled');
+  var warrantyLabel = gv('fWarrantyLabel') || '100% Jaminan Kepuasan';
+
+  // Section 12
+  var variants = (window.__prodVariants||[]).slice();
+
+  // Section 13
+  var formFields = (window.__prodFields||[]).slice();
+
+  // Section 14
+  var dropshipEnabled = gc('fDropshipEnabled');
+
+  // Section 15
+  var btnText = gv('fBtnText').trim();
+  var btnColor = gv('fProdBtnColor').trim();
+
+  // Section 16
+  var videoUrl = gv('fVideoUrl').trim();
+
+  // Section 17
+  var kontenHeading = gv('fKontenHeading').trim();
+  var kontenBody = gv('fKontenBody').trim();
+
+  // Section 18 (tracking)
+  var fbPixelId = gv('fFbPixelId').trim();
+  var fbPixelEvent = gv('fFbPixelEvent');
+  var ttPixelId = gv('fTtPixelId').trim();
+  var ttPixelEvent = gv('fTtPixelEvent');
+
+  // Section 19
+  var successAction = gv('fSuccessAction') || 'wa_cs';
+  var successCustomUrl = gv('fSuccessCustomUrl').trim();
+
   const produkWA = document.getElementById('fProdWA').value.trim() || name;
   const greeting = document.getElementById('fGreeting').value.trim();
   const gtmId = document.getElementById('fGTM').value.trim();
@@ -7635,13 +8742,51 @@ function saveProd(){
       const oldCounts = prods[i].csLeadCounts || {};
       const newCounts = {};
       csIds.forEach(id => { newCounts[id] = oldCounts[id] || 0; });
-      prods[i] = {...prods[i], name, price, desc, hpp, inventaris, coverImage, csId, csIds, csLeadCounts:newCounts, waNum, produkWA, greeting, gtmId, convLabel, distribMode:saveMode, csWeights:saveWeights, distribSoloId:saveSoloId};
+      prods[i] = {...prods[i], name, price, desc, hpp, inventaris, coverImage, images,
+        urlSlug, kode, klasifikasi, kategori, koleksi, captcha, status,
+        active: status !== 'archived',
+        tipe, hargaNormal, grosir,
+        kodeUnikEnabled, kodeUnikMin, kodeUnikMax,
+        resellerEnabled, resellerKomisi, resellerKomisiTipe,
+        overrideCSRotator, shipperId, adminId,
+        template, bgColor, sectionTitle,
+        progressiveForm,
+        headerImage, headerShowTitle, headerShowTagline, headerTagline,
+        showCoverAtCheckout,
+        warrantyEnabled, warrantyLabel,
+        variants,
+        formFields,
+        isDropship: dropshipEnabled, dropshipEnabled,
+        btnText, btnColor,
+        videoUrl, kontenHeading, kontenBody,
+        fbPixelId, fbPixelEvent, ttPixelId, ttPixelEvent,
+        successAction, successCustomUrl,
+        csId, csIds, csLeadCounts:newCounts, waNum, produkWA, greeting, gtmId, convLabel, distribMode:saveMode, csWeights:saveWeights, distribSoloId:saveSoloId};
       savedProd = prods[i];
     }
   } else {
     const newCounts = {};
     csIds.forEach(id => { newCounts[id] = 0; });
-    savedProd = {id: Date.now(), name, price, desc, hpp, inventaris, coverImage, csId, csIds, csLeadCounts:newCounts, waNum, produkWA, greeting, gtmId, convLabel, distribMode:saveMode, csWeights:saveWeights, distribSoloId:saveSoloId};
+    savedProd = {id: Date.now(), name, price, desc, hpp, inventaris, coverImage, images,
+      urlSlug, kode, klasifikasi, kategori, koleksi, captcha, status,
+      active: status !== 'archived',
+      tipe, hargaNormal, grosir,
+      kodeUnikEnabled, kodeUnikMin, kodeUnikMax,
+      resellerEnabled, resellerKomisi, resellerKomisiTipe,
+      overrideCSRotator, shipperId, adminId,
+      template, bgColor, sectionTitle,
+      progressiveForm,
+      headerImage, headerShowTitle, headerShowTagline, headerTagline,
+      showCoverAtCheckout,
+      warrantyEnabled, warrantyLabel,
+      variants,
+      formFields,
+      isDropship: dropshipEnabled, dropshipEnabled,
+      btnText, btnColor,
+      videoUrl, kontenHeading, kontenBody,
+      fbPixelId, fbPixelEvent, ttPixelId, ttPixelEvent,
+      successAction, successCustomUrl,
+      csId, csIds, csLeadCounts:newCounts, waNum, produkWA, greeting, gtmId, convLabel, distribMode:saveMode, csWeights:saveWeights, distribSoloId:saveSoloId};
     // Tag ownership: kalau advertiser yang bikin, simpan owner info
     if(currentAdUser){
       savedProd.ownerRole = 'advertiser';
@@ -7976,7 +9121,7 @@ function initFormPanel(){
   const cfg=getCfg();
   document.getElementById('fHeadline').value=cfg.headline;
   document.getElementById('fCTA').value=cfg.cta;
-  document.getElementById('fBtnColor').value=cfg.btnColor||'#43a047';
+  document.getElementById('fProdBtnColor').value=cfg.btnColor||'#43a047';
   document.getElementById('fBtnColorHex').value=cfg.btnColor||'#43a047';
   document.getElementById('fTrust').value=cfg.trust||'';
   document.getElementById('fieldAlamat').checked=!!(cfg.fieldAlamat);
@@ -8003,7 +9148,7 @@ function extraFieldsHTML(inline=false){
 function updatePreview(){
   const headline=document.getElementById('fHeadline')?document.getElementById('fHeadline').value:'';
   const cta=document.getElementById('fCTA')?document.getElementById('fCTA').value:'Beli Sekarang ➜';
-  const color=document.getElementById('fBtnColor')?document.getElementById('fBtnColor').value:'#43a047';
+  const color=document.getElementById('fProdBtnColor')?document.getElementById('fProdBtnColor').value:'#43a047';
   const trust=(document.getElementById('fTrust')?document.getElementById('fTrust').value:'').split(',').map(s=>s.trim()).filter(Boolean);
   document.getElementById('pvHeadline').innerHTML=headline.replace(/\n/g,'<br/>').replace(/CS kami/g,'<span style="color:#2e7d32;font-weight:700">CS kami</span>');
   document.getElementById('pvProds').innerHTML=extraFieldsHTML(false);
@@ -8014,7 +9159,7 @@ function updatePreview(){
 function syncColor(){
   const hex=document.getElementById('fBtnColorHex').value;
   if(/^#[0-9A-Fa-f]{6}$/.test(hex)){
-    document.getElementById('fBtnColor').value=hex;
+    document.getElementById('fProdBtnColor').value=hex;
     updatePreview();
   }
 }
@@ -8022,7 +9167,7 @@ function saveFormConfig(){
   const cfg=getCfg();
   cfg.headline=document.getElementById('fHeadline').value;
   cfg.cta=document.getElementById('fCTA').value.trim()||cfg.cta;
-  cfg.btnColor=document.getElementById('fBtnColor').value;
+  cfg.btnColor=document.getElementById('fProdBtnColor').value;
   cfg.trust=document.getElementById('fTrust').value;
   cfg.fieldAlamat=document.getElementById('fieldAlamat').checked;
   cfg.fieldKota=document.getElementById('fieldKota').checked;
@@ -13271,7 +14416,7 @@ async function restoreSession(){
     if(e.target===this)closePreview();
   });
   // Live color sync
-  const pc=document.getElementById('fBtnColor');
+  const pc=document.getElementById('fProdBtnColor');
   if(pc)pc.addEventListener('input',function(){
     document.getElementById('fBtnColorHex').value=this.value;
     updatePreview();
