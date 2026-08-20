@@ -1099,6 +1099,79 @@ tr:hover td{background:var(--surface-2)}
 .pfv2-preview-mockup .pv-cover img{width:100%;height:100%;object-fit:cover;border-radius:6px}
 .pfv2-preview-mockup .pv-price{font-size:16px;font-weight:600;color:#10B981;font-family:'SF Mono',Menlo,monospace;margin:6px 0 10px}
 
+/* ═════════════════════════════════════════════
+   PRODUCT DETAIL VIEW (OrderHero-style)
+═════════════════════════════════════════════ */
+.prod-detail-v2{background:var(--surface-2);padding:16px 20px 40px;margin:-20px;border-radius:0;min-height:100vh}
+[data-theme="dark"] .prod-detail-v2{background:var(--surface-2)}
+.pd-back-row{margin-bottom:12px}
+.pd-back-btn{background:none;border:none;color:var(--primary);cursor:pointer;font-family:inherit;font-size:13px;font-weight:500;padding:4px 0;display:inline-flex;align-items:center;gap:4px}
+.pd-back-btn:hover{text-decoration:underline}
+.pd-back-btn i{font-size:15px}
+.pd-header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.pd-header-left{display:flex;align-items:center;gap:14px;flex-wrap:wrap;min-width:0}
+.pd-header-right{display:flex;gap:8px;flex-wrap:wrap}
+.pd-title{font-size:24px;font-weight:700;color:var(--text);margin:0;letter-spacing:-.5px}
+.pd-btn{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;font-size:12.5px;font-weight:500;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px;transition:all .12s;white-space:nowrap}
+.pd-btn:hover:not(:disabled){background:var(--surface-2);border-color:var(--text-muted)}
+.pd-btn i{font-size:15px}
+.pd-btn-primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.pd-btn-primary:hover{filter:brightness(1.1)}
+.pd-btn-danger{color:var(--red)}
+.pd-btn-danger:hover{background:var(--red-light);border-color:var(--red)}
+.pd-btn-outline{background:var(--surface);color:var(--text)}
+.pd-quick-tabs{display:flex;gap:10px;background:var(--surface);border-radius:12px;padding:8px;margin-bottom:20px;overflow-x:auto;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.pd-quick-tab{flex:1;min-width:160px;background:none;border:none;padding:12px 16px;font-size:13px;color:var(--text-muted);cursor:pointer;font-family:inherit;border-radius:8px;transition:all .12s;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:500;white-space:nowrap}
+.pd-quick-tab:hover{background:var(--surface-2);color:var(--text)}
+.pd-quick-tab i{font-size:16px;color:var(--primary)}
+.pd-date-row{display:flex;align-items:center;margin-bottom:14px}
+.pd-date-info{background:var(--surface);border:1px solid var(--border);border-radius:99px;padding:6px 14px;font-size:12.5px;color:var(--text);display:inline-flex;align-items:center;gap:6px;font-weight:500}
+.pd-date-info::before{content:"📅"}
+.pd-funnel-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:30px 24px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.pd-funnel{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.pd-funnel-stage{flex:1;min-width:130px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px}
+.pd-funnel-icon{width:64px;height:64px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:32px}
+.pd-funnel-icon i{font-size:32px}
+.pd-funnel-label{font-size:13px;color:var(--text);font-weight:500}
+.pd-funnel-value{font-size:28px;font-weight:700;color:var(--primary);font-family:'SF Mono',Menlo,monospace}
+.pd-tracker-btn{background:#0D9488;color:#fff;border:none;padding:6px 12px;border-radius:6px;font-size:11.5px;font-weight:500;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px;margin-top:-4px}
+.pd-tracker-btn:hover{background:#0F766E}
+.pd-tracker-btn i{font-size:13px}
+.pd-funnel-arrow{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;min-width:80px}
+.pd-arrow-pct{position:absolute;top:-6px;font-size:12px;font-weight:600;color:var(--primary);background:var(--surface);padding:2px 6px;z-index:2;border-radius:99px}
+.pd-arrow-svg{width:70px;height:32px}
+.pd-toolbar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.pd-checkout-table{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.pd-checkout-table table{width:100%;border-collapse:collapse}
+.pd-checkout-table thead tr{background:var(--surface-2)}
+.pd-checkout-table th{padding:12px 16px;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px;text-align:left;border-bottom:1px solid var(--border)}
+.pd-checkout-table td{padding:14px 16px;font-size:13px;color:var(--text);border-bottom:1px solid var(--border);vertical-align:middle}
+.pd-checkout-table tbody tr:last-child td{border-bottom:none}
+.pd-checkout-table tbody tr:hover{background:var(--surface-2)}
+.pd-cp-name{font-weight:600;color:var(--primary);cursor:pointer}
+.pd-cp-name:hover{text-decoration:underline}
+.pd-cp-actions{display:flex;gap:10px;margin-top:4px;font-size:11.5px}
+.pd-cp-action{color:var(--text-muted);cursor:pointer;display:inline-flex;align-items:center;gap:3px}
+.pd-cp-action:hover{color:var(--primary)}
+.pd-cp-action i{font-size:12px}
+.pd-cp-num{font-family:'SF Mono',Menlo,monospace}
+.pd-cp-view,.pd-cp-order{color:var(--primary);cursor:pointer;font-weight:500;display:inline-flex;align-items:center;gap:3px;font-size:12px;margin-top:2px}
+.pd-cp-view:hover,.pd-cp-order:hover{text-decoration:underline}
+.pd-cp-net-rev{color:var(--primary);font-weight:600;font-family:'SF Mono',Menlo,monospace}
+.pd-cp-traffic-bar{width:100%;max-width:120px;height:4px;background:var(--surface-2);border-radius:99px;margin:6px auto 0;overflow:hidden}
+.pd-cp-traffic-fill{height:100%;background:var(--primary);border-radius:99px}
+.pd-cp-traffic-pct{font-family:'SF Mono',Menlo,monospace;font-weight:600;color:var(--text);text-align:center}
+
+@media(max-width:800px){
+  .pd-funnel{flex-direction:column;gap:16px}
+  .pd-funnel-arrow{transform:rotate(90deg)}
+  .pd-funnel-stage{min-width:100%}
+  .pd-quick-tab{min-width:120px;font-size:11.5px}
+  .pd-title{font-size:20px}
+  .pd-checkout-table{overflow-x:auto}
+  .pd-checkout-table th,.pd-checkout-table td{padding:10px 12px;font-size:11.5px}
+}
+
 @media(max-width:900px){
   .pfv2-body{grid-template-columns:1fr;padding:14px}
   .pfv2-right{position:static;max-height:none;order:2}
@@ -2561,7 +2634,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-07-01-date-picker';
+window.__APP_VERSION = '2026-07-02-prod-detail-view';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -4029,6 +4102,117 @@ document.addEventListener('DOMContentLoaded', function(){
 
           <!-- Table -->
           <div id="prodList" class="prod-table-wrap"></div>
+        </div>
+
+        <!-- Product Detail View (OrderHero-style — analytics + funnel) -->
+        <div id="prodDetailCard" class="prod-detail-v2" style="display:none">
+          <!-- Back link -->
+          <div class="pd-back-row">
+            <button class="pd-back-btn" onclick="closeProdDetail()"><i class="ti ti-chevron-left"></i>Back to List</button>
+          </div>
+
+          <!-- Header: name + actions -->
+          <div class="pd-header">
+            <div class="pd-header-left">
+              <h1 class="pd-title" id="pdProductName">—</h1>
+              <button class="pd-btn pd-btn-outline" onclick="pdEditProduct()"><i class="ti ti-pencil"></i>Edit Produk</button>
+            </div>
+            <div class="pd-header-right">
+              <button class="pd-btn pd-btn-outline" onclick="pdLihatOrder()"><i class="ti ti-eye"></i>Lihat Order</button>
+              <button class="pd-btn pd-btn-outline" onclick="pdLihatLanding()"><i class="ti ti-external-link"></i>Lihat</button>
+              <button class="pd-btn pd-btn-outline pd-btn-danger" onclick="pdDeleteProduct()"><i class="ti ti-trash"></i>Hapus</button>
+            </div>
+          </div>
+
+          <!-- Quick action tabs (Teks Follow-up, Notifikasi, Penugasan) -->
+          <div class="pd-quick-tabs">
+            <button class="pd-quick-tab" onclick="pdOpenSection('followup')"><i class="ti ti-message-2"></i>Teks Follow-up</button>
+            <button class="pd-quick-tab" onclick="pdOpenSection('notifikasi')"><i class="ti ti-bell"></i>Notifikasi</button>
+            <button class="pd-quick-tab" onclick="pdOpenSection('penugasan')"><i class="ti ti-users"></i>Penugasan</button>
+          </div>
+
+          <!-- Date filter (per-produk) -->
+          <div class="pd-date-row">
+            <div style="flex:1"></div>
+            <div class="pd-date-info" id="pdDateInfo">30 Hari Terakhir</div>
+          </div>
+
+          <!-- FUNNEL VISUALIZATION -->
+          <div class="pd-funnel-card">
+            <div class="pd-funnel">
+              <!-- Stage 1: Sales Page View -->
+              <div class="pd-funnel-stage">
+                <div class="pd-funnel-icon" style="background:#FEF3C7;color:#D97706"><i class="ti ti-building-store"></i></div>
+                <div class="pd-funnel-label">Sales Page View</div>
+                <div class="pd-funnel-value" id="pdFunnelView">0</div>
+                <button class="pd-tracker-btn" id="pdInstallTrackerBtn" onclick="pdShowInstallTracker()"><i class="ti ti-download"></i>Install Tracker</button>
+              </div>
+
+              <!-- Arrow 1 -->
+              <div class="pd-funnel-arrow">
+                <div class="pd-arrow-pct" id="pdConvPct1">0%</div>
+                <svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" class="pd-arrow-svg"><polygon points="0,10 40,10 40,0 60,20 40,40 40,30 0,30" fill="url(#pdGrad1)"/><defs><linearGradient id="pdGrad1" x1="0" x2="1"><stop offset="0" stop-color="#6366F1"/><stop offset="1" stop-color="#8B5CF6"/></linearGradient></defs></svg>
+              </div>
+
+              <!-- Stage 2: Checkout Page View -->
+              <div class="pd-funnel-stage">
+                <div class="pd-funnel-icon" style="background:#FED7AA;color:#EA580C"><i class="ti ti-shopping-cart"></i></div>
+                <div class="pd-funnel-label">Checkout Page View</div>
+                <div class="pd-funnel-value" id="pdFunnelCheckout">0</div>
+              </div>
+
+              <!-- Arrow 2 -->
+              <div class="pd-funnel-arrow">
+                <div class="pd-arrow-pct" id="pdConvPct2">0%</div>
+                <svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" class="pd-arrow-svg"><polygon points="0,10 40,10 40,0 60,20 40,40 40,30 0,30" fill="url(#pdGrad2)"/><defs><linearGradient id="pdGrad2" x1="0" x2="1"><stop offset="0" stop-color="#6366F1"/><stop offset="1" stop-color="#8B5CF6"/></linearGradient></defs></svg>
+              </div>
+
+              <!-- Stage 3: Order -->
+              <div class="pd-funnel-stage">
+                <div class="pd-funnel-icon" style="background:#FED7AA;color:#EA580C"><i class="ti ti-file-invoice"></i></div>
+                <div class="pd-funnel-label">Order</div>
+                <div class="pd-funnel-value" id="pdFunnelOrder">0</div>
+              </div>
+
+              <!-- Arrow 3 -->
+              <div class="pd-funnel-arrow">
+                <div class="pd-arrow-pct" id="pdConvPct3">0%</div>
+                <svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" class="pd-arrow-svg"><polygon points="0,10 40,10 40,0 60,20 40,40 40,30 0,30" fill="url(#pdGrad3)"/><defs><linearGradient id="pdGrad3" x1="0" x2="1"><stop offset="0" stop-color="#6366F1"/><stop offset="1" stop-color="#8B5CF6"/></linearGradient></defs></svg>
+              </div>
+
+              <!-- Stage 4: Paid -->
+              <div class="pd-funnel-stage">
+                <div class="pd-funnel-icon" style="background:#FED7AA;color:#EA580C"><i class="ti ti-currency-dollar"></i></div>
+                <div class="pd-funnel-label">Paid</div>
+                <div class="pd-funnel-value" id="pdFunnelPaid">0</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Checkout Pages toolbar -->
+          <div class="pd-toolbar">
+            <button class="pd-btn pd-btn-primary" onclick="pdCreateCheckoutPage()"><i class="ti ti-plus"></i>Create Checkout Page</button>
+            <button class="pd-btn pd-btn-outline" onclick="pdOpenEmbedModal()"><i class="ti ti-code"></i>Embed Checkout Page</button>
+            <button class="pd-btn pd-btn-outline" onclick="pdOpenTrafficDist()"><i class="ti ti-chart-bar"></i>Traffic Distribution</button>
+          </div>
+
+          <!-- Checkout Pages table -->
+          <div class="pd-checkout-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Checkout Page</th>
+                  <th style="text-align:center">View</th>
+                  <th style="text-align:center">Order</th>
+                  <th style="text-align:center">Paid</th>
+                  <th style="text-align:center">Paid Ratio</th>
+                  <th style="text-align:right">Net Revenue</th>
+                  <th style="text-align:center">Traffic Distribution</th>
+                </tr>
+              </thead>
+              <tbody id="pdCheckoutTableBody"></tbody>
+            </table>
+          </div>
         </div>
 
         <!-- Product Detail Form v2 (20-section OrderHero-style layout, hidden by default) -->
@@ -6171,7 +6355,7 @@ function showPanel(name){
   // Panel-specific init
   if(name==='overview')renderOverview();
   else if(name==='leads'){initLeadsPanel();renderLeads();}
-  else if(name==='produk'){renderProdList();document.getElementById('prodListCard').style.display='block';document.getElementById('prodFormCard').style.display='none';}
+  else if(name==='produk'){renderProdList();document.getElementById('prodListCard').style.display='block';document.getElementById('prodFormCard').style.display='none';var pdC=document.getElementById('prodDetailCard');if(pdC)pdC.style.display='none';}
   else if(name==='team')initTeamPanel();
   else if(name==='form')initFormPanel();
   else if(name==='cs')initCSPanel();
@@ -7475,7 +7659,7 @@ function renderProdList(){
     var orderCell = orderCount > 0 ? '<span class="prod-cell-num">'+orderCount+'</span>' : '<span class="prod-cell-num dash">0</span>';
 
     const altClass = (i % 2 === 1) ? 'is-alt' : '';
-    html += '<tr class="'+altClass+'" data-prodid="'+p.id+'" onclick="showProdForm('+p.id+')">' +
+    html += '<tr class="'+altClass+'" data-prodid="'+p.id+'" onclick="showProdDetail('+p.id+')">' +
       '<td class="prod-cell-check" onclick="event.stopPropagation()"><input type="checkbox" class="prod-row-check" data-prodid="'+p.id+'" onchange="updateBulkDeleteState()"/></td>' +
       '<td class="prod-cell-thumb">'+thumbCell+'</td>' +
       '<td><div><span class="prod-cell-name">'+esc(p.name)+'</span>'+warnIcon+'</div>'+formLink+'</td>' +
@@ -7785,6 +7969,183 @@ function copyProdEmbed(prodId){
   }
 }
 
+/* ═════════════════════════════════════════════
+   PRODUCT DETAIL VIEW (OrderHero-style — funnel + stats)
+═════════════════════════════════════════════ */
+window.__pdCurrentProdId = null;
+
+function showProdDetail(id){
+  // Advertiser scope
+  if(id && currentAdUser){
+    const p0 = getProds().find(x => x.id === id);
+    if(p0 && (p0.ownerRole !== 'advertiser' || p0.ownerId !== currentAdUser.id)){
+      toast('⚠️ Produk ini bukan milik lo'); return;
+    }
+  }
+  var p = getProds().find(function(x){ return x.id === id; });
+  if(!p){ toast('⚠️ Produk tidak ditemukan'); return; }
+  window.__pdCurrentProdId = id;
+  document.getElementById('prodListCard').style.display = 'none';
+  document.getElementById('prodFormCard').style.display = 'none';
+  document.getElementById('prodDetailCard').style.display = 'block';
+
+  // Populate header
+  var nameEl = document.getElementById('pdProductName');
+  if(nameEl) nameEl.textContent = p.name;
+
+  // Populate date info from global period
+  var dpLbl = (document.getElementById('datePickerLabel')||{}).textContent || '30 Hari Terakhir';
+  var pdDateInfoEl = document.getElementById('pdDateInfo');
+  if(pdDateInfoEl) pdDateInfoEl.textContent = dpLbl;
+
+  // Compute funnel data from leads
+  var allLeads = (typeof LS !== 'undefined' && LS.g) ? LS.g('od_leads', []) : [];
+  var dr = (typeof getDateFilterRange === 'function') ? getDateFilterRange('prod') : { from: 0, to: Date.now() };
+  var prodLeads = allLeads.filter(function(l){
+    var t = l.ts || l.createdAt || 0;
+    if(t < dr.from || t > dr.to) return false;
+    var matchId = (l.productId && l.productId === p.id) || (l.prodId && l.prodId === p.id);
+    var matchName = l.produk === p.name;
+    return matchId || matchName;
+  });
+  var leadCount = prodLeads.length;
+  var contactedCount = prodLeads.filter(function(l){ return l.followStatus === 'contacted' || l.followStatus === 'closed'; }).length;
+  var closedCount = prodLeads.filter(function(l){ return l.followStatus === 'closed'; }).length;
+
+  // Funnel values — Sales Page View & Checkout Page View butuh tracker (belum ada)
+  // Untuk sekarang: Order = leadCount, Paid = closedCount
+  var salesPV = 0, checkoutPV = 0; // no tracker yet
+  var orderVal = leadCount;
+  var paidVal = closedCount;
+
+  var setText = function(id, v){ var e=document.getElementById(id); if(e) e.textContent = v; };
+  setText('pdFunnelView', salesPV);
+  setText('pdFunnelCheckout', checkoutPV);
+  setText('pdFunnelOrder', orderVal);
+  setText('pdFunnelPaid', paidVal);
+  var pct = function(a, b){ return b > 0 ? Math.round((a/b)*100)+'%' : '0%'; };
+  setText('pdConvPct1', pct(checkoutPV, salesPV));
+  setText('pdConvPct2', pct(orderVal, checkoutPV));
+  setText('pdConvPct3', pct(paidVal, orderVal));
+
+  // Checkout table row (single URL for now)
+  var body = document.getElementById('pdCheckoutTableBody');
+  if(body){
+    var price = parseInt(String(p.price||'').replace(/[^\d]/g,''), 10) || 0;
+    var netRev = paidVal * price;
+    body.innerHTML =
+      '<tr>' +
+        '<td>' +
+          '<div class="pd-cp-name" onclick="pdEditProduct()">'+esc(p.name)+'</div>' +
+          '<div class="pd-cp-actions">' +
+            '<span class="pd-cp-action" onclick="pdEditProduct()"><i class="ti ti-pencil"></i>Edit</span>' +
+            '<span class="pd-cp-action" onclick="pdDuplicateProduct()"><i class="ti ti-copy"></i>Duplicate</span>' +
+            '<span class="pd-cp-action" onclick="pdCopyEmbed()"><i class="ti ti-code"></i>Embed Form</span>' +
+          '</div>' +
+        '</td>' +
+        '<td style="text-align:center">' +
+          '<div class="pd-cp-num">'+salesPV+'</div>' +
+          '<div class="pd-cp-view" onclick="pdShowInstallTracker()"><i class="ti ti-eye"></i>View</div>' +
+        '</td>' +
+        '<td style="text-align:center">' +
+          '<div class="pd-cp-num">'+orderVal+'</div>' +
+          '<div class="pd-cp-order" onclick="showPanel(\'leads\')"><i class="ti ti-list"></i>Orders</div>' +
+        '</td>' +
+        '<td style="text-align:center"><div class="pd-cp-num">'+paidVal+'</div></td>' +
+        '<td style="text-align:center"><div class="pd-cp-num">'+(orderVal>0?Math.round((paidVal/orderVal)*100):0)+'%</div></td>' +
+        '<td style="text-align:right"><div class="pd-cp-net-rev">Rp'+netRev.toLocaleString('id-ID')+'</div></td>' +
+        '<td style="text-align:center">' +
+          '<div class="pd-cp-traffic-pct">100%</div>' +
+          '<div class="pd-cp-traffic-bar"><div class="pd-cp-traffic-fill" style="width:100%"></div></div>' +
+        '</td>' +
+      '</tr>';
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function closeProdDetail(){
+  document.getElementById('prodDetailCard').style.display = 'none';
+  document.getElementById('prodListCard').style.display = 'block';
+  window.__pdCurrentProdId = null;
+}
+
+function pdEditProduct(){
+  if(!window.__pdCurrentProdId) return;
+  showProdForm(window.__pdCurrentProdId);
+}
+function pdLihatOrder(){
+  showPanel('leads');
+  // Optionally filter to this product
+  var p = getProds().find(function(x){ return x.id === window.__pdCurrentProdId; });
+  if(p){
+    var s = document.getElementById('leadsSearch');
+    if(s){ s.value = p.name; s.dispatchEvent(new Event('input')); }
+  }
+}
+function pdLihatLanding(){
+  var p = getProds().find(function(x){ return x.id === window.__pdCurrentProdId; });
+  if(!p){ toast('⚠️ Produk tidak ditemukan'); return; }
+  toast('💡 Pasang embed code produk ini ke landing page — Embed URL bisa lo copy di sini.');
+  pdCopyEmbed();
+}
+function pdDeleteProduct(){
+  if(!window.__pdCurrentProdId) return;
+  var id = window.__pdCurrentProdId;
+  if(typeof deleteProd === 'function'){
+    deleteProd(id);
+    // After delete, jump back to list
+    setTimeout(function(){ closeProdDetail(); }, 100);
+  }
+}
+function pdDuplicateProduct(){
+  if(!window.__pdCurrentProdId) return;
+  var prods = getProds();
+  var src = prods.find(function(p){ return p.id === window.__pdCurrentProdId; });
+  if(!src){ toast('⚠️ Produk tidak ditemukan'); return; }
+  var copy = Object.assign({}, src, { id: Date.now(), name: src.name + ' (Copy)' });
+  prods.push(copy);
+  LS.s('od_prods', prods);
+  toast('✅ Produk di-duplicate — buka dari list');
+  closeProdDetail();
+  renderProdList();
+}
+function pdCopyEmbed(){
+  if(!window.__pdCurrentProdId) return;
+  if(typeof copyProdEmbed === 'function') copyProdEmbed(window.__pdCurrentProdId);
+}
+function pdOpenSection(sec){
+  // Open edit form + scroll to relevant section
+  if(!window.__pdCurrentProdId) return;
+  showProdForm(window.__pdCurrentProdId);
+  setTimeout(function(){
+    var secMap = { followup: 4, notifikasi: 10, penugasan: 4 }; // section numbers in prodFormCard
+    var secNum = secMap[sec];
+    if(secNum){
+      var el = document.querySelector('[data-sec="'+secNum+'"]');
+      if(el){ el.classList.remove('collapsed'); el.scrollIntoView({behavior:'smooth', block:'start'}); }
+    }
+  }, 200);
+}
+function pdShowInstallTracker(){
+  toast('🔧 Install Tracker: Sales Page View butuh JS pixel di landing page lo. Coming soon.');
+}
+function pdCreateCheckoutPage(){
+  if(!window.__pdCurrentProdId) return;
+  showProdForm(window.__pdCurrentProdId);
+}
+function pdOpenEmbedModal(){
+  if(!window.__pdCurrentProdId) return;
+  // Open form + jump to embed section 12
+  showProdForm(window.__pdCurrentProdId);
+  setTimeout(function(){
+    var el = document.querySelector('[data-sec="12"]');
+    if(el){ el.classList.remove('collapsed'); el.scrollIntoView({behavior:'smooth', block:'start'}); }
+  }, 200);
+}
+function pdOpenTrafficDist(){
+  toast('📊 Traffic Distribution: butuh multiple checkout URLs per produk. Coming soon.');
+}
+
 function showProdForm(id){
   // Safety: advertiser gak bisa edit produk yang bukan miliknya
   if(id && currentAdUser){
@@ -7795,6 +8156,7 @@ function showProdForm(id){
   }
   editProdId = id;
   document.getElementById('prodListCard').style.display = 'none';
+  var pdC = document.getElementById('prodDetailCard'); if(pdC) pdC.style.display = 'none';
   document.getElementById('prodFormCard').style.display = 'block';
 
   // Setter helper (safe untuk field yang mungkin belum ada di DOM)
@@ -9296,7 +9658,14 @@ function deleteProd(id){
 function cancelProd(){
   editProdId=null;
   document.getElementById('prodFormCard').style.display='none';
-  document.getElementById('prodListCard').style.display='block';
+  // Kalau kita datang dari Detail View, kembali ke Detail; kalau ga, ke List
+  if(window.__pdCurrentProdId){
+    document.getElementById('prodDetailCard').style.display='block';
+    // Re-render buat sync data terbaru
+    if(typeof showProdDetail === 'function') showProdDetail(window.__pdCurrentProdId);
+  } else {
+    document.getElementById('prodListCard').style.display='block';
+  }
 }
 
 /* ═════════════════════════════════════════════
