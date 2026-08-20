@@ -2491,7 +2491,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-06-24-produk-12section';
+window.__APP_VERSION = '2026-06-25-preview-realtime-fix';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -4393,14 +4393,18 @@ document.addEventListener('DOMContentLoaded', function(){
             <div class="pfv2-preview-title"><i class="ti ti-eye"></i>Preview Realtime</div>
             <div class="pfv2-preview-frame desktop" id="pfv2PreviewFrame">
               <div class="pfv2-preview-mockup" id="pfv2PreviewMockup">
+                <div id="pvWarranty" style="display:none;background:#10B981;color:#fff;padding:6px 10px;border-radius:6px;font-size:10px;text-align:center;margin-bottom:10px;font-weight:600"><i class="ti ti-shield-check" style="font-size:11px;vertical-align:-1px"></i> <span id="pvWarrantyText"></span></div>
                 <div class="pv-headline">📦 <span id="pvName">Nama Produk</span></div>
+                <div id="pvKategori" style="display:none;background:#EEF2FF;color:#4338CA;padding:2px 8px;border-radius:99px;font-size:9px;font-weight:500;margin-bottom:8px;display:inline-block"></div>
                 <div class="pv-cover" id="pvCover">📷</div>
-                <div class="pv-price" id="pvPrice">Rp 0</div>
-                <div class="pv-input">Nama Lengkap</div>
-                <div class="pv-input">No. WhatsApp</div>
-                <div class="pv-input">Alamat Lengkap</div>
-                <div class="pv-btn" id="pvBtn">Beli Sekarang ➜</div>
-                <div style="text-align:center;font-size:9px;color:#94A3B8;margin-top:10px">Preview simplified — checkout actual tampil sesuai template.</div>
+                <div style="display:flex;align-items:baseline;gap:6px;margin:6px 0 10px">
+                  <div id="pvPriceNormal" style="display:none;font-size:11px;color:#94A3B8;text-decoration:line-through"></div>
+                  <div class="pv-price" id="pvPrice" style="margin:0">Rp 0</div>
+                </div>
+                <div id="pvSectionTitle" style="display:none;font-size:12px;font-weight:600;color:#0F172A;margin-bottom:8px;padding-top:8px;border-top:1px dashed #E2E8F0"></div>
+                <div id="pvFields" style="display:flex;flex-direction:column;gap:0"></div>
+                <div class="pv-btn" id="pvBtn" style="margin-top:10px">Beli Sekarang ➜</div>
+                <div id="pvTemplate" style="text-align:center;font-size:9px;color:#94A3B8;margin-top:10px">Preview simplified — checkout actual tampil sesuai template.</div>
               </div>
             </div>
           </div>
@@ -7683,11 +7687,8 @@ function showProdForm(id){
     renderDistribSection();
     updateProdGreetingPreview();
   }
-  // Wire realtime preview
-  ['fName','fPrice','fBtnText'].forEach(function(id){
-    var el = document.getElementById(id);
-    if(el && !el.__pfv2Wired){ el.addEventListener('input', updatePfv2Preview); el.__pfv2Wired = true; }
-  });
+  // Wire realtime preview via event delegation (semua input di pfv2-left)
+  bindPfv2PreviewListeners();
   updatePfv2Preview();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -8303,7 +8304,7 @@ function renderFormFields(){
   if(!list) return;
   list.innerHTML = window.__prodFields.map(function(f, idx){
     return '<div class="pfv2-field-row">' +
-      '<input type="checkbox" class="pfv2-field-row-check" '+(f.enabled?'checked':'')+' onchange="window.__prodFields['+idx+'].enabled=this.checked"/>' +
+      '<input type="checkbox" class="pfv2-field-row-check" '+(f.enabled?'checked':'')+' onchange="window.__prodFields['+idx+'].enabled=this.checked;updatePfv2Preview()"/>' +
       '<div class="pfv2-field-row-name">'+esc(f.label)+(f.required?' <span class="req">*</span>':'')+(f.custom?' <span style="font-size:9px;background:#DBEAFE;color:#1E40AF;padding:1px 5px;border-radius:99px">CUSTOM</span>':'')+'</div>' +
       '<div class="pfv2-field-row-btns">' +
         '<button class="pfv2-field-row-btn" onclick="moveField('+idx+',-1)" title="Naik"><i class="ti ti-chevron-up"></i></button>' +
@@ -8319,6 +8320,7 @@ function moveField(idx, delta){
   if(newIdx < 0 || newIdx >= arr.length) return;
   var tmp = arr[idx]; arr[idx] = arr[newIdx]; arr[newIdx] = tmp;
   renderFormFields();
+  updatePfv2Preview();
 }
 function addCustomField(){
   var label = prompt('Nama field custom:');
@@ -8336,20 +8338,71 @@ function removeCustomField(idx){
    REALTIME PREVIEW
 ═════════════════════════════════════════════ */
 function updatePfv2Preview(){
-  var name = (document.getElementById('fName')||{}).value || 'Nama Produk';
-  var price = (document.getElementById('fPrice')||{}).value || '';
-  var btnText = (document.getElementById('fBtnText')||{}).value || 'Beli Sekarang ➜';
-  var btnColor = (document.getElementById('fProdBtnColor')||{}).value || '#10B981';
-  var bg = (document.getElementById('fBgColor')||{}).value || '#FFFFFF';
+  var gv = function(id){ var el=document.getElementById(id); return el ? el.value : ''; };
+  var gc = function(id){ var el=document.getElementById(id); return el ? !!el.checked : false; };
 
+  var name = gv('fName') || 'Nama Produk';
+  var kategori = gv('fKategori');
+  var price = gv('fPrice');
+  var hargaNormal = gv('fHargaNormal');
+  var btnText = gv('fBtnText') || 'Beli Sekarang ➜';
+  var btnColor = gv('fProdBtnColor') || '#10B981';
+  var bg = gv('fBgColor') || '#FFFFFF';
+  var warranty = gc('fWarrantyEnabled');
+  var warrantyLbl = gv('fWarrantyLabel') || '100% Jaminan Kepuasan';
+  var sectionTitle = gv('fSectionTitle');
+  var template = gv('fTemplate') || 'none';
+
+  // Basic fields
   var elName = document.getElementById('pvName'); if(elName) elName.textContent = name;
   var elPrice = document.getElementById('pvPrice');
   if(elPrice){ elPrice.textContent = price ? (price.indexOf('Rp')>=0 ? price : 'Rp '+price) : 'Rp 0'; }
+  var elPriceNormal = document.getElementById('pvPriceNormal');
+  if(elPriceNormal){
+    if(hargaNormal){ elPriceNormal.textContent = hargaNormal.indexOf('Rp')>=0 ? hargaNormal : 'Rp '+hargaNormal; elPriceNormal.style.display = ''; }
+    else elPriceNormal.style.display = 'none';
+  }
   var elBtn = document.getElementById('pvBtn');
   if(elBtn){ elBtn.textContent = btnText; elBtn.style.background = btnColor; }
   var mockup = document.getElementById('pfv2PreviewMockup');
   if(mockup) mockup.style.background = bg;
 
+  // Kategori badge
+  var elKat = document.getElementById('pvKategori');
+  if(elKat){
+    if(kategori){ elKat.textContent = kategori; elKat.style.display = 'inline-block'; }
+    else elKat.style.display = 'none';
+  }
+
+  // Warranty badge (top)
+  var elWrap = document.getElementById('pvWarranty');
+  var elWrapTxt = document.getElementById('pvWarrantyText');
+  if(elWrap && elWrapTxt){
+    if(warranty){ elWrapTxt.textContent = warrantyLbl; elWrap.style.display = 'block'; }
+    else elWrap.style.display = 'none';
+  }
+
+  // Section title
+  var elST = document.getElementById('pvSectionTitle');
+  if(elST){
+    if(sectionTitle){ elST.textContent = sectionTitle; elST.style.display = 'block'; }
+    else elST.style.display = 'none';
+  }
+
+  // Dynamic form fields — reflect Bidang Diminta enabled state
+  var elFields = document.getElementById('pvFields');
+  if(elFields){
+    var enabled = (window.__prodFields||[]).filter(function(f){ return f.enabled; });
+    if(enabled.length){
+      elFields.innerHTML = enabled.map(function(f){
+        return '<div class="pv-input">'+esc(f.label)+(f.required?' *':'')+'</div>';
+      }).join('');
+    } else {
+      elFields.innerHTML = '<div style="color:#CBD5E1;font-size:10px;text-align:center;padding:8px">Belum ada field aktif</div>';
+    }
+  }
+
+  // Cover image
   var elCover = document.getElementById('pvCover');
   if(elCover){
     var primary = (window.__prodImages||[]).find(function(i){ return i.isPrimary; }) || (window.__prodImages||[])[0];
@@ -8357,6 +8410,22 @@ function updatePfv2Preview(){
     if(covB64){ elCover.innerHTML = '<img src="'+covB64+'"/>'; }
     else { elCover.innerHTML = '📷'; }
   }
+
+  // Template layout note
+  var elTmpl = document.getElementById('pvTemplate');
+  if(elTmpl){
+    var lbl = template === 'right' ? 'Kanan Sidebar' : template === 'left' ? 'Kiri Sidebar' : 'Tidak Sidebar';
+    elTmpl.textContent = 'Template: ' + lbl + ' · Preview simplified';
+  }
+}
+
+/* Auto-wire realtime: event delegation di seluruh pfv2-left */
+function bindPfv2PreviewListeners(){
+  var left = document.querySelector('.pfv2-left');
+  if(!left || left.__pfv2Bound) return;
+  left.__pfv2Bound = true;
+  left.addEventListener('input', function(){ updatePfv2Preview(); });
+  left.addEventListener('change', function(){ updatePfv2Preview(); });
 }
 
 function updateProdGreetingPreview(){
