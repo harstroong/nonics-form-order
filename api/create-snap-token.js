@@ -69,10 +69,17 @@ module.exports = async (req, res) => {
       }
     };
 
-    // Filter kalau customer udah pilih 1 metode dari grid
-    if (Array.isArray(enabledPayments) && enabledPayments.length) {
-      parameter.enabled_payments = enabledPayments;
-    }
+    // NOTE: enabled_payments filter di-disable — banyak akun Midtrans sandbox
+    // gak punya semua channel aktif (contoh: QRIS/GoPay perlu aktivasi manual).
+    // Jadi kita let Snap tampilkan semua metode yang tersedia di akun,
+    // customer pilih dari Snap popup. Grid di frontend jadi visual preview aja.
+    //
+    // Kalau lo mau enforce single method setelah semua channel aktif di Midtrans,
+    // uncomment 3 baris di bawah:
+    //
+    // if (Array.isArray(enabledPayments) && enabledPayments.length) {
+    //   parameter.enabled_payments = enabledPayments;
+    // }
 
     const transaction = await snap.createTransaction(parameter);
 
