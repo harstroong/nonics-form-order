@@ -2634,7 +2634,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-07-10-thank-you-page';
+window.__APP_VERSION = '2026-07-11-typ-no-wa-btn';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -9756,7 +9756,8 @@ ${useKecamatan?`+'<input id="oo-kc${p.id}" type="text" autocomplete="address-lev
 +'<div style="font-size:22px;font-weight:700;margin:0 0 8px;color:#065F46">Pesanan Diterima!<\\/div>'
 +'<div id="oo-typ-msg-${p.id}" style="font-size:14px;color:#4B5563;line-height:1.6;margin-bottom:18px">Terima kasih, data pesanan udah masuk ke sistem kami. CS bakal hubungi kamu via WhatsApp dalam beberapa menit.<\\/div>'
 +'<div id="oo-typ-summary-${p.id}" style="background:#F9FAFB;border-radius:10px;padding:12px 14px;text-align:left;font-size:13px;color:#111827;line-height:1.7;margin-bottom:16px;border:1px solid #E5E7EB"><\\/div>'
-+'<a id="oo-typ-wa-${p.id}" href="#" rel="noopener" style="display:inline-block;background:#25D366;color:#fff;padding:10px 22px;font-size:14px;font-weight:600;border-radius:8px;text-decoration:none">💬 Chat CS via WhatsApp<\\/a>'
++'<div style="font-size:12.5px;color:#6B7280;line-height:1.6"><i class="ti ti-clock" style="font-size:14px;vertical-align:-2px;margin-right:4px;color:#F59E0B" aria-hidden="true"><\\/i>Estimasi respon CS: <b style="color:#374151">5-10 menit<\\/b><\\/div>'
++'<a id="oo-typ-wa-${p.id}" href="#" rel="noopener" style="display:none"><\\/a>'
 +'<\\/div>'
 +'<\\/div><\\/div><\\/div>';
 var ooSubmitting${p.id}=false;
