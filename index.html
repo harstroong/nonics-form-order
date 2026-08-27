@@ -2647,7 +2647,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-07-15-cs-reorder-conditional';
+window.__APP_VERSION = '2026-07-16-hosted-firestore-list';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -14167,17 +14167,62 @@ function loadHostedProdukForm(slug){
       mount.innerHTML = '<div style="text-align:center;padding:40px 20px;color:#DC2626">Gagal memuat form: '+(err.message||'unknown')+'</div>';
     }
   };
+  // Firestore doc value parser (inline, gak depend ke fsParseDoc yang cuma ada di embed)
+  var fsParseVal = function(v){
+    if(!v) return null;
+    if('stringValue' in v) return v.stringValue;
+    if('integerValue' in v) return parseInt(v.integerValue,10);
+    if('doubleValue' in v) return v.doubleValue;
+    if('booleanValue' in v) return v.booleanValue;
+    if('nullValue' in v) return null;
+    if('arrayValue' in v) return (v.arrayValue.values||[]).map(fsParseVal);
+    if('mapValue' in v){ var o={}; var f=v.mapValue.fields||{}; for(var k in f) o[k]=fsParseVal(f[k]); return o; }
+    return null;
+  };
+  var fsParseDocLocal = function(d){ if(!d||!d.fields) return null; var o={}; for(var k in d.fields) o[k]=fsParseVal(d.fields[k]); return o; };
+
   // Try local first
   var prods = (typeof getProds === 'function') ? getProds() : [];
   var found = prods.find(function(x){ return x.urlSlug === slug || String(x.id) === String(slug); });
   if(found){ render(found); return; }
-  // Fallback Firestore
+  // Fallback Firestore — support both slug OR numeric ID
   var cfg = (typeof getFBConfig === 'function') ? (getFBConfig() || {}) : {};
   if(!cfg.projectId){ render(null); return; }
+  var apiKey = cfg.apiKey || '';
+
+  // Kalau slug numeric, coba fetch by ID langsung (fast path)
+  var isNumeric = /^\d+$/.test(slug);
+  if(isNumeric){
+    var idUrl = 'https://firestore.googleapis.com/v1/projects/'+cfg.projectId+'/databases/(default)/documents/od_prods/'+encodeURIComponent(slug)+(apiKey?('?key='+apiKey):'');
+    fetch(idUrl).then(function(r){ return r.json(); }).then(function(doc){
+      if(doc && doc.fields){ render(fsParseDocLocal(doc)); }
+      else fetchAllAndFind();
+    }).catch(fetchAllAndFind);
+    return;
+  }
+
+  // Fallback: list ALL products, filter by slug
+  function fetchAllAndFind(){
+    var listUrl = 'https://firestore.googleapis.com/v1/projects/'+cfg.projectId+'/databases/(default)/documents/od_prods'+(apiKey?('?key='+apiKey):'');
+    fetch(listUrl).then(function(r){ return r.json(); }).then(function(data){
+      if(!data || !data.documents){ render(null); return; }
+      for(var i=0; i<data.documents.length; i++){
+        var pp = fsParseDocLocal(data.documents[i]);
+        if(pp && (pp.urlSlug === slug || String(pp.id) === String(slug))){
+          render(pp); return;
+        }
+      }
+      render(null);
+    }).catch(function(){ render(null); });
+  }
+  fetchAllAndFind();
+  return;
+
+  // Legacy dead path (unreachable)
   var url = 'https://firestore.googleapis.com/v1/projects/'+cfg.projectId+'/databases/(default)/documents/od_prods/'+encodeURIComponent(slug)+(cfg.apiKey?('?key='+cfg.apiKey):'');
   fetch(url).then(function(r){ return r.json(); }).then(function(doc){
-    if(doc && doc.fields && typeof fsParseDoc === 'function'){
-      var pp = fsParseDoc(doc); render(pp);
+    if(doc && doc.fields){
+      var pp = fsParseDocLocal(doc); render(pp);
     } else render(null);
   }).catch(function(){ render(null); });
 }
