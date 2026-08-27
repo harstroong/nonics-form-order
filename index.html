@@ -2652,7 +2652,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-07-24-multi-country-wa';
+window.__APP_VERSION = '2026-07-25-country-per-produk';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -4294,6 +4294,18 @@ document.addEventListener('DOMContentLoaded', function(){
                   <label class="pfv2-label">Koleksi Produk</label>
                   <input class="pfv2-input" id="fKoleksi" type="text" placeholder="Contoh: Best Seller 2026"/>
                 </div>
+              </div>
+              <div class="pfv2-field">
+                <label class="pfv2-label">Target Market / Negara <span style="color:var(--text-muted);font-weight:400">— country code WA + format nomor customer</span></label>
+                <select class="pfv2-input" id="fCountry">
+                  <option value="62">🇮🇩 Indonesia (+62)</option>
+                  <option value="60">🇲🇾 Malaysia (+60)</option>
+                  <option value="65">🇸🇬 Singapore (+65)</option>
+                  <option value="673">🇧🇳 Brunei (+673)</option>
+                  <option value="66">🇹🇭 Thailand (+66)</option>
+                  <option value="63">🇵🇭 Philippines (+63)</option>
+                </select>
+                <div class="pfv2-hint">Menentukan flag +kode negara di form + normalisasi nomor WA customer. Pilih sesuai target market produk.</div>
               </div>
               <div class="pfv2-field">
                 <label class="pfv2-label">Status Produk</label>
@@ -8856,6 +8868,7 @@ function showProdForm(id){
     setV('fKlasifikasi', p.klasifikasi || 'fisik');
     setV('fKategori', p.kategori);
     setV('fKoleksi', p.koleksi);
+    setV('fCountry', String(p.country || '62'));
     setChk('fCaptcha', p.captcha);
     setV('fDesc', p.desc);
     setProdStatus(p.status || (p.active === false ? 'archived' : 'live'));
@@ -8975,6 +8988,7 @@ function showProdForm(id){
     document.getElementById('prodFormTitle').textContent = 'Tambah Produk Baru';
     // Reset semua field
     ['fName','fUrlSlug','fKode','fKategori','fKoleksi','fDesc','fHargaNormal','fPrice','fHpp','fInventaris','fProdWA','fGreeting','fShipperId','fAdminId','fSectionTitle','fHeaderTagline','fBtnText','fVideoUrl','fKontenHeading','fKontenBody','fFbPixelId','fFbPixelEvent','fGTM','fConv','fTtPixelId','fTtPixelEvent','fSuccessCustomUrl','fResellerKomisi'].forEach(function(i){ var el=document.getElementById(i); if(el) el.value = ''; });
+    var _fc = document.getElementById('fCountry'); if(_fc) _fc.value = '62';
     setV('fKlasifikasi','fisik'); setV('fResellerKomisiTipe','percent');
     setV('fKodeUnikMin', 1); setV('fKodeUnikMax', 999);
     setV('fWarrantyLabel', '100% Jaminan Kepuasan');
@@ -9920,6 +9934,7 @@ function saveProd(){
   var klasifikasi = gv('fKlasifikasi') || 'fisik';
   var kategori = gv('fKategori').trim();
   var koleksi = gv('fKoleksi').trim();
+  var country = gv('fCountry') || '62';
   var captcha = gc('fCaptcha');
   var status = gv('fStatus') || 'live';
 
@@ -10047,7 +10062,7 @@ function saveProd(){
         showCoverAtCheckout,
         warrantyEnabled, warrantyLabel,
         variants,
-        formFields, formType,
+        formFields, formType, country,
         isDropship: dropshipEnabled, dropshipEnabled,
         btnText, btnColor,
         videoUrl, kontenHeading, kontenBody,
@@ -10072,7 +10087,7 @@ function saveProd(){
       showCoverAtCheckout,
       warrantyEnabled, warrantyLabel,
       variants,
-      formFields, formType,
+      formFields, formType, country,
       isDropship: dropshipEnabled, dropshipEnabled,
       btnText, btnColor,
       videoUrl, kontenHeading, kontenBody,
@@ -10167,7 +10182,8 @@ function generateProdEmbed(p){
     successMsg: p.successMsg || '',
     successEta: p.successEta || '',
     successShowSummary: p.successShowSummary !== false,
-    prodName: p.name || ''
+    prodName: p.name || '',
+    country: String(p.country || '62')
   }).replace(/</g,'\\u003c');
 
   const inlineCode=`<!-- ✅ Form Order — ${esc(p.name)} | Inline Embed -->
@@ -10186,15 +10202,8 @@ R.innerHTML='<div style="max-width:420px;margin:0 auto;font-family:Segoe UI,syst
 +'<input id="oo-n${p.id}" type="text" autocomplete="name" placeholder="Nama Anda" oninput="if(this.value.trim()){this.style.borderColor=\\'#e0e0e0\\';var e=document.getElementById(\\'oo-en${p.id}\\');if(e)e.style.display=\\'none\\';}" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box">'
 +'<p id="oo-en${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Nama wajib diisi<\\/p>'
 +'<div id="oo-wwrap${p.id}" style="display:flex;gap:6px;margin-bottom:4px;align-items:stretch">'
-+'<select id="oo-cc${p.id}" onchange="var i=document.getElementById(\\'oo-w${p.id}\\');if(i){i.focus();}" style="border:1.5px solid #e0e0e0;border-radius:8px;padding:0 8px;font-size:14px;font-family:inherit;outline:none;background:#fff;cursor:pointer;min-width:88px" title="Kode negara">'
-+'<option value="62">🇮🇩 +62</option>'
-+'<option value="60">🇲🇾 +60</option>'
-+'<option value="65">🇸🇬 +65</option>'
-+'<option value="673">🇧🇳 +673</option>'
-+'<option value="66">🇹🇭 +66</option>'
-+'<option value="63">🇵🇭 +63</option>'
-+'<\\/select>'
-+'<input id="oo-w${p.id}" type="tel" inputmode="numeric" autocomplete="tel" placeholder="No. WhatsApp Anda" oninput="if(this.value.trim()){this.style.borderColor=\\'#e0e0e0\\';var e=document.getElementById(\\'oo-ew${p.id}\\');if(e)e.style.display=\\'none\\';}" style="flex:1;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;box-sizing:border-box;min-width:0">'
++'<div style="display:flex;align-items:center;justify-content:center;padding:0 12px;background:#F8FAFC;border:1.5px solid #e0e0e0;border-radius:8px;font-size:14px;color:#334155;font-weight:600;white-space:nowrap" title="Kode negara">${(function(){var _flags={62:'🇮🇩',60:'🇲🇾',65:'🇸🇬',673:'🇧🇳',66:'🇹🇭',63:'🇵🇭'};var _c=String(p.country||'62');return (_flags[_c]||'🌐')+' +'+_c;})()}<\\/div>'
++'<input id="oo-w${p.id}" type="tel" inputmode="numeric" autocomplete="tel" placeholder="${(function(){var _ph={62:'081234567890',60:'0123456789',65:'91234567',673:'7123456',66:'812345678',63:'9171234567'};return _ph[String(p.country||'62')]||'Nomor WA';})()}" oninput="if(this.value.trim()){this.style.borderColor=\\'#e0e0e0\\';var e=document.getElementById(\\'oo-ew${p.id}\\');if(e)e.style.display=\\'none\\';}" style="flex:1;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;box-sizing:border-box;min-width:0">'
 +'<\\/div>'
 +'<p id="oo-ew${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Nomor WA wajib diisi<\\/p>'
 ${useAlamat?`+'<textarea id="oo-al${p.id}" autocomplete="street-address" placeholder="Alamat Lengkap" oninput="if(this.value.trim()){this.style.borderColor=\\'#e0e0e0\\';var e=document.getElementById(\\'oo-eal${p.id}\\');if(e)e.style.display=\\'none\\';}" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box;resize:none;height:80px"><\\/textarea>'+'<p id="oo-eal${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Alamat wajib diisi<\\/p>'`:''}
@@ -10251,8 +10260,7 @@ window['ooSub${p.id}']=function(){
   /* ── Read inputs ── */
   var nm=document.getElementById('oo-n${p.id}').value.trim();
   var wa=document.getElementById('oo-w${p.id}').value.trim();
-  var ccEl=document.getElementById('oo-cc${p.id}');
-  var cc=(ccEl&&ccEl.value)?ccEl.value:'62';
+  var cc=String(cfg.country||'62');
   var al=${useAlamat?`(document.getElementById('oo-al${p.id}')||{value:''}).value.trim()`:`''`};
   var kt=${useKota?`(document.getElementById('oo-kt${p.id}')||{value:''}).value.trim()`:`''`};
   var kc=${useKecamatan?`(document.getElementById('oo-kc${p.id}')||{value:''}).value.trim()`:`''`};
