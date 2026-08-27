@@ -2634,7 +2634,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-07-12-typ-customizable';
+window.__APP_VERSION = '2026-07-13-typ-cod-preset';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -4678,17 +4678,28 @@ document.addEventListener('DOMContentLoaded', function(){
               <!-- Custom text untuk Show Success Page -->
               <div id="fSuccessPageCustomBox" style="display:none;margin-top:12px;padding-top:12px;border-top:1px dashed var(--border)">
                 <div class="pfv2-hint" style="margin-bottom:10px"><i class="ti ti-edit" style="font-size:14px;color:var(--primary);vertical-align:-2px"></i> Kustomisasi teks Thank You Page. Variabel: <code>{nama}</code> <code>{produk}</code></div>
+
+                <!-- Preset buttons -->
+                <div class="pfv2-field">
+                  <label class="pfv2-label">Quick Preset (klik untuk auto-fill)</label>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+                    <button type="button" class="pfv2-status-btn" onclick="applyTypPreset('cs')" style="font-size:11.5px;padding:8px"><i class="ti ti-headset" style="font-size:13px;vertical-align:-2px"></i> CS Follow-up</button>
+                    <button type="button" class="pfv2-status-btn" onclick="applyTypPreset('cod')" style="font-size:11.5px;padding:8px"><i class="ti ti-truck-delivery" style="font-size:13px;vertical-align:-2px"></i> COD Ready-to-Ship</button>
+                  </div>
+                </div>
+
                 <div class="pfv2-field">
                   <label class="pfv2-label">Judul (H1)</label>
-                  <input class="pfv2-input" id="fSuccessTitle" type="text" placeholder="Pesanan Diterima!"/>
+                  <input class="pfv2-input" id="fSuccessTitle" type="text" placeholder="Pesanan Berhasil!"/>
                 </div>
                 <div class="pfv2-field">
                   <label class="pfv2-label">Pesan Utama</label>
-                  <textarea class="pfv2-input" id="fSuccessMsg" rows="3" placeholder="Terima kasih {nama}, data pesanan udah masuk ke sistem kami. CS bakal hubungi kamu via WhatsApp dalam beberapa menit."></textarea>
+                  <textarea class="pfv2-input" id="fSuccessMsg" rows="4" placeholder="Terima kasih {nama}! Pesanan {produk} sudah kami terima dan sedang diproses. Barang akan dikirim COD ke alamat kamu dalam 1-2 hari kerja. Siap-siap ya!"></textarea>
+                  <div class="pfv2-hint" style="margin-top:4px">💡 <strong>Tips:</strong> Klik preset di atas buat contoh copy siap pakai (CS Follow-up / COD)</div>
                 </div>
                 <div class="pfv2-field">
-                  <label class="pfv2-label">Estimasi Respon CS</label>
-                  <input class="pfv2-input" id="fSuccessEta" type="text" placeholder="5-10 menit"/>
+                  <label class="pfv2-label">Info Tambahan <span style="color:var(--text-muted);font-weight:400">(estimasi / info bawah)</span></label>
+                  <input class="pfv2-input" id="fSuccessEta" type="text" placeholder="1-2 hari kerja"/>
                 </div>
                 <label class="pfv2-toggle" style="margin-top:8px">
                   <input type="checkbox" id="fSuccessShowSummary" checked/>
@@ -9073,6 +9084,20 @@ function onSuccessActionChange(){
   if(typBox) typBox.style.display = val === 'success_page' ? 'block' : 'none';
 }
 
+function applyTypPreset(kind){
+  var setV = function(id, v){ var el=document.getElementById(id); if(el){ el.value = v; } };
+  if(kind === 'cs'){
+    setV('fSuccessTitle', 'Pesanan Diterima!');
+    setV('fSuccessMsg', 'Terima kasih {nama}! Data pesanan {produk} udah masuk ke sistem kami. CS bakal hubungi kamu via WhatsApp untuk konfirmasi.');
+    setV('fSuccessEta', '5-10 menit');
+  } else if(kind === 'cod'){
+    setV('fSuccessTitle', 'Pesanan Berhasil!');
+    setV('fSuccessMsg', 'Terima kasih {nama}! Pesanan {produk} sudah kami terima dan sedang diproses. Barang akan dikirim COD ke alamat kamu — bayar setelah barang sampai. Siap-siap ya!');
+    setV('fSuccessEta', 'Estimasi kirim: 1-2 hari kerja');
+  }
+  toast('✅ Preset '+kind.toUpperCase()+' di-apply. Klik Simpan.');
+}
+
 /* ═════════════════════════════════════════════
    MULTI-IMAGE UPLOAD (max 10)
 ═════════════════════════════════════════════ */
@@ -9793,7 +9818,7 @@ ${useKecamatan?`+'<input id="oo-kc${p.id}" type="text" autocomplete="address-lev
 +'<div style="font-size:22px;font-weight:700;margin:0 0 8px;color:#065F46">Pesanan Diterima!<\\/div>'
 +'<div id="oo-typ-msg-${p.id}" style="font-size:14px;color:#4B5563;line-height:1.6;margin-bottom:18px">Terima kasih, data pesanan udah masuk ke sistem kami. CS bakal hubungi kamu via WhatsApp dalam beberapa menit.<\\/div>'
 +'<div id="oo-typ-summary-${p.id}" style="background:#F9FAFB;border-radius:10px;padding:12px 14px;text-align:left;font-size:13px;color:#111827;line-height:1.7;margin-bottom:16px;border:1px solid #E5E7EB"><\\/div>'
-+'<div style="font-size:12.5px;color:#6B7280;line-height:1.6"><i class="ti ti-clock" style="font-size:14px;vertical-align:-2px;margin-right:4px;color:#F59E0B" aria-hidden="true"><\\/i>Estimasi respon CS: <b style="color:#374151">5-10 menit<\\/b><\\/div>'
++'<div id="oo-typ-eta-${p.id}" style="font-size:12.5px;color:#6B7280;line-height:1.6"><i class="ti ti-clock" style="font-size:14px;vertical-align:-2px;margin-right:4px;color:#F59E0B" aria-hidden="true"><\\/i><span id="oo-typ-eta-txt-${p.id}">5-10 menit<\\/span><\\/div>'
 +'<a id="oo-typ-wa-${p.id}" href="#" rel="noopener" style="display:none"><\\/a>'
 +'<\\/div>'
 +'<\\/div><\\/div><\\/div>';
@@ -9895,9 +9920,9 @@ window['ooSub${p.id}']=function(){
         _typSum.innerHTML = _sum;
       }
     }
-    /* ETA custom */
-    var _etaTxt = (cfg.successEta && cfg.successEta.trim()) || '5-10 menit';
-    var _etaEl = document.querySelector('#oo-ok-typ-${p.id} > div:nth-child(5) b');
+    /* ETA custom — raw text (no CS prefix) */
+    var _etaTxt = (cfg.successEta && cfg.successEta.trim()) || 'Estimasi kirim: 1-2 hari kerja';
+    var _etaEl = document.getElementById('oo-typ-eta-txt-${p.id}');
     if(_etaEl) _etaEl.textContent = _etaTxt;
   } else {
     if(_blockWa) _blockWa.style.display = 'block';
