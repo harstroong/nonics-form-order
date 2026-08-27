@@ -2652,7 +2652,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-07-21-pengaturan-menu';
+window.__APP_VERSION = '2026-07-22-lead-email-auto';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -13151,6 +13151,8 @@ function hideLeadNotif(){
 }
 
 function triggerLeadNotif(lead){
+  // Send email notif kalau di-enable di Settings (dedupe di client — fires di semua tab, first-wins)
+  try { maybeSendLeadEmail(lead); } catch(e){ console.warn('[email notif] error:', e); }
   // For CS view: only show if lead is for current CS user
   if(currentCSUser){
     if(lead.csId !== currentCSUser.csId) return;
@@ -13172,6 +13174,107 @@ function triggerLeadNotif(lead){
     // Update bell badge
     if(typeof updateNotifBadge === 'function') updateNotifBadge();
   }
+}
+
+// ═══════════════════════════════════
+// AUTO-SEND EMAIL ON NEW LEAD
+// ═══════════════════════════════════
+// Dedupe: keep track of lead IDs yang udah di-email biar gak dobel
+// (kalau multiple tab admin aktif, semua bakal terima Firestore snapshot)
+var _emailedLeadIds = null;
+function _loadEmailedIds(){
+  if(_emailedLeadIds) return _emailedLeadIds;
+  try { _emailedLeadIds = LS.g('od_emailed_leads', {}) || {}; } catch(e){ _emailedLeadIds = {}; }
+  return _emailedLeadIds;
+}
+function _markEmailed(leadId){
+  var m = _loadEmailedIds();
+  m[leadId] = Date.now();
+  // Trim old entries (>7 days) biar gak grow forever
+  var cutoff = Date.now() - 7*24*3600*1000;
+  Object.keys(m).forEach(function(k){ if(m[k] < cutoff) delete m[k]; });
+  LS.s('od_emailed_leads', m);
+  _emailedLeadIds = m;
+}
+
+function maybeSendLeadEmail(lead){
+  var cfg = getCfg();
+  if(!cfg.notifyNewLead) return;                 // toggle OFF
+  if(!cfg.resendKey || !cfg.emailAdmin) return;  // not configured
+  if(!lead || !lead.id) return;
+  // Dedupe
+  var m = _loadEmailedIds();
+  if(m[lead.id]) return;
+  // Skip lead lama (>2 menit) — biar snapshot backfill gak spam
+  var age = Date.now() - (lead.tsMs || Date.parse(lead.ts || '') || Date.now());
+  if(age > 2*60*1000) { _markEmailed(lead.id); return; }
+  _markEmailed(lead.id);
+  sendLeadEmail(lead, cfg);
+}
+
+function sendLeadEmail(lead, cfg){
+  cfg = cfg || getCfg();
+  var fromEmail = cfg.emailFromDomain || 'onboarding@resend.dev';
+  var fromName = cfg.emailFromName || cfg.storeName || 'Nonics Order';
+  var primary = cfg.primaryColor || '#10B981';
+  var storeName = cfg.storeName || 'Toko';
+  var esc = function(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  var rows = [
+    ['Nama',      lead.nama],
+    ['WhatsApp',  lead.wa],
+    ['Email',     lead.email],
+    ['Produk',    lead.produk],
+    ['Variasi',   lead.variasi],
+    ['Qty',       lead.qty],
+    ['Alamat',    lead.alamat],
+    ['Kecamatan', lead.kecamatan],
+    ['Kota',      lead.kota],
+    ['Provinsi',  lead.provinsi],
+    ['CS',        lead.csName],
+    ['Waktu',     lead.ts]
+  ].filter(function(r){ return r[1]; }).map(function(r){
+    return '<tr><td style="padding:8px 12px;background:#F8FAFC;font-weight:600;color:#334155;width:120px;border-bottom:1px solid #E2E8F0">' + esc(r[0]) + '</td><td style="padding:8px 12px;color:#0F172A;border-bottom:1px solid #E2E8F0">' + esc(r[1]) + '</td></tr>';
+  }).join('');
+  var waLink = lead.wa ? ('https://wa.me/' + String(lead.wa).replace(/^\+/,'').replace(/[^0-9]/g,'')) : '';
+  var html = '<div style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;background:#F1F5F9;padding:24px 12px">' +
+    '<div style="max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(15,23,42,.06)">' +
+    '<div style="background:' + primary + ';color:#fff;padding:20px 24px">' +
+    '<div style="font-size:12px;text-transform:uppercase;letter-spacing:1px;opacity:.85">🔔 Lead Baru Masuk</div>' +
+    '<div style="font-size:22px;font-weight:700;margin-top:4px">' + esc(lead.nama || 'Lead Anonim') + '</div>' +
+    '<div style="font-size:13px;opacity:.9;margin-top:2px">' + esc(lead.produk || 'Produk') + '</div>' +
+    '</div>' +
+    '<div style="padding:20px 24px">' +
+    '<table style="width:100%;border-collapse:collapse;font-size:13px">' + rows + '</table>' +
+    (waLink ? '<div style="text-align:center;margin-top:20px"><a href="' + waLink + '" style="display:inline-block;background:#25D366;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">💬 Chat WhatsApp Sekarang</a></div>' : '') +
+    '</div>' +
+    '<div style="background:#F8FAFC;padding:12px 24px;font-size:11px;color:#94A3B8;text-align:center">Notifikasi otomatis dari <strong>' + esc(storeName) + '</strong> • Nonics Order</div>' +
+    '</div></div>';
+  var payload = {
+    from: fromName + ' <' + fromEmail + '>',
+    to: [cfg.emailAdmin],
+    subject: '🔔 Lead baru: ' + (lead.nama || 'Anonim') + ' — ' + (lead.produk || 'Produk'),
+    html: html
+  };
+  fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + cfg.resendKey,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  }).then(function(r){
+    if(!r.ok){
+      console.warn('[lead email] Resend failed:', r.status);
+      // Rollback dedupe supaya bisa retry manual
+      var m = _loadEmailedIds();
+      delete m[lead.id];
+      LS.s('od_emailed_leads', m);
+    } else {
+      console.log('[lead email] Sent for lead', lead.id);
+    }
+  }).catch(function(err){
+    console.warn('[lead email] Error:', err);
+  });
 }
 
 /* ═════════════════════════════════════════════
