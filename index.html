@@ -2652,7 +2652,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-07-27-pd-quick-modals';
+window.__APP_VERSION = '2026-07-28-global-pixel-fallback';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -10462,14 +10462,14 @@ function generateProdEmbed(p){
   const csCounts = {};
   csIds.forEach(id => { csCounts[id] = (p.csLeadCounts && p.csLeadCounts[id]) || 0; });
 
-  // Merge: produk override > global
+  // Merge: produk override > global (dari Pengaturan)
   const fallbackWa=p.waNum||cfg.waNum;
   const greeting=p.greeting||cfg.greeting;
-  const gtmId=p.gtmId||cfg.gtmId;
-  const convLabel=p.convLabel||cfg.convLabel;
+  const gtmId=(p.gtmId||'').trim() || (cfg.globalGtmId||'').trim() || (cfg.gtmId||'').trim();
+  const convLabel=(p.convLabel||'').trim() || (cfg.globalGadsLabel||'').trim() || (cfg.convLabel||'').trim();
   const produkWA=p.produkWA||p.name;
-  // FB Pixel + TikTok Pixel (per-produk)
-  const fbPixelId=(p.fbPixelId||'').trim();
+  // FB Pixel + TikTok Pixel — per-produk override, fallback ke global (Pengaturan → Pixel Tracking)
+  const fbPixelId=(p.fbPixelId||'').trim() || (cfg.globalFbPixel||'').trim();
   const fbPixelEvent=(p.fbPixelEvent||'Lead').trim();
 
   // Form Type — override global cfg field toggles
@@ -10499,7 +10499,7 @@ function generateProdEmbed(p){
   const phAlamat = phFor('alamat');
   const phKota = phFor('kota');
   const phKecamatan = phFor('kecamatan');
-  const ttPixelId=(p.ttPixelId||'').trim();
+  const ttPixelId=(p.ttPixelId||'').trim() || (cfg.globalTiktokPixel||'').trim();
   const ttPixelEvent=(p.ttPixelEvent||'SubmitForm').trim();
 
   const cfgJ=JSON.stringify({
