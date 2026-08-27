@@ -2652,7 +2652,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-07-20-settings-full';
+window.__APP_VERSION = '2026-07-21-pengaturan-menu';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -3580,17 +3580,16 @@ document.addEventListener('DOMContentLoaded', function(){
         <button class="tn-nav-item" data-nav="team" onclick="showPanel('team')">Team Members</button>
 
         <div class="tn-nav-wrap">
-          <button class="tn-nav-item" id="tnNavMore" onclick="toggleTnDropdown('moreMenu', event)" aria-haspopup="true" aria-expanded="false">Lainnya <i class="ti ti-chevron-down" aria-hidden="true"></i></button>
+          <button class="tn-nav-item" id="tnNavMore" onclick="toggleTnDropdown('moreMenu', event)" aria-haspopup="true" aria-expanded="false"><i class="ti ti-settings" aria-hidden="true"></i> Pengaturan <i class="ti ti-chevron-down" aria-hidden="true"></i></button>
           <div class="tn-dropdown" id="moreMenu" role="menu">
-            <button class="tn-dropdown-item" onclick="tnNavGo('form')"><i class="ti ti-forms"></i> Form Builder</button>
-            <button class="tn-dropdown-item" onclick="tnNavGo('cs')"><i class="ti ti-message-circle-2"></i> Greeting Templates</button>
-            <button class="tn-dropdown-item" onclick="tnNavGo('quickreply')"><i class="ti ti-message-2"></i> Quick Reply</button>
+            <button class="tn-dropdown-item" onclick="gotoSettingsSection('brand')"><i class="ti ti-building-store" style="color:#10B981"></i> Brand &amp; Toko</button>
+            <button class="tn-dropdown-item" onclick="gotoSettingsSection('pixel')"><i class="ti ti-target" style="color:#8B5CF6"></i> Pixel Tracking</button>
+            <button class="tn-dropdown-item" onclick="gotoSettingsSection('email')"><i class="ti ti-mail" style="color:#F59E0B"></i> Notifikasi Email</button>
+            <button class="tn-dropdown-item" onclick="gotoSettingsSection('team')"><i class="ti ti-users" style="color:#0EA5E9"></i> Tim &amp; Akses</button>
+            <button class="tn-dropdown-item" onclick="gotoSettingsSection('sync')"><i class="ti ti-cloud-computing" style="color:#22C55E"></i> Sync &amp; Backup</button>
             <div class="tn-dropdown-divider"></div>
-            <button class="tn-dropdown-item" onclick="tnNavGo('gtm')"><i class="ti ti-chart-line"></i> GTM Tracking</button>
-            <button class="tn-dropdown-item" onclick="tnNavGo('embed')"><i class="ti ti-code"></i> Embed HTML</button>
-            <button class="tn-dropdown-item" onclick="tnNavGo('cloud')"><i class="ti ti-cloud"></i> Cloud Sync</button>
-            <div class="tn-dropdown-divider"></div>
-            <button class="tn-dropdown-item" onclick="tnNavGo('settings')"><i class="ti ti-settings"></i> Pengaturan</button>
+            <button class="tn-dropdown-item" onclick="gotoSettingsSection('security')"><i class="ti ti-lock" style="color:#EF4444"></i> Keamanan &amp; Password</button>
+            <button class="tn-dropdown-item" onclick="gotoSettingsSection('danger')"><i class="ti ti-alert-triangle" style="color:#DC2626"></i> Danger Zone</button>
           </div>
         </div>
       </div>
@@ -3749,14 +3748,14 @@ document.addEventListener('DOMContentLoaded', function(){
       <button class="tn-drawer-item" data-drawer-nav="leads" onclick="tnDrawerGo('leads')"><i class="ti ti-users"></i> Leads</button>
       <button class="tn-drawer-item" data-drawer-nav="produk" onclick="tnDrawerGo('produk')"><i class="ti ti-package"></i> Produk</button>
       <button class="tn-drawer-item" data-drawer-nav="team" onclick="tnDrawerGo('team')"><i class="ti ti-users-group"></i> Team Members</button>
-      <div class="tn-drawer-section">Lainnya</div>
-      <button class="tn-drawer-item" data-drawer-nav="form" onclick="tnDrawerGo('form')"><i class="ti ti-forms"></i> Form Builder</button>
-      <button class="tn-drawer-item" data-drawer-nav="cs" onclick="tnDrawerGo('cs')"><i class="ti ti-message-circle-2"></i> Greeting Templates</button>
-      <button class="tn-drawer-item" data-drawer-nav="quickreply" onclick="tnDrawerGo('quickreply')"><i class="ti ti-message-2"></i> Quick Reply</button>
-      <button class="tn-drawer-item" data-drawer-nav="gtm" onclick="tnDrawerGo('gtm')"><i class="ti ti-chart-line"></i> GTM Tracking</button>
-      <button class="tn-drawer-item" data-drawer-nav="embed" onclick="tnDrawerGo('embed')"><i class="ti ti-code"></i> Embed HTML</button>
-      <button class="tn-drawer-item" data-drawer-nav="cloud" onclick="tnDrawerGo('cloud')"><i class="ti ti-cloud"></i> Cloud Sync</button>
-      <button class="tn-drawer-item" data-drawer-nav="settings" onclick="tnDrawerGo('settings')"><i class="ti ti-settings"></i> Pengaturan</button>
+      <div class="tn-drawer-section">Pengaturan</div>
+      <button class="tn-drawer-item" onclick="closeTnDrawer();gotoSettingsSection('brand')"><i class="ti ti-building-store" style="color:#10B981"></i> Brand &amp; Toko</button>
+      <button class="tn-drawer-item" onclick="closeTnDrawer();gotoSettingsSection('pixel')"><i class="ti ti-target" style="color:#8B5CF6"></i> Pixel Tracking</button>
+      <button class="tn-drawer-item" onclick="closeTnDrawer();gotoSettingsSection('email')"><i class="ti ti-mail" style="color:#F59E0B"></i> Notifikasi Email</button>
+      <button class="tn-drawer-item" onclick="closeTnDrawer();gotoSettingsSection('team')"><i class="ti ti-users" style="color:#0EA5E9"></i> Tim &amp; Akses</button>
+      <button class="tn-drawer-item" onclick="closeTnDrawer();gotoSettingsSection('sync')"><i class="ti ti-cloud-computing" style="color:#22C55E"></i> Sync &amp; Backup</button>
+      <button class="tn-drawer-item" onclick="closeTnDrawer();gotoSettingsSection('security')"><i class="ti ti-lock" style="color:#EF4444"></i> Keamanan</button>
+      <button class="tn-drawer-item" onclick="closeTnDrawer();gotoSettingsSection('danger')"><i class="ti ti-alert-triangle" style="color:#DC2626"></i> Danger Zone</button>
     </aside>
 
     <!-- CUSTOM PERIOD MODAL — pilih rentang tanggal manual -->
@@ -5364,7 +5363,7 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="panel" id="panel-settings">
 
         <!-- BRAND & TOKO -->
-        <div class="card">
+        <div class="card" data-st-section="brand">
           <div class="card-title"><i class="ti ti-building-store" style="vertical-align:-3px;margin-right:5px;color:var(--primary)"></i>Brand & Toko</div>
           <div class="card-sub">Setting brand yang tampil di hosted form page customer + email/notifikasi.</div>
 
@@ -5433,7 +5432,7 @@ document.addEventListener('DOMContentLoaded', function(){
         <!-- ═══════════════════════════════════
              PIXEL TRACKING (GLOBAL)
         ═══════════════════════════════════ -->
-        <div class="card">
+        <div class="card" data-st-section="pixel">
           <div class="card-title"><i class="ti ti-target" style="vertical-align:-3px;margin-right:5px;color:#8B5CF6"></i>Pixel Tracking (Global)</div>
           <div class="card-sub">Pixel ID default untuk semua produk. Setiap produk bisa override di form produk (Section Tracking).</div>
 
@@ -5487,7 +5486,7 @@ document.addEventListener('DOMContentLoaded', function(){
         <!-- ═══════════════════════════════════
              NOTIFIKASI EMAIL
         ═══════════════════════════════════ -->
-        <div class="card">
+        <div class="card" data-st-section="email">
           <div class="card-title"><i class="ti ti-mail" style="vertical-align:-3px;margin-right:5px;color:#F59E0B"></i>Notifikasi Email</div>
           <div class="card-sub">Kirim notifikasi ke email admin tiap ada lead/order baru. Butuh Resend API key (gratis 3000 email/bulan).</div>
 
@@ -5542,7 +5541,7 @@ document.addEventListener('DOMContentLoaded', function(){
         <!-- ═══════════════════════════════════
              TIM & AKSES
         ═══════════════════════════════════ -->
-        <div class="card">
+        <div class="card" data-st-section="team">
           <div class="card-title"><i class="ti ti-users" style="vertical-align:-3px;margin-right:5px;color:#0EA5E9"></i>Tim & Akses</div>
           <div class="card-sub">Kelola CS, session timeout, dan akses admin sekunder.</div>
 
@@ -5602,7 +5601,7 @@ document.addEventListener('DOMContentLoaded', function(){
         <!-- ═══════════════════════════════════
              SYNC & BACKUP
         ═══════════════════════════════════ -->
-        <div class="card">
+        <div class="card" data-st-section="sync">
           <div class="card-title"><i class="ti ti-cloud-computing" style="vertical-align:-3px;margin-right:5px;color:#22C55E"></i>Sync & Backup</div>
           <div class="card-sub">Status Firebase sync + export/import data lo untuk backup manual.</div>
 
@@ -5659,8 +5658,8 @@ document.addEventListener('DOMContentLoaded', function(){
           </div>
         </div>
 
-        <div class="card">
-          <div class="card-title">🔒 Keamanan</div>
+        <div class="card" data-st-section="security">
+          <div class="card-title"><i class="ti ti-lock" style="vertical-align:-3px;margin-right:5px;color:#EF4444"></i>Keamanan &amp; Password</div>
           <div class="card-sub">Ganti password admin. Kosongkan jika tidak ingin mengubah.</div>
           <div class="form-row">
             <div class="form-group">
@@ -5676,8 +5675,8 @@ document.addEventListener('DOMContentLoaded', function(){
           <button class="btn btn-primary" onclick="savePassword()">🔐 Ubah Password</button>
         </div>
 
-        <div class="card" style="border:1px solid #fca5a5;background:#fff5f5">
-          <div class="card-title" style="color:var(--red)">⚠️ Danger Zone</div>
+        <div class="card" data-st-section="danger" style="border:1px solid #fca5a5;background:#fff5f5">
+          <div class="card-title" style="color:var(--red)"><i class="ti ti-alert-triangle" style="vertical-align:-3px;margin-right:5px"></i>Danger Zone</div>
           <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px">Tindakan ini tidak dapat dibatalkan.</div>
           <div style="display:flex;gap:10px;flex-wrap:wrap">
             <button class="btn btn-danger" onclick="clearAllLeads()">🗑️ Hapus Semua Leads</button>
@@ -11046,6 +11045,34 @@ function saveStoreInfo(){
   document.getElementById('sbStoreName').textContent=cfg.storeName;
   renderEmbedCodes();
   toast('✅ Brand & Toko tersimpan!');
+}
+
+// Navigate to Pengaturan panel + scroll ke section tertentu, dengan highlight effect
+function gotoSettingsSection(sectionKey){
+  // Close moreMenu dropdown if open
+  try {
+    var mm = document.getElementById('moreMenu');
+    if(mm) mm.classList.remove('open');
+    var btn = document.getElementById('tnNavMore');
+    if(btn) btn.setAttribute('aria-expanded','false');
+  } catch(e){}
+  // Show Settings panel
+  showPanel('settings');
+  // Scroll to section after render tick
+  setTimeout(function(){
+    var card = document.querySelector('[data-st-section="' + sectionKey + '"]');
+    if(!card) return;
+    try { card.scrollIntoView({behavior:'smooth', block:'start'}); } catch(e){ card.scrollIntoView(); }
+    // Highlight flash
+    var origBoxShadow = card.style.boxShadow;
+    var origTransition = card.style.transition;
+    card.style.transition = 'box-shadow 0.4s ease';
+    card.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.35), 0 8px 32px rgba(16,185,129,0.15)';
+    setTimeout(function(){
+      card.style.boxShadow = origBoxShadow || '';
+      setTimeout(function(){ card.style.transition = origTransition || ''; }, 500);
+    }, 1200);
+  }, 120);
 }
 
 // Apply brand config (customLogo + primaryColor + footer) to hosted form view
