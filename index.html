@@ -2634,7 +2634,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-07-11-typ-no-wa-btn';
+window.__APP_VERSION = '2026-07-12-typ-customizable';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -4674,7 +4674,30 @@ document.addEventListener('DOMContentLoaded', function(){
                 <label class="pfv2-label">Custom URL</label>
                 <input class="pfv2-input" id="fSuccessCustomUrl" type="url" placeholder="https://landing-page-lo.com/thank-you"/>
               </div>
-              <div class="pfv2-info-card" style="margin-top:10px"><i class="ti ti-info-circle"></i><div>Rotasi CS sesuai setting di <strong>Section 6</strong>. Default: Redirect ke WA CS yang di-assign (round-robin/weighted sesuai mode distribusi).</div></div>
+
+              <!-- Custom text untuk Show Success Page -->
+              <div id="fSuccessPageCustomBox" style="display:none;margin-top:12px;padding-top:12px;border-top:1px dashed var(--border)">
+                <div class="pfv2-hint" style="margin-bottom:10px"><i class="ti ti-edit" style="font-size:14px;color:var(--primary);vertical-align:-2px"></i> Kustomisasi teks Thank You Page. Variabel: <code>{nama}</code> <code>{produk}</code></div>
+                <div class="pfv2-field">
+                  <label class="pfv2-label">Judul (H1)</label>
+                  <input class="pfv2-input" id="fSuccessTitle" type="text" placeholder="Pesanan Diterima!"/>
+                </div>
+                <div class="pfv2-field">
+                  <label class="pfv2-label">Pesan Utama</label>
+                  <textarea class="pfv2-input" id="fSuccessMsg" rows="3" placeholder="Terima kasih {nama}, data pesanan udah masuk ke sistem kami. CS bakal hubungi kamu via WhatsApp dalam beberapa menit."></textarea>
+                </div>
+                <div class="pfv2-field">
+                  <label class="pfv2-label">Estimasi Respon CS</label>
+                  <input class="pfv2-input" id="fSuccessEta" type="text" placeholder="5-10 menit"/>
+                </div>
+                <label class="pfv2-toggle" style="margin-top:8px">
+                  <input type="checkbox" id="fSuccessShowSummary" checked/>
+                  <span class="pfv2-toggle-slider"></span>
+                  <span class="pfv2-toggle-txt">Tampilkan ringkasan pesanan<div class="pfv2-toggle-desc">Card berisi Produk, Nama, WA, Alamat, Kota, Kecamatan customer</div></span>
+                </label>
+              </div>
+
+              <div class="pfv2-info-card" style="margin-top:10px"><i class="ti ti-info-circle"></i><div>Rotasi CS sesuai setting di <strong>Section 4</strong>. Default: Redirect ke WA CS yang di-assign (round-robin/weighted sesuai mode distribusi).</div></div>
             </div>
           </div>
 
@@ -8561,6 +8584,10 @@ function showProdForm(id){
     // Section 19 — Halaman Sukses
     setV('fSuccessAction', p.successAction || 'wa_cs');
     setV('fSuccessCustomUrl', p.successCustomUrl);
+    setV('fSuccessTitle', p.successTitle);
+    setV('fSuccessMsg', p.successMsg);
+    setV('fSuccessEta', p.successEta);
+    setChk('fSuccessShowSummary', p.successShowSummary !== false);
     onSuccessActionChange();
 
     // Section 20 — Embed
@@ -9042,6 +9069,8 @@ function onSuccessActionChange(){
   var val = (document.getElementById('fSuccessAction')||{}).value || '';
   var box = document.getElementById('fSuccessCustomBox');
   if(box) box.style.display = val === 'custom_url' ? '' : 'none';
+  var typBox = document.getElementById('fSuccessPageCustomBox');
+  if(typBox) typBox.style.display = val === 'success_page' ? 'block' : 'none';
 }
 
 /* ═════════════════════════════════════════════
@@ -9550,9 +9579,13 @@ function saveProd(){
   var ttPixelId = gv('fTtPixelId').trim();
   var ttPixelEvent = gv('fTtPixelEvent');
 
-  // Section 19
+  // Section 11 (Halaman Sukses)
   var successAction = gv('fSuccessAction') || 'wa_cs';
   var successCustomUrl = gv('fSuccessCustomUrl').trim();
+  var successTitle = gv('fSuccessTitle').trim();
+  var successMsg = gv('fSuccessMsg').trim();
+  var successEta = gv('fSuccessEta').trim();
+  var successShowSummary = gc('fSuccessShowSummary');
 
   const produkWA = document.getElementById('fProdWA').value.trim() || name;
   const greeting = document.getElementById('fGreeting').value.trim();
@@ -9606,7 +9639,7 @@ function saveProd(){
         btnText, btnColor,
         videoUrl, kontenHeading, kontenBody,
         fbPixelId, fbPixelEvent, ttPixelId, ttPixelEvent,
-        successAction, successCustomUrl,
+        successAction, successCustomUrl, successTitle, successMsg, successEta, successShowSummary,
         csId, csIds, csLeadCounts:newCounts, waNum, produkWA, greeting, gtmId, convLabel, distribMode:saveMode, csWeights:saveWeights, distribSoloId:saveSoloId};
       savedProd = prods[i];
     }
@@ -9631,7 +9664,7 @@ function saveProd(){
       btnText, btnColor,
       videoUrl, kontenHeading, kontenBody,
       fbPixelId, fbPixelEvent, ttPixelId, ttPixelEvent,
-      successAction, successCustomUrl,
+      successAction, successCustomUrl, successTitle, successMsg, successEta, successShowSummary,
       csId, csIds, csLeadCounts:newCounts, waNum, produkWA, greeting, gtmId, convLabel, distribMode:saveMode, csWeights:saveWeights, distribSoloId:saveSoloId};
     // Tag ownership: kalau advertiser yang bikin, simpan owner info
     if(currentAdUser){
@@ -9717,6 +9750,10 @@ function generateProdEmbed(p){
     fbProjectId:fbcfg.projectId||'',
     successAction: p.successAction || 'wa_cs',
     successCustomUrl: p.successCustomUrl || '',
+    successTitle: p.successTitle || '',
+    successMsg: p.successMsg || '',
+    successEta: p.successEta || '',
+    successShowSummary: p.successShowSummary !== false,
     prodName: p.name || ''
   }).replace(/</g,'\\u003c');
 
@@ -9827,20 +9864,41 @@ window['ooSub${p.id}']=function(){
   if(_showTYP){
     if(_blockTyp) _blockTyp.style.display = 'block';
     if(_blockWa) _blockWa.style.display = 'none';
-    /* Isi ringkasan pesanan */
+    /* Override title (kalau ada custom) */
+    var _titleTxt = (cfg.successTitle && cfg.successTitle.trim()) || 'Pesanan Diterima!';
+    _titleTxt = _titleTxt.replace(/\\{nama\\}/g, nm||'kak').replace(/\\{produk\\}/g, cfg.prodName||cfg.produkWA||'-');
+    var _typTitleEl = document.querySelector('#oo-ok-typ-${p.id} > div:nth-child(2)');
+    if(_typTitleEl) _typTitleEl.textContent = _titleTxt;
+    /* Pesan utama (custom / default) */
+    var _defaultMsg = 'Terima kasih <b>{nama}</b>, data pesanan udah masuk ke sistem kami. CS bakal hubungi kamu via WhatsApp dalam beberapa menit.';
+    var _msgTxt = (cfg.successMsg && cfg.successMsg.trim()) || _defaultMsg;
+    _msgTxt = _msgTxt.replace(/\\{nama\\}/g, '<b>'+(nm||'kak')+'</b>').replace(/\\{produk\\}/g, '<b>'+(cfg.prodName||cfg.produkWA||'-')+'</b>');
+    /* Kalau custom msg gak pake HTML, convert \\n ke <br> */
+    if(cfg.successMsg && cfg.successMsg.trim() && cfg.successMsg.indexOf('<') < 0){
+      _msgTxt = _msgTxt.replace(/\\n/g, '<br>');
+    }
     var _typMsg = document.getElementById('oo-typ-msg-${p.id}');
-    if(_typMsg) _typMsg.innerHTML = 'Terima kasih <b>'+(nm||'kak')+'</b>, data pesanan udah masuk ke sistem kami. CS bakal hubungi kamu via WhatsApp dalam beberapa menit.';
+    if(_typMsg) _typMsg.innerHTML = _msgTxt;
+    /* Ringkasan (toggle) */
     var _typSum = document.getElementById('oo-typ-summary-${p.id}');
     if(_typSum){
-      var _sum = '';
-      _sum += '<div><b>Produk:</b> '+(cfg.prodName||cfg.produkWA||'-')+'</div>';
-      _sum += '<div><b>Nama:</b> '+(nm||'-')+'</div>';
-      _sum += '<div><b>WhatsApp:</b> '+(wa||'-')+'</div>';
-      if(al) _sum += '<div><b>Alamat:</b> '+al+'</div>';
-      if(kt) _sum += '<div><b>Kota:</b> '+kt+'</div>';
-      if(kc) _sum += '<div><b>Kecamatan:</b> '+kc+'</div>';
-      _typSum.innerHTML = _sum;
+      if(cfg.successShowSummary === false){
+        _typSum.style.display = 'none';
+      } else {
+        var _sum = '';
+        _sum += '<div><b>Produk:</b> '+(cfg.prodName||cfg.produkWA||'-')+'</div>';
+        _sum += '<div><b>Nama:</b> '+(nm||'-')+'</div>';
+        _sum += '<div><b>WhatsApp:</b> '+(wa||'-')+'</div>';
+        if(al) _sum += '<div><b>Alamat:</b> '+al+'</div>';
+        if(kt) _sum += '<div><b>Kota:</b> '+kt+'</div>';
+        if(kc) _sum += '<div><b>Kecamatan:</b> '+kc+'</div>';
+        _typSum.innerHTML = _sum;
+      }
     }
+    /* ETA custom */
+    var _etaTxt = (cfg.successEta && cfg.successEta.trim()) || '5-10 menit';
+    var _etaEl = document.querySelector('#oo-ok-typ-${p.id} > div:nth-child(5) b');
+    if(_etaEl) _etaEl.textContent = _etaTxt;
   } else {
     if(_blockWa) _blockWa.style.display = 'block';
     if(_blockTyp) _blockTyp.style.display = 'none';
