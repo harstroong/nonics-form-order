@@ -1021,6 +1021,19 @@ tr:hover td{background:var(--surface-2)}
 .pfv2-preview-toggle button i{font-size:14px}
 .pfv2-body{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px;padding:20px 24px 40px;max-width:1400px;margin:0 auto}
 .pfv2-left{display:flex;flex-direction:column;gap:14px;min-width:0}
+/* Reorder sections: Section 4 (Tugaskan CS) muncul setelah Section 11 (Halaman Sukses) */
+.pfv2-left [data-sec="1"]{order:1}
+.pfv2-left [data-sec="2"]{order:2}
+.pfv2-left [data-sec="3"]{order:3}
+.pfv2-left [data-sec="5"]{order:4}
+.pfv2-left [data-sec="6"]{order:5}
+.pfv2-left [data-sec="7"]{order:6}
+.pfv2-left [data-sec="8"]{order:7}
+.pfv2-left [data-sec="9"]{order:8}
+.pfv2-left [data-sec="10"]{order:9}
+.pfv2-left [data-sec="11"]{order:10}
+.pfv2-left [data-sec="4"]{order:11}
+.pfv2-left [data-sec="12"]{order:12}
 .pfv2-right{position:sticky;top:70px;align-self:start;max-height:calc(100vh - 90px);overflow-y:auto}
 .pfv2-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:box-shadow .15s}
 .pfv2-section:hover{box-shadow:0 2px 8px rgba(0,0,0,.04)}
@@ -2634,7 +2647,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-07-14-remove-cs-footer';
+window.__APP_VERSION = '2026-07-15-cs-reorder-conditional';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -8636,6 +8649,9 @@ function showProdForm(id){
   // Wire realtime preview via event delegation (semua input di pfv2-left)
   bindPfv2PreviewListeners();
   updatePfv2Preview();
+  // Renumber sections + toggle CS visibility sesuai successAction
+  if(typeof renumberProdSections === 'function') renumberProdSections();
+  if(typeof onSuccessActionChange === 'function') onSuccessActionChange();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -9081,6 +9097,21 @@ function onSuccessActionChange(){
   if(box) box.style.display = val === 'custom_url' ? '' : 'none';
   var typBox = document.getElementById('fSuccessPageCustomBox');
   if(typBox) typBox.style.display = val === 'success_page' ? 'block' : 'none';
+  // Show/hide Section 4 (Tugaskan CS) — cuma perlu kalau WA redirect mode
+  var csSec = document.querySelector('.pfv2-left [data-sec="4"]');
+  if(csSec){
+    var needsCS = (val === 'wa_cs' || val === 'wa_random');
+    csSec.style.display = needsCS ? '' : 'none';
+  }
+}
+
+function renumberProdSections(){
+  // Visual order: 1-2-3-5-6-7-8-9-10-11-4-12 (Tugaskan CS moved to position 11)
+  var visualOrder = ['1','2','3','5','6','7','8','9','10','11','4','12'];
+  visualOrder.forEach(function(secId, idx){
+    var el = document.querySelector('.pfv2-left [data-sec="'+secId+'"] .pfv2-sec-num');
+    if(el) el.textContent = String(idx + 1);
+  });
 }
 
 function applyTypPreset(kind){
@@ -9472,8 +9503,11 @@ function saveProd(){
   const name = document.getElementById('fName').value.trim();
   if(!name){ toast('⚠️ Nama produk wajib diisi'); switchProdTab('info'); return; }
 
-  // Validasi minimal 1 CS dipilih
-  if(!selectedCSIds.length){
+  // Validasi minimal 1 CS — cuma perlu kalau mode WA redirect (bukan success_page/custom_url)
+  var _sActEl = document.getElementById('fSuccessAction');
+  var _sAct = _sActEl ? _sActEl.value : 'wa_cs';
+  var _needsCS = (_sAct === 'wa_cs' || _sAct === 'wa_random');
+  if(_needsCS && !selectedCSIds.length){
     switchProdTab('cs');
     document.getElementById('errCSSelect').style.display = 'block';
     toast('⚠️ Pilih minimal 1 CS di tab CS & Greeting'); return;
