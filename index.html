@@ -2634,7 +2634,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-07-09-lead-detail-modal';
+window.__APP_VERSION = '2026-07-10-thank-you-page';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -9714,7 +9714,10 @@ function generateProdEmbed(p){
     trust:cfg.trust||'',
     fieldAlamat:!!cfg.fieldAlamat,fieldKota:!!cfg.fieldKota,fieldKecamatan:!!cfg.fieldKecamatan,
     fbApiKey:fbcfg.apiKey||'',
-    fbProjectId:fbcfg.projectId||''
+    fbProjectId:fbcfg.projectId||'',
+    successAction: p.successAction || 'wa_cs',
+    successCustomUrl: p.successCustomUrl || '',
+    prodName: p.name || ''
   }).replace(/</g,'\\u003c');
 
   const inlineCode=`<!-- ✅ Form Order — ${esc(p.name)} | Inline Embed -->
@@ -9740,12 +9743,21 @@ ${useKecamatan?`+'<input id="oo-kc${p.id}" type="text" autocomplete="address-lev
 +'<button id="oo-btn-${p.id}" onclick="ooSub${p.id}()" style="width:100%;background:'+c+';color:#fff;border:none;border-radius:8px;padding:15px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit">'+cfg.cta+'<\\/button>'
 +'<div style="display:flex;justify-content:center;gap:14px;margin-top:12px;flex-wrap:wrap">'+trustHtml+'<\\/div>'
 +'<\\/div>'
-+'<div id="oo-ok${p.id}" style="display:none;text-align:center;padding:16px 0">'
++'<div id="oo-ok${p.id}" style="display:none;padding:16px 0">'
++'<div id="oo-ok-wa-${p.id}" style="display:none;text-align:center">'
 +'<div style="font-size:56px;margin-bottom:10px">🎉<\\/div>'
 +'<div style="font-size:22px;font-weight:700;margin-bottom:8px;color:#1b5e20">Berhasil!<\\/div>'
 +'<div style="font-size:14px;color:#666;line-height:1.6;margin-bottom:18px">Tinggal <b>1 langkah lagi<\\/b>: lanjut chat ke WhatsApp untuk konfirmasi pesanan kakak 👇<\\/div>'
 +'<a id="oo-wa-btn-${p.id}" href="#" rel="noopener" style="display:block;background:#25D366;color:#fff;text-align:center;padding:18px;font-size:17px;font-weight:700;border-radius:8px;text-decoration:none;margin-bottom:6px;box-shadow:0 4px 12px rgba(37,211,102,.35)">💬 Lanjut ke WhatsApp →<\\/a>'
 +'<div style="font-size:12px;color:#999;margin-top:8px">Kalau WhatsApp tidak terbuka otomatis, tap tombol hijau di atas<\\/div>'
++'<\\/div>'
++'<div id="oo-ok-typ-${p.id}" style="display:none;text-align:center;padding:24px 12px">'
++'<div style="width:76px;height:76px;margin:0 auto 16px;background:#D1FAE5;border-radius:50%;display:flex;align-items:center;justify-content:center"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/><\\/svg><\\/div>'
++'<div style="font-size:22px;font-weight:700;margin:0 0 8px;color:#065F46">Pesanan Diterima!<\\/div>'
++'<div id="oo-typ-msg-${p.id}" style="font-size:14px;color:#4B5563;line-height:1.6;margin-bottom:18px">Terima kasih, data pesanan udah masuk ke sistem kami. CS bakal hubungi kamu via WhatsApp dalam beberapa menit.<\\/div>'
++'<div id="oo-typ-summary-${p.id}" style="background:#F9FAFB;border-radius:10px;padding:12px 14px;text-align:left;font-size:13px;color:#111827;line-height:1.7;margin-bottom:16px;border:1px solid #E5E7EB"><\\/div>'
++'<a id="oo-typ-wa-${p.id}" href="#" rel="noopener" style="display:inline-block;background:#25D366;color:#fff;padding:10px 22px;font-size:14px;font-weight:600;border-radius:8px;text-decoration:none">💬 Chat CS via WhatsApp<\\/a>'
++'<\\/div>'
 +'<\\/div><\\/div><\\/div>';
 var ooSubmitting${p.id}=false;
 window['ooSub${p.id}']=function(){
@@ -9805,6 +9817,33 @@ window['ooSub${p.id}']=function(){
   var manualBtn=document.getElementById('oo-wa-btn-${p.id}');
   document.getElementById('oo-f${p.id}').style.display='none';
   document.getElementById('oo-ok${p.id}').style.display='block';
+
+  /* Pilih success screen berdasarkan successAction produk */
+  var _sAction = cfg.successAction || 'wa_cs';
+  var _showTYP = (_sAction === 'success_page');
+  var _blockWa = document.getElementById('oo-ok-wa-${p.id}');
+  var _blockTyp = document.getElementById('oo-ok-typ-${p.id}');
+  if(_showTYP){
+    if(_blockTyp) _blockTyp.style.display = 'block';
+    if(_blockWa) _blockWa.style.display = 'none';
+    /* Isi ringkasan pesanan */
+    var _typMsg = document.getElementById('oo-typ-msg-${p.id}');
+    if(_typMsg) _typMsg.innerHTML = 'Terima kasih <b>'+(nm||'kak')+'</b>, data pesanan udah masuk ke sistem kami. CS bakal hubungi kamu via WhatsApp dalam beberapa menit.';
+    var _typSum = document.getElementById('oo-typ-summary-${p.id}');
+    if(_typSum){
+      var _sum = '';
+      _sum += '<div><b>Produk:</b> '+(cfg.prodName||cfg.produkWA||'-')+'</div>';
+      _sum += '<div><b>Nama:</b> '+(nm||'-')+'</div>';
+      _sum += '<div><b>WhatsApp:</b> '+(wa||'-')+'</div>';
+      if(al) _sum += '<div><b>Alamat:</b> '+al+'</div>';
+      if(kt) _sum += '<div><b>Kota:</b> '+kt+'</div>';
+      if(kc) _sum += '<div><b>Kecamatan:</b> '+kc+'</div>';
+      _typSum.innerHTML = _sum;
+    }
+  } else {
+    if(_blockWa) _blockWa.style.display = 'block';
+    if(_blockTyp) _blockTyp.style.display = 'none';
+  }
 
   /* ── proceed(): jalan setelah fetch selesai (atau timeout/fail fallback ke baked) ── */
   function proceed(prod, csMap){
@@ -9868,11 +9907,15 @@ window['ooSub${p.id}']=function(){
     var msg = greeting.replace(/{nama}/g,nm).replace(/{wa}/g,wa).replace(/{produk}/g,prodLabel).replace(/{toko}/g,storeLabel).replace(/{alamat}/g,al||'-').replace(/{kota}/g,kt||'-').replace(/{kecamatan}/g,kc||'-');
     waUrl = 'https://wa.me/' + normWa(chosenWa) + '?text=' + encodeURIComponent(msg);
     if(manualBtn) manualBtn.href = waUrl;
+    var _typWa = document.getElementById('oo-typ-wa-${p.id}');
+    if(_typWa) _typWa.href = waUrl;
 
     if(isDupe){
-      /* Skip create lead, langsung redirect aja */
-      try{if(manualBtn && manualBtn.click) manualBtn.click();}catch(e){}
-      try{window.location.href=waUrl;}catch(e){}
+      /* Skip create lead, langsung redirect aja (kalau bukan mode success_page) */
+      if(!_showTYP){
+        try{if(manualBtn && manualBtn.click) manualBtn.click();}catch(e){}
+        try{window.location.href=waUrl;}catch(e){}
+      }
       return;
     }
     try{sessionStorage.setItem(dupKey,String(Date.now()));}catch(e){}
@@ -9914,9 +9957,14 @@ window['ooSub${p.id}']=function(){
       }
     }
 
-    /* Redirect — multi-fallback */
-    try{if(manualBtn && manualBtn.click) manualBtn.click();}catch(e){}
-    try{window.location.href=waUrl;}catch(e){}
+    /* Redirect — multi-fallback (SKIP kalau mode success_page → biar user liat thank you page) */
+    if(!_showTYP){
+      try{if(manualBtn && manualBtn.click) manualBtn.click();}catch(e){}
+      try{window.location.href=waUrl;}catch(e){}
+    } else if(_sAction === 'custom_url' && cfg.successCustomUrl){
+      /* successAction = custom_url → redirect ke URL custom */
+      try{window.location.href=cfg.successCustomUrl;}catch(e){}
+    }
   }
 
   /* ── LIVE FETCH: ambil produk + CS terbaru dari Firestore, fallback ke baked kalau timeout/fail ── */
