@@ -2652,7 +2652,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-07-22-lead-email-auto';
+window.__APP_VERSION = '2026-07-23-form-validation';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -10183,13 +10183,13 @@ R.innerHTML='<div style="max-width:420px;margin:0 auto;font-family:Segoe UI,syst
 +'<div style="background:#fff;border-radius:12px;padding:24px 20px;box-shadow:0 4px 24px rgba(0,0,0,.1)">'
 +'<div id="oo-f${p.id}">'
 +'<p style="font-size:15px;font-weight:600;margin-bottom:18px;line-height:1.5;color:#222">'+cfg.headline.replace(/\\n/g,'<br>').replace(/CS kami/g,'<span style="color:#1b5e20;font-weight:700">CS kami<\\/span>')+'<\\/p>'
-+'<input id="oo-n${p.id}" type="text" autocomplete="name" placeholder="Nama Anda" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box">'
++'<input id="oo-n${p.id}" type="text" autocomplete="name" placeholder="Nama Anda" oninput="if(this.value.trim()){this.style.borderColor=\\'#e0e0e0\\';var e=document.getElementById(\\'oo-en${p.id}\\');if(e)e.style.display=\\'none\\';}" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box">'
 +'<p id="oo-en${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Nama wajib diisi<\\/p>'
-+'<input id="oo-w${p.id}" type="tel" inputmode="numeric" autocomplete="tel" placeholder="No. WhatsApp Anda" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'
++'<input id="oo-w${p.id}" type="tel" inputmode="numeric" autocomplete="tel" placeholder="No. WhatsApp Anda" oninput="if(this.value.trim()){this.style.borderColor=\\'#e0e0e0\\';var e=document.getElementById(\\'oo-ew${p.id}\\');if(e)e.style.display=\\'none\\';}" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'
 +'<p id="oo-ew${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Nomor WA wajib diisi<\\/p>'
-${useAlamat?`+'<textarea id="oo-al${p.id}" autocomplete="street-address" placeholder="Alamat Lengkap" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box;resize:none;height:80px"><\\/textarea>'`:''}
-${useKota?`+'<input id="oo-kt${p.id}" type="text" autocomplete="address-level2" placeholder="Kota" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'`:''}
-${useKecamatan?`+'<input id="oo-kc${p.id}" type="text" autocomplete="address-level3" placeholder="Kecamatan" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'`:''}
+${useAlamat?`+'<textarea id="oo-al${p.id}" autocomplete="street-address" placeholder="Alamat Lengkap" oninput="if(this.value.trim()){this.style.borderColor=\\'#e0e0e0\\';var e=document.getElementById(\\'oo-eal${p.id}\\');if(e)e.style.display=\\'none\\';}" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box;resize:none;height:80px"><\\/textarea>'+'<p id="oo-eal${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Alamat wajib diisi<\\/p>'`:''}
+${useKota?`+'<input id="oo-kt${p.id}" type="text" autocomplete="address-level2" placeholder="Kota" oninput="if(this.value.trim()){this.style.borderColor=\\'#e0e0e0\\';var e=document.getElementById(\\'oo-ekt${p.id}\\');if(e)e.style.display=\\'none\\';}" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box">'+'<p id="oo-ekt${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Kota wajib diisi<\\/p>'`:''}
+${useKecamatan?`+'<input id="oo-kc${p.id}" type="text" autocomplete="address-level3" placeholder="Kecamatan" oninput="if(this.value.trim()){this.style.borderColor=\\'#e0e0e0\\';var e=document.getElementById(\\'oo-ekc${p.id}\\');if(e)e.style.display=\\'none\\';}" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box">'+'<p id="oo-ekc${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Kecamatan wajib diisi<\\/p>'`:''}
 +'<button id="oo-btn-${p.id}" onclick="ooSub${p.id}()" style="width:100%;background:'+c+';color:#fff;border:none;border-radius:8px;padding:15px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit">'+cfg.cta+'<\\/button>'
 +'<div style="display:flex;justify-content:center;gap:14px;margin-top:12px;flex-wrap:wrap">'+trustHtml+'<\\/div>'
 +'<\\/div>'
@@ -10254,7 +10254,24 @@ window['ooSub${p.id}']=function(){
   if(!wa){if(waErrEl)waErrEl.textContent='Nomor WA wajib diisi';if(waInpEl)waInpEl.style.borderColor='#e53935';if(waErrEl)waErrEl.style.display='block';ok=false;}
   else if(waDigits.length<9||waDigits.length>15){if(waErrEl)waErrEl.textContent='Nomor WA tidak valid (min 9 digit, contoh 081234567890)';if(waInpEl)waInpEl.style.borderColor='#e53935';if(waErrEl)waErrEl.style.display='block';ok=false;}
   else{if(waInpEl)waInpEl.style.borderColor='#e0e0e0';if(waErrEl)waErrEl.style.display='none';}
-  if(!ok)return;
+  /* Alamat / Kota / Kecamatan — wajib kalau ditampilin */
+  ${useAlamat?`var _alInp=document.getElementById('oo-al${p.id}'),_alErr=document.getElementById('oo-eal${p.id}');
+  if(!al){if(_alInp)_alInp.style.borderColor='#e53935';if(_alErr)_alErr.style.display='block';ok=false;}
+  else{if(_alInp)_alInp.style.borderColor='#e0e0e0';if(_alErr)_alErr.style.display='none';}`:''}
+  ${useKota?`var _ktInp=document.getElementById('oo-kt${p.id}'),_ktErr=document.getElementById('oo-ekt${p.id}');
+  if(!kt){if(_ktInp)_ktInp.style.borderColor='#e53935';if(_ktErr)_ktErr.style.display='block';ok=false;}
+  else{if(_ktInp)_ktInp.style.borderColor='#e0e0e0';if(_ktErr)_ktErr.style.display='none';}`:''}
+  ${useKecamatan?`var _kcInp=document.getElementById('oo-kc${p.id}'),_kcErr=document.getElementById('oo-ekc${p.id}');
+  if(!kc){if(_kcInp)_kcInp.style.borderColor='#e53935';if(_kcErr)_kcErr.style.display='block';ok=false;}
+  else{if(_kcInp)_kcInp.style.borderColor='#e0e0e0';if(_kcErr)_kcErr.style.display='none';}`:''}
+  if(!ok){
+    /* Scroll ke error pertama */
+    try {
+      var _firstErr = document.querySelector('#oo-f${p.id} p[style*="display: block"], #oo-f${p.id} p[style*="display:block"]');
+      if(_firstErr && _firstErr.scrollIntoView) _firstErr.scrollIntoView({behavior:'smooth', block:'center'});
+    } catch(e){}
+    return;
+  }
 
   /* ── Dupe check (sync, sessionStorage) ── */
   var dupKey='oo_last_'+cfg.productId+'_'+waDigits;
