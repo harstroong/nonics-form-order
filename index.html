@@ -2634,7 +2634,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-07-03-date-range-fix';
+window.__APP_VERSION = '2026-07-04-full-form-option';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -4541,7 +4541,22 @@ document.addEventListener('DOMContentLoaded', function(){
               <i class="ti ti-chevron-down pfv2-sec-chev"></i>
             </div>
             <div class="pfv2-sec-body">
-              <div class="pfv2-hint" style="margin-bottom:10px">Aktifkan field yang mau muncul di form checkout. Gunakan panah untuk atur urutan.</div>
+              <!-- Form Type preset -->
+              <div class="pfv2-field">
+                <label class="pfv2-label">Tipe Form</label>
+                <div class="pfv2-status-btns">
+                  <button type="button" class="pfv2-status-btn active" data-formtype="short" onclick="setFormType('short')"><i class="ti ti-bolt" style="font-size:14px;vertical-align:-2px;margin-right:4px"></i>Short<div style="font-size:10px;color:inherit;margin-top:2px;font-weight:400">Nama + WA</div></button>
+                  <button type="button" class="pfv2-status-btn" data-formtype="full" onclick="setFormType('full')"><i class="ti ti-list-details" style="font-size:14px;vertical-align:-2px;margin-right:4px"></i>Full<div style="font-size:10px;color:inherit;margin-top:2px;font-weight:400">+ Alamat lengkap</div></button>
+                  <button type="button" class="pfv2-status-btn" data-formtype="custom" onclick="setFormType('custom')"><i class="ti ti-settings" style="font-size:14px;vertical-align:-2px;margin-right:4px"></i>Custom<div style="font-size:10px;color:inherit;margin-top:2px;font-weight:400">Atur sendiri</div></button>
+                </div>
+                <input type="hidden" id="fFormType" value="short"/>
+                <div class="pfv2-hint" style="margin-top:8px">
+                  <strong>Short:</strong> cuma Nama + WA (buat produk digital/warm audience) ·
+                  <strong>Full:</strong> auto-enable Nama + WA + Alamat + Kota + Kecamatan (buat produk fisik yang di-ship) ·
+                  <strong>Custom:</strong> pilih sendiri di list bawah
+                </div>
+              </div>
+              <div class="pfv2-hint" style="margin-bottom:10px;padding-top:8px;border-top:1px dashed var(--border)">Aktifkan field yang mau muncul di form checkout. Gunakan panah untuk atur urutan.</div>
               <div id="fFormFieldsList"></div>
               <button type="button" class="btn btn-outline" style="padding:7px 14px;font-size:12px;margin-top:10px" onclick="addCustomField()"><i class="ti ti-plus"></i> Tambahkan Field Custom</button>
             </div>
@@ -8252,9 +8267,10 @@ function showProdForm(id){
     window.__prodVariants = (p.variants || []).slice();
     renderVariants();
 
-    // Section 13 — Bidang Diminta
+    // Section 8 — Bidang Diminta
     window.__prodFields = (p.formFields && p.formFields.length) ? p.formFields.slice() : DEFAULT_FIELDS.slice();
     renderFormFields();
+    setFormType(p.formType || 'short');
 
     // Section 14 — Dropship
     setChk('fDropshipEnabled', p.isDropship || p.dropshipEnabled);
@@ -8304,6 +8320,7 @@ function showProdForm(id){
     window.__prodVariants = [];
     window.__prodFields = DEFAULT_FIELDS.slice();
     renderProdImages(); renderGrosirList(); renderVariants(); renderFormFields();
+    setFormType('short'); // default
     setProdStatus('live'); setProdTipe('simple'); setProdTemplate('none');
     setProdBgColor('#FFFFFF'); setProdBtnColor('');
     switchTugasSec('cs'); onSuccessActionChange();
@@ -8932,7 +8949,7 @@ function renderFormFields(){
   if(!list) return;
   list.innerHTML = window.__prodFields.map(function(f, idx){
     return '<div class="pfv2-field-row">' +
-      '<input type="checkbox" class="pfv2-field-row-check" '+(f.enabled?'checked':'')+' onchange="window.__prodFields['+idx+'].enabled=this.checked;updatePfv2Preview()"/>' +
+      '<input type="checkbox" class="pfv2-field-row-check" '+(f.enabled?'checked':'')+' onchange="window.__prodFields['+idx+'].enabled=this.checked;markFormTypeCustom();updatePfv2Preview()"/>' +
       '<div class="pfv2-field-row-name">'+esc(f.label)+(f.required?' <span class="req">*</span>':'')+(f.custom?' <span style="font-size:9px;background:#DBEAFE;color:#1E40AF;padding:1px 5px;border-radius:99px">CUSTOM</span>':'')+'</div>' +
       '<div class="pfv2-field-row-btns">' +
         '<button class="pfv2-field-row-btn" onclick="moveField('+idx+',-1)" title="Naik"><i class="ti ti-chevron-up"></i></button>' +
@@ -8949,6 +8966,43 @@ function moveField(idx, delta){
   var tmp = arr[idx]; arr[idx] = arr[newIdx]; arr[newIdx] = tmp;
   renderFormFields();
   updatePfv2Preview();
+}
+
+/* ═════════════════════════════════════════════
+   FORM TYPE PRESETS (Short / Full / Custom)
+═════════════════════════════════════════════ */
+function setFormType(type){
+  var typeEl = document.getElementById('fFormType');
+  if(typeEl) typeEl.value = type;
+  document.querySelectorAll('[data-formtype]').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-formtype') === type);
+  });
+  if(type === 'custom') return; // don't touch fields
+  // Reset all to disabled first
+  window.__prodFields.forEach(function(f){ f.enabled = false; });
+  // Enable based on type
+  var enabledIds;
+  if(type === 'short'){
+    enabledIds = ['nama','wa'];
+  } else if(type === 'full'){
+    enabledIds = ['nama','wa','alamat','provinsi','kota','kecamatan'];
+  }
+  window.__prodFields.forEach(function(f){
+    if(enabledIds.indexOf(f.id) >= 0) f.enabled = true;
+  });
+  renderFormFields();
+  updatePfv2Preview();
+}
+
+/* Auto-detect kalau user manually toggle field → switch ke 'custom' */
+function markFormTypeCustom(){
+  var typeEl = document.getElementById('fFormType');
+  if(typeEl && typeEl.value !== 'custom'){
+    typeEl.value = 'custom';
+    document.querySelectorAll('[data-formtype]').forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-formtype') === 'custom');
+    });
+  }
 }
 function addCustomField(){
   var label = prompt('Nama field custom:');
@@ -9208,8 +9262,9 @@ function saveProd(){
   // Section 12
   var variants = (window.__prodVariants||[]).slice();
 
-  // Section 13
+  // Section 8
   var formFields = (window.__prodFields||[]).slice();
+  var formType = gv('fFormType') || 'short';
 
   // Section 14
   var dropshipEnabled = gc('fDropshipEnabled');
@@ -9307,7 +9362,7 @@ function saveProd(){
       showCoverAtCheckout,
       warrantyEnabled, warrantyLabel,
       variants,
-      formFields,
+      formFields, formType,
       isDropship: dropshipEnabled, dropshipEnabled,
       btnText, btnColor,
       videoUrl, kontenHeading, kontenBody,
@@ -9359,6 +9414,22 @@ function generateProdEmbed(p){
   // FB Pixel + TikTok Pixel (per-produk)
   const fbPixelId=(p.fbPixelId||'').trim();
   const fbPixelEvent=(p.fbPixelEvent||'Lead').trim();
+
+  // Form Type — override global cfg field toggles
+  const formType = p.formType || 'short';
+  var useAlamat, useKota, useKecamatan;
+  if(formType === 'full'){
+    useAlamat = true; useKota = true; useKecamatan = true;
+  } else if(formType === 'short'){
+    useAlamat = false; useKota = false; useKecamatan = false;
+  } else {
+    // custom — check p.formFields, fallback ke global cfg
+    const ff = p.formFields || [];
+    const isEnabled = function(id){ var f = ff.find(function(x){ return x.id === id; }); return f ? !!f.enabled : false; };
+    useAlamat = ff.length ? isEnabled('alamat') : !!cfg.fieldAlamat;
+    useKota = ff.length ? isEnabled('kota') : !!cfg.fieldKota;
+    useKecamatan = ff.length ? isEnabled('kecamatan') : !!cfg.fieldKecamatan;
+  }
   const ttPixelId=(p.ttPixelId||'').trim();
   const ttPixelEvent=(p.ttPixelEvent||'SubmitForm').trim();
 
@@ -9398,9 +9469,9 @@ R.innerHTML='<div style="max-width:420px;margin:0 auto;font-family:Segoe UI,syst
 +'<p id="oo-en${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Nama wajib diisi<\\/p>'
 +'<input id="oo-w${p.id}" type="tel" inputmode="numeric" autocomplete="tel" placeholder="No. WhatsApp Anda" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'
 +'<p id="oo-ew${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Nomor WA wajib diisi<\\/p>'
-${cfg.fieldAlamat?`+'<textarea id="oo-al${p.id}" autocomplete="street-address" placeholder="Alamat Lengkap" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box;resize:none;height:80px"><\\/textarea>'`:''}
-${cfg.fieldKota?`+'<input id="oo-kt${p.id}" type="text" autocomplete="address-level2" placeholder="Kota" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'`:''}
-${cfg.fieldKecamatan?`+'<input id="oo-kc${p.id}" type="text" autocomplete="address-level3" placeholder="Kecamatan" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'`:''}
+${useAlamat?`+'<textarea id="oo-al${p.id}" autocomplete="street-address" placeholder="Alamat Lengkap" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box;resize:none;height:80px"><\\/textarea>'`:''}
+${useKota?`+'<input id="oo-kt${p.id}" type="text" autocomplete="address-level2" placeholder="Kota" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'`:''}
+${useKecamatan?`+'<input id="oo-kc${p.id}" type="text" autocomplete="address-level3" placeholder="Kecamatan" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'`:''}
 +'<button id="oo-btn-${p.id}" onclick="ooSub${p.id}()" style="width:100%;background:'+c+';color:#fff;border:none;border-radius:8px;padding:15px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit">'+cfg.cta+'<\\/button>'
 +'<div style="display:flex;justify-content:center;gap:14px;margin-top:12px;flex-wrap:wrap">'+trustHtml+'<\\/div>'
 +'<\\/div>'
@@ -9442,9 +9513,9 @@ window['ooSub${p.id}']=function(){
   /* ── Read inputs ── */
   var nm=document.getElementById('oo-n${p.id}').value.trim();
   var wa=document.getElementById('oo-w${p.id}').value.trim();
-  var al=${cfg.fieldAlamat?`(document.getElementById('oo-al${p.id}')||{value:''}).value.trim()`:`''`};
-  var kt=${cfg.fieldKota?`(document.getElementById('oo-kt${p.id}')||{value:''}).value.trim()`:`''`};
-  var kc=${cfg.fieldKecamatan?`(document.getElementById('oo-kc${p.id}')||{value:''}).value.trim()`:`''`};
+  var al=${useAlamat?`(document.getElementById('oo-al${p.id}')||{value:''}).value.trim()`:`''`};
+  var kt=${useKota?`(document.getElementById('oo-kt${p.id}')||{value:''}).value.trim()`:`''`};
+  var kc=${useKecamatan?`(document.getElementById('oo-kc${p.id}')||{value:''}).value.trim()`:`''`};
   var ok=true;
   if(!nm){document.getElementById('oo-n${p.id}').style.borderColor='#e53935';document.getElementById('oo-en${p.id}').style.display='block';ok=false;}
   else{document.getElementById('oo-n${p.id}').style.borderColor='#e0e0e0';document.getElementById('oo-en${p.id}').style.display='none';}
