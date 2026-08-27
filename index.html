@@ -2634,7 +2634,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-07-06-formtype-fallback';
+window.__APP_VERSION = '2026-07-07-spa-routing';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -6376,10 +6376,85 @@ const panelTitles={
   cloud:'Cloud Sync',settings:'Pengaturan'
 };
 let activePanel='overview';
-function showPanel(name){
+
+/* ═════════════════════════════════════════════
+   SPA ROUTING — URL path per panel
+═════════════════════════════════════════════ */
+// panel name <-> URL path mapping
+var SPA_PANEL_TO_PATH = {
+  overview: '/dashboard',
+  leads: '/leads',
+  produk: '/produk',
+  team: '/team',
+  form: '/form-builder',
+  cs: '/greeting',
+  csaccess: '/cs-access',
+  adaccess: '/advertisers',
+  quickreply: '/quick-reply',
+  gtm: '/tracking',
+  embed: '/embed',
+  cloud: '/cloud-sync',
+  settings: '/settings'
+};
+var SPA_PATH_TO_PANEL = {};
+Object.keys(SPA_PANEL_TO_PATH).forEach(function(k){ SPA_PATH_TO_PANEL[SPA_PANEL_TO_PATH[k]] = k; });
+
+function spaPushPanel(name){
+  var path = SPA_PANEL_TO_PATH[name];
+  if(!path) return;
+  try {
+    var full = path + window.location.search + window.location.hash;
+    if(window.location.pathname !== path){
+      history.pushState({ panel: name }, '', full);
+    }
+  } catch(e){ /* silent */ }
+}
+
+function spaHandlePopState(ev){
+  var path = window.location.pathname;
+  // Check kalau path adalah /produk/{slug} → hosted form
+  var mProduk = path.match(/^\/produk\/(.+)$/);
+  if(mProduk){
+    var newSearch = '?produk=' + encodeURIComponent(mProduk[1]);
+    // Redirect to root+query (biar existing router handle)
+    window.location.href = '/' + newSearch;
+    return;
+  }
+  var panel = SPA_PATH_TO_PANEL[path];
+  if(panel && typeof showPanel === 'function'){
+    showPanel(panel, { skipHistory: true });
+  }
+}
+
+// Boot-time route: dari URL path, buka panel yg sesuai
+function spaBootRoute(){
+  var path = window.location.pathname;
+  // /produk/{slug} → hosted form (via existing produkFormMaybeRoute)
+  var mProduk = path.match(/^\/produk\/(.+)$/);
+  if(mProduk){
+    // Rewrite URL search param supaya produkFormMaybeRoute detect
+    var params = new URLSearchParams(window.location.search);
+    params.set('produk', decodeURIComponent(mProduk[1]));
+    var newUrl = '/produk/' + encodeURIComponent(mProduk[1]) + '?' + params.toString();
+    // NOTE: pakai query param buat internal routing tapi biarin URL tetap pretty
+    // Kita override by patching location.search via URLSearchParams
+    // Untuk sekarang, langsung set global var
+    window.__spaProdukSlug = decodeURIComponent(mProduk[1]);
+    return { type: 'produk-form', slug: window.__spaProdukSlug };
+  }
+  var panel = SPA_PATH_TO_PANEL[path];
+  if(panel) return { type: 'panel', panel: panel };
+  return null;
+}
+
+window.addEventListener('popstate', spaHandlePopState);
+function showPanel(name, opts){
+  opts = opts || {};
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
   document.getElementById('panel-'+name).classList.add('active');
+  // Push URL state (kecuali dipanggil dari popstate handler)
+  if(!opts.skipHistory && typeof spaPushPanel === 'function') spaPushPanel(name);
   // Highlight sidebar item (legacy — sidebar hidden, but tetap di-sync biar fungsi lama gak rusak)
   document.querySelectorAll('.sb-item').forEach(b=>{
     if(b.getAttribute('onclick')===`showPanel('${name}')`)b.classList.add('active');
@@ -6644,7 +6719,13 @@ function initDashboard(){
   const cfg=getCfg();
   document.getElementById('sbStoreName').textContent=cfg.storeName;
   updateLeadsBadge();
-  renderOverview();
+  // Route berdasarkan URL path
+  var route = (typeof spaBootRoute === 'function') ? spaBootRoute() : null;
+  if(route && route.type === 'panel' && route.panel !== 'overview'){
+    showPanel(route.panel, { skipHistory: true });
+  } else {
+    renderOverview();
+  }
 }
 
 /* ═════════════════════════════════════════════
@@ -13709,6 +13790,11 @@ function selectCheckoutPayment(idx){
 function produkFormMaybeRoute(){
   var params = new URLSearchParams(window.location.search);
   var slug = params.get('produk') || params.get('form-fisik');
+  // Also check pretty URL /produk/{slug}
+  if(!slug){
+    var m = window.location.pathname.match(/^\/produk\/(.+)$/);
+    if(m) slug = decodeURIComponent(m[1]);
+  }
   if(!slug) return false;
   // Hide all other views
   var ids = ['viewLogin','viewDashboard','viewCS','viewDashboardDigital','viewMember','viewDigitalCheckout'];
@@ -13783,7 +13869,8 @@ function copyProdukFormUrl(id){
   var p = getProds().find(function(x){ return x.id === id; });
   if(!p){ toast('⚠️ Produk tidak ditemukan'); return; }
   var slug = p.urlSlug || p.id;
-  var url = window.location.origin + '/?produk=' + encodeURIComponent(slug);
+  // Pretty URL: /produk/{slug}
+  var url = window.location.origin + '/produk/' + encodeURIComponent(slug);
   try {
     navigator.clipboard.writeText(url);
     toast('📋 Link form di-copy: ' + url);
