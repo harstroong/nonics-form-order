@@ -515,6 +515,11 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 .card-sub{font-size:13px;color:var(--text-muted);margin-bottom:20px}
 .card-divider{height:1px;background:var(--border);margin:20px 0}
 
+/* SETTINGS COLOR SWATCH */
+.st-color-swatch{width:32px;height:32px;border-radius:8px;border:2px solid transparent;cursor:pointer;padding:0;transition:transform 0.15s}
+.st-color-swatch:hover{transform:scale(1.08)}
+.st-color-swatch.active{border-color:#0F172A;box-shadow:0 0 0 2px rgba(15,23,42,0.15)}
+
 /* STAT CARDS */
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:24px}
 .stat-card{
@@ -2647,7 +2652,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-07-18-deep-link-produk';
+window.__APP_VERSION = '2026-07-19-settings-brand';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -5357,19 +5362,72 @@ document.addEventListener('DOMContentLoaded', function(){
 
       <!-- ── SETTINGS ── -->
       <div class="panel" id="panel-settings">
+
+        <!-- BRAND & TOKO -->
         <div class="card">
-          <div class="card-title">🏪 Informasi Toko</div>
+          <div class="card-title"><i class="ti ti-building-store" style="vertical-align:-3px;margin-right:5px;color:var(--primary)"></i>Brand & Toko</div>
+          <div class="card-sub">Setting brand yang tampil di hosted form page customer + email/notifikasi.</div>
+
           <div class="form-row">
             <div class="form-group">
-              <label class="label">Nama Toko / Brand</label>
+              <label class="label">Nama Toko / Brand *</label>
               <input class="input" id="stName" type="text" placeholder="Toko Kita"/>
+              <div class="hint">Muncul di header nav + hosted form page + email.</div>
             </div>
             <div class="form-group">
-              <label class="label">Tagline</label>
+              <label class="label">Tagline (opsional)</label>
               <input class="input" id="stTagline" type="text" placeholder="Produk terbaik, harga terjangkau"/>
+              <div class="hint">Ditampilkan di bawah nama toko kalau ada.</div>
             </div>
           </div>
-          <button class="btn btn-primary" onclick="saveStoreInfo()">💾 Simpan Info Toko</button>
+
+          <div class="form-row" style="align-items:flex-start">
+            <div class="form-group">
+              <label class="label">Logo Custom (Hosted Form Page)</label>
+              <div style="display:flex;align-items:center;gap:12px">
+                <div id="stLogoPreview" style="width:80px;height:80px;border-radius:12px;background:#F1F5F9;border:2px dashed #CBD5E1;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer" onclick="document.getElementById('stLogoInput').click()">
+                  <img id="stLogoImg" src="" style="display:none;width:100%;height:100%;object-fit:contain"/>
+                  <i id="stLogoPlaceholder" class="ti ti-photo-plus" style="font-size:28px;color:#94A3B8"></i>
+                </div>
+                <div style="flex:1">
+                  <button type="button" class="btn btn-outline" style="padding:7px 12px;font-size:12px" onclick="document.getElementById('stLogoInput').click()"><i class="ti ti-upload"></i> Upload Logo</button>
+                  <button type="button" class="btn btn-outline" style="padding:7px 12px;font-size:12px;margin-left:5px" onclick="stClearLogo()"><i class="ti ti-trash"></i> Reset</button>
+                  <div class="hint" style="margin-top:6px">PNG transparent, max 300KB, rekomendasi square. Kalau kosong pake logo default Nonics.</div>
+                </div>
+              </div>
+              <input type="file" id="stLogoInput" accept="image/*" style="display:none" onchange="stHandleLogoUpload(this)"/>
+            </div>
+
+            <div class="form-group">
+              <label class="label">Warna Primary (Tema)</label>
+              <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+                <button type="button" class="st-color-swatch" data-color="#10B981" style="background:#10B981" onclick="stSetPrimaryColor('#10B981')" title="Emerald"></button>
+                <button type="button" class="st-color-swatch" data-color="#22C55E" style="background:#22C55E" onclick="stSetPrimaryColor('#22C55E')" title="Green"></button>
+                <button type="button" class="st-color-swatch" data-color="#0EA5E9" style="background:#0EA5E9" onclick="stSetPrimaryColor('#0EA5E9')" title="Sky"></button>
+                <button type="button" class="st-color-swatch" data-color="#8B5CF6" style="background:#8B5CF6" onclick="stSetPrimaryColor('#8B5CF6')" title="Purple"></button>
+                <button type="button" class="st-color-swatch" data-color="#F59E0B" style="background:#F59E0B" onclick="stSetPrimaryColor('#F59E0B')" title="Amber"></button>
+                <button type="button" class="st-color-swatch" data-color="#EF4444" style="background:#EF4444" onclick="stSetPrimaryColor('#EF4444')" title="Red"></button>
+                <button type="button" class="st-color-swatch" data-color="#EC4899" style="background:#EC4899" onclick="stSetPrimaryColor('#EC4899')" title="Pink"></button>
+                <input type="color" id="stPrimaryColor" value="#10B981" onchange="stSetPrimaryColor(this.value)" style="width:36px;height:36px;padding:0;border:2px solid var(--border);border-radius:8px;cursor:pointer" title="Custom"/>
+              </div>
+              <div class="hint" style="margin-top:6px">Warna primary buat gradient hosted form + accent UI. Preview di hosted form.</div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="label">Kontak WA Fallback</label>
+              <input class="input" id="stWaFallback" type="text" placeholder="6281234567890"/>
+              <div class="hint">Nomor WA default kalau tidak ada CS ter-assign (format 62xxx tanpa +).</div>
+            </div>
+            <div class="form-group">
+              <label class="label">Footer Text di Hosted Form</label>
+              <input class="input" id="stFooterText" type="text" placeholder="Powered by Toko Kita"/>
+              <div class="hint">Text kecil di footer /f/{slug}. Kosongkan untuk hide.</div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" onclick="saveStoreInfo()"><i class="ti ti-device-floppy"></i> Simpan Brand & Toko</button>
         </div>
 
         <div class="card">
@@ -6043,8 +6101,8 @@ document.addEventListener('DOMContentLoaded', function(){
   <div style="max-width:520px;margin:0 auto">
     <!-- Brand header -->
     <div style="text-align:center;margin-bottom:24px;padding-top:16px">
-      <img src="/logo.png" alt="Nonics Order" style="height:44px;margin-bottom:8px"/>
-      <div style="font-size:11px;color:#94A3B8;letter-spacing:.4px;text-transform:uppercase">Powered by Nonics Order</div>
+      <img id="hfBrandLogo" src="/logo.png" alt="Nonics Order" style="height:44px;margin-bottom:8px"/>
+      <div id="hfBrandFooter" style="font-size:11px;color:#94A3B8;letter-spacing:.4px;text-transform:uppercase">Powered by Nonics Order</div>
     </div>
     <!-- Form card -->
     <div id="hostedFormCard" style="background:#fff;border-radius:16px;box-shadow:0 8px 32px rgba(15,23,42,.08);padding:24px 22px">
@@ -10623,18 +10681,105 @@ function saveGTM(){
 ═════════════════════════════════════════════ */
 function initSettings(){
   const cfg=getCfg();
-  document.getElementById('stName').value=cfg.storeName;
-  document.getElementById('stTagline').value=cfg.tagline||'';
+  var setV = function(id, v){ var el=document.getElementById(id); if(el) el.value = v || ''; };
+  setV('stName', cfg.storeName);
+  setV('stTagline', cfg.tagline);
+  setV('stWaFallback', cfg.waFallback);
+  setV('stFooterText', cfg.footerText);
+  setV('stPrimaryColor', cfg.primaryColor || '#10B981');
+  // Highlight color swatch
+  document.querySelectorAll('.st-color-swatch').forEach(function(s){
+    s.classList.toggle('active', s.getAttribute('data-color') === (cfg.primaryColor || '#10B981'));
+  });
+  // Load logo preview
+  if(cfg.customLogo){
+    var img = document.getElementById('stLogoImg');
+    var ph = document.getElementById('stLogoPlaceholder');
+    if(img){ img.src = cfg.customLogo; img.style.display = ''; img.dataset.b64 = cfg.customLogo; }
+    if(ph) ph.style.display = 'none';
+  } else {
+    stClearLogoPreview();
+  }
 }
+
+function stHandleLogoUpload(input){
+  if(!input || !input.files || !input.files[0]) return;
+  var f = input.files[0];
+  if(f.size > 300 * 1024){ toast('⚠️ Max 300KB. Kompres dulu di tinypng.com'); input.value=''; return; }
+  var reader = new FileReader();
+  reader.onload = function(ev){
+    var img = document.getElementById('stLogoImg');
+    var ph = document.getElementById('stLogoPlaceholder');
+    if(img){ img.src = ev.target.result; img.style.display = ''; img.dataset.b64 = ev.target.result; }
+    if(ph) ph.style.display = 'none';
+    toast('✅ Logo di-upload, klik Simpan');
+  };
+  reader.readAsDataURL(f);
+}
+function stClearLogo(){
+  stClearLogoPreview();
+  toast('🗑️ Logo di-reset. Klik Simpan untuk apply.');
+}
+function stClearLogoPreview(){
+  var img = document.getElementById('stLogoImg');
+  var ph = document.getElementById('stLogoPlaceholder');
+  var inp = document.getElementById('stLogoInput');
+  if(img){ img.src = ''; img.style.display = 'none'; img.dataset.b64 = ''; }
+  if(ph) ph.style.display = '';
+  if(inp) inp.value = '';
+}
+
+function stSetPrimaryColor(color){
+  var input = document.getElementById('stPrimaryColor');
+  if(input) input.value = color;
+  document.querySelectorAll('.st-color-swatch').forEach(function(s){
+    s.classList.toggle('active', s.getAttribute('data-color') === color);
+  });
+}
+
 function saveStoreInfo(){
   const cfg=getCfg();
   cfg.storeName=document.getElementById('stName').value.trim()||cfg.storeName;
   cfg.tagline=document.getElementById('stTagline').value.trim();
+  cfg.waFallback=document.getElementById('stWaFallback').value.trim();
+  cfg.footerText=document.getElementById('stFooterText').value.trim();
+  cfg.primaryColor=document.getElementById('stPrimaryColor').value || '#10B981';
+  // Logo
+  var logoImg = document.getElementById('stLogoImg');
+  cfg.customLogo = (logoImg && logoImg.dataset && logoImg.dataset.b64) ? logoImg.dataset.b64 : '';
   LS.s('od_cfg',cfg);
   syncCfgSave(cfg);
   document.getElementById('sbStoreName').textContent=cfg.storeName;
   renderEmbedCodes();
-  toast('✅ Info toko tersimpan!');
+  toast('✅ Brand & Toko tersimpan!');
+}
+
+// Apply brand config (customLogo + primaryColor + footer) to hosted form view
+function applyHostedFormBrand(){
+  var cfg = getCfg();
+  var v = document.getElementById('viewProdukForm');
+  if(!v) return;
+  var primary = cfg.primaryColor || '#10B981';
+  // Build gradient from primary color (light tinted variant)
+  var lightBg = hexToRgba(primary, 0.08);
+  var lightBg2 = hexToRgba(primary, 0.14);
+  v.style.background = 'linear-gradient(135deg,' + lightBg + ' 0%,' + lightBg2 + ' 100%)';
+  // Logo
+  var logo = document.getElementById('hfBrandLogo');
+  if(logo){ logo.src = cfg.customLogo || '/logo.png'; }
+  // Footer text
+  var footer = document.getElementById('hfBrandFooter');
+  if(footer){ footer.textContent = cfg.footerText || ('Powered by ' + (cfg.storeName || 'Nonics Order')); }
+}
+function hexToRgba(hex, a){
+  try {
+    var h = String(hex).replace('#','');
+    if(h.length === 3) h = h.split('').map(function(c){return c+c;}).join('');
+    var r = parseInt(h.substring(0,2),16);
+    var g = parseInt(h.substring(2,4),16);
+    var b = parseInt(h.substring(4,6),16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+  } catch(e){ return 'rgba(16,185,129,' + a + ')'; }
 }
 function savePassword(){
   const np=document.getElementById('stPassNew').value;
@@ -14204,6 +14349,8 @@ function produkFormMaybeRoute(){
   var v = document.getElementById('viewProdukForm');
   if(!v) return false;
   v.style.display = 'block';
+  // Apply brand settings (customLogo + primaryColor + footer text)
+  try { applyHostedFormBrand(); } catch(e){}
   // Load product from LS (via getProds) OR Firestore
   loadHostedProdukForm(slug);
   return true;
