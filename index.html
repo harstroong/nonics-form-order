@@ -2634,7 +2634,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-07-04-full-form-option';
+window.__APP_VERSION = '2026-07-05-hosted-form-url';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -5987,6 +5987,30 @@ document.addEventListener('DOMContentLoaded', function(){
      Aktif kalau URL ?digital={slug-atau-id}
      Customer isi: Nama + Email + WA → klik Bayar → Midtrans Snap popup
 ═══════════════════════════════════ -->
+
+<!-- ═══════════════════════════════════
+     HOSTED FORM VIEW (produk fisik)
+     Aktif kalau URL ?produk={slug-atau-id}
+═══════════════════════════════════ -->
+<div id="viewProdukForm" style="display:none;min-height:100vh;background:linear-gradient(135deg,#F0FDF4 0%,#E0F2FE 100%);padding:20px 16px 40px">
+  <div style="max-width:520px;margin:0 auto">
+    <!-- Brand header -->
+    <div style="text-align:center;margin-bottom:24px;padding-top:16px">
+      <img src="/logo.png" alt="Nonics Order" style="height:44px;margin-bottom:8px"/>
+      <div style="font-size:11px;color:#94A3B8;letter-spacing:.4px;text-transform:uppercase">Powered by Nonics Order</div>
+    </div>
+    <!-- Form card -->
+    <div id="hostedFormCard" style="background:#fff;border-radius:16px;box-shadow:0 8px 32px rgba(15,23,42,.08);padding:24px 22px">
+      <div id="hostedFormMount"><div style="text-align:center;padding:40px 20px;color:#94A3B8">Memuat form…</div></div>
+    </div>
+    <!-- Footer trust -->
+    <div style="text-align:center;font-size:11px;color:#94A3B8;margin-top:20px;line-height:1.7">
+      <i class="ti ti-shield-check" style="font-size:13px;vertical-align:-2px;color:#10B981"></i> Data aman & terenkripsi<br/>
+      Butuh bantuan? Chat CS kami setelah submit form
+    </div>
+  </div>
+</div>
+
 <div id="viewDigitalCheckout" style="display:none;min-height:100vh;background:#FAFAFA">
 
   <!-- HERO SECTION -->
@@ -7661,7 +7685,8 @@ function renderProdList(){
     const action = '<button class="prod-cell-action-btn" onclick="event.stopPropagation();toggleProdContextMenu(' + p.id + ', event)" title="Aksi"><i class="ti ti-dots"></i></button>' +
       '<div class="prod-context-menu" id="prodCtxMenu-'+p.id+'">' +
         '<button class="prod-context-item" onclick="showProdForm('+p.id+');closeProdContextMenu()"><i class="ti ti-settings"></i>Kelola</button>' +
-        '<button class="prod-context-item" onclick="copyProdEmbed('+p.id+');closeProdContextMenu()"><i class="ti ti-copy"></i>Copy Embed Code</button>' +
+        '<button class="prod-context-item" onclick="copyProdukFormUrl('+p.id+');closeProdContextMenu()"><i class="ti ti-link"></i>Copy Link Form</button>' +
+        '<button class="prod-context-item" onclick="copyProdEmbed('+p.id+');closeProdContextMenu()"><i class="ti ti-code"></i>Copy Embed Code</button>' +
         '<div class="prod-context-divider"></div>' +
         '<button class="prod-context-item danger" onclick="deleteProd('+p.id+');closeProdContextMenu()"><i class="ti ti-trash"></i>Hapus Produk</button>' +
       '</div>';
@@ -8054,8 +8079,9 @@ function showProdDetail(id){
           '<div class="pd-cp-name" onclick="pdEditProduct()">'+esc(p.name)+'</div>' +
           '<div class="pd-cp-actions">' +
             '<span class="pd-cp-action" onclick="pdEditProduct()"><i class="ti ti-pencil"></i>Edit</span>' +
+            '<span class="pd-cp-action" onclick="pdCopyFormUrl()"><i class="ti ti-link"></i>Copy Link</span>' +
             '<span class="pd-cp-action" onclick="pdDuplicateProduct()"><i class="ti ti-copy"></i>Duplicate</span>' +
-            '<span class="pd-cp-action" onclick="pdCopyEmbed()"><i class="ti ti-code"></i>Embed Form</span>' +
+            '<span class="pd-cp-action" onclick="pdCopyEmbed()"><i class="ti ti-code"></i>Embed Code</span>' +
           '</div>' +
         '</td>' +
         '<td style="text-align:center">' +
@@ -8100,8 +8126,9 @@ function pdLihatOrder(){
 function pdLihatLanding(){
   var p = getProds().find(function(x){ return x.id === window.__pdCurrentProdId; });
   if(!p){ toast('⚠️ Produk tidak ditemukan'); return; }
-  toast('💡 Pasang embed code produk ini ke landing page — Embed URL bisa lo copy di sini.');
-  pdCopyEmbed();
+  var slug = p.urlSlug || p.id;
+  var url = window.location.origin + '/?produk=' + encodeURIComponent(slug);
+  window.open(url, '_blank');
 }
 function pdDeleteProduct(){
   if(!window.__pdCurrentProdId) return;
@@ -8127,6 +8154,10 @@ function pdDuplicateProduct(){
 function pdCopyEmbed(){
   if(!window.__pdCurrentProdId) return;
   if(typeof copyProdEmbed === 'function') copyProdEmbed(window.__pdCurrentProdId);
+}
+function pdCopyFormUrl(){
+  if(!window.__pdCurrentProdId) return;
+  if(typeof copyProdukFormUrl === 'function') copyProdukFormUrl(window.__pdCurrentProdId);
 }
 function pdOpenSection(sec){
   // Open edit form + scroll to relevant section
@@ -13671,6 +13702,95 @@ function selectCheckoutPayment(idx){
   if(hint){ hint.textContent = '✅ Terpilih: '+m.label+(m.desc?' — '+m.desc:''); hint.style.color = '#059669'; }
 }
 
+/* ═════════════════════════════════════════════
+   HOSTED FORM (produk fisik) — ?produk={slug|id}
+═════════════════════════════════════════════ */
+function produkFormMaybeRoute(){
+  var params = new URLSearchParams(window.location.search);
+  var slug = params.get('produk') || params.get('form-fisik');
+  if(!slug) return false;
+  // Hide all other views
+  var ids = ['viewLogin','viewDashboard','viewCS','viewDashboardDigital','viewMember','viewDigitalCheckout'];
+  ids.forEach(function(id){ var el=document.getElementById(id); if(el){ el.style.display='none'; el.classList && el.classList.remove('show'); } });
+  var v = document.getElementById('viewProdukForm');
+  if(!v) return false;
+  v.style.display = 'block';
+  // Load product from LS (via getProds) OR Firestore
+  loadHostedProdukForm(slug);
+  return true;
+}
+
+function loadHostedProdukForm(slug){
+  var mount = document.getElementById('hostedFormMount');
+  var render = function(p){
+    if(!p){
+      mount.innerHTML = '<div style="text-align:center;padding:40px 20px;color:#DC2626"><i class="ti ti-alert-circle" style="font-size:36px"></i><div style="margin-top:8px;font-weight:600">Produk tidak ditemukan</div><div style="font-size:12px;color:#94A3B8;margin-top:4px">Link ini gak valid atau produk udah dihapus.</div></div>';
+      return;
+    }
+    try { document.title = (p.name || 'Order') + ' — Nonics Order'; } catch(e){}
+    // Generate embed HTML using existing template (simulate loading like landing page would)
+    try {
+      // Use generateProdEmbed to get code (produces inline embed)
+      // But generateProdEmbed writes to prodEmbedInline element — we need the RAW code
+      var oldTarget = document.getElementById('prodEmbedInline');
+      var stashInline = oldTarget ? oldTarget.textContent : '';
+      generateProdEmbed(p);
+      var code = (document.getElementById('prodEmbedInline')||{}).textContent || '';
+      if(oldTarget) oldTarget.textContent = stashInline; // restore
+      if(!code || code.indexOf('Simpan produk dulu') >= 0){
+        mount.innerHTML = '<div style="text-align:center;padding:40px 20px;color:#F59E0B">Form belum siap. Buka admin dashboard → Simpan produk sekali → coba lagi.</div>';
+        return;
+      }
+      // Extract inner HTML + scripts, then inject
+      // Embed berisi HTML div + script tag di dalamnya
+      mount.innerHTML = '';
+      // Parse via a temp div for HTML content
+      var wrapper = document.createElement('div');
+      wrapper.innerHTML = code;
+      // Move non-script nodes to mount
+      Array.prototype.slice.call(wrapper.childNodes).forEach(function(node){
+        if(node.tagName === 'SCRIPT'){
+          var s = document.createElement('script');
+          if(node.src) s.src = node.src;
+          else s.textContent = node.textContent;
+          document.body.appendChild(s);
+        } else {
+          mount.appendChild(node);
+        }
+      });
+    } catch(err){
+      console.error('hosted form render error:', err);
+      mount.innerHTML = '<div style="text-align:center;padding:40px 20px;color:#DC2626">Gagal memuat form: '+(err.message||'unknown')+'</div>';
+    }
+  };
+  // Try local first
+  var prods = (typeof getProds === 'function') ? getProds() : [];
+  var found = prods.find(function(x){ return x.urlSlug === slug || String(x.id) === String(slug); });
+  if(found){ render(found); return; }
+  // Fallback Firestore
+  var cfg = (typeof getFBConfig === 'function') ? (getFBConfig() || {}) : {};
+  if(!cfg.projectId){ render(null); return; }
+  var url = 'https://firestore.googleapis.com/v1/projects/'+cfg.projectId+'/databases/(default)/documents/od_prods/'+encodeURIComponent(slug)+(cfg.apiKey?('?key='+cfg.apiKey):'');
+  fetch(url).then(function(r){ return r.json(); }).then(function(doc){
+    if(doc && doc.fields && typeof fsParseDoc === 'function'){
+      var pp = fsParseDoc(doc); render(pp);
+    } else render(null);
+  }).catch(function(){ render(null); });
+}
+
+function copyProdukFormUrl(id){
+  var p = getProds().find(function(x){ return x.id === id; });
+  if(!p){ toast('⚠️ Produk tidak ditemukan'); return; }
+  var slug = p.urlSlug || p.id;
+  var url = window.location.origin + '/?produk=' + encodeURIComponent(slug);
+  try {
+    navigator.clipboard.writeText(url);
+    toast('📋 Link form di-copy: ' + url);
+  } catch(e){
+    prompt('Copy link manual:', url);
+  }
+}
+
 function checkoutMaybeRoute(){
   // URL routing: ?digital={slug} → landing page + form embed (kayak digijual)
   // ?form={slug} tetep didukung buat backward compat (alias, hasilnya sama karena form udah embed)
@@ -15229,6 +15349,10 @@ async function restoreSession(){
    BOOT
 ═════════════════════════════════════════════ */
 (function(){
+  // Cek URL ?produk={slug-atau-id} → hosted form untuk produk fisik
+  if(typeof produkFormMaybeRoute === 'function' && produkFormMaybeRoute()){
+    return;
+  }
   // Cek URL ?digital={slug} — kalau ada, langsung route ke checkout
   if(typeof checkoutMaybeRoute === 'function' && checkoutMaybeRoute()){
     return; // checkout mode — skip dashboard boot
