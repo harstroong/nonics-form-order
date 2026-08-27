@@ -2647,7 +2647,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-07-17-fix-formtype-persist';
+window.__APP_VERSION = '2026-07-18-deep-link-produk';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -6458,39 +6458,61 @@ function spaPushPanel(name){
 
 function spaHandlePopState(ev){
   var path = window.location.pathname;
-  // Check kalau path adalah /produk/{slug} → hosted form
-  var mProduk = path.match(/^\/produk\/(.+)$/);
-  if(mProduk){
-    var newSearch = '?produk=' + encodeURIComponent(mProduk[1]);
-    // Redirect to root+query (biar existing router handle)
-    window.location.href = '/' + newSearch;
+  // /produk/{slug}/edit
+  var mEdit = path.match(/^\/produk\/([^\/]+)\/edit$/);
+  if(mEdit){
+    var slugE = decodeURIComponent(mEdit[1]);
+    showPanel('produk', { skipHistory: true });
+    setTimeout(function(){
+      var p = findProdBySlugOrId(slugE);
+      if(p) showProdForm(p.id);
+    }, 50);
     return;
   }
+  // /produk/{slug}
+  var mDetail = path.match(/^\/produk\/([^\/]+)$/);
+  if(mDetail){
+    var slugD = decodeURIComponent(mDetail[1]);
+    showPanel('produk', { skipHistory: true });
+    setTimeout(function(){
+      var p = findProdBySlugOrId(slugD);
+      if(p) showProdDetail(p.id);
+    }, 50);
+    return;
+  }
+  // Regular panel
   var panel = SPA_PATH_TO_PANEL[path];
   if(panel && typeof showPanel === 'function'){
     showPanel(panel, { skipHistory: true });
+    // Also close any open detail/form
+    var pdC = document.getElementById('prodDetailCard'); if(pdC) pdC.style.display = 'none';
+    var pfC = document.getElementById('prodFormCard'); if(pfC) pfC.style.display = 'none';
+    var plC = document.getElementById('prodListCard'); if(plC) plC.style.display = 'block';
   }
 }
 
 // Boot-time route: dari URL path, buka panel yg sesuai
 function spaBootRoute(){
   var path = window.location.pathname;
-  // /produk/{slug} → hosted form (via existing produkFormMaybeRoute)
-  var mProduk = path.match(/^\/produk\/(.+)$/);
-  if(mProduk){
-    // Rewrite URL search param supaya produkFormMaybeRoute detect
-    var params = new URLSearchParams(window.location.search);
-    params.set('produk', decodeURIComponent(mProduk[1]));
-    var newUrl = '/produk/' + encodeURIComponent(mProduk[1]) + '?' + params.toString();
-    // NOTE: pakai query param buat internal routing tapi biarin URL tetap pretty
-    // Kita override by patching location.search via URLSearchParams
-    // Untuk sekarang, langsung set global var
-    window.__spaProdukSlug = decodeURIComponent(mProduk[1]);
-    return { type: 'produk-form', slug: window.__spaProdukSlug };
+  // /produk/{slug}/edit → edit form admin
+  var mEdit = path.match(/^\/produk\/([^\/]+)\/edit$/);
+  if(mEdit){
+    return { type: 'produk-edit', slug: decodeURIComponent(mEdit[1]) };
+  }
+  // /produk/{slug} → detail view admin
+  var mDetail = path.match(/^\/produk\/([^\/]+)$/);
+  if(mDetail){
+    return { type: 'produk-detail', slug: decodeURIComponent(mDetail[1]) };
   }
   var panel = SPA_PATH_TO_PANEL[path];
   if(panel) return { type: 'panel', panel: panel };
   return null;
+}
+
+// Helper: cari produk by slug atau numeric ID
+function findProdBySlugOrId(slug){
+  var prods = (typeof getProds === 'function') ? getProds() : [];
+  return prods.find(function(x){ return x.urlSlug === slug || String(x.id) === String(slug); });
 }
 
 window.addEventListener('popstate', spaHandlePopState);
@@ -6767,7 +6789,20 @@ function initDashboard(){
   updateLeadsBadge();
   // Route berdasarkan URL path
   var route = (typeof spaBootRoute === 'function') ? spaBootRoute() : null;
-  if(route && route.type === 'panel' && route.panel !== 'overview'){
+  if(route && (route.type === 'produk-detail' || route.type === 'produk-edit')){
+    // Show Produk panel dulu, terus buka detail/edit produk sesuai slug
+    showPanel('produk', { skipHistory: true });
+    setTimeout(function(){
+      var p = findProdBySlugOrId(route.slug);
+      if(p){
+        if(route.type === 'produk-edit') showProdForm(p.id);
+        else showProdDetail(p.id);
+      } else {
+        // Produk gak ketemu → tampilin list aja
+        console.warn('Produk not found for slug:', route.slug);
+      }
+    }, 100);
+  } else if(route && route.type === 'panel' && route.panel !== 'overview'){
     showPanel(route.panel, { skipHistory: true });
   } else {
     renderOverview();
@@ -8308,6 +8343,15 @@ function showProdDetail(id){
   document.getElementById('prodFormCard').style.display = 'none';
   document.getElementById('prodDetailCard').style.display = 'block';
 
+  // Push URL /produk/{slug}
+  try {
+    var _slug = p.urlSlug || p.id;
+    var _target = '/produk/' + encodeURIComponent(_slug);
+    if(window.location.pathname !== _target){
+      history.pushState({ prodDetail: p.id }, '', _target);
+    }
+  } catch(e){}
+
   // Populate header
   var nameEl = document.getElementById('pdProductName');
   if(nameEl) nameEl.textContent = p.name;
@@ -8387,6 +8431,12 @@ function closeProdDetail(){
   document.getElementById('prodDetailCard').style.display = 'none';
   document.getElementById('prodListCard').style.display = 'block';
   window.__pdCurrentProdId = null;
+  // Back ke URL list
+  try {
+    if(window.location.pathname !== '/produk'){
+      history.pushState({}, '', '/produk');
+    }
+  } catch(e){}
 }
 
 function pdEditProduct(){
@@ -8406,7 +8456,7 @@ function pdLihatLanding(){
   var p = getProds().find(function(x){ return x.id === window.__pdCurrentProdId; });
   if(!p){ toast('⚠️ Produk tidak ditemukan'); return; }
   var slug = p.urlSlug || p.id;
-  var url = window.location.origin + '/?produk=' + encodeURIComponent(slug);
+  var url = window.location.origin + '/f/' + encodeURIComponent(slug);
   window.open(url, '_blank');
 }
 function pdDeleteProduct(){
@@ -8483,6 +8533,25 @@ function showProdForm(id){
   document.getElementById('prodListCard').style.display = 'none';
   var pdC = document.getElementById('prodDetailCard'); if(pdC) pdC.style.display = 'none';
   document.getElementById('prodFormCard').style.display = 'block';
+  // Push URL /produk/{slug}/edit
+  if(id){
+    try {
+      var _p = getProds().find(function(x){ return x.id === id; });
+      if(_p){
+        var _slug = _p.urlSlug || _p.id;
+        var _target = '/produk/' + encodeURIComponent(_slug) + '/edit';
+        if(window.location.pathname !== _target){
+          history.pushState({ prodEdit: id }, '', _target);
+        }
+      }
+    } catch(e){}
+  } else {
+    try {
+      if(window.location.pathname !== '/produk/new'){
+        history.pushState({ prodNew: true }, '', '/produk/new');
+      }
+    } catch(e){}
+  }
 
   // Setter helper (safe untuk field yang mungkin belum ada di DOM)
   var setV = function(elId, v){ var el = document.getElementById(elId); if(el) el.value = v || ''; };
@@ -10162,10 +10231,15 @@ function cancelProd(){
   // Kalau kita datang dari Detail View, kembali ke Detail; kalau ga, ke List
   if(window.__pdCurrentProdId){
     document.getElementById('prodDetailCard').style.display='block';
-    // Re-render buat sync data terbaru
+    // Re-render buat sync data terbaru (showProdDetail auto-push URL /produk/{slug})
     if(typeof showProdDetail === 'function') showProdDetail(window.__pdCurrentProdId);
   } else {
     document.getElementById('prodListCard').style.display='block';
+    try {
+      if(window.location.pathname !== '/produk'){
+        history.pushState({}, '', '/produk');
+      }
+    } catch(e){}
   }
 }
 
@@ -14107,10 +14181,21 @@ function selectCheckoutPayment(idx){
 function produkFormMaybeRoute(){
   var params = new URLSearchParams(window.location.search);
   var slug = params.get('produk') || params.get('form-fisik');
-  // Also check pretty URL /produk/{slug}
+  // Priority 1: /f/{slug} — customer-facing hosted form URL (always hosted form)
   if(!slug){
-    var m = window.location.pathname.match(/^\/produk\/(.+)$/);
-    if(m) slug = decodeURIComponent(m[1]);
+    var mF = window.location.pathname.match(/^\/f\/(.+)$/);
+    if(mF) slug = decodeURIComponent(mF[1]);
+  }
+  // Priority 2: /produk/{slug} — hosted form ONLY kalau bukan admin (backward compat)
+  if(!slug){
+    var mProd = window.location.pathname.match(/^\/produk\/([^\/]+)$/);
+    if(mProd){
+      var session = (typeof getSession === 'function') ? getSession() : null;
+      var isAdmin = session && session.role === 'admin';
+      if(!isAdmin){
+        slug = decodeURIComponent(mProd[1]);
+      }
+    }
   }
   if(!slug) return false;
   // Hide all other views
@@ -14231,8 +14316,8 @@ function copyProdukFormUrl(id){
   var p = getProds().find(function(x){ return x.id === id; });
   if(!p){ toast('⚠️ Produk tidak ditemukan'); return; }
   var slug = p.urlSlug || p.id;
-  // Pretty URL: /produk/{slug}
-  var url = window.location.origin + '/produk/' + encodeURIComponent(slug);
+  // Customer-facing URL: /f/{slug} (bypass admin session check)
+  var url = window.location.origin + '/f/' + encodeURIComponent(slug);
   try {
     navigator.clipboard.writeText(url);
     toast('📋 Link form di-copy: ' + url);
