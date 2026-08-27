@@ -2652,7 +2652,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-07-25-country-per-produk';
+window.__APP_VERSION = '2026-07-26-editable-placeholders';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -9648,33 +9648,144 @@ function removeVariantOption(idx, oi){
    BIDANG YANG DIMINTA (form fields with reorder)
 ═════════════════════════════════════════════ */
 var DEFAULT_FIELDS = [
-  { id:'nama', label:'Nama', required:true, enabled:true, custom:false },
-  { id:'wa', label:'No Handphone/WhatsApp', required:true, enabled:true, custom:false },
-  { id:'email', label:'Email', required:false, enabled:false, custom:false },
-  { id:'qty', label:'Jumlah Pesanan', required:false, enabled:false, custom:false },
-  { id:'catatan', label:'Catatan', required:false, enabled:false, custom:false },
-  { id:'alamat', label:'Alamat Lengkap', required:true, enabled:false, custom:false },
-  { id:'provinsi', label:'Provinsi', required:true, enabled:false, custom:false },
-  { id:'kota', label:'Kota/Kabupaten', required:true, enabled:false, custom:false },
-  { id:'kecamatan', label:'Kecamatan', required:true, enabled:false, custom:false },
-  { id:'kota_kec', label:'Kota / Kecamatan (gabung)', required:true, enabled:false, custom:false }
+  { id:'nama', label:'Nama', placeholder:'Nama Anda', required:true, enabled:true, custom:false },
+  { id:'wa', label:'No Handphone/WhatsApp', placeholder:'No. WhatsApp Anda', required:true, enabled:true, custom:false },
+  { id:'email', label:'Email', placeholder:'email@example.com', required:false, enabled:false, custom:false },
+  { id:'qty', label:'Jumlah Pesanan', placeholder:'1', required:false, enabled:false, custom:false },
+  { id:'catatan', label:'Catatan', placeholder:'Catatan tambahan (opsional)', required:false, enabled:false, custom:false },
+  { id:'alamat', label:'Alamat Lengkap', placeholder:'Alamat Lengkap', required:true, enabled:false, custom:false },
+  { id:'provinsi', label:'Provinsi', placeholder:'Provinsi', required:true, enabled:false, custom:false },
+  { id:'kota', label:'Kota/Kabupaten', placeholder:'Kota/Kabupaten', required:true, enabled:false, custom:false },
+  { id:'kecamatan', label:'Kecamatan', placeholder:'Kecamatan', required:true, enabled:false, custom:false },
+  { id:'kota_kec', label:'Kota / Kecamatan (gabung)', placeholder:'Kota, Kecamatan', required:true, enabled:false, custom:false }
 ];
+// Preset templates per country / bahasa — tinggal apply satu klik
+var FIELD_PRESETS = {
+  id: { flag:'🇮🇩', name:'Indonesia', fields:{
+    nama:      { label:'Nama',                     placeholder:'Nama Anda' },
+    wa:        { label:'No Handphone/WhatsApp',    placeholder:'No. WhatsApp Anda' },
+    email:     { label:'Email',                    placeholder:'email@contoh.com' },
+    qty:       { label:'Jumlah Pesanan',           placeholder:'1' },
+    catatan:   { label:'Catatan',                  placeholder:'Catatan tambahan (opsional)' },
+    alamat:    { label:'Alamat Lengkap',           placeholder:'Alamat Lengkap' },
+    provinsi:  { label:'Provinsi',                 placeholder:'Provinsi' },
+    kota:      { label:'Kota/Kabupaten',           placeholder:'Kota/Kabupaten' },
+    kecamatan: { label:'Kecamatan',                placeholder:'Kecamatan' },
+    kota_kec:  { label:'Kota / Kecamatan',         placeholder:'Kota, Kecamatan' }
+  }},
+  my: { flag:'🇲🇾', name:'Malaysia', fields:{
+    nama:      { label:'Nama Penuh',               placeholder:'Nama Penuh Anda' },
+    wa:        { label:'No. Telefon/WhatsApp',     placeholder:'No. WhatsApp Anda' },
+    email:     { label:'E-mel',                    placeholder:'emel@contoh.com' },
+    qty:       { label:'Kuantiti',                 placeholder:'1' },
+    catatan:   { label:'Catatan',                  placeholder:'Catatan tambahan (pilihan)' },
+    alamat:    { label:'Alamat Penuh',             placeholder:'Alamat lengkap termasuk poskod' },
+    provinsi:  { label:'Negeri',                   placeholder:'Negeri' },
+    kota:      { label:'Bandar',                   placeholder:'Bandar' },
+    kecamatan: { label:'Daerah / Poskod',          placeholder:'Daerah / Poskod' },
+    kota_kec:  { label:'Bandar / Daerah',          placeholder:'Bandar, Daerah' }
+  }},
+  en: { flag:'🇸🇬', name:'English (SG/Global)', fields:{
+    nama:      { label:'Full Name',                placeholder:'Your Full Name' },
+    wa:        { label:'Phone / WhatsApp',         placeholder:'Your WhatsApp Number' },
+    email:     { label:'Email',                    placeholder:'email@example.com' },
+    qty:       { label:'Quantity',                 placeholder:'1' },
+    catatan:   { label:'Notes',                    placeholder:'Additional notes (optional)' },
+    alamat:    { label:'Full Address',             placeholder:'Full delivery address' },
+    provinsi:  { label:'State / Region',           placeholder:'State / Region' },
+    kota:      { label:'City',                     placeholder:'City' },
+    kecamatan: { label:'District / Postal Code',   placeholder:'District / Postal Code' },
+    kota_kec:  { label:'City / District',          placeholder:'City, District' }
+  }},
+  th: { flag:'🇹🇭', name:'Thailand', fields:{
+    nama:      { label:'ชื่อ',                       placeholder:'ชื่อ-นามสกุล' },
+    wa:        { label:'เบอร์โทรศัพท์ / WhatsApp',      placeholder:'เบอร์ WhatsApp' },
+    email:     { label:'อีเมล',                       placeholder:'email@example.com' },
+    qty:       { label:'จำนวน',                       placeholder:'1' },
+    catatan:   { label:'หมายเหตุ',                     placeholder:'หมายเหตุ (ไม่บังคับ)' },
+    alamat:    { label:'ที่อยู่จัดส่ง',                    placeholder:'ที่อยู่เต็ม' },
+    provinsi:  { label:'จังหวัด',                       placeholder:'จังหวัด' },
+    kota:      { label:'อำเภอ / เขต',                   placeholder:'อำเภอ / เขต' },
+    kecamatan: { label:'ตำบล / รหัสไปรษณีย์',            placeholder:'ตำบล / รหัสไปรษณีย์' },
+    kota_kec:  { label:'อำเภอ / ตำบล',                   placeholder:'อำเภอ, ตำบล' }
+  }}
+};
 window.__prodFields = DEFAULT_FIELDS.slice();
 
 function renderFormFields(){
   var list = document.getElementById('fFormFieldsList');
   if(!list) return;
-  list.innerHTML = window.__prodFields.map(function(f, idx){
-    return '<div class="pfv2-field-row">' +
+  var editingIdx = (typeof window.__editingFieldIdx === 'number') ? window.__editingFieldIdx : -1;
+  // Header: preset template dropdown
+  var presetHtml = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:10px 12px;background:#F0F9FF;border:1px solid #BAE6FD;border-radius:8px;flex-wrap:wrap">' +
+    '<i class="ti ti-language" style="color:#0369A1;font-size:16px"></i>' +
+    '<div style="font-size:12px;color:#075985;font-weight:600">Bahasa Preset:</div>' +
+    '<select onchange="applyFieldPreset(this.value);this.value=\'\'" style="flex:1;min-width:180px;padding:5px 8px;font-size:12px;border:1px solid #CBD5E1;border-radius:6px;background:#fff;cursor:pointer">' +
+      '<option value="">-- Pilih preset bahasa --</option>' +
+      '<option value="id">🇮🇩 Indonesia (default)</option>' +
+      '<option value="my">🇲🇾 Bahasa Malaysia</option>' +
+      '<option value="en">🇸🇬 English (SG/Global)</option>' +
+      '<option value="th">🇹🇭 Thailand</option>' +
+    '</select>' +
+    '<div style="font-size:11px;color:#64748B;flex-basis:100%">Terapkan semua label + placeholder sesuai bahasa target market. Bisa di-customize lebih lanjut per field.</div>' +
+  '</div>';
+  var rowsHtml = window.__prodFields.map(function(f, idx){
+    var isEditing = (idx === editingIdx);
+    var mainRow = '<div class="pfv2-field-row" style="'+(isEditing?'border-color:var(--primary);background:rgba(16,185,129,0.05)':'')+'">' +
       '<input type="checkbox" class="pfv2-field-row-check" '+(f.enabled?'checked':'')+' onchange="window.__prodFields['+idx+'].enabled=this.checked;markFormTypeCustom();updatePfv2Preview()"/>' +
-      '<div class="pfv2-field-row-name">'+esc(f.label)+(f.required?' <span class="req">*</span>':'')+(f.custom?' <span style="font-size:9px;background:#DBEAFE;color:#1E40AF;padding:1px 5px;border-radius:99px">CUSTOM</span>':'')+'</div>' +
+      '<div class="pfv2-field-row-name">'+esc(f.label)+(f.required?' <span class="req">*</span>':'')+(f.custom?' <span style="font-size:9px;background:#DBEAFE;color:#1E40AF;padding:1px 5px;border-radius:99px">CUSTOM</span>':'')+
+        (f.placeholder && !isEditing ? '<span style="font-size:10.5px;color:var(--text-muted);font-style:italic;margin-left:6px">"'+esc(f.placeholder)+'"</span>' : '') +
+      '</div>' +
       '<div class="pfv2-field-row-btns">' +
+        '<button class="pfv2-field-row-btn" onclick="toggleFieldEdit('+idx+')" title="'+(isEditing?'Selesai':'Edit label/placeholder')+'" style="'+(isEditing?'background:var(--primary);color:#fff':'')+'"><i class="ti ti-'+(isEditing?'check':'pencil')+'"></i></button>' +
         '<button class="pfv2-field-row-btn" onclick="moveField('+idx+',-1)" title="Naik"><i class="ti ti-chevron-up"></i></button>' +
         '<button class="pfv2-field-row-btn" onclick="moveField('+idx+',1)" title="Turun"><i class="ti ti-chevron-down"></i></button>' +
         (f.custom ? '<button class="pfv2-field-row-btn" onclick="removeCustomField('+idx+')" title="Hapus" style="color:var(--red)"><i class="ti ti-trash"></i></button>' : '') +
       '</div>' +
     '</div>';
+    if(!isEditing) return mainRow;
+    // Inline editor
+    var editor = '<div style="padding:10px 12px 12px;background:rgba(16,185,129,0.04);border:1px solid var(--primary);border-top:none;border-radius:0 0 8px 8px;margin-top:-7px;margin-bottom:6px">' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' +
+        '<div>' +
+          '<label style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:4px;text-transform:uppercase;letter-spacing:.3px">Label (yang muncul di admin)</label>' +
+          '<input type="text" value="'+esc(f.label||'')+'" oninput="window.__prodFields['+idx+'].label=this.value;markFormTypeCustom();updatePfv2Preview()" placeholder="Nama field" style="width:100%;padding:8px 10px;font-size:13px;border:1.5px solid #CBD5E1;border-radius:6px;box-sizing:border-box"/>' +
+        '</div>' +
+        '<div>' +
+          '<label style="display:block;font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:4px;text-transform:uppercase;letter-spacing:.3px">Placeholder (dilihat customer)</label>' +
+          '<input type="text" value="'+esc(f.placeholder||'')+'" oninput="window.__prodFields['+idx+'].placeholder=this.value;markFormTypeCustom();updatePfv2Preview()" placeholder="Contoh: Nama Lengkap Anda" style="width:100%;padding:8px 10px;font-size:13px;border:1.5px solid #CBD5E1;border-radius:6px;box-sizing:border-box"/>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+    return mainRow + editor;
   }).join('');
+  list.innerHTML = presetHtml + rowsHtml;
+}
+
+// Toggle inline editor untuk 1 field
+function toggleFieldEdit(idx){
+  window.__editingFieldIdx = (window.__editingFieldIdx === idx) ? -1 : idx;
+  renderFormFields();
+  updatePfv2Preview();
+}
+
+// Apply preset bahasa ke semua fields (label + placeholder) — enabled/required tetap
+function applyFieldPreset(key){
+  if(!key || !FIELD_PRESETS[key]) return;
+  var preset = FIELD_PRESETS[key];
+  var confirmMsg = 'Terapkan preset '+preset.flag+' '+preset.name+'?\n\nSemua label + placeholder field default akan diganti ke bahasa '+preset.name+'.\n(Field custom kamu tidak akan tersentuh.)';
+  if(!confirm(confirmMsg)) return;
+  window.__prodFields.forEach(function(f){
+    if(f.custom) return; // skip custom fields
+    var mapping = preset.fields[f.id];
+    if(mapping){
+      if(mapping.label) f.label = mapping.label;
+      if(mapping.placeholder) f.placeholder = mapping.placeholder;
+    }
+  });
+  renderFormFields();
+  updatePfv2Preview();
+  toast('✅ Preset '+preset.flag+' '+preset.name+' diterapkan!');
 }
 function moveField(idx, delta){
   var arr = window.__prodFields;
@@ -10156,6 +10267,17 @@ function generateProdEmbed(p){
     useKota = ff.length ? isEnabled('kota') : !!cfg.fieldKota;
     useKecamatan = ff.length ? isEnabled('kecamatan') : !!cfg.fieldKecamatan;
   }
+  // Lookup placeholder + label per field-id (dari p.formFields, fallback ke default IDN)
+  const _ffMap = {}; (p.formFields||[]).forEach(function(f){ _ffMap[f.id] = f; });
+  const _defaultPh = {nama:'Nama Anda', wa:'No. WhatsApp Anda', alamat:'Alamat Lengkap', kota:'Kota/Kabupaten', kecamatan:'Kecamatan', provinsi:'Provinsi', email:'email@contoh.com', qty:'1', catatan:'Catatan tambahan (opsional)'};
+  const phFor = function(id){
+    var f = _ffMap[id];
+    return (f && f.placeholder) ? f.placeholder : (_defaultPh[id] || '');
+  };
+  const phNama = phFor('nama');
+  const phAlamat = phFor('alamat');
+  const phKota = phFor('kota');
+  const phKecamatan = phFor('kecamatan');
   const ttPixelId=(p.ttPixelId||'').trim();
   const ttPixelEvent=(p.ttPixelEvent||'SubmitForm').trim();
 
@@ -10199,16 +10321,16 @@ R.innerHTML='<div style="max-width:420px;margin:0 auto;font-family:Segoe UI,syst
 +'<div style="background:#fff;border-radius:12px;padding:24px 20px;box-shadow:0 4px 24px rgba(0,0,0,.1)">'
 +'<div id="oo-f${p.id}">'
 +'<p style="font-size:15px;font-weight:600;margin-bottom:18px;line-height:1.5;color:#222">'+cfg.headline.replace(/\\n/g,'<br>').replace(/CS kami/g,'<span style="color:#1b5e20;font-weight:700">CS kami<\\/span>')+'<\\/p>'
-+'<input id="oo-n${p.id}" type="text" autocomplete="name" placeholder="Nama Anda" oninput="if(this.value.trim()){this.style.borderColor=\\'#e0e0e0\\';var e=document.getElementById(\\'oo-en${p.id}\\');if(e)e.style.display=\\'none\\';}" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box">'
++'<input id="oo-n${p.id}" type="text" autocomplete="name" placeholder="${esc(phNama)}" oninput="if(this.value.trim()){this.style.borderColor=\\'#e0e0e0\\';var e=document.getElementById(\\'oo-en${p.id}\\');if(e)e.style.display=\\'none\\';}" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box">'
 +'<p id="oo-en${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Nama wajib diisi<\\/p>'
 +'<div id="oo-wwrap${p.id}" style="display:flex;gap:6px;margin-bottom:4px;align-items:stretch">'
 +'<div style="display:flex;align-items:center;justify-content:center;padding:0 12px;background:#F8FAFC;border:1.5px solid #e0e0e0;border-radius:8px;font-size:14px;color:#334155;font-weight:600;white-space:nowrap" title="Kode negara">${(function(){var _flags={62:'🇮🇩',60:'🇲🇾',65:'🇸🇬',673:'🇧🇳',66:'🇹🇭',63:'🇵🇭'};var _c=String(p.country||'62');return (_flags[_c]||'🌐')+' +'+_c;})()}<\\/div>'
 +'<input id="oo-w${p.id}" type="tel" inputmode="numeric" autocomplete="tel" placeholder="${(function(){var _ph={62:'081234567890',60:'0123456789',65:'91234567',673:'7123456',66:'812345678',63:'9171234567'};return _ph[String(p.country||'62')]||'Nomor WA';})()}" oninput="if(this.value.trim()){this.style.borderColor=\\'#e0e0e0\\';var e=document.getElementById(\\'oo-ew${p.id}\\');if(e)e.style.display=\\'none\\';}" style="flex:1;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;box-sizing:border-box;min-width:0">'
 +'<\\/div>'
 +'<p id="oo-ew${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Nomor WA wajib diisi<\\/p>'
-${useAlamat?`+'<textarea id="oo-al${p.id}" autocomplete="street-address" placeholder="Alamat Lengkap" oninput="if(this.value.trim()){this.style.borderColor=\\'#e0e0e0\\';var e=document.getElementById(\\'oo-eal${p.id}\\');if(e)e.style.display=\\'none\\';}" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box;resize:none;height:80px"><\\/textarea>'+'<p id="oo-eal${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Alamat wajib diisi<\\/p>'`:''}
-${useKota?`+'<input id="oo-kt${p.id}" type="text" autocomplete="address-level2" placeholder="Kota" oninput="if(this.value.trim()){this.style.borderColor=\\'#e0e0e0\\';var e=document.getElementById(\\'oo-ekt${p.id}\\');if(e)e.style.display=\\'none\\';}" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box">'+'<p id="oo-ekt${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Kota wajib diisi<\\/p>'`:''}
-${useKecamatan?`+'<input id="oo-kc${p.id}" type="text" autocomplete="address-level3" placeholder="Kecamatan" oninput="if(this.value.trim()){this.style.borderColor=\\'#e0e0e0\\';var e=document.getElementById(\\'oo-ekc${p.id}\\');if(e)e.style.display=\\'none\\';}" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box">'+'<p id="oo-ekc${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Kecamatan wajib diisi<\\/p>'`:''}
+${useAlamat?`+'<textarea id="oo-al${p.id}" autocomplete="street-address" placeholder="${esc(phAlamat)}" oninput="if(this.value.trim()){this.style.borderColor=\\'#e0e0e0\\';var e=document.getElementById(\\'oo-eal${p.id}\\');if(e)e.style.display=\\'none\\';}" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box;resize:none;height:80px"><\\/textarea>'+'<p id="oo-eal${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">${esc(phAlamat)} wajib diisi<\\/p>'`:''}
+${useKota?`+'<input id="oo-kt${p.id}" type="text" autocomplete="address-level2" placeholder="${esc(phKota)}" oninput="if(this.value.trim()){this.style.borderColor=\\'#e0e0e0\\';var e=document.getElementById(\\'oo-ekt${p.id}\\');if(e)e.style.display=\\'none\\';}" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box">'+'<p id="oo-ekt${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">${esc(phKota)} wajib diisi<\\/p>'`:''}
+${useKecamatan?`+'<input id="oo-kc${p.id}" type="text" autocomplete="address-level3" placeholder="${esc(phKecamatan)}" oninput="if(this.value.trim()){this.style.borderColor=\\'#e0e0e0\\';var e=document.getElementById(\\'oo-ekc${p.id}\\');if(e)e.style.display=\\'none\\';}" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box">'+'<p id="oo-ekc${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">${esc(phKecamatan)} wajib diisi<\\/p>'`:''}
 +'<button id="oo-btn-${p.id}" onclick="ooSub${p.id}()" style="width:100%;background:'+c+';color:#fff;border:none;border-radius:8px;padding:15px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit">'+cfg.cta+'<\\/button>'
 +'<div style="display:flex;justify-content:center;gap:14px;margin-top:12px;flex-wrap:wrap">'+trustHtml+'<\\/div>'
 +'<\\/div>'
