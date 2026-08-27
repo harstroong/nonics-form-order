@@ -2652,7 +2652,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-07-19-settings-brand';
+window.__APP_VERSION = '2026-07-20-settings-full';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -5428,6 +5428,235 @@ document.addEventListener('DOMContentLoaded', function(){
           </div>
 
           <button class="btn btn-primary" onclick="saveStoreInfo()"><i class="ti ti-device-floppy"></i> Simpan Brand & Toko</button>
+        </div>
+
+        <!-- ═══════════════════════════════════
+             PIXEL TRACKING (GLOBAL)
+        ═══════════════════════════════════ -->
+        <div class="card">
+          <div class="card-title"><i class="ti ti-target" style="vertical-align:-3px;margin-right:5px;color:#8B5CF6"></i>Pixel Tracking (Global)</div>
+          <div class="card-sub">Pixel ID default untuk semua produk. Setiap produk bisa override di form produk (Section Tracking).</div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="label"><i class="ti ti-brand-facebook" style="color:#1877F2"></i> Meta / Facebook Pixel ID</label>
+              <input class="input" id="stGlobalFbPixel" type="text" placeholder="1234567890123456" autocomplete="off"/>
+              <div class="hint">Ambil dari Meta Events Manager → Data sources → Pixel ID (15-16 digit).</div>
+            </div>
+            <div class="form-group">
+              <label class="label"><i class="ti ti-brand-tiktok" style="color:#000"></i> TikTok Pixel ID</label>
+              <input class="input" id="stGlobalTiktokPixel" type="text" placeholder="C0XXXXXXXXXXXXXXXXXXXXX" autocomplete="off"/>
+              <div class="hint">TikTok Ads Manager → Assets → Events → Web Events → Pixel Code (format C0...).</div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="label"><i class="ti ti-brand-google-analytics" style="color:#F9AB00"></i> Google Analytics 4 (GA4) ID</label>
+              <input class="input" id="stGlobalGaId" type="text" placeholder="G-XXXXXXXXXX" autocomplete="off"/>
+              <div class="hint">Google Analytics → Admin → Data streams → Measurement ID (format G-...).</div>
+            </div>
+            <div class="form-group">
+              <label class="label"><i class="ti ti-tag" style="color:#4285F4"></i> Google Tag Manager (GTM) ID</label>
+              <input class="input" id="stGlobalGtmId" type="text" placeholder="GTM-XXXXXXX" autocomplete="off"/>
+              <div class="hint">GTM container ID kalau lo pake tag manager (format GTM-...).</div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="label"><i class="ti ti-brand-google-ads" style="color:#4285F4"></i> Google Ads Conversion Label</label>
+              <input class="input" id="stGlobalGadsLabel" type="text" placeholder="AW-123456789/AbCdEfGhIjKl" autocomplete="off"/>
+              <div class="hint">Format lengkap: <code>AW-CONV_ID/CONV_LABEL</code>. Untuk track conversion pas form submit.</div>
+            </div>
+            <div class="form-group">
+              <label class="label"><i class="ti ti-code-dots" style="color:#64748B"></i> Custom Head Script</label>
+              <textarea class="input" id="stGlobalHeadScript" rows="3" placeholder="&lt;script&gt;/* Hotjar / Clarity / dll */&lt;/script&gt;" style="font-family:'SF Mono',Menlo,monospace;font-size:12px"></textarea>
+              <div class="hint">HTML/JS custom yang disuntik ke &lt;head&gt; hosted form (Hotjar, Clarity, dll).</div>
+            </div>
+          </div>
+
+          <div style="background:#F0F9FF;border:1px solid #BAE6FD;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#075985;line-height:1.6">
+            <i class="ti ti-info-circle" style="vertical-align:-2px;font-size:14px"></i>
+            <strong>Priority:</strong> Kalau produk punya pixel sendiri (override di form produk) → pake pixel produk. Kalau kosong → fallback ke global ini.
+          </div>
+
+          <button class="btn btn-primary" onclick="saveGlobalPixels()"><i class="ti ti-device-floppy"></i> Simpan Pixel Tracking</button>
+        </div>
+
+        <!-- ═══════════════════════════════════
+             NOTIFIKASI EMAIL
+        ═══════════════════════════════════ -->
+        <div class="card">
+          <div class="card-title"><i class="ti ti-mail" style="vertical-align:-3px;margin-right:5px;color:#F59E0B"></i>Notifikasi Email</div>
+          <div class="card-sub">Kirim notifikasi ke email admin tiap ada lead/order baru. Butuh Resend API key (gratis 3000 email/bulan).</div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="label">Email Admin Penerima *</label>
+              <input class="input" id="stEmailAdmin" type="email" placeholder="admin@tokolu.com" autocomplete="off"/>
+              <div class="hint">Email yang bakal terima notifikasi lead baru + daily digest.</div>
+            </div>
+            <div class="form-group">
+              <label class="label">Nama Pengirim (From Name)</label>
+              <input class="input" id="stEmailFromName" type="text" placeholder="Nonics Order" autocomplete="off"/>
+              <div class="hint">Muncul di inbox: "<em>Nama Pengirim</em> &lt;noreply@...&gt;".</div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="label"><i class="ti ti-key" style="color:#F59E0B"></i> Resend API Key</label>
+              <input class="input" id="stResendKey" type="password" placeholder="re_xxxxxxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off"/>
+              <div class="hint">Signup gratis di <a href="https://resend.com" target="_blank" style="color:var(--primary)">resend.com</a> → Dashboard → API Keys. Disimpan di localStorage lo (client-side).</div>
+            </div>
+            <div class="form-group">
+              <label class="label">From Domain (opsional)</label>
+              <input class="input" id="stEmailFromDomain" type="text" placeholder="noreply@tokolu.com" autocomplete="off"/>
+              <div class="hint">Kalau kosong pake <code>onboarding@resend.dev</code> (default test). Buat production, verify domain lo di Resend dulu.</div>
+            </div>
+          </div>
+
+          <div style="border-top:1px solid var(--border);margin:16px 0;padding-top:16px">
+            <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px">Kapan kirim email?</div>
+            <label style="display:flex;align-items:center;gap:8px;padding:8px 0;cursor:pointer;font-size:13px">
+              <input type="checkbox" id="stNotifyNewLead" style="width:16px;height:16px;accent-color:var(--primary)"/>
+              <span>🔔 <strong>Setiap lead baru masuk</strong> — email realtime dengan detail lead</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;padding:8px 0;cursor:pointer;font-size:13px">
+              <input type="checkbox" id="stNotifyDailyDigest" style="width:16px;height:16px;accent-color:var(--primary)"/>
+              <span>📊 <strong>Daily digest jam 8 pagi</strong> — ringkasan lead 24 jam terakhir</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;padding:8px 0;cursor:pointer;font-size:13px">
+              <input type="checkbox" id="stNotifyPaidOrder" style="width:16px;height:16px;accent-color:var(--primary)"/>
+              <span>💰 <strong>Order digital paid</strong> — notif tiap Midtrans webhook confirm payment</span>
+            </label>
+          </div>
+
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-primary" onclick="saveEmailNotif()"><i class="ti ti-device-floppy"></i> Simpan Notifikasi</button>
+            <button class="btn btn-outline" onclick="testEmailNotif()"><i class="ti ti-send"></i> Kirim Test Email</button>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════
+             TIM & AKSES
+        ═══════════════════════════════════ -->
+        <div class="card">
+          <div class="card-title"><i class="ti ti-users" style="vertical-align:-3px;margin-right:5px;color:#0EA5E9"></i>Tim & Akses</div>
+          <div class="card-sub">Kelola CS, session timeout, dan akses admin sekunder.</div>
+
+          <div style="background:#F0F9FF;border:1px solid #BAE6FD;border-radius:10px;padding:14px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:#075985;margin-bottom:2px"><i class="ti ti-user-check" style="vertical-align:-2px"></i> CS Aktif: <span id="stCsCount">0</span> orang</div>
+              <div style="font-size:11.5px;color:#0369A1">Distribution + round-robin di-manage per produk.</div>
+            </div>
+            <button class="btn btn-outline" style="padding:7px 12px;font-size:12px" onclick="showPanel('cs')"><i class="ti ti-external-link"></i> Kelola CS</button>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="label">Session Timeout (menit)</label>
+              <select class="input" id="stSessionTimeout">
+                <option value="0">Never (tidak auto-logout)</option>
+                <option value="30">30 menit</option>
+                <option value="60">1 jam</option>
+                <option value="240">4 jam</option>
+                <option value="480">8 jam</option>
+                <option value="1440">24 jam</option>
+              </select>
+              <div class="hint">Auto-logout kalau gak ada aktivitas. Recommended: 4 jam.</div>
+            </div>
+            <div class="form-group">
+              <label class="label">Mode Login</label>
+              <select class="input" id="stLoginMode">
+                <option value="simple">Simple (password aja)</option>
+                <option value="2fa">2FA via WA (butuh setup WA API)</option>
+              </select>
+              <div class="hint">2FA butuh integrasi WhatsApp API — akan ready di update berikut.</div>
+            </div>
+          </div>
+
+          <div style="border-top:1px solid var(--border);margin:16px 0;padding-top:16px">
+            <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px">Admin Sekunder (Read-only)</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;line-height:1.6">
+              Password kedua yang hanya bisa <strong>lihat dashboard</strong> tanpa bisa edit produk/hapus data. Cocok buat auditor/investor/manajemen.
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="label">Password Read-only</label>
+                <input class="input" id="stReadonlyPass" type="password" placeholder="Kosong = disabled" autocomplete="new-password"/>
+                <div class="hint">Login pake password ini → semua tombol Save/Delete/Edit disabled.</div>
+              </div>
+              <div class="form-group">
+                <label class="label">Password Read-only (Konfirmasi)</label>
+                <input class="input" id="stReadonlyPassConf" type="password" placeholder="Ulangi password" autocomplete="new-password"/>
+                <div class="hint">Harus sama dengan atas.</div>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" onclick="saveTeamAccess()"><i class="ti ti-device-floppy"></i> Simpan Tim & Akses</button>
+        </div>
+
+        <!-- ═══════════════════════════════════
+             SYNC & BACKUP
+        ═══════════════════════════════════ -->
+        <div class="card">
+          <div class="card-title"><i class="ti ti-cloud-computing" style="vertical-align:-3px;margin-right:5px;color:#22C55E"></i>Sync & Backup</div>
+          <div class="card-sub">Status Firebase sync + export/import data lo untuk backup manual.</div>
+
+          <!-- Firebase Status -->
+          <div id="stFbStatusBox" style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:14px 16px;margin-bottom:16px">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+              <div>
+                <div style="font-size:13px;font-weight:600;color:#065F46;margin-bottom:2px">
+                  <i class="ti ti-database-check" style="vertical-align:-2px"></i> Firebase Cloud Sync: <span id="stFbStatus">Loading...</span>
+                </div>
+                <div style="font-size:11.5px;color:#047857">
+                  Project: <code id="stFbProject">-</code> · Last sync: <span id="stFbLastSync">-</span>
+                </div>
+              </div>
+              <button class="btn btn-outline" style="padding:7px 12px;font-size:12px" onclick="stForceSync()"><i class="ti ti-refresh"></i> Force Sync Sekarang</button>
+            </div>
+          </div>
+
+          <!-- Stats -->
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px">
+            <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center">
+              <div style="font-size:22px;font-weight:700;color:var(--primary)" id="stStatsLeads">0</div>
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px">Leads</div>
+            </div>
+            <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center">
+              <div style="font-size:22px;font-weight:700;color:#8B5CF6" id="stStatsProds">0</div>
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px">Produk</div>
+            </div>
+            <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center">
+              <div style="font-size:22px;font-weight:700;color:#F59E0B" id="stStatsCS">0</div>
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px">CS</div>
+            </div>
+            <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center">
+              <div style="font-size:22px;font-weight:700;color:#0EA5E9" id="stStatsSize">0 KB</div>
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px">Total Size</div>
+            </div>
+          </div>
+
+          <!-- Backup actions -->
+          <div style="border-top:1px solid var(--border);padding-top:16px">
+            <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px">Backup Manual (JSON)</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;line-height:1.6">
+              Download semua data lo (leads + produk + cfg + CS) sebagai file JSON. Simpen di Google Drive/Dropbox buat safety net.
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+              <button class="btn btn-outline" onclick="exportBackup()"><i class="ti ti-download"></i> Download Backup (.json)</button>
+              <button class="btn btn-outline" onclick="document.getElementById('stImportFile').click()"><i class="ti ti-upload"></i> Import Backup</button>
+              <input type="file" id="stImportFile" accept="application/json" style="display:none" onchange="importBackup(this)"/>
+            </div>
+            <div style="background:#FEF3C7;border:1px solid #FCD34D;border-radius:8px;padding:10px 14px;font-size:11.5px;color:#78350F;line-height:1.6">
+              <i class="ti ti-alert-triangle" style="vertical-align:-2px;font-size:13px"></i>
+              <strong>Peringatan:</strong> Import bakal <strong>merge</strong> data (lead ID duplikat di-skip, produk ID duplikat di-update). Backup dulu sebelum import.
+            </div>
+          </div>
         </div>
 
         <div class="card">
@@ -10682,16 +10911,16 @@ function saveGTM(){
 function initSettings(){
   const cfg=getCfg();
   var setV = function(id, v){ var el=document.getElementById(id); if(el) el.value = v || ''; };
+  var setChk = function(id, v){ var el=document.getElementById(id); if(el) el.checked = !!v; };
+  // -- Brand & Toko --
   setV('stName', cfg.storeName);
   setV('stTagline', cfg.tagline);
   setV('stWaFallback', cfg.waFallback);
   setV('stFooterText', cfg.footerText);
   setV('stPrimaryColor', cfg.primaryColor || '#10B981');
-  // Highlight color swatch
   document.querySelectorAll('.st-color-swatch').forEach(function(s){
     s.classList.toggle('active', s.getAttribute('data-color') === (cfg.primaryColor || '#10B981'));
   });
-  // Load logo preview
   if(cfg.customLogo){
     var img = document.getElementById('stLogoImg');
     var ph = document.getElementById('stLogoPlaceholder');
@@ -10700,6 +10929,71 @@ function initSettings(){
   } else {
     stClearLogoPreview();
   }
+  // -- Pixel Tracking --
+  setV('stGlobalFbPixel', cfg.globalFbPixel);
+  setV('stGlobalTiktokPixel', cfg.globalTiktokPixel);
+  setV('stGlobalGaId', cfg.globalGaId);
+  setV('stGlobalGtmId', cfg.globalGtmId || cfg.gtmId);
+  setV('stGlobalGadsLabel', cfg.globalGadsLabel || cfg.convLabel);
+  setV('stGlobalHeadScript', cfg.globalHeadScript);
+  // -- Email Notif --
+  setV('stEmailAdmin', cfg.emailAdmin);
+  setV('stEmailFromName', cfg.emailFromName || cfg.storeName);
+  setV('stResendKey', cfg.resendKey);
+  setV('stEmailFromDomain', cfg.emailFromDomain);
+  setChk('stNotifyNewLead', cfg.notifyNewLead);
+  setChk('stNotifyDailyDigest', cfg.notifyDailyDigest);
+  setChk('stNotifyPaidOrder', cfg.notifyPaidOrder);
+  // -- Tim & Akses --
+  try {
+    var csList = (typeof getCsList === 'function') ? getCsList() : (LS.g('od_cs_list', []) || []);
+    var el = document.getElementById('stCsCount');
+    if(el) el.textContent = String(csList.length || 0);
+  } catch(e){}
+  setV('stSessionTimeout', String(cfg.sessionTimeout != null ? cfg.sessionTimeout : 240));
+  setV('stLoginMode', cfg.loginMode || 'simple');
+  // Read-only password never pre-fills for security
+  // -- Sync & Backup --
+  refreshSyncStatus();
+}
+
+// Load Firebase status + data stats untuk Sync & Backup card
+function refreshSyncStatus(){
+  try {
+    var statusEl = document.getElementById('stFbStatus');
+    var projectEl = document.getElementById('stFbProject');
+    var lastSyncEl = document.getElementById('stFbLastSync');
+    var box = document.getElementById('stFbStatusBox');
+    var isOn = (typeof fb !== 'undefined') && fb.configured;
+    if(statusEl){ statusEl.innerHTML = isOn ? '<span style="color:#059669">✅ Connected</span>' : '<span style="color:#DC2626">❌ Not Configured</span>'; }
+    if(projectEl){
+      var pid = '';
+      try { pid = (getFBConfig() || {}).projectId || ''; } catch(e){}
+      projectEl.textContent = pid || '-';
+    }
+    if(lastSyncEl){
+      var t = LS.g('od_last_sync', 0);
+      lastSyncEl.textContent = t ? new Date(t).toLocaleString('id-ID') : 'Belum pernah';
+    }
+    if(box){
+      box.style.background = isOn ? '#F0FDF4' : '#FEF2F2';
+      box.style.borderColor = isOn ? '#BBF7D0' : '#FECACA';
+    }
+    // Stats
+    var leads = getLeads() || [];
+    var prods = getProds() || [];
+    var csList = LS.g('od_cs_list', []) || [];
+    document.getElementById('stStatsLeads').textContent = leads.length;
+    document.getElementById('stStatsProds').textContent = prods.length;
+    document.getElementById('stStatsCS').textContent = csList.length;
+    // Total size
+    var total = 0;
+    ['od_cfg','od_prods','od_leads','od_cs_list','od_orders_digital'].forEach(function(k){
+      var v = localStorage.getItem(k);
+      if(v) total += v.length;
+    });
+    document.getElementById('stStatsSize').textContent = (total/1024).toFixed(1) + ' KB';
+  } catch(e){ console.warn('refreshSyncStatus error:', e); }
 }
 
 function stHandleLogoUpload(input){
@@ -10780,6 +11074,241 @@ function hexToRgba(hex, a){
     var b = parseInt(h.substring(4,6),16);
     return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
   } catch(e){ return 'rgba(16,185,129,' + a + ')'; }
+}
+
+// ═══════════════════════════════════
+// PIXEL TRACKING (GLOBAL)
+// ═══════════════════════════════════
+function saveGlobalPixels(){
+  const cfg = getCfg();
+  var gv = function(id){ var el=document.getElementById(id); return el ? el.value.trim() : ''; };
+  cfg.globalFbPixel = gv('stGlobalFbPixel');
+  cfg.globalTiktokPixel = gv('stGlobalTiktokPixel');
+  cfg.globalGaId = gv('stGlobalGaId');
+  cfg.globalGtmId = gv('stGlobalGtmId');
+  cfg.gtmId = cfg.globalGtmId; // backward compat
+  cfg.globalGadsLabel = gv('stGlobalGadsLabel');
+  cfg.convLabel = cfg.globalGadsLabel; // backward compat
+  cfg.globalHeadScript = gv('stGlobalHeadScript');
+  LS.s('od_cfg', cfg);
+  syncCfgSave(cfg);
+  renderEmbedCodes && renderEmbedCodes();
+  toast('✅ Pixel Tracking tersimpan!');
+}
+
+// ═══════════════════════════════════
+// EMAIL NOTIFIKASI (via Resend)
+// ═══════════════════════════════════
+function saveEmailNotif(){
+  const cfg = getCfg();
+  var gv = function(id){ var el=document.getElementById(id); return el ? el.value.trim() : ''; };
+  var gc = function(id){ var el=document.getElementById(id); return el ? !!el.checked : false; };
+  cfg.emailAdmin = gv('stEmailAdmin');
+  cfg.emailFromName = gv('stEmailFromName');
+  cfg.resendKey = gv('stResendKey');
+  cfg.emailFromDomain = gv('stEmailFromDomain');
+  cfg.notifyNewLead = gc('stNotifyNewLead');
+  cfg.notifyDailyDigest = gc('stNotifyDailyDigest');
+  cfg.notifyPaidOrder = gc('stNotifyPaidOrder');
+  LS.s('od_cfg', cfg);
+  syncCfgSave(cfg);
+  toast('✅ Notifikasi email tersimpan!');
+}
+
+function testEmailNotif(){
+  const cfg = getCfg();
+  if(!cfg.emailAdmin){ toast('⚠️ Isi Email Admin dulu'); return; }
+  if(!cfg.resendKey){ toast('⚠️ Isi Resend API Key dulu'); return; }
+  toast('📧 Kirim test ke ' + cfg.emailAdmin + '...');
+  var fromEmail = cfg.emailFromDomain || 'onboarding@resend.dev';
+  var fromName = cfg.emailFromName || cfg.storeName || 'Nonics Order';
+  var payload = {
+    from: fromName + ' <' + fromEmail + '>',
+    to: [cfg.emailAdmin],
+    subject: '🧪 Test Email — ' + (cfg.storeName || 'Nonics Order'),
+    html: '<div style="font-family:Arial;padding:20px"><h2 style="color:#10B981">✅ Setup Email Berhasil!</h2><p>Halo <strong>' + (cfg.storeName || 'Admin') + '</strong>,</p><p>Ini email test dari Nonics Order. Kalau lo terima email ini, artinya integrasi Resend lo udah aktif.</p><p style="color:#64748B;font-size:12px;margin-top:20px">— Nonics Order</p></div>'
+  };
+  fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + cfg.resendKey,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  }).then(function(r){ return r.json().then(function(j){ return {ok:r.ok, j:j}; }); })
+    .then(function(res){
+      if(res.ok){ toast('✅ Test email terkirim! Cek inbox ' + cfg.emailAdmin); }
+      else {
+        var msg = (res.j && res.j.message) || 'Unknown error';
+        toast('❌ Gagal: ' + msg);
+        console.error('[email test]', res.j);
+      }
+    })
+    .catch(function(err){ toast('❌ Error: ' + err.message); console.error(err); });
+}
+
+// ═══════════════════════════════════
+// TIM & AKSES
+// ═══════════════════════════════════
+function saveTeamAccess(){
+  const cfg = getCfg();
+  var timeout = parseInt(document.getElementById('stSessionTimeout').value, 10) || 0;
+  cfg.sessionTimeout = timeout;
+  cfg.loginMode = document.getElementById('stLoginMode').value || 'simple';
+  var np = document.getElementById('stReadonlyPass').value;
+  var nc = document.getElementById('stReadonlyPassConf').value;
+  if(np || nc){
+    if(np !== nc){ toast('❌ Password read-only tidak cocok'); return; }
+    if(np.length < 4){ toast('⚠️ Password minimal 4 karakter'); return; }
+    cfg.readonlyPass = np;
+    document.getElementById('stReadonlyPass').value = '';
+    document.getElementById('stReadonlyPassConf').value = '';
+  }
+  LS.s('od_cfg', cfg);
+  syncCfgSave(cfg);
+  toast('✅ Tim & Akses tersimpan!');
+}
+
+// ═══════════════════════════════════
+// SYNC & BACKUP
+// ═══════════════════════════════════
+function stForceSync(){
+  if(typeof fb === 'undefined' || !fb.configured){
+    toast('⚠️ Firebase belum ter-config');
+    return;
+  }
+  toast('🔄 Sync ke cloud...');
+  try {
+    var cfg = getCfg();
+    var prods = getProds();
+    var leads = getLeads();
+    syncCfgSave && syncCfgSave(cfg);
+    // Bulk sync prods + leads via existing helpers
+    if(typeof syncBulkUpsert === 'function'){
+      Promise.all([
+        syncBulkUpsert(FB_COLLECTIONS.prods, prods),
+        syncBulkUpsert(FB_COLLECTIONS.leads, leads)
+      ]).then(function(){
+        LS.s('od_last_sync', Date.now());
+        refreshSyncStatus();
+        toast('✅ Sync selesai!');
+      }).catch(function(err){
+        toast('❌ Sync gagal: ' + err.message);
+        console.error(err);
+      });
+    } else {
+      LS.s('od_last_sync', Date.now());
+      refreshSyncStatus();
+      toast('✅ Config synced');
+    }
+  } catch(e){
+    toast('❌ Error: ' + e.message);
+    console.error(e);
+  }
+}
+
+function exportBackup(){
+  try {
+    var payload = {
+      __meta: {
+        app: 'Nonics Order',
+        version: window.__APP_VERSION || 'unknown',
+        exportedAt: new Date().toISOString(),
+        source: 'manual-backup'
+      },
+      od_cfg: LS.g('od_cfg', {}),
+      od_prods: LS.g('od_prods', []),
+      od_leads: LS.g('od_leads', []),
+      od_cs_list: LS.g('od_cs_list', []),
+      od_orders_digital: LS.g('od_orders_digital', [])
+    };
+    var blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'nonics-backup-' + new Date().toISOString().slice(0,10) + '.json';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+    toast('✅ Backup didownload!');
+  } catch(e){
+    toast('❌ Gagal export: ' + e.message);
+    console.error(e);
+  }
+}
+
+function importBackup(input){
+  if(!input || !input.files || !input.files[0]) return;
+  var f = input.files[0];
+  var reader = new FileReader();
+  reader.onload = function(ev){
+    try {
+      var data = JSON.parse(ev.target.result);
+      if(!data || typeof data !== 'object'){ throw new Error('File JSON invalid'); }
+      var ok = confirm('⚠️ Import backup ini?\n\n' +
+        'Backup version: ' + (data.__meta && data.__meta.version || '?') + '\n' +
+        'Tanggal: ' + (data.__meta && data.__meta.exportedAt || '?') + '\n\n' +
+        'Data akan di-MERGE (duplikat di-skip/update).\n\nLanjut?');
+      if(!ok){ input.value=''; return; }
+      // Merge each collection
+      var stats = {leads:0, prods:0, cs:0, orders:0};
+      // Leads
+      if(Array.isArray(data.od_leads)){
+        var existing = getLeads();
+        var existIds = {};
+        existing.forEach(function(l){ if(l.id) existIds[l.id] = true; });
+        data.od_leads.forEach(function(l){
+          if(l.id && !existIds[l.id]){ existing.push(l); stats.leads++; }
+        });
+        LS.s('od_leads', existing);
+      }
+      // Prods (update if same id)
+      if(Array.isArray(data.od_prods)){
+        var existP = getProds();
+        var byId = {};
+        existP.forEach(function(p,i){ byId[p.id] = i; });
+        data.od_prods.forEach(function(p){
+          if(byId[p.id] != null){ existP[byId[p.id]] = p; }
+          else { existP.push(p); stats.prods++; }
+        });
+        LS.s('od_prods', existP);
+      }
+      // CS list
+      if(Array.isArray(data.od_cs_list)){
+        var existCs = LS.g('od_cs_list', []);
+        var csIds = {};
+        existCs.forEach(function(c){ if(c.id) csIds[c.id] = true; });
+        data.od_cs_list.forEach(function(c){
+          if(c.id && !csIds[c.id]){ existCs.push(c); stats.cs++; }
+        });
+        LS.s('od_cs_list', existCs);
+      }
+      // Orders digital
+      if(Array.isArray(data.od_orders_digital)){
+        var existO = LS.g('od_orders_digital', []);
+        var oIds = {};
+        existO.forEach(function(o){ if(o.id || o.orderId) oIds[o.id || o.orderId] = true; });
+        data.od_orders_digital.forEach(function(o){
+          var k = o.id || o.orderId;
+          if(k && !oIds[k]){ existO.push(o); stats.orders++; }
+        });
+        LS.s('od_orders_digital', existO);
+      }
+      // Config — merge (existing wins for existing keys, backup fills missing)
+      if(data.od_cfg && typeof data.od_cfg === 'object'){
+        var curCfg = LS.g('od_cfg', {});
+        var merged = Object.assign({}, data.od_cfg, curCfg);
+        LS.s('od_cfg', merged);
+      }
+      input.value = '';
+      refreshSyncStatus();
+      toast('✅ Import selesai: +' + stats.leads + ' leads, +' + stats.prods + ' prods, +' + stats.cs + ' cs, +' + stats.orders + ' orders');
+    } catch(e){
+      toast('❌ Import gagal: ' + e.message);
+      console.error(e);
+    }
+  };
+  reader.readAsText(f);
 }
 function savePassword(){
   const np=document.getElementById('stPassNew').value;
