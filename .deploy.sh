@@ -3,13 +3,12 @@
 set -e
 SRC="/sessions/tender-great-clarke/mnt/Claude/nonics-form-order"
 cd "$(dirname "$0")"
-cp -f "$SRC/index.html" ./index.html
-cp -f "$SRC/logo.png" ./logo.png 2>/dev/null || true
-cp -rf "$SRC/api" ./ 2>/dev/null || true
-cp -f "$SRC/package.json" ./package.json 2>/dev/null || true
-cp -f "$SRC/firestore.rules" ./firestore.rules 2>/dev/null || true
-cp -f "$SRC/storage.rules" ./storage.rules 2>/dev/null || true
-cp -f "$SRC/firebase.json" ./firebase.json 2>/dev/null || true
+# Sync all deployable files
+for f in index.html logo.png package.json vercel.json firestore.rules storage.rules firebase.json; do
+  [ -f "$SRC/$f" ] && cp -f "$SRC/$f" "./$f"
+done
+# Sync api/ folder
+[ -d "$SRC/api" ] && cp -rf "$SRC/api" ./
 git add -A
 if git diff --staged --quiet; then
   echo "No changes to deploy"
