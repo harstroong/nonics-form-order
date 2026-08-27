@@ -2652,7 +2652,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-07-26-editable-placeholders';
+window.__APP_VERSION = '2026-07-27-pd-quick-modals';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -5728,6 +5728,32 @@ document.addEventListener('DOMContentLoaded', function(){
 </div>
 
 <!-- ═══════════════════════════════════
+     PRODUCT QUICK MODAL — followup / notifikasi / penugasan
+═══════════════════════════════════ -->
+<div id="pdQuickModal" style="display:none;position:fixed;inset:0;z-index:1050;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)closePdQuick()">
+  <div style="background:var(--surface);border-radius:16px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.3)" onclick="event.stopPropagation()">
+    <div style="padding:16px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+      <div style="display:flex;align-items:center;gap:9px">
+        <div id="pdqIcon" style="width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:#FEF3C7;color:#B45309;font-size:16px"><i class="ti ti-message-2"></i></div>
+        <div>
+          <div id="pdqTitle" style="font-weight:600;font-size:15px;color:var(--text);line-height:1.2">Teks Follow-up</div>
+          <div id="pdqSubtitle" style="font-size:11.5px;color:var(--text-muted)">Preview + quick edit</div>
+        </div>
+      </div>
+      <button onclick="closePdQuick()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-muted);padding:4px 8px;line-height:1">✕</button>
+    </div>
+    <div id="pdqBody" style="padding:18px 22px"></div>
+    <div style="padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;background:var(--surface-2);border-radius:0 0 16px 16px">
+      <button onclick="pdqJumpToFullEdit()" style="background:none;border:none;color:var(--primary);font-size:12.5px;cursor:pointer;padding:6px 0;display:flex;align-items:center;gap:5px"><i class="ti ti-external-link"></i> Buka edit lengkap</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline" onclick="closePdQuick()" style="padding:7px 14px;font-size:12.5px">Tutup</button>
+        <button id="pdqSaveBtn" class="btn btn-primary" onclick="pdqSaveCurrent()" style="padding:7px 14px;font-size:12.5px"><i class="ti ti-device-floppy"></i> Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
      BULK REASSIGN MODAL — pindahin N lead ke 1 CS sekaligus
 ═══════════════════════════════════ -->
 <div id="bulkReassignModal" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.6);align-items:center;justify-content:center;padding:20px">
@@ -8787,17 +8813,212 @@ function pdCopyFormUrl(){
   if(typeof copyProdukFormUrl === 'function') copyProdukFormUrl(window.__pdCurrentProdId);
 }
 function pdOpenSection(sec){
-  // Open edit form + scroll to relevant section
+  // Show quick popup instead of jumping to full edit
+  openPdQuickModal(sec);
+}
+
+// ═══════════════════════════════════
+// PD QUICK MODAL — Follow-up / Notifikasi / Penugasan
+// ═══════════════════════════════════
+window.__pdqCurrentSec = null;
+
+function openPdQuickModal(sec){
   if(!window.__pdCurrentProdId) return;
-  showProdForm(window.__pdCurrentProdId);
+  var prods = getProds();
+  var p = prods.find(function(x){ return x.id === window.__pdCurrentProdId; });
+  if(!p){ toast('⚠️ Produk tidak ditemukan'); return; }
+  window.__pdqCurrentSec = sec;
+
+  var iconEl = document.getElementById('pdqIcon');
+  var titleEl = document.getElementById('pdqTitle');
+  var subEl = document.getElementById('pdqSubtitle');
+  var bodyEl = document.getElementById('pdqBody');
+
+  var saveBtn = document.getElementById('pdqSaveBtn');
+  if(sec === 'followup'){
+    iconEl.style.background = '#FEF3C7'; iconEl.style.color = '#B45309';
+    iconEl.innerHTML = '<i class="ti ti-message-2"></i>';
+    titleEl.textContent = 'Teks Follow-up CS';
+    subEl.textContent = 'Template pesan yang dikirim ke customer';
+    bodyEl.innerHTML = pdqRenderFollowup(p);
+    if(saveBtn) saveBtn.style.display = '';
+  } else if(sec === 'notifikasi'){
+    iconEl.style.background = '#DBEAFE'; iconEl.style.color = '#1E40AF';
+    iconEl.innerHTML = '<i class="ti ti-bell"></i>';
+    titleEl.textContent = 'Pixel & Tracking';
+    subEl.textContent = 'Facebook Pixel + TikTok Pixel + GTM per-produk';
+    bodyEl.innerHTML = pdqRenderNotifikasi(p);
+    if(saveBtn) saveBtn.style.display = 'none';
+  } else if(sec === 'penugasan'){
+    iconEl.style.background = '#D1FAE5'; iconEl.style.color = '#065F46';
+    iconEl.innerHTML = '<i class="ti ti-users"></i>';
+    titleEl.textContent = 'Penugasan CS';
+    subEl.textContent = 'CS yang di-assign ke produk ini';
+    bodyEl.innerHTML = pdqRenderPenugasan(p);
+    if(saveBtn) saveBtn.style.display = 'none';
+  }
+  document.getElementById('pdQuickModal').style.display = 'flex';
+}
+
+function closePdQuick(){
+  var m = document.getElementById('pdQuickModal');
+  if(m) m.style.display = 'none';
+  window.__pdqCurrentSec = null;
+}
+
+function pdqJumpToFullEdit(){
+  var sec = window.__pdqCurrentSec;
+  var id = window.__pdCurrentProdId;
+  closePdQuick();
+  if(!id) return;
+  showProdForm(id);
   setTimeout(function(){
-    var secMap = { followup: 4, notifikasi: 10, penugasan: 4 }; // section numbers in prodFormCard
+    var secMap = { followup: 4, notifikasi: 10, penugasan: 4 };
     var secNum = secMap[sec];
     if(secNum){
       var el = document.querySelector('[data-sec="'+secNum+'"]');
       if(el){ el.classList.remove('collapsed'); el.scrollIntoView({behavior:'smooth', block:'start'}); }
     }
-  }, 200);
+  }, 250);
+}
+
+function pdqRenderFollowup(p){
+  var cfg = getCfg();
+  var greeting = p.greeting || cfg.greeting || '';
+  var esc = function(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  return ''+
+    '<div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:11.5px;color:#065F46;line-height:1.55">' +
+      '<i class="ti ti-info-circle" style="vertical-align:-2px;font-size:13px"></i> Variabel: <code>{nama}</code> <code>{wa}</code> <code>{produk}</code> <code>{alamat}</code> <code>{kota}</code> <code>{kecamatan}</code> <code>{toko}</code>' +
+    '</div>' +
+    '<label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px">Template pesan (yang dikirim ke customer)</label>' +
+    '<textarea id="pdqFollowupText" style="width:100%;min-height:180px;padding:11px 13px;font-size:13px;font-family:inherit;line-height:1.55;border:1.5px solid var(--border);border-radius:9px;box-sizing:border-box;resize:vertical">' + esc(greeting) + '</textarea>' +
+    '<div style="margin-top:12px;background:var(--surface-2);border-radius:9px;padding:10px 12px;font-size:12px;color:var(--text-muted);line-height:1.6">' +
+      '<div style="font-weight:600;color:var(--text);margin-bottom:4px;font-size:11.5px"><i class="ti ti-eye" style="vertical-align:-2px"></i> Preview (dengan data contoh):</div>' +
+      '<div id="pdqFollowupPreview" style="white-space:pre-wrap;padding:8px 10px;background:#fff;border-radius:6px;color:var(--text);border:1px dashed var(--border);font-size:12px">' + esc(pdqSampleReplace(greeting, p)) + '</div>' +
+    '</div>' +
+    '<script>document.getElementById("pdqFollowupText").oninput=function(){document.getElementById("pdqFollowupPreview").textContent=(window.pdqSampleReplace||function(s){return s;})(this.value,window.__pdqProdRef||{});};window.__pdqProdRef=' + JSON.stringify({name:p.name}) + ';<\/script>';
+}
+
+// Sample data untuk preview follow-up
+window.pdqSampleReplace = function pdqSampleReplace(tpl, p){
+  if(!tpl) return '(kosong)';
+  return String(tpl)
+    .replace(/\{nama\}/g, 'Budi Santoso')
+    .replace(/\{wa\}/g, '628123456789')
+    .replace(/\{produk\}/g, (p && p.name) || 'Produk Anda')
+    .replace(/\{alamat\}/g, 'Jl. Merdeka No. 45')
+    .replace(/\{kota\}/g, 'Jakarta')
+    .replace(/\{kecamatan\}/g, 'Kemayoran')
+    .replace(/\{toko\}/g, getCfg().storeName || 'Toko Kami');
+};
+
+function pdqRenderNotifikasi(p){
+  var cfg = getCfg();
+  var fbId = p.fbPixelId || cfg.globalFbPixel || '';
+  var fbEv = p.fbPixelEvent || 'Lead';
+  var ttId = p.ttPixelId || cfg.globalTiktokPixel || '';
+  var ttEv = p.ttPixelEvent || 'SubmitForm';
+  var gtm = p.gtmId || cfg.globalGtmId || cfg.gtmId || '';
+  var esc = function(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  var pxRow = function(icon,color,label,value,source){
+    var status = value ? '<span style="background:#D1FAE5;color:#065F46;font-size:10px;padding:2px 7px;border-radius:99px;font-weight:600">AKTIF</span>' : '<span style="background:#F1F5F9;color:#64748B;font-size:10px;padding:2px 7px;border-radius:99px">-</span>';
+    var sourceTag = source ? '<span style="font-size:9.5px;color:var(--text-muted);margin-left:5px;font-style:italic">'+source+'</span>' : '';
+    return ''+
+      '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">' +
+        '<div style="width:28px;height:28px;background:'+color+'20;color:'+color+';border-radius:7px;display:flex;align-items:center;justify-content:center"><i class="ti '+icon+'"></i></div>' +
+        '<div style="flex:1;min-width:0">' +
+          '<div style="font-size:12.5px;font-weight:600;color:var(--text)">'+label+sourceTag+'</div>' +
+          '<div style="font-size:11px;color:var(--text-muted);font-family:monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(value ? esc(value) : 'Belum di-set')+'</div>' +
+        '</div>' +
+        status +
+      '</div>';
+  };
+  return ''+
+    '<div style="background:#F0F9FF;border:1px solid #BAE6FD;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:11.5px;color:#075985;line-height:1.5">' +
+      '<i class="ti ti-info-circle" style="vertical-align:-2px;font-size:13px"></i> Priority: pixel per-produk (override) → fallback ke global (Pengaturan).' +
+    '</div>' +
+    pxRow('ti-brand-facebook','#1877F2','Meta Pixel', fbId, p.fbPixelId ? '(per-produk)' : (fbId ? '(global)' : '')) +
+    pxRow('ti-brand-tiktok','#000000','TikTok Pixel', ttId, p.ttPixelId ? '(per-produk)' : (ttId ? '(global)' : '')) +
+    pxRow('ti-tag','#4285F4','Google Tag Manager', gtm, p.gtmId ? '(per-produk)' : (gtm ? '(global)' : '')) +
+    '<div style="margin-top:14px;padding:10px 12px;background:var(--surface-2);border-radius:9px;font-size:12px;color:var(--text-muted);line-height:1.55">' +
+      '<strong style="color:var(--text)">Event yang di-track:</strong><br>' +
+      '<span style="display:inline-block;margin-top:4px">• Meta: <code>'+esc(fbEv)+'</code> pas customer submit form</span><br>' +
+      '<span>• TikTok: <code>'+esc(ttEv)+'</code> pas customer submit form</span>' +
+    '</div>' +
+    '<div style="margin-top:10px;font-size:11.5px;color:var(--text-muted);text-align:center;font-style:italic">Untuk edit pixel ID, klik "Buka edit lengkap" di bawah.</div>';
+}
+
+function pdqRenderPenugasan(p){
+  var csList = (typeof getCSList === 'function') ? getCSList() : (LS.g('od_cs', []) || []);
+  var csIds = (p.csIds && p.csIds.length) ? p.csIds : (p.csId ? [p.csId] : []);
+  var esc = function(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  var mode = p.distribMode || 'equal';
+  var modeLabels = { equal:'Rata Round-robin', weighted:'Bobot Custom', solo:'Solo (1 CS)', manual:'Manual Pilih' };
+  if(!csIds.length){
+    return ''+
+      '<div style="text-align:center;padding:30px 20px;color:var(--text-muted)">' +
+        '<i class="ti ti-users-off" style="font-size:40px;opacity:.5"></i>' +
+        '<div style="font-size:13px;margin-top:10px">Belum ada CS di-assign</div>' +
+        '<div style="font-size:11.5px;margin-top:4px">Semua lead bakal fallback ke default WA.</div>' +
+      '</div>';
+  }
+  var totalLeads = 0;
+  var rows = csIds.map(function(id){
+    var cs = csList.find(function(c){ return c.id === id; });
+    if(!cs) return '';
+    var count = (p.csLeadCounts && p.csLeadCounts[id]) || 0;
+    totalLeads += count;
+    var initials = (cs.name||'?').split(' ').map(function(w){return w[0];}).slice(0,2).join('').toUpperCase();
+    var bgColors = ['#DBEAFE','#FEE2E2','#EDE9FE','#FEF3C7','#D1FAE5','#FCE7F3'];
+    var textColors = ['#1E40AF','#991B1B','#5B21B6','#78350F','#065F46','#9D174D'];
+    var colorIdx = (cs.name || 'x').charCodeAt(0) % bgColors.length;
+    var weight = (p.csWeights && p.csWeights[id]) ? p.csWeights[id] : 1;
+    return ''+
+      '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">' +
+        '<div style="width:34px;height:34px;background:'+bgColors[colorIdx]+';color:'+textColors[colorIdx]+';border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0">'+esc(initials)+'</div>' +
+        '<div style="flex:1;min-width:0">' +
+          '<div style="font-size:13px;font-weight:600;color:var(--text)">'+esc(cs.name||'-')+'</div>' +
+          '<div style="font-size:11px;color:var(--text-muted)">'+esc(cs.waNum||'-')+(mode === 'weighted' ? ' • bobot '+weight : '')+'</div>' +
+        '</div>' +
+        '<div style="text-align:right;flex-shrink:0">' +
+          '<div style="font-size:15px;font-weight:600;color:var(--primary)">'+count+'</div>' +
+          '<div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px">leads</div>' +
+        '</div>' +
+      '</div>';
+  }).join('');
+  return ''+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">' +
+      '<div style="background:var(--surface-2);border-radius:9px;padding:10px 12px">' +
+        '<div style="font-size:10.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px">Mode Distribusi</div>' +
+        '<div style="font-size:14px;font-weight:600;color:var(--text);margin-top:2px">'+(modeLabels[mode]||mode)+'</div>' +
+      '</div>' +
+      '<div style="background:var(--surface-2);border-radius:9px;padding:10px 12px">' +
+        '<div style="font-size:10.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px">Total Lead Assigned</div>' +
+        '<div style="font-size:14px;font-weight:600;color:var(--text);margin-top:2px">'+totalLeads+' <span style="font-size:10.5px;color:var(--text-muted);font-weight:400">/ '+csIds.length+' CS</span></div>' +
+      '</div>' +
+    '</div>' +
+    rows +
+    '<div style="margin-top:12px;font-size:11.5px;color:var(--text-muted);text-align:center;font-style:italic">Untuk reassign / ubah bobot / ganti mode, klik "Buka edit lengkap" di bawah.</div>';
+}
+
+function pdqSaveCurrent(){
+  var sec = window.__pdqCurrentSec;
+  var id = window.__pdCurrentProdId;
+  if(!id) return;
+  var prods = getProds();
+  var i = prods.findIndex(function(x){ return x.id === id; });
+  if(i < 0){ toast('⚠️ Produk tidak ditemukan'); return; }
+  if(sec === 'followup'){
+    var txt = document.getElementById('pdqFollowupText').value;
+    prods[i].greeting = txt;
+    LS.s('od_prods', prods);
+    if(fb.configured && typeof syncUpsert === 'function') syncUpsert(FB_COLLECTIONS.prods, prods[i]);
+    toast('✅ Teks Follow-up tersimpan!');
+    closePdQuick();
+  } else {
+    // Notifikasi + Penugasan tidak ada quick-edit, direct link ke full form
+    toast('💡 Buka edit lengkap untuk ubah pengaturan ini');
+  }
 }
 function pdShowInstallTracker(){
   toast('🔧 Install Tracker: Sales Page View butuh JS pixel di landing page lo. Coming soon.');
