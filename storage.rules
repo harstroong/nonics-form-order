@@ -1,0 +1,15 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Public read for digital product covers (kalau ada)
+    match /digital-covers/{file} {
+      allow read: if true;
+      allow write: if false; // hanya admin via Functions
+    }
+    // Protected file akses produk digital — read pakai signed URL
+    match /digital-files/{file} {
+      allow read: if false;  // hanya signed URL yang valid
+      allow write: if false;
+    }
+  }
+}

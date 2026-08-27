@@ -1,0 +1,27 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Existing collections (Admin Fisik) — keep open for client SDK admin use
+    match /od_cfg/{document=**} { allow read, write: if true; }
+    match /od_prods/{document=**} { allow read, write: if true; }
+    match /od_leads/{document=**} { allow read, write: if true; }
+    match /od_cs/{document=**} { allow read, write: if true; }
+    match /od_cs_users/{document=**} { allow read, write: if true; }
+    match /od_qr_templates/{document=**} { allow read, write: if true; }
+    match /od_ad_users/{document=**} { allow read, write: if true; }
+
+    // Digital collections — read public (untuk public checkout form), write hanya server (Functions)
+    match /od_prods_digital/{document} {
+      allow read: if true;          // public bisa liat produk
+      allow write: if false;        // hanya Functions yang nulis (pakai Admin SDK, bypass rules)
+    }
+    match /od_orders_digital/{document} {
+      allow read: if true;          // client bisa baca status order-nya
+      allow write: if true;         // frontend nulis pending order; Functions overwrite via Admin SDK
+    }
+    match /od_customers_digital/{document} {
+      allow read: if true;          // login check
+      allow write: if false;        // hanya Functions yang bisa create/update customer
+    }
+  }
+}
