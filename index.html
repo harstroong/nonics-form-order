@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-09-hpp-profit';
+window.__APP_VERSION = '2026-08-10-ads-csv-importer';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -5843,8 +5843,9 @@ document.addEventListener('DOMContentLoaded', function(){
             <div class="team-sub">Track spend iklan per produk, hitung ROAS, CPL, CPA otomatis dari data lead + revenue lo.</div>
           </div>
           <div class="team-actions-header">
-            <button class="btn-outline-sm" onclick="adsOpenAddModal()"><i class="ti ti-plus"></i><span>Input Spend</span></button>
-            <button class="btn-outline-sm" onclick="adsExportCSV()"><i class="ti ti-download"></i><span>Export CSV</span></button>
+            <button class="btn-outline-sm" onclick="adsOpenImportModal()" style="background:#EDE9FE;color:#5B21B6;border-color:#DDD6FE"><i class="ti ti-upload"></i><span>Import CSV/Excel</span></button>
+            <button class="btn-outline-sm" onclick="adsOpenAddModal()"><i class="ti ti-plus"></i><span>Input Manual</span></button>
+            <button class="btn-outline-sm" onclick="adsExportCSV()"><i class="ti ti-download"></i><span>Export</span></button>
           </div>
         </div>
 
@@ -5960,6 +5961,127 @@ document.addEventListener('DOMContentLoaded', function(){
           <div style="padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;background:var(--surface-2);border-radius:0 0 16px 16px">
             <button class="btn btn-outline" onclick="adsCloseAddModal()" style="padding:7px 14px;font-size:12.5px">Batal</button>
             <button class="btn btn-primary" onclick="adsSaveSpend()" style="padding:7px 14px;font-size:12.5px"><i class="ti ti-device-floppy"></i> Simpan</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADS IMPORT MODAL -->
+      <div id="adsImportModal" style="display:none;position:fixed;inset:0;z-index:1060;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)adsCloseImportModal()">
+        <div style="background:var(--surface);border-radius:16px;max-width:820px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.3)" onclick="event.stopPropagation()">
+          <div style="padding:16px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+            <div style="display:flex;align-items:center;gap:9px">
+              <div style="width:32px;height:32px;border-radius:9px;background:#EDE9FE;color:#5B21B6;display:flex;align-items:center;justify-content:center;font-size:16px"><i class="ti ti-file-upload"></i></div>
+              <div>
+                <div style="font-weight:600;font-size:15px">Import Ad Spend</div>
+                <div style="font-size:11.5px;color:var(--text-muted)">Upload CSV/XLSX dari Meta / TikTok / Google Ads Manager</div>
+              </div>
+            </div>
+            <button onclick="adsCloseImportModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-muted);padding:4px 8px;line-height:1">✕</button>
+          </div>
+
+          <div id="adsImportStep1" style="padding:22px">
+            <div style="background:var(--surface-2);border:2px dashed var(--border);border-radius:12px;padding:36px 20px;text-align:center;cursor:pointer" onclick="document.getElementById('adsImportFile').click()">
+              <i class="ti ti-cloud-upload" style="font-size:42px;color:var(--text-muted);opacity:.7"></i>
+              <div style="font-size:14px;font-weight:600;color:var(--text);margin-top:10px">Klik untuk pilih file</div>
+              <div style="font-size:11.5px;color:var(--text-muted);margin-top:4px">Support: CSV, XLSX, XLS (max 5MB)</div>
+              <input type="file" id="adsImportFile" accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" style="display:none" onchange="adsHandleImportFile(this)"/>
+            </div>
+
+            <div style="margin-top:18px">
+              <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:8px"><i class="ti ti-info-circle" style="color:#0EA5E9;vertical-align:-2px"></i> Cara export report dari Ads Manager:</div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px">
+                <div style="background:#EBF3FC;border:0.5px solid #B5D3F5;border-radius:8px;padding:10px 12px;font-size:11px;line-height:1.55;color:#0C447C">
+                  <b><i class="ti ti-brand-facebook" style="color:#1877F2"></i> Meta Ads Manager</b><br>
+                  Ads Manager → Reports → Export → format CSV<br>
+                  Kolom wajib: Reporting starts + Campaign name + Amount spent
+                </div>
+                <div style="background:#F5F5F5;border:0.5px solid #E5E5E5;border-radius:8px;padding:10px 12px;font-size:11px;line-height:1.55;color:#171717">
+                  <b><i class="ti ti-brand-tiktok"></i> TikTok Ads Manager</b><br>
+                  Reporting → Custom Report → Download<br>
+                  Kolom: Date + Campaign name + Cost
+                </div>
+                <div style="background:#FEF7EC;border:0.5px solid #FCD9A0;border-radius:8px;padding:10px 12px;font-size:11px;line-height:1.55;color:#7A4A0A">
+                  <b><i class="ti ti-brand-google" style="color:#4285F4"></i> Google Ads</b><br>
+                  Reports → Download → CSV<br>
+                  Kolom: Day + Campaign + Cost
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="adsImportStep2" style="display:none;padding:22px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding:10px 12px;background:var(--surface-2);border-radius:8px">
+              <div style="font-size:12.5px">
+                <b id="adsImportFileName">file.csv</b>
+                <span style="color:var(--text-muted);margin-left:8px" id="adsImportSummary">0 rows</span>
+              </div>
+              <button class="btn-outline-sm" onclick="adsResetImport()" style="padding:5px 10px;font-size:11.5px"><i class="ti ti-refresh"></i> Ganti file</button>
+            </div>
+
+            <div id="adsImportPlatformDetect" style="margin-bottom:14px;padding:10px 12px;background:#F0FDF4;border:0.5px solid #BBF7D0;border-radius:8px;font-size:12px;color:#065F46;display:none">
+              <i class="ti ti-check" style="vertical-align:-2px"></i> <span id="adsImportPlatformLbl"></span>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px">
+              <div>
+                <label style="display:block;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px">Kolom Tanggal</label>
+                <select id="adsImportColDate" class="input" style="width:100%;font-size:12px"></select>
+              </div>
+              <div>
+                <label style="display:block;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px">Kolom Campaign</label>
+                <select id="adsImportColCampaign" class="input" style="width:100%;font-size:12px"></select>
+              </div>
+              <div>
+                <label style="display:block;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px">Kolom Spend</label>
+                <select id="adsImportColSpend" class="input" style="width:100%;font-size:12px"></select>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+              <div>
+                <label style="display:block;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px">Platform</label>
+                <select id="adsImportPlatform" class="input" style="width:100%;font-size:12px">
+                  <option value="meta">🔵 Meta Ads</option>
+                  <option value="tiktok">⚫ TikTok Ads</option>
+                  <option value="google">🟡 Google Ads</option>
+                  <option value="other">⚪ Lainnya</option>
+                </select>
+              </div>
+              <div>
+                <label style="display:block;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px">Skip Total Row</label>
+                <select id="adsImportSkipTotal" class="input" style="width:100%;font-size:12px">
+                  <option value="true" selected>Ya (auto-skip "Total" row)</option>
+                  <option value="false">Import semua</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:8px">Preview + mapping produk (<span id="adsImportRowCount">0</span> rows)</div>
+            <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;max-height:340px;overflow-y:auto">
+              <table style="width:100%;border-collapse:collapse;font-size:11.5px">
+                <thead style="position:sticky;top:0;background:var(--surface-2);z-index:1">
+                  <tr>
+                    <th style="text-align:left;padding:9px 10px;font-weight:600;color:var(--text-muted);font-size:10.5px;text-transform:uppercase;border-bottom:1px solid var(--border);width:90px">Tanggal</th>
+                    <th style="text-align:left;padding:9px 10px;font-weight:600;color:var(--text-muted);font-size:10.5px;text-transform:uppercase;border-bottom:1px solid var(--border)">Campaign</th>
+                    <th style="text-align:right;padding:9px 10px;font-weight:600;color:var(--text-muted);font-size:10.5px;text-transform:uppercase;border-bottom:1px solid var(--border);width:100px">Spend</th>
+                    <th style="text-align:left;padding:9px 10px;font-weight:600;color:var(--text-muted);font-size:10.5px;text-transform:uppercase;border-bottom:1px solid var(--border);width:220px">Produk</th>
+                  </tr>
+                </thead>
+                <tbody id="adsImportPreviewBody"></tbody>
+              </table>
+            </div>
+
+            <div style="margin-top:12px;padding:10px 12px;background:#F0F9FF;border:0.5px solid #BAE6FD;border-radius:8px;font-size:11px;color:#075985;line-height:1.55">
+              <i class="ti ti-info-circle" style="vertical-align:-2px"></i> <b>Tips:</b> Naming convention campaign lo yang bagus <code>[produk-name] - [audience]</code> biar auto-match ke produk. Kalau gak match, pilih manual dari dropdown per baris. Row yang produk-nya kosong akan di-skip.
+            </div>
+          </div>
+
+          <div style="padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:8px;background:var(--surface-2);border-radius:0 0 16px 16px">
+            <div style="font-size:11.5px;color:var(--text-muted)" id="adsImportStatus"></div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-outline" onclick="adsCloseImportModal()" style="padding:7px 14px;font-size:12.5px">Batal</button>
+              <button class="btn btn-primary" id="adsImportConfirmBtn" onclick="adsConfirmImport()" style="padding:7px 14px;font-size:12.5px;display:none"><i class="ti ti-check"></i> Import <span id="adsImportConfirmCount">0</span> rows</button>
+            </div>
           </div>
         </div>
       </div>
@@ -8216,6 +8338,355 @@ function adsExportCSV(){
   a.click();
   setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
   toast('✅ CSV di-download');
+}
+
+// ═══════════════════════════════════
+// ADS IMPORT — CSV / XLSX parser + preview + mapping
+// ═══════════════════════════════════
+window.__adsImportRows = null;
+window.__adsImportHeaders = null;
+window.__adsImportSheetJs = null;
+
+function adsOpenImportModal(){
+  document.getElementById('adsImportModal').style.display = 'flex';
+  document.getElementById('adsImportStep1').style.display = '';
+  document.getElementById('adsImportStep2').style.display = 'none';
+  document.getElementById('adsImportConfirmBtn').style.display = 'none';
+  document.getElementById('adsImportStatus').textContent = '';
+  document.getElementById('adsImportFile').value = '';
+  window.__adsImportRows = null;
+  window.__adsImportHeaders = null;
+}
+
+function adsCloseImportModal(){
+  document.getElementById('adsImportModal').style.display = 'none';
+}
+
+function adsResetImport(){
+  adsOpenImportModal();
+}
+
+// Load SheetJS from CDN untuk XLSX support
+function _loadSheetJs(){
+  if(window.XLSX) return Promise.resolve(window.XLSX);
+  if(window.__adsImportSheetJs) return window.__adsImportSheetJs;
+  window.__adsImportSheetJs = new Promise(function(resolve, reject){
+    var s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload = function(){ resolve(window.XLSX); };
+    s.onerror = function(){ reject(new Error('SheetJS gagal load')); };
+    document.head.appendChild(s);
+  });
+  return window.__adsImportSheetJs;
+}
+
+// Simple CSV parser with quote support
+function _parseCSV(text){
+  var rows = [];
+  var current = [], field = '', inQuotes = false;
+  for(var i=0; i<text.length; i++){
+    var c = text.charAt(i);
+    if(inQuotes){
+      if(c === '"' && text.charAt(i+1) === '"'){ field += '"'; i++; }
+      else if(c === '"'){ inQuotes = false; }
+      else field += c;
+    } else {
+      if(c === '"'){ inQuotes = true; }
+      else if(c === ','){ current.push(field); field = ''; }
+      else if(c === '\n' || c === '\r'){
+        if(c === '\r' && text.charAt(i+1) === '\n') i++;
+        current.push(field); field = '';
+        if(current.length > 1 || (current.length === 1 && current[0] !== '')) rows.push(current);
+        current = [];
+      } else field += c;
+    }
+  }
+  if(field !== '' || current.length > 0){ current.push(field); rows.push(current); }
+  return rows.filter(function(r){ return r.some(function(c){ return String(c).trim() !== ''; }); });
+}
+
+function adsHandleImportFile(input){
+  if(!input.files || !input.files[0]) return;
+  var file = input.files[0];
+  if(file.size > 5 * 1024 * 1024){
+    toast('⚠️ File terlalu besar (max 5MB)');
+    return;
+  }
+  document.getElementById('adsImportFileName').textContent = file.name;
+  var isXlsx = /\.(xlsx|xls)$/i.test(file.name);
+  if(isXlsx){
+    _loadSheetJs().then(function(XLSX){
+      var reader = new FileReader();
+      reader.onload = function(ev){
+        try {
+          var data = new Uint8Array(ev.target.result);
+          var wb = XLSX.read(data, {type:'array'});
+          var firstSheet = wb.Sheets[wb.SheetNames[0]];
+          var rows = XLSX.utils.sheet_to_json(firstSheet, {header:1, defval:''});
+          rows = rows.filter(function(r){ return r.some(function(c){ return String(c).trim() !== ''; }); });
+          _adsProcessRows(rows);
+        } catch(e){ toast('❌ Gagal parse XLSX: ' + e.message); }
+      };
+      reader.readAsArrayBuffer(file);
+    }).catch(function(e){ toast('❌ ' + e.message); });
+  } else {
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      try {
+        var rows = _parseCSV(String(ev.target.result));
+        _adsProcessRows(rows);
+      } catch(e){ toast('❌ Gagal parse CSV: ' + e.message); }
+    };
+    reader.readAsText(file);
+  }
+}
+
+function _adsProcessRows(rows){
+  if(rows.length < 2){
+    toast('⚠️ File terlalu pendek (butuh header + minimal 1 baris data)');
+    return;
+  }
+  // Meta Ads Manager kadang punya intro rows (Report Name, Date Range, dll) sebelum header asli
+  // Auto-detect header row = row pertama yang punya kata kunci
+  var headerRow = 0;
+  var keywords = ['campaign','date','day','reporting','spend','cost','amount','tanggal','biaya'];
+  for(var i=0; i<Math.min(rows.length, 10); i++){
+    var lower = rows[i].map(function(c){ return String(c).toLowerCase(); }).join('|');
+    var matches = keywords.filter(function(k){ return lower.indexOf(k) >= 0; }).length;
+    if(matches >= 2){ headerRow = i; break; }
+  }
+  var headers = rows[headerRow].map(function(h){ return String(h).trim(); });
+  var dataRows = rows.slice(headerRow + 1);
+  window.__adsImportHeaders = headers;
+  window.__adsImportRows = dataRows;
+
+  // Populate column dropdowns
+  var buildOpts = function(){
+    return '<option value="">-- Pilih kolom --</option>' + headers.map(function(h,i){
+      return '<option value="'+i+'">'+String(h).replace(/</g,'&lt;')+'</option>';
+    }).join('');
+  };
+  document.getElementById('adsImportColDate').innerHTML = buildOpts();
+  document.getElementById('adsImportColCampaign').innerHTML = buildOpts();
+  document.getElementById('adsImportColSpend').innerHTML = buildOpts();
+
+  // Auto-detect kolom + platform berdasarkan header
+  var detected = _adsDetectFormat(headers);
+  if(detected.dateIdx >= 0) document.getElementById('adsImportColDate').value = detected.dateIdx;
+  if(detected.campaignIdx >= 0) document.getElementById('adsImportColCampaign').value = detected.campaignIdx;
+  if(detected.spendIdx >= 0) document.getElementById('adsImportColSpend').value = detected.spendIdx;
+  document.getElementById('adsImportPlatform').value = detected.platform;
+
+  var platformEl = document.getElementById('adsImportPlatformDetect');
+  var platformLbl = document.getElementById('adsImportPlatformLbl');
+  if(detected.detected){
+    platformEl.style.display = 'block';
+    var iconMap = { meta: '🔵 Meta Ads', tiktok: '⚫ TikTok Ads', google: '🟡 Google Ads', other: '⚪ Format' };
+    platformLbl.innerHTML = 'Auto-detected: <b>' + iconMap[detected.platform] + '</b> — kolom otomatis di-set';
+  } else {
+    platformEl.style.display = 'none';
+  }
+
+  // Show step 2
+  document.getElementById('adsImportStep1').style.display = 'none';
+  document.getElementById('adsImportStep2').style.display = 'block';
+  document.getElementById('adsImportSummary').textContent = dataRows.length + ' data rows · ' + headers.length + ' columns';
+
+  // Wire onchange to re-render preview
+  ['adsImportColDate','adsImportColCampaign','adsImportColSpend','adsImportPlatform','adsImportSkipTotal'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.onchange = _adsRenderImportPreview;
+  });
+  _adsRenderImportPreview();
+}
+
+function _adsDetectFormat(headers){
+  var lower = headers.map(function(h){ return String(h).toLowerCase(); });
+  var find = function(patterns){
+    for(var i=0; i<lower.length; i++){
+      for(var j=0; j<patterns.length; j++){
+        if(lower[i].indexOf(patterns[j]) >= 0) return i;
+      }
+    }
+    return -1;
+  };
+  // Meta Ads Manager: "Reporting starts", "Campaign name", "Amount spent (IDR)"
+  // TikTok: "Date", "Campaign name", "Cost"
+  // Google Ads: "Day", "Campaign", "Cost"
+  var dateIdx = find(['reporting starts','date','day','tanggal','waktu']);
+  var campaignIdx = find(['campaign name','campaign','kampanye']);
+  var spendIdx = find(['amount spent','spend','cost','biaya','pengeluaran']);
+  var platform = 'other';
+  var detected = false;
+  var joined = lower.join('|');
+  if(joined.indexOf('reporting starts') >= 0 || joined.indexOf('amount spent') >= 0){ platform = 'meta'; detected = true; }
+  else if(joined.indexOf('tiktok') >= 0 || (dateIdx >= 0 && spendIdx >= 0 && lower[spendIdx].indexOf('cost') === 0)){ platform = 'tiktok'; detected = true; }
+  else if(joined.indexOf('day') >= 0 && joined.indexOf('impressions') >= 0){ platform = 'google'; detected = true; }
+  return { dateIdx: dateIdx, campaignIdx: campaignIdx, spendIdx: spendIdx, platform: platform, detected: detected };
+}
+
+function _adsParseDate(s){
+  if(!s) return null;
+  s = String(s).trim();
+  // ISO: 2026-08-28
+  if(/^\d{4}-\d{2}-\d{2}/.test(s)) return s.substring(0,10);
+  // DD/MM/YYYY or MM/DD/YYYY
+  var m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+  if(m){
+    var d = m[1], mo = m[2], y = m[3];
+    if(y.length === 2) y = '20' + y;
+    // Assume DD/MM/YYYY (Indonesia default)
+    return y + '-' + mo.padStart(2,'0') + '-' + d.padStart(2,'0');
+  }
+  // Try Date.parse fallback
+  var parsed = new Date(s);
+  if(!isNaN(parsed.getTime())){
+    return parsed.getFullYear() + '-' + String(parsed.getMonth()+1).padStart(2,'0') + '-' + String(parsed.getDate()).padStart(2,'0');
+  }
+  return null;
+}
+
+function _adsParseAmount(s){
+  if(!s) return 0;
+  s = String(s).replace(/[Rp\.\s,]/g,'').replace(/[^\d]/g,'');
+  return parseInt(s, 10) || 0;
+}
+
+// Fuzzy match campaign name → produk
+function _adsMatchProdId(campaignName, prods){
+  if(!campaignName) return '';
+  var lower = String(campaignName).toLowerCase();
+  // Exact match
+  for(var i=0; i<prods.length; i++){
+    var name = String(prods[i].name||'').toLowerCase();
+    if(name && lower.indexOf(name) >= 0) return prods[i].id;
+  }
+  // Match by SKU code
+  for(var j=0; j<prods.length; j++){
+    var kode = String(prods[j].kode||'').toLowerCase();
+    if(kode && lower.indexOf(kode) >= 0) return prods[j].id;
+  }
+  // Match by slug
+  for(var k=0; k<prods.length; k++){
+    var slug = String(prods[k].urlSlug||'').toLowerCase();
+    if(slug && lower.indexOf(slug) >= 0) return prods[k].id;
+  }
+  // Match individual words (min 4 chars)
+  var maxScore = 0, bestId = '';
+  for(var l=0; l<prods.length; l++){
+    var words = String(prods[l].name||'').toLowerCase().split(/\s+/).filter(function(w){ return w.length >= 4; });
+    var score = 0;
+    words.forEach(function(w){ if(lower.indexOf(w) >= 0) score++; });
+    if(score > maxScore){ maxScore = score; bestId = prods[l].id; }
+  }
+  return maxScore >= 1 ? bestId : '';
+}
+
+function _adsRenderImportPreview(){
+  var rows = window.__adsImportRows || [];
+  var dateIdx = parseInt(document.getElementById('adsImportColDate').value, 10);
+  var campIdx = parseInt(document.getElementById('adsImportColCampaign').value, 10);
+  var spendIdx = parseInt(document.getElementById('adsImportColSpend').value, 10);
+  var skipTotal = document.getElementById('adsImportSkipTotal').value === 'true';
+  var prods = getProds() || [];
+  var validRows = [];
+  var body = document.getElementById('adsImportPreviewBody');
+  if(isNaN(dateIdx) || isNaN(campIdx) || isNaN(spendIdx)){
+    body.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px">Pilih kolom tanggal, campaign, dan spend dulu</td></tr>';
+    document.getElementById('adsImportConfirmBtn').style.display = 'none';
+    document.getElementById('adsImportRowCount').textContent = '0';
+    return;
+  }
+  var esc = function(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  var prodOpts = '<option value="">-- Skip row --</option>' + prods.map(function(p){
+    return '<option value="'+p.id+'">'+esc(p.name)+'</option>';
+  }).join('');
+  var html = '';
+  rows.forEach(function(r, i){
+    var campRaw = String(r[campIdx]||'').trim();
+    var spendRaw = r[spendIdx];
+    // Skip "Total" row
+    if(skipTotal && /total|grand/i.test(campRaw)) return;
+    var date = _adsParseDate(r[dateIdx]);
+    var spend = _adsParseAmount(spendRaw);
+    if(!date && !campRaw && !spend) return; // Skip fully empty
+    var prodId = _adsMatchProdId(campRaw, prods);
+    var rowStatus = date && spend > 0 && prodId ? 'ok' : (!prodId ? 'nomatch' : 'invalid');
+    validRows.push({date:date, camp:campRaw, spend:spend, prodId:prodId, idx:i});
+    var statusIcon = rowStatus === 'ok' ? '<i class="ti ti-check" style="color:#059669;font-size:12px"></i>' : rowStatus === 'nomatch' ? '<i class="ti ti-alert-triangle" style="color:#F59E0B;font-size:12px" title="Belum match ke produk"></i>' : '<i class="ti ti-x" style="color:#DC2626;font-size:12px"></i>';
+    var dateColor = date ? 'var(--text)' : '#DC2626';
+    var spendColor = spend > 0 ? 'var(--text)' : '#DC2626';
+    html += '<tr style="border-bottom:0.5px solid var(--border)" data-row-idx="'+i+'">' +
+      '<td style="padding:7px 10px;color:'+dateColor+';font-family:monospace">'+statusIcon+' '+esc(date || 'invalid')+'</td>' +
+      '<td style="padding:7px 10px;color:var(--text);font-size:11px">'+esc(campRaw.substring(0, 60))+(campRaw.length > 60 ? '…' : '')+'</td>' +
+      '<td style="text-align:right;padding:7px 10px;color:'+spendColor+';font-family:monospace">'+(spend > 0 ? _v2FmtIDR(spend) : '-')+'</td>' +
+      '<td style="padding:7px 10px"><select data-prodmap="'+i+'" class="input" style="width:100%;font-size:11px;padding:4px 6px" onchange="_adsUpdateRowProd('+i+', this.value)">' + prodOpts.replace('value="'+prodId+'"', 'value="'+prodId+'" selected') + '</select></td>' +
+    '</tr>';
+  });
+  if(!html){
+    body.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px">Tidak ada row valid</td></tr>';
+    document.getElementById('adsImportConfirmBtn').style.display = 'none';
+    document.getElementById('adsImportRowCount').textContent = '0';
+    return;
+  }
+  body.innerHTML = html;
+  window.__adsImportValid = validRows;
+  document.getElementById('adsImportRowCount').textContent = validRows.length;
+  var readyCount = validRows.filter(function(r){ return r.date && r.spend > 0 && r.prodId; }).length;
+  document.getElementById('adsImportConfirmBtn').style.display = readyCount > 0 ? '' : 'none';
+  document.getElementById('adsImportConfirmCount').textContent = readyCount;
+  document.getElementById('adsImportStatus').innerHTML = validRows.length - readyCount > 0
+    ? '<span style="color:#F59E0B"><i class="ti ti-alert-triangle" style="font-size:12px"></i> '+(validRows.length - readyCount)+' row belum siap (missing produk atau data invalid)</span>'
+    : '<span style="color:#059669"><i class="ti ti-check" style="font-size:12px"></i> Semua row siap import</span>';
+}
+
+function _adsUpdateRowProd(rowIdx, prodId){
+  if(!window.__adsImportValid) return;
+  var row = window.__adsImportValid.find(function(r){ return r.idx === rowIdx; });
+  if(row) row.prodId = prodId;
+  // Recalc counts
+  var readyCount = window.__adsImportValid.filter(function(r){ return r.date && r.spend > 0 && r.prodId; }).length;
+  document.getElementById('adsImportConfirmBtn').style.display = readyCount > 0 ? '' : 'none';
+  document.getElementById('adsImportConfirmCount').textContent = readyCount;
+  var total = window.__adsImportValid.length;
+  document.getElementById('adsImportStatus').innerHTML = total - readyCount > 0
+    ? '<span style="color:#F59E0B"><i class="ti ti-alert-triangle" style="font-size:12px"></i> '+(total - readyCount)+' row belum siap</span>'
+    : '<span style="color:#059669"><i class="ti ti-check" style="font-size:12px"></i> Semua row siap import</span>';
+}
+
+function adsConfirmImport(){
+  var valid = (window.__adsImportValid || []).filter(function(r){ return r.date && r.spend > 0 && r.prodId; });
+  if(!valid.length){ toast('⚠️ Tidak ada row valid'); return; }
+  var platform = document.getElementById('adsImportPlatform').value;
+  var list = getAdSpend();
+  var imported = 0;
+  valid.forEach(function(r){
+    // Dedupe: skip kalau tgl+prodId+campaign+spend sama exact
+    var dupe = list.find(function(x){
+      return x.date === r.date && x.prodId == r.prodId && x.amount === r.spend && (x.note||'') === r.camp;
+    });
+    if(dupe) return;
+    list.push({
+      id: 'AS' + Date.now() + Math.floor(Math.random()*10000) + '_' + imported,
+      prodId: parseInt(r.prodId, 10),
+      date: r.date,
+      platform: platform,
+      amount: r.spend,
+      note: r.camp,
+      source: 'import',
+      ts: Date.now()
+    });
+    imported++;
+  });
+  saveAdSpend(list);
+  try {
+    if(fb.configured && typeof syncBulkUpsert === 'function'){
+      syncBulkUpsert('od_ad_spend', list).catch(function(){});
+    }
+  } catch(e){}
+  adsCloseImportModal();
+  adsRenderAll();
+  toast('✅ Import selesai: ' + imported + ' spend rows added' + (valid.length - imported > 0 ? ' · ' + (valid.length - imported) + ' duplicate di-skip' : ''));
 }
 
 function renderLeadsSparkline(leads){
