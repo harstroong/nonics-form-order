@@ -2652,7 +2652,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-07-29-ga4-gads-headscript';
+window.__APP_VERSION = '2026-07-30-debug-tracking';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -3587,6 +3587,8 @@ document.addEventListener('DOMContentLoaded', function(){
             <button class="tn-dropdown-item" onclick="gotoSettingsSection('email')"><i class="ti ti-mail" style="color:#F59E0B"></i> Notifikasi Email</button>
             <button class="tn-dropdown-item" onclick="gotoSettingsSection('team')"><i class="ti ti-users" style="color:#0EA5E9"></i> Tim &amp; Akses</button>
             <button class="tn-dropdown-item" onclick="gotoSettingsSection('sync')"><i class="ti ti-cloud-computing" style="color:#22C55E"></i> Sync &amp; Backup</button>
+            <div class="tn-dropdown-divider"></div>
+            <button class="tn-dropdown-item" onclick="showPanel('debugtrack')"><i class="ti ti-bug" style="color:#8B5CF6"></i> Debug Tracking</button>
             <div class="tn-dropdown-divider"></div>
             <button class="tn-dropdown-item" onclick="gotoSettingsSection('security')"><i class="ti ti-lock" style="color:#EF4444"></i> Keamanan &amp; Password</button>
             <button class="tn-dropdown-item" onclick="gotoSettingsSection('danger')"><i class="ti ti-alert-triangle" style="color:#DC2626"></i> Danger Zone</button>
@@ -5492,7 +5494,10 @@ document.addEventListener('DOMContentLoaded', function(){
             <strong>Priority:</strong> Kalau produk punya pixel sendiri (override di form produk) → pake pixel produk. Kalau kosong → fallback ke global ini.
           </div>
 
-          <button class="btn btn-primary" onclick="saveGlobalPixels()"><i class="ti ti-device-floppy"></i> Simpan Pixel Tracking</button>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-primary" onclick="saveGlobalPixels()"><i class="ti ti-device-floppy"></i> Simpan Pixel Tracking</button>
+            <button class="btn btn-outline" onclick="showPanel('debugtrack')"><i class="ti ti-bug"></i> Verify / Debug Tracking</button>
+          </div>
         </div>
 
         <!-- ═══════════════════════════════════
@@ -5695,6 +5700,93 @@ document.addEventListener('DOMContentLoaded', function(){
             <button class="btn btn-danger" onclick="resetAllData()">🔄 Reset Semua Data</button>
           </div>
         </div>
+      </div>
+
+      <!-- ═══════════════════════════════════
+           DEBUG TRACKING PANEL — verify pixels + events
+      ═══════════════════════════════════ -->
+      <div class="panel" id="panel-debugtrack">
+        <div class="team-header">
+          <div>
+            <div class="team-title"><i class="ti ti-bug" style="vertical-align:-3px;margin-right:5px;color:#8B5CF6"></i>Debug Tracking</div>
+            <div class="team-sub">Verify status pixel + event tracking. Test-fire tanpa buka DevTools.</div>
+          </div>
+          <div class="team-actions-header">
+            <button class="btn-outline-sm" onclick="dbgRefresh()"><i class="ti ti-refresh"></i><span>Refresh Status</span></button>
+          </div>
+        </div>
+
+        <!-- Overall status banner -->
+        <div id="dbgOverallBanner" style="padding:14px 18px;border-radius:12px;margin-bottom:16px;display:flex;align-items:center;gap:12px;background:#F1F5F9;border:1px solid #CBD5E1">
+          <div id="dbgOverallIcon" style="width:40px;height:40px;border-radius:10px;background:#CBD5E1;display:flex;align-items:center;justify-content:center;color:#334155;font-size:18px"><i class="ti ti-loader"></i></div>
+          <div>
+            <div id="dbgOverallTitle" style="font-size:14px;font-weight:600;color:var(--text)">Memuat status tracking...</div>
+            <div id="dbgOverallSub" style="font-size:12px;color:var(--text-muted);margin-top:2px">Cek konfigurasi + runtime script</div>
+          </div>
+        </div>
+
+        <!-- 2-col grid: Config + Runtime -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+
+          <div class="card" style="padding:16px 18px;margin:0">
+            <div class="card-title"><i class="ti ti-settings" style="vertical-align:-3px;margin-right:5px;color:#0EA5E9"></i>Konfigurasi (dari Pengaturan)</div>
+            <div id="dbgConfigList" style="margin-top:10px"></div>
+          </div>
+
+          <div class="card" style="padding:16px 18px;margin:0">
+            <div class="card-title"><i class="ti ti-terminal-2" style="vertical-align:-3px;margin-right:5px;color:#10B981"></i>Runtime (script loaded di page ini)</div>
+            <div id="dbgRuntimeList" style="margin-top:10px"></div>
+          </div>
+
+        </div>
+
+        <!-- Test fire events -->
+        <div class="card">
+          <div class="card-title"><i class="ti ti-flame" style="vertical-align:-3px;margin-right:5px;color:#F59E0B"></i>Test Fire Events</div>
+          <div class="card-sub">Kirim event test manual — cek di Meta Events Manager / TikTok Events / GA4 Realtime.</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-bottom:10px">
+            <button class="btn btn-outline" onclick="dbgFireEvent('fb')" style="justify-content:flex-start"><i class="ti ti-brand-facebook" style="color:#1877F2"></i> Test Meta Pixel</button>
+            <button class="btn btn-outline" onclick="dbgFireEvent('tt')" style="justify-content:flex-start"><i class="ti ti-brand-tiktok"></i> Test TikTok Pixel</button>
+            <button class="btn btn-outline" onclick="dbgFireEvent('gtag')" style="justify-content:flex-start"><i class="ti ti-brand-google-analytics" style="color:#F9AB00"></i> Test gtag event</button>
+            <button class="btn btn-outline" onclick="dbgFireEvent('dl')" style="justify-content:flex-start"><i class="ti ti-tag" style="color:#4285F4"></i> Push dataLayer</button>
+          </div>
+          <div id="dbgFireLog" style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:11.5px;color:var(--text-muted);font-family:monospace;max-height:130px;overflow-y:auto;line-height:1.6">
+            <div style="color:var(--text-muted);font-style:italic">Klik salah satu tombol di atas untuk fire event...</div>
+          </div>
+        </div>
+
+        <!-- Recent dataLayer events -->
+        <div class="card">
+          <div class="card-title"><i class="ti ti-list" style="vertical-align:-3px;margin-right:5px;color:#8B5CF6"></i>Recent dataLayer Events</div>
+          <div class="card-sub">Event terakhir yang di-push ke <code>window.dataLayer</code>. Refresh untuk update.</div>
+          <div id="dbgDataLayerList" style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:11.5px;color:var(--text);font-family:monospace;max-height:200px;overflow-y:auto;line-height:1.6"></div>
+        </div>
+
+        <!-- External verification links -->
+        <div class="card">
+          <div class="card-title"><i class="ti ti-external-link" style="vertical-align:-3px;margin-right:5px;color:#0EA5E9"></i>Verify External (dashboard aslinya)</div>
+          <div class="card-sub">Kalau test event di atas success, cek di sini apakah beneran nyampe ke dashboard tracking-nya.</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin-top:12px">
+            <a href="https://business.facebook.com/events_manager2" target="_blank" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#EBF3FC;border:1px solid #B5D3F5;border-radius:8px;text-decoration:none;color:#0C447C;font-size:12.5px"><i class="ti ti-brand-facebook" style="color:#1877F2;font-size:16px"></i> Meta Events Manager</a>
+            <a href="https://ads.tiktok.com/i18n/events_manager/" target="_blank" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#F5F5F5;border:1px solid #E5E5E5;border-radius:8px;text-decoration:none;color:#171717;font-size:12.5px"><i class="ti ti-brand-tiktok" style="font-size:16px"></i> TikTok Events Manager</a>
+            <a href="https://analytics.google.com/analytics/web/" target="_blank" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#FEF7EC;border:1px solid #FCD9A0;border-radius:8px;text-decoration:none;color:#7A4A0A;font-size:12.5px"><i class="ti ti-brand-google-analytics" style="color:#F9AB00;font-size:16px"></i> GA4 Realtime</a>
+            <a href="https://tagmanager.google.com/" target="_blank" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#EEF3FF;border:1px solid #C7D6FA;border-radius:8px;text-decoration:none;color:#1C3D82;font-size:12.5px"><i class="ti ti-tag" style="color:#4285F4;font-size:16px"></i> GTM Preview Mode</a>
+          </div>
+        </div>
+
+        <!-- Sample embed test -->
+        <div class="card">
+          <div class="card-title"><i class="ti ti-eye-check" style="vertical-align:-3px;margin-right:5px;color:#10B981"></i>Test dengan Produk</div>
+          <div class="card-sub">Buka hosted form salah satu produk untuk verify pixel loaded pada page beneran.</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px">
+            <select id="dbgProdSelect" class="input" style="flex:1;min-width:200px"></select>
+            <button class="btn btn-primary" onclick="dbgOpenProdForm()"><i class="ti ti-external-link"></i> Buka di Tab Baru</button>
+          </div>
+          <div style="margin-top:12px;padding:10px 12px;background:#F0F9FF;border:1px solid #BAE6FD;border-radius:8px;font-size:11.5px;color:#075985;line-height:1.6">
+            <i class="ti ti-info-circle" style="vertical-align:-2px"></i> <strong>Cara verify:</strong> Buka Chrome DevTools (F12) → Network tab → cari <code>fbevents.js</code> / <code>events.js</code> (TikTok) / <code>gtag/js</code>. Kalau muncul = pixel loaded. Terus isi form → cek Console apakah ada error.
+          </div>
+        </div>
+
       </div>
 
     </div><!-- /content -->
@@ -6764,7 +6856,8 @@ var SPA_PANEL_TO_PATH = {
   gtm: '/tracking',
   embed: '/embed',
   cloud: '/cloud-sync',
-  settings: '/settings'
+  settings: '/settings',
+  debugtrack: '/debug-tracking'
 };
 var SPA_PATH_TO_PANEL = {};
 Object.keys(SPA_PANEL_TO_PATH).forEach(function(k){ SPA_PATH_TO_PANEL[SPA_PANEL_TO_PATH[k]] = k; });
@@ -6872,6 +6965,7 @@ function showPanel(name, opts){
   else if(name==='embed')renderEmbedCodes();
   else if(name==='cloud')initCloudPanel();
   else if(name==='settings')initSettings();
+  else if(name==='debugtrack')initDebugTrack();
 }
 function openSidebar(){
   // Legacy stub — sidebar is hidden in topnav v2. Buka drawer mobile instead.
@@ -11363,6 +11457,159 @@ function initSettings(){
 }
 
 // Load Firebase status + data stats untuk Sync & Backup card
+// ═══════════════════════════════════
+// DEBUG TRACKING PANEL
+// ═══════════════════════════════════
+function initDebugTrack(){
+  dbgRefresh();
+  // Populate produk dropdown
+  var sel = document.getElementById('dbgProdSelect');
+  if(sel){
+    var prods = getProds() || [];
+    sel.innerHTML = prods.map(function(p){
+      var slug = p.urlSlug || (typeof dgSlugify === 'function' ? dgSlugify(p.name||'') : '');
+      return '<option value="'+(slug||p.id)+'">'+String(p.name||'Produk').replace(/</g,'&lt;')+'</option>';
+    }).join('');
+    if(!prods.length) sel.innerHTML = '<option value="">-- Belum ada produk --</option>';
+  }
+}
+
+function dbgRefresh(){
+  var cfg = getCfg();
+  // ─── Config status ──
+  var configRows = [
+    { icon:'ti-brand-facebook', color:'#1877F2', label:'Meta Pixel', value:(cfg.globalFbPixel||'').trim() },
+    { icon:'ti-brand-tiktok', color:'#000000', label:'TikTok Pixel', value:(cfg.globalTiktokPixel||'').trim() },
+    { icon:'ti-tag', color:'#4285F4', label:'GTM', value:(cfg.globalGtmId||cfg.gtmId||'').trim() },
+    { icon:'ti-brand-google-analytics', color:'#F9AB00', label:'Google Analytics 4', value:(cfg.globalGaId||'').trim() },
+    { icon:'ti-brand-google', color:'#4285F4', label:'Google Ads', value:(cfg.globalGadsLabel||cfg.convLabel||'').trim() },
+    { icon:'ti-code-dots', color:'#64748B', label:'Custom Head Script', value:(cfg.globalHeadScript||'').trim() ? (cfg.globalHeadScript.length + ' chars') : '' }
+  ];
+  var esc = function(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  var configHtml = configRows.map(function(r){
+    var status = r.value ? '<span style="background:#D1FAE5;color:#065F46;font-size:10px;padding:2px 7px;border-radius:99px;font-weight:600">SET</span>' : '<span style="background:#FEF3C7;color:#78350F;font-size:10px;padding:2px 7px;border-radius:99px">EMPTY</span>';
+    return ''+
+      '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12.5px">' +
+        '<i class="ti '+r.icon+'" style="color:'+r.color+';font-size:15px;width:20px"></i>' +
+        '<div style="flex:1;min-width:0"><div style="color:var(--text)">'+r.label+'</div>' +
+          '<div style="font-size:10.5px;color:var(--text-muted);font-family:monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(r.value?esc(r.value):'—')+'</div>' +
+        '</div>' +
+        status +
+      '</div>';
+  }).join('');
+  document.getElementById('dbgConfigList').innerHTML = configHtml;
+  var configSet = configRows.filter(function(r){return r.value;}).length;
+  // ─── Runtime status ──
+  var runtimeRows = [
+    { name:'window.fbq (Meta)', check:function(){ return typeof window.fbq === 'function'; }, detail:function(){ return window._fbq ? 'v'+(window.fbq.version||'?')+' · '+((window.fbq.queue&&window.fbq.queue.length)||0)+' queued' : ''; } },
+    { name:'window.ttq (TikTok)', check:function(){ return typeof window.ttq === 'object' && !!window.ttq; }, detail:function(){ return window.ttq && window.ttq._i ? Object.keys(window.ttq._i).length+' instance(s)' : ''; } },
+    { name:'window.gtag (GA4/Ads)', check:function(){ return typeof window.gtag === 'function'; }, detail:function(){ return ''; } },
+    { name:'window.dataLayer (GTM)', check:function(){ return Array.isArray(window.dataLayer); }, detail:function(){ return (window.dataLayer||[]).length + ' events'; } },
+    { name:'window.google_tag_manager', check:function(){ return !!window.google_tag_manager; }, detail:function(){ return window.google_tag_manager ? Object.keys(window.google_tag_manager).filter(function(k){return k.startsWith('GTM-');}).join(', ') : ''; } }
+  ];
+  var runtimeHtml = runtimeRows.map(function(r){
+    var loaded = false;
+    var detail = '';
+    try { loaded = r.check(); if(loaded) detail = r.detail(); } catch(e){ loaded = false; }
+    var status = loaded ? '<span style="background:#D1FAE5;color:#065F46;font-size:10px;padding:2px 7px;border-radius:99px;font-weight:600">LOADED</span>' : '<span style="background:#FEE2E2;color:#991B1B;font-size:10px;padding:2px 7px;border-radius:99px">NOT LOADED</span>';
+    return ''+
+      '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12.5px">' +
+        '<div style="flex:1;min-width:0"><div style="color:var(--text);font-family:monospace">'+r.name+'</div>' +
+          '<div style="font-size:10.5px;color:var(--text-muted)">'+esc(detail||'-')+'</div>' +
+        '</div>' +
+        status +
+      '</div>';
+  }).join('');
+  document.getElementById('dbgRuntimeList').innerHTML = runtimeHtml;
+  var runtimeLoaded = runtimeRows.filter(function(r){ try{return r.check();}catch(e){return false;} }).length;
+  // ─── Overall banner ──
+  var totalConf = 6, totalRun = runtimeRows.length;
+  var pctConf = Math.round(configSet/totalConf*100);
+  var banner = document.getElementById('dbgOverallBanner');
+  var iconEl = document.getElementById('dbgOverallIcon');
+  var titleEl = document.getElementById('dbgOverallTitle');
+  var subEl = document.getElementById('dbgOverallSub');
+  if(configSet === 0){
+    banner.style.background = '#FEE2E2'; banner.style.borderColor = '#FCA5A5';
+    iconEl.style.background = '#FEE2E2'; iconEl.style.color = '#991B1B';
+    iconEl.innerHTML = '<i class="ti ti-alert-circle"></i>';
+    titleEl.textContent = 'Belum ada tracking di-set';
+    subEl.textContent = 'Set minimal 1 pixel di Pengaturan → Pixel Tracking';
+  } else if(configSet === totalConf){
+    banner.style.background = '#D1FAE5'; banner.style.borderColor = '#6EE7B7';
+    iconEl.style.background = '#A7F3D0'; iconEl.style.color = '#065F46';
+    iconEl.innerHTML = '<i class="ti ti-circle-check"></i>';
+    titleEl.textContent = 'Semua tracking aktif — '+configSet+'/'+totalConf+' set';
+    subEl.textContent = 'Runtime loaded '+runtimeLoaded+'/'+totalRun+' (loading tergantung apakah lo lagi buka hosted form)';
+  } else {
+    banner.style.background = '#FEF7ED'; banner.style.borderColor = '#FDBA74';
+    iconEl.style.background = '#FED7AA'; iconEl.style.color = '#7C2D12';
+    iconEl.innerHTML = '<i class="ti ti-info-circle"></i>';
+    titleEl.textContent = 'Partial config — '+configSet+'/'+totalConf+' set ('+pctConf+'%)';
+    subEl.textContent = 'Sisa ' + (totalConf-configSet) + ' tracking belum di-set. Runtime loaded '+runtimeLoaded+'/'+totalRun+'.';
+  }
+  // ─── dataLayer events ──
+  dbgRenderDataLayer();
+}
+
+function dbgRenderDataLayer(){
+  var listEl = document.getElementById('dbgDataLayerList');
+  if(!listEl) return;
+  var dl = window.dataLayer || [];
+  if(!dl.length){
+    listEl.innerHTML = '<div style="color:var(--text-muted);font-style:italic">dataLayer kosong. Kalau ada pixel active di page, event bakal muncul di sini.</div>';
+    return;
+  }
+  var last = dl.slice(-15).reverse();
+  listEl.innerHTML = last.map(function(ev, i){
+    var idx = dl.length - i;
+    var eventName = (ev && ev.event) || (Array.isArray(ev) && ev[0]) || 'anonymous';
+    var summary = '';
+    try { summary = JSON.stringify(ev).substring(0, 120); } catch(e){ summary = String(ev); }
+    return '<div style="padding:4px 0;border-bottom:1px dashed var(--border)"><span style="color:var(--text-muted)">#'+idx+'</span> <span style="color:#8B5CF6;font-weight:600">'+eventName+'</span> <span style="color:var(--text-muted);font-size:10.5px">'+summary.replace(/</g,'&lt;')+'</span></div>';
+  }).join('');
+}
+
+function dbgFireEvent(type){
+  var logEl = document.getElementById('dbgFireLog');
+  var log = function(msg, ok){
+    var line = document.createElement('div');
+    line.style.color = ok ? '#059669' : '#DC2626';
+    line.innerHTML = '<span style="color:var(--text-muted)">'+new Date().toLocaleTimeString()+'</span> ' + msg;
+    if(logEl.querySelector('[style*="italic"]')) logEl.innerHTML = '';
+    logEl.insertBefore(line, logEl.firstChild);
+  };
+  try {
+    if(type === 'fb'){
+      if(typeof window.fbq !== 'function'){ log('❌ fbq not loaded — buka hosted form dulu atau set Meta Pixel di Pengaturan', false); return; }
+      window.fbq('track', 'Lead', { content_name:'DEBUG TEST', content_category:'debug', value:0 });
+      log('✅ fbq("track", "Lead", {...}) fired. Cek Meta Events Manager → Test Events.', true);
+    } else if(type === 'tt'){
+      if(!window.ttq || typeof window.ttq.track !== 'function'){ log('❌ ttq not loaded — buka hosted form dulu atau set TikTok Pixel di Pengaturan', false); return; }
+      window.ttq.track('SubmitForm', { content_name:'DEBUG TEST', content_type:'debug' });
+      log('✅ ttq.track("SubmitForm", {...}) fired. Cek TikTok Events Manager.', true);
+    } else if(type === 'gtag'){
+      if(typeof window.gtag !== 'function'){ log('❌ gtag not loaded — set GA4 / Google Ads di Pengaturan atau load via GTM', false); return; }
+      window.gtag('event', 'debug_test', { source:'nonics_debug', value:1 });
+      log('✅ gtag("event", "debug_test", {...}) fired. Cek GA4 Realtime.', true);
+    } else if(type === 'dl'){
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ event:'debug_test', source:'nonics_debug', ts: Date.now() });
+      log('✅ dataLayer.push({event:"debug_test"}) done. Cek GTM Preview mode.', true);
+      dbgRenderDataLayer();
+    }
+  } catch(e){
+    log('❌ Error: ' + e.message, false);
+  }
+}
+
+function dbgOpenProdForm(){
+  var sel = document.getElementById('dbgProdSelect');
+  var val = sel && sel.value;
+  if(!val){ toast('⚠️ Pilih produk dulu'); return; }
+  window.open('/f/' + val + '?debug=1', '_blank');
+}
+
 function refreshSyncStatus(){
   try {
     var statusEl = document.getElementById('stFbStatus');
