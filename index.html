@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-05-analytics-v2';
+window.__APP_VERSION = '2026-08-06-fisik-only';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -3358,23 +3358,23 @@ document.addEventListener('DOMContentLoaded', function(){
 
     <!-- Role tabs -->
     <div class="login-tabs">
-      <button type="button" class="login-tab active" id="loginTabAdmin" onclick="__safeSwitchLoginTab('admin')">📦 Adm. Fisik</button>
-      <button type="button" class="login-tab" id="loginTabAdminDigital" onclick="__safeSwitchLoginTab('adminDigital')">💻 Adm. Digital</button>
+      <button type="button" class="login-tab active" id="loginTabAdmin" onclick="__safeSwitchLoginTab('admin')">📦 Admin</button>
+      <button type="button" class="login-tab" id="loginTabAdminDigital" onclick="__safeSwitchLoginTab('adminDigital')" style="display:none">💻 Adm. Digital</button>
       <button type="button" class="login-tab" id="loginTabCS" onclick="__safeSwitchLoginTab('cs')">💬 CS</button>
       <button type="button" class="login-tab" id="loginTabAd" onclick="__safeSwitchLoginTab('advertiser')" style="display:none">📊 Advertisers</button>
       <button type="button" class="login-tab" id="loginTabCustomer" onclick="__safeSwitchLoginTab('customer')" style="display:none">👤 Customer</button>
     </div>
 
-    <!-- Admin form (original — Admin Fisik) -->
+    <!-- Admin form -->
     <div id="loginAdminForm">
-      <label class="login-label">Password Admin Fisik</label>
+      <label class="login-label">Password Admin</label>
       <div class="pass-wrap">
         <input class="login-input" id="loginPass" type="password" placeholder="Masukkan password..." autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="new-password"/>
         <button type="button" class="pass-eye" onclick="__togglePass('loginPass', this)" title="Lihat password">👁</button>
       </div>
       <div class="login-err" id="loginErr">Password salah. Coba lagi.</div>
-      <button type="button" class="login-btn" onclick="__safeAdminLogin()">Masuk Dashboard Fisik →</button>
-      <div class="login-footer" style="margin-top:10px;font-size:11px">Buat manage produk fisik, COD, dropship.</div>
+      <button type="button" class="login-btn" onclick="__safeAdminLogin()">Masuk Dashboard →</button>
+      <div class="login-footer" style="margin-top:10px;font-size:11px">Manage produk, leads, CS, dan tracking.</div>
     </div>
 
     <!-- Admin Digital form -->
@@ -4326,7 +4326,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 </div>
                 <div class="pfv2-field">
                   <label class="pfv2-label">Klasifikasi Produk</label>
-                  <select class="pfv2-input" id="fKlasifikasi"><option value="fisik">Fisik</option><option value="digital">Digital</option></select>
+                  <select class="pfv2-input" id="fKlasifikasi"><option value="fisik">Fisik</option></select>
                 </div>
               </div>
               <div class="pfv2-row">
