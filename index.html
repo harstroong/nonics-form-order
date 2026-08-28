@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-25-headline-l10n';
+window.__APP_VERSION = '2026-08-26-headline-l10n-fix';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -12285,7 +12285,7 @@ var trustHtml=(cfg.trust||'').split(',').map(function(t){return t.trim()?'<span 
 R.innerHTML='<div style="max-width:420px;margin:0 auto;font-family:Segoe UI,system-ui,sans-serif">'
 +'<div style="background:#fff;border-radius:12px;padding:24px 20px;box-shadow:0 4px 24px rgba(0,0,0,.1)">'
 +'<div id="oo-f${p.id}">'
-+'<p style="font-size:15px;font-weight:600;margin-bottom:18px;line-height:1.5;color:#222">'+(function(){var _h=cfg.headline||'';var _dl='Silahkan Isi Nama & No WhatsApp dibawah\\nAgar Terhubung dengan CS kami :';var _lh=(cfg.l10n&&cfg.l10n.formHeadline)?cfg.l10n.formHeadline:'';var _ch=(cfg.l10n&&cfg.l10n.csHighlight)?cfg.l10n.csHighlight:'CS kami';var _use=_lh&&(!_h||_h===_dl)?_lh:_h;return _use.replace(/\\n/g,'<br>').replace(new RegExp(_ch.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\\\$&'),'g'),'<span style="color:#1b5e20;font-weight:700">'+_ch+'<\\/span>');})()+'<\\/p>'
++'<p style="font-size:15px;font-weight:600;margin-bottom:18px;line-height:1.5;color:#222" id="oo-headline-${p.id}"><\\/p>'
 +'<input id="oo-n${p.id}" type="text" autocomplete="name" placeholder="${esc(phNama)}" oninput="if(this.value.trim()){this.style.borderColor=\\'#e0e0e0\\';var e=document.getElementById(\\'oo-en${p.id}\\');if(e)e.style.display=\\'none\\';}" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box">'
 +'<p id="oo-en${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Nama wajib diisi<\\/p>'
 +'<div id="oo-wwrap${p.id}" style="display:flex;gap:6px;margin-bottom:4px;align-items:stretch">'
@@ -12316,6 +12316,22 @@ ${useKecamatan?`+'<input id="oo-kc${p.id}" type="text" autocomplete="address-lev
 +'<a id="oo-typ-wa-${p.id}" href="#" rel="noopener" style="display:none"><\\/a>'
 +'<\\/div>'
 +'<\\/div><\\/div><\\/div>';
+(function(){
+  var _hEl = document.getElementById('oo-headline-${p.id}');
+  if(!_hEl) return;
+  var _h = cfg.headline || '';
+  var _dl = 'Silahkan Isi Nama & No WhatsApp dibawah\\nAgar Terhubung dengan CS kami :';
+  var _lh = (cfg.l10n && cfg.l10n.formHeadline) ? cfg.l10n.formHeadline : '';
+  var _ch = (cfg.l10n && cfg.l10n.csHighlight) ? cfg.l10n.csHighlight : 'CS kami';
+  var _use = _lh && (!_h || _h === _dl) ? _lh : _h;
+  if(!_use) _use = _dl;
+  var _html = _use.replace(/\\n/g,'<br>');
+  try {
+    var _esc = _ch.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\\\$&');
+    _html = _html.replace(new RegExp(_esc,'g'), '<span style="color:#1b5e20;font-weight:700">'+_ch+'<\\/span>');
+  } catch(_re){}
+  _hEl.innerHTML = _html;
+})();
 var ooSubmitting${p.id}=false;
 window['ooSub${p.id}']=function(){
   if(ooSubmitting${p.id}) return; /* anti double-tap */
@@ -14090,7 +14106,7 @@ var trustHtml=(cfg.trust||'').split(',').map(function(t){return'<span style="fon
 R.innerHTML='<div style="max-width:420px;margin:0 auto;font-family:Segoe UI,system-ui,sans-serif">'
 +'<div style="background:#fff;border-radius:12px;padding:24px 20px;box-shadow:0 4px 24px rgba(0,0,0,.1)">'
 +'<div id="oo-form">'
-+'<p style="font-size:15px;font-weight:600;margin-bottom:18px;line-height:1.5;color:#222">'+(function(){var _h=cfg.headline||'';var _dl='Silahkan Isi Nama & No WhatsApp dibawah\\nAgar Terhubung dengan CS kami :';var _lh=(cfg.l10n&&cfg.l10n.formHeadline)?cfg.l10n.formHeadline:'';var _ch=(cfg.l10n&&cfg.l10n.csHighlight)?cfg.l10n.csHighlight:'CS kami';var _use=_lh&&(!_h||_h===_dl)?_lh:_h;return _use.replace(/\\n/g,'<br>').replace(new RegExp(_ch.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\\\$&'),'g'),'<span style="color:#1b5e20;font-weight:700">'+_ch+'<\\/span>');})()+'<\\/p>'
++'<p style="font-size:15px;font-weight:600;margin-bottom:18px;line-height:1.5;color:#222" id="oo-headline-${p.id}"><\\/p>'
 +'<input id="oo-nm" type="text" autocomplete="name" placeholder="Nama Anda" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box">'
 +'<p id="oo-en" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Nama wajib diisi<\\/p>'
 +'<input id="oo-wa" type="tel" inputmode="numeric" autocomplete="tel" placeholder="No. WhatsApp Anda" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'
