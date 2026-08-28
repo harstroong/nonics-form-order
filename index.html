@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-28-preview-sync';
+window.__APP_VERSION = '2026-08-29-readonly-mode';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -7145,23 +7145,124 @@ async function doLogin(){
   const cfg = getCfg();
   // Trim juga di sisi expected (jaga2 kalau cfg yg ke-save di cloud kebawa whitespace)
   const expected = ((cfg.adminPass || '') + '').trim();
+  const readonlyExpected = ((cfg.readonlyPass || '') + '').trim();
+  var isReadOnly = false;
   if(pass === expected){
-    document.getElementById('loginPass').value='';
-    document.getElementById('loginErr').classList.remove('show');
-    document.getElementById('loginPass').classList.remove('err');
-    setSession('admin');
-    if(typeof unlockAudio === 'function') unlockAudio();
-    if(typeof askNotifPermission === 'function') askNotifPermission();
-    showDashboard();
-  }else{
+    // Full admin
+    window.__readOnly = false;
+    LS.s('od_readonly_mode', false);
+  } else if(readonlyExpected && pass === readonlyExpected){
+    // Read-only mode
+    window.__readOnly = true;
+    LS.s('od_readonly_mode', true);
+    isReadOnly = true;
+  } else {
     document.getElementById('loginErr').classList.add('show');
     document.getElementById('loginPass').classList.add('err');
     document.getElementById('loginPass').focus();
+    return;
   }
+  document.getElementById('loginPass').value='';
+  document.getElementById('loginErr').classList.remove('show');
+  document.getElementById('loginPass').classList.remove('err');
+  setSession('admin');
+  if(typeof unlockAudio === 'function') unlockAudio();
+  if(typeof askNotifPermission === 'function') askNotifPermission();
+  showDashboard();
+  if(isReadOnly) setTimeout(function(){ if(typeof applyReadOnlyMode === 'function') applyReadOnlyMode(); }, 300);
 }
+// ═══════════════════════════════════
+// READ-ONLY MODE
+// ═══════════════════════════════════
+function applyReadOnlyMode(){
+  if(!window.__readOnly) return;
+  document.body.classList.add('readonly-mode');
+  // Show badge di header
+  if(!document.getElementById('readonlyBadge')){
+    var badge = document.createElement('div');
+    badge.id = 'readonlyBadge';
+    badge.style.cssText = 'position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:9999;background:#F59E0B;color:#7C2D12;font-size:11.5px;font-weight:700;padding:5px 14px;border-radius:99px;box-shadow:0 4px 12px rgba(245,158,11,.3);display:flex;align-items:center;gap:6px;letter-spacing:.3px;text-transform:uppercase';
+    badge.innerHTML = '<i class="ti ti-lock" style="font-size:13px"></i> Read-only Mode <button onclick="exitReadOnlyMode()" style="background:rgba(0,0,0,.15);border:none;color:#7C2D12;font-size:10px;padding:2px 7px;border-radius:99px;cursor:pointer;margin-left:5px;font-weight:600">Logout</button>';
+    document.body.appendChild(badge);
+  }
+  // Disable semua button destructive + hide reset danger zone
+  var destructiveSelectors = [
+    'button[onclick*="Reset"]','button[onclick*="Hapus"]','button[onclick*="Delete"]',
+    'button[onclick*="delete"]','button[onclick*="clear"]','button[onclick*="reset"]',
+    '.btn-danger','.pfv2-status-btn[data-status="archived"]',
+    'button[onclick*="Prod"]:not([onclick*="showProd"]):not([onclick*="renderProd"]):not([onclick*="Preview"])'
+  ];
+  // Apply CSS override via injected style tag
+  if(!document.getElementById('readonlyStyles')){
+    var st = document.createElement('style');
+    st.id = 'readonlyStyles';
+    st.textContent = ''
+      + 'body.readonly-mode input:not([type="search"]):not([data-readonly-ok]),'
+      + 'body.readonly-mode textarea:not([data-readonly-ok]),'
+      + 'body.readonly-mode select:not([data-readonly-ok]){'
+      +   'pointer-events:none!important;background:#F1F5F9!important;color:#94A3B8!important;cursor:not-allowed!important;'
+      + '}'
+      + 'body.readonly-mode .btn-danger,'
+      + 'body.readonly-mode [data-st-section="danger"],'
+      + 'body.readonly-mode button[onclick*="reset"],'
+      + 'body.readonly-mode button[onclick*="Reset"],'
+      + 'body.readonly-mode button[onclick*="clearAllLeads"],'
+      + 'body.readonly-mode button[onclick*="clearLeads"],'
+      + 'body.readonly-mode button[onclick*="deleteProd"],'
+      + 'body.readonly-mode button[onclick*="dgDeleteProd"],'
+      + 'body.readonly-mode button[onclick*="removeCS"],'
+      + 'body.readonly-mode button[onclick*="cancelProd"],'
+      + 'body.readonly-mode #btnLoadNewProd,'
+      + 'body.readonly-mode .tn-cta-btn,'
+      + 'body.readonly-mode .pfv2-actions,'
+      + 'body.readonly-mode .prod-toolbar-cta,'
+      + 'body.readonly-mode #btnClearLeads{'
+      +   'display:none!important;'
+      + '}'
+      + 'body.readonly-mode #prodFormCard{'
+      +   'pointer-events:none;opacity:0.85;'
+      + '}'
+      + 'body.readonly-mode #prodFormCard::before{'
+      +   'content:"🔒 Read-only mode — form ini view-only";display:block;background:#FEF3C7;color:#78350F;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600;margin-bottom:12px;text-align:center;'
+      + '}';
+    document.head.appendChild(st);
+  }
+  // Show toast
+  if(typeof toast === 'function') toast('🔒 Login sebagai READ-ONLY. Semua action edit di-disable.');
+}
+
+function exitReadOnlyMode(){
+  window.__readOnly = false;
+  LS.s('od_readonly_mode', false);
+  var b = document.getElementById('readonlyBadge'); if(b) b.remove();
+  var s = document.getElementById('readonlyStyles'); if(s) s.remove();
+  document.body.classList.remove('readonly-mode');
+  // Logout dan balik ke login
+  if(typeof doLogout === 'function') doLogout();
+}
+
+// Auto-restore read-only mode on reload
+(function(){
+  try {
+    var savedReadonly = LS.g('od_readonly_mode', false);
+    if(savedReadonly === true){
+      window.__readOnly = true;
+      document.addEventListener('DOMContentLoaded', function(){
+        setTimeout(function(){ if(typeof applyReadOnlyMode === 'function') applyReadOnlyMode(); }, 500);
+      });
+    }
+  } catch(e){}
+})();
+
 function doLogout(){
   clearSession();
   currentAdUser = null;
+  // Reset read-only state
+  window.__readOnly = false;
+  LS.s('od_readonly_mode', false);
+  var _rb = document.getElementById('readonlyBadge'); if(_rb) _rb.remove();
+  var _rs = document.getElementById('readonlyStyles'); if(_rs) _rs.remove();
+  document.body.classList.remove('readonly-mode');
   // Restore admin sidebar visibility
   document.querySelectorAll('.sb-item').forEach(b => b.style.display='');
   document.getElementById('viewDashboard').classList.remove('show');
