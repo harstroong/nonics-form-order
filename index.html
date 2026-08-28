@@ -26,30 +26,30 @@
   --sb-accent-2:#5B4FD6;
   --sb-w:240px;
 
-  /* Main area — light theme */
-  --bg:#FAFAFA;
+  /* Main area — Warm Friendly light theme */
+  --bg:#FBF8F3;
   --surface:#FFFFFF;
-  --surface-2:#F3F4F6;
-  --border:#E5E5E5;
-  --border-strong:#D4D4D4;
-  --text:#0F0F0F;
-  --text-secondary:#4B5563;
-  --text-muted:#6B7280;
-  --text-tertiary:#9CA3AF;
+  --surface-2:#F5F0E5;
+  --border:#E7E1D6;
+  --border-strong:#D6CFC2;
+  --text:#1F1B16;
+  --text-secondary:#57534E;
+  --text-muted:#78716C;
+  --text-tertiary:#A8A29E;
 
-  --radius:12px;
-  --radius-sm:8px;
-  --radius-lg:14px;
-  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
-  --shadow-lg:0 4px 16px rgba(0,0,0,.08);
+  --radius:14px;
+  --radius-sm:10px;
+  --radius-lg:16px;
+  --shadow:0 1px 3px rgba(31,27,22,.05),0 1px 2px rgba(31,27,22,.03);
+  --shadow-lg:0 8px 24px rgba(31,27,22,.06);
 
-  /* Accent + semantic */
-  --primary:#534AB7;
-  --primary-dark:#3C3489;
-  --primary-light:#EEEDFE;
-  --primary-soft:rgba(83,74,183,.1);
-  --accent:#8B7CF6;
-  --accent-soft:rgba(139,124,246,.1);
+  /* Accent + semantic — Warm coral default */
+  --primary:#FF6B4A;
+  --primary-dark:#E65538;
+  --primary-light:#FEE4D3;
+  --primary-soft:rgba(255,107,74,.1);
+  --accent:#FF6B4A;
+  --accent-soft:rgba(255,107,74,.08);
 
   --green:#16A34A;
   --green-light:#DCFCE7;
@@ -2652,7 +2652,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-07-30-debug-tracking';
+window.__APP_VERSION = '2026-07-31-warm-friendly-theme';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -3865,7 +3865,7 @@ document.addEventListener('DOMContentLoaded', function(){
         <!-- Header gede (sama style sama Leads) -->
         <div class="team-header">
           <div>
-            <div class="team-title">Overview</div>
+            <div class="team-title" id="overviewGreeting">Selamat datang <span id="overviewGreetingIcon" style="font-size:20px">👋</span></div>
             <div class="team-sub" id="overviewHeaderSub">Aktivitas dashboard real-time</div>
           </div>
           <div class="team-actions-header">
@@ -7234,6 +7234,20 @@ function renderOverview(){
   let leads=getLeads();
   const cfg=getCfg();
   let prods=getProds();
+  // Personal greeting berdasarkan waktu + nama toko
+  try {
+    var h = new Date().getHours();
+    var greet, emoji;
+    if(h < 11){ greet = 'Selamat pagi'; emoji = '☀️'; }
+    else if(h < 15){ greet = 'Selamat siang'; emoji = '🌤️'; }
+    else if(h < 18){ greet = 'Selamat sore'; emoji = '🌇'; }
+    else { greet = 'Selamat malam'; emoji = '🌙'; }
+    var greetEl = document.getElementById('overviewGreeting');
+    var iconEl = document.getElementById('overviewGreetingIcon');
+    var storeName = cfg.storeName || 'Bos';
+    if(greetEl){ greetEl.childNodes[0].nodeValue = greet + ', ' + storeName + ' '; }
+    if(iconEl) iconEl.textContent = emoji;
+  } catch(e){}
   // Advertiser: hitung cuma produk + leads miliknya
   if(currentAdUser){
     prods = prods.filter(p => p.ownerRole === 'advertiser' && p.ownerId === currentAdUser.id);
