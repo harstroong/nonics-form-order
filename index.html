@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-03-today-marker-fix';
+window.__APP_VERSION = '2026-08-04-day-click-bubble-fix';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -3704,21 +3704,21 @@ document.addEventListener('DOMContentLoaded', function(){
           <span id="datePickerLabel">Hari ini</span>
           <i class="ti ti-chevron-down chev"></i>
         </button>
-        <div class="date-picker-popover" id="datePickerPopover">
+        <div class="date-picker-popover" id="datePickerPopover" onclick="event.stopPropagation()">
           <div class="dp-body">
             <div class="dp-sidebar">
-              <button type="button" class="dp-preset" data-dppreset="yesterday" onclick="dpSelectPreset('yesterday')">Kemarin</button>
-              <button type="button" class="dp-preset active" data-dppreset="today" onclick="dpSelectPreset('today')">Hari ini</button>
-              <button type="button" class="dp-preset" data-dppreset="3d" onclick="dpSelectPreset('3d')">3 Hari Terakhir</button>
-              <button type="button" class="dp-preset" data-dppreset="7d" onclick="dpSelectPreset('7d')">7 Hari Terakhir</button>
-              <button type="button" class="dp-preset" data-dppreset="14d" onclick="dpSelectPreset('14d')">14 Hari Terakhir</button>
-              <button type="button" class="dp-preset" data-dppreset="30d" onclick="dpSelectPreset('30d')">30 Hari Terakhir</button>
-              <button type="button" class="dp-preset" data-dppreset="90d" onclick="dpSelectPreset('90d')">90 Hari Terakhir</button>
-              <button type="button" class="dp-preset" data-dppreset="thismonth" onclick="dpSelectPreset('thismonth')">Bulan ini</button>
-              <button type="button" class="dp-preset" data-dppreset="lastmonth" onclick="dpSelectPreset('lastmonth')">Bulan lalu</button>
-              <button type="button" class="dp-preset" data-dppreset="thisyear" onclick="dpSelectPreset('thisyear')">Tahun ini</button>
-              <button type="button" class="dp-preset" data-dppreset="lastyear" onclick="dpSelectPreset('lastyear')">Tahun lalu</button>
-              <button type="button" class="dp-preset" data-dppreset="all" onclick="dpSelectPreset('all')">Semua Waktu</button>
+              <button type="button" class="dp-preset" data-dppreset="yesterday" onclick="event.stopPropagation();dpSelectPreset('yesterday')">Kemarin</button>
+              <button type="button" class="dp-preset active" data-dppreset="today" onclick="event.stopPropagation();dpSelectPreset('today')">Hari ini</button>
+              <button type="button" class="dp-preset" data-dppreset="3d" onclick="event.stopPropagation();dpSelectPreset('3d')">3 Hari Terakhir</button>
+              <button type="button" class="dp-preset" data-dppreset="7d" onclick="event.stopPropagation();dpSelectPreset('7d')">7 Hari Terakhir</button>
+              <button type="button" class="dp-preset" data-dppreset="14d" onclick="event.stopPropagation();dpSelectPreset('14d')">14 Hari Terakhir</button>
+              <button type="button" class="dp-preset" data-dppreset="30d" onclick="event.stopPropagation();dpSelectPreset('30d')">30 Hari Terakhir</button>
+              <button type="button" class="dp-preset" data-dppreset="90d" onclick="event.stopPropagation();dpSelectPreset('90d')">90 Hari Terakhir</button>
+              <button type="button" class="dp-preset" data-dppreset="thismonth" onclick="event.stopPropagation();dpSelectPreset('thismonth')">Bulan ini</button>
+              <button type="button" class="dp-preset" data-dppreset="lastmonth" onclick="event.stopPropagation();dpSelectPreset('lastmonth')">Bulan lalu</button>
+              <button type="button" class="dp-preset" data-dppreset="thisyear" onclick="event.stopPropagation();dpSelectPreset('thisyear')">Tahun ini</button>
+              <button type="button" class="dp-preset" data-dppreset="lastyear" onclick="event.stopPropagation();dpSelectPreset('lastyear')">Tahun lalu</button>
+              <button type="button" class="dp-preset" data-dppreset="all" onclick="event.stopPropagation();dpSelectPreset('all')">Semua Waktu</button>
             </div>
             <div class="dp-cals">
               <div class="dp-cals-nav">
@@ -17116,7 +17116,7 @@ function dpRenderMonth(elId, year, month){
       if(dayMs === re) cls += ' range-end';
       if(dayMs > rs && dayMs < re) cls += ' in-range';
     }
-    html += '<div class="'+cls+'" onclick="dpClickDay('+year+','+month+','+d+')">'+d+'</div>';
+    html += '<div class="'+cls+'" onclick="event.stopPropagation();dpClickDay('+year+','+month+','+d+')">'+d+'</div>';
   }
   el.innerHTML = html;
 }
