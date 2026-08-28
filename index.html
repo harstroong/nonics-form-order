@@ -469,13 +469,17 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 .dp-cals-row{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 .dp-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;font-size:12px}
 .dp-cal-dow{text-align:center;padding:6px 2px;color:var(--text-muted);font-size:10.5px;font-weight:500;text-transform:uppercase;letter-spacing:.3px}
-.dp-cal-day{text-align:center;padding:7px 2px;color:var(--text);cursor:pointer;border-radius:5px;transition:background .1s;font-weight:500}
+.dp-cal-day{text-align:center;padding:7px 2px;color:var(--text);cursor:pointer;border-radius:5px;transition:background .1s;font-weight:500;position:relative}
 .dp-cal-day:hover:not(.disabled):not(.empty){background:var(--surface-2)}
 .dp-cal-day.empty{cursor:default;color:transparent}
 .dp-cal-day.weekend{color:#DC2626}
-.dp-cal-day.today{background:var(--primary);color:#fff;font-weight:600}
+/* Today marker: ring bawah dot, bukan fill (biar gak conflict sama range) */
+.dp-cal-day.today{background:transparent;color:var(--primary);font-weight:700}
+.dp-cal-day.today::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--primary)}
 .dp-cal-day.in-range{background:var(--primary-soft);color:var(--primary);border-radius:0}
-.dp-cal-day.range-start,.dp-cal-day.range-end{background:var(--primary);color:#fff;font-weight:600}
+.dp-cal-day.in-range.today{color:var(--primary)}
+.dp-cal-day.range-start,.dp-cal-day.range-end{background:var(--primary)!important;color:#fff!important;font-weight:600}
+.dp-cal-day.range-start.today::after,.dp-cal-day.range-end.today::after{background:#fff}
 .dp-cal-day.range-start{border-radius:5px 0 0 5px}
 .dp-cal-day.range-end{border-radius:0 5px 5px 0}
 .dp-cal-day.range-start.range-end{border-radius:5px}
@@ -2652,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-02-calendar-click-ux';
+window.__APP_VERSION = '2026-08-03-today-marker-fix';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
