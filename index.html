@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-18-field-preset-persist';
+window.__APP_VERSION = '2026-08-19-typ-preset-multilang';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -4781,9 +4781,19 @@ document.addEventListener('DOMContentLoaded', function(){
               <div id="fSuccessPageCustomBox" style="display:none;margin-top:12px;padding-top:12px;border-top:1px dashed var(--border)">
                 <div class="pfv2-hint" style="margin-bottom:10px"><i class="ti ti-edit" style="font-size:14px;color:var(--primary);vertical-align:-2px"></i> Kustomisasi teks Thank You Page. Variabel: <code>{nama}</code> <code>{produk}</code></div>
 
-                <!-- Preset buttons -->
+                <!-- Preset buttons + bahasa selector -->
                 <div class="pfv2-field">
                   <label class="pfv2-label">Quick Preset (klik untuk auto-fill)</label>
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;padding:8px 10px;background:#F0F9FF;border:1px solid #BAE6FD;border-radius:8px">
+                    <i class="ti ti-language" style="color:#0369A1;font-size:14px"></i>
+                    <span style="font-size:11.5px;color:#075985;font-weight:600">Bahasa:</span>
+                    <select id="fTypPresetLang" style="flex:1;padding:4px 8px;font-size:11.5px;border:1px solid #CBD5E1;border-radius:5px;background:#fff;cursor:pointer" onchange="window.__typPresetLang=this.value">
+                      <option value="id">🇮🇩 Indonesia</option>
+                      <option value="my">🇲🇾 Bahasa Malaysia</option>
+                      <option value="en">🇸🇬 English (SG/Global)</option>
+                      <option value="th">🇹🇭 Thailand</option>
+                    </select>
+                  </div>
                   <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
                     <button type="button" class="pfv2-status-btn" onclick="applyTypPreset('cs')" style="font-size:11.5px;padding:8px"><i class="ti ti-headset" style="font-size:13px;vertical-align:-2px"></i> CS Follow-up</button>
                     <button type="button" class="pfv2-status-btn" onclick="applyTypPreset('cod')" style="font-size:11.5px;padding:8px"><i class="ti ti-truck-delivery" style="font-size:13px;vertical-align:-2px"></i> COD Ready-to-Ship</button>
@@ -10866,6 +10876,11 @@ function showProdForm(id){
     setV('fSuccessMsg', p.successMsg);
     setV('fSuccessEta', p.successEta);
     setChk('fSuccessShowSummary', p.successShowSummary !== false);
+    // Default preset language mengikuti country produk (auto set)
+    var _typLang = window.COUNTRY_TO_LANG ? (window.COUNTRY_TO_LANG[String(p.country||'62')] || 'id') : 'id';
+    window.__typPresetLang = _typLang;
+    var _typLangEl = document.getElementById('fTypPresetLang');
+    if(_typLangEl) _typLangEl.value = _typLang;
     onSuccessActionChange();
 
     // Section 20 — Embed
@@ -11375,18 +11390,37 @@ function renumberProdSections(){
   });
 }
 
+window.TYP_PRESETS = {
+  id: {
+    cs:  { title:'Pesanan Diterima!', msg:'Terima kasih {nama}! Data pesanan {produk} udah masuk ke sistem kami. CS bakal hubungi kamu via WhatsApp untuk konfirmasi.', eta:'5-10 menit' },
+    cod: { title:'Pesanan Berhasil!', msg:'Terima kasih {nama}! Pesanan {produk} sudah kami terima dan sedang diproses. Barang akan dikirim COD ke alamat kamu — bayar setelah barang sampai. Siap-siap ya!', eta:'Estimasi kirim: 1-2 hari kerja' }
+  },
+  my: {
+    cs:  { title:'Pesanan Diterima!', msg:'Terima kasih {nama}! Pesanan {produk} sudah kami terima. CS kami akan hubungi anda melalui WhatsApp untuk pengesahan sebentar lagi.', eta:'5-10 minit' },
+    cod: { title:'Pesanan Berjaya!', msg:'Terima kasih {nama}! Pesanan {produk} sudah diproses. Barang akan dihantar COD ke alamat anda — bayar semasa terima. Sila bersedia ya!', eta:'Anggaran penghantaran: 1-3 hari bekerja' }
+  },
+  en: {
+    cs:  { title:'Order Received!', msg:'Thank you {nama}! Your order for {produk} has been received. Our CS will contact you via WhatsApp shortly for confirmation.', eta:'5-10 minutes' },
+    cod: { title:'Order Confirmed!', msg:'Thank you {nama}! Your order for {produk} is being processed. Item will be shipped COD to your address — pay upon delivery. Get ready!', eta:'Estimated delivery: 1-2 business days' }
+  },
+  th: {
+    cs:  { title:'ได้รับคำสั่งซื้อแล้ว!', msg:'ขอบคุณ {nama} คำสั่งซื้อของ {produk} ได้รับแล้ว ทีม CS จะติดต่อคุณทาง WhatsApp เพื่อยืนยันเร็วๆ นี้', eta:'5-10 นาที' },
+    cod: { title:'สั่งซื้อสำเร็จ!', msg:'ขอบคุณ {nama} คำสั่งซื้อของ {produk} กำลังดำเนินการ สินค้าจะจัดส่งแบบเก็บเงินปลายทาง — ชำระเมื่อได้รับสินค้า เตรียมพร้อมเลย!', eta:'ประมาณการจัดส่ง: 1-2 วันทำการ' }
+  }
+};
+
 function applyTypPreset(kind){
   var setV = function(id, v){ var el=document.getElementById(id); if(el){ el.value = v; } };
-  if(kind === 'cs'){
-    setV('fSuccessTitle', 'Pesanan Diterima!');
-    setV('fSuccessMsg', 'Terima kasih {nama}! Data pesanan {produk} udah masuk ke sistem kami. CS bakal hubungi kamu via WhatsApp untuk konfirmasi.');
-    setV('fSuccessEta', '5-10 menit');
-  } else if(kind === 'cod'){
-    setV('fSuccessTitle', 'Pesanan Berhasil!');
-    setV('fSuccessMsg', 'Terima kasih {nama}! Pesanan {produk} sudah kami terima dan sedang diproses. Barang akan dikirim COD ke alamat kamu — bayar setelah barang sampai. Siap-siap ya!');
-    setV('fSuccessEta', 'Estimasi kirim: 1-2 hari kerja');
-  }
-  toast('✅ Preset '+kind.toUpperCase()+' di-apply. Klik Simpan.');
+  var langSel = document.getElementById('fTypPresetLang');
+  var lang = window.__typPresetLang || (langSel ? langSel.value : 'id') || 'id';
+  var langBundle = window.TYP_PRESETS[lang] || window.TYP_PRESETS.id;
+  var preset = langBundle[kind];
+  if(!preset) return;
+  setV('fSuccessTitle', preset.title);
+  setV('fSuccessMsg', preset.msg);
+  setV('fSuccessEta', preset.eta);
+  var langLbl = { id:'Indonesia', my:'Malaysia', en:'English', th:'Thailand' }[lang] || lang;
+  toast('✅ Preset ' + kind.toUpperCase() + ' (' + langLbl + ') di-apply. Klik Simpan.');
 }
 
 /* ═════════════════════════════════════════════
