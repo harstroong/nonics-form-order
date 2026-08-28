@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-22-typ-summary-debug';
+window.__APP_VERSION = '2026-08-23-typ-summary-wanorm';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -12438,7 +12438,7 @@ window['ooSub${p.id}']=function(){
           var _statusText = _statusMap[_langKey] || 'PROCESSING';
           var _totalMap = {id:'Total',my:'Jumlah',en:'Total',th:'Total'};
           var _totalText = _totalMap[_langKey] || 'Total';
-          var _custWaShow = custWaNorm || wa || '-';
+          var _custWaShow = normWa(wa, cc) || wa || '-';
           var _fmtPrice = function(n, curCode){
             var symMap = {IDR:'Rp',MYR:'RM',SGD:'S$',BND:'B$',THB:'\\u0e3f',PHP:'\\u20b1',USD:'$'};
             var locMap = {IDR:'id-ID',MYR:'ms-MY',SGD:'en-SG',BND:'ms-BN',THB:'th-TH',PHP:'en-PH',USD:'en-US'};
