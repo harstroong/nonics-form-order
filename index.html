@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-20-typ-summary-pro';
+window.__APP_VERSION = '2026-08-21-typ-summary-fix';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -12429,47 +12429,61 @@ window['ooSub${p.id}']=function(){
       if(cfg.successShowSummary === false){
         _typSum.style.display = 'none';
       } else {
-        var _L = cfg.l10n || {};
-        var _statusLbl = { id:'DIPROSES', my:'DIPROSES', en:'PROCESSING', th:'กำลังดำเนินการ' };
-        var _totalLbl = { id:'Total', my:'Jumlah', en:'Total', th:'รวม' };
-        var _langKey = (cfg.country && {'62':'id','60':'my','673':'my','65':'en','66':'th','63':'en'}[cfg.country]) || 'id';
-        var _statusText = _statusLbl[_langKey] || 'PROCESSING';
-        var _totalText = _totalLbl[_langKey] || 'Total';
-        var _custWaDisplay = wa || '-';
-        var _custWaHref = 'https://wa.me/'+custWaNorm;
-        var _fmtPrice = function(n, curCode){
-          try {
-            var cur = { IDR:{s:'Rp',l:'id-ID',d:0}, MYR:{s:'RM',l:'ms-MY',d:2}, SGD:{s:'S$',l:'en-SG',d:2}, BND:{s:'B$',l:'ms-BN',d:2}, THB:{s:'฿',l:'th-TH',d:0}, PHP:{s:'₱',l:'en-PH',d:2}, USD:{s:'$',l:'en-US',d:2} }[curCode] || {s:'Rp',l:'id-ID',d:0};
-            return cur.s + ' ' + (parseFloat(n)||0).toLocaleString(cur.l, {minimumFractionDigits:cur.d, maximumFractionDigits:cur.d});
-          } catch(e){ return 'Rp ' + n; }
-        };
-        var _invNo = 'INV-' + String(cfg.productId||'').substring(String(cfg.productId||'').length-4) + '-' + String(Date.now()).slice(-6);
-        var _priceStr = cfg.prodPrice > 0 ? _fmtPrice(cfg.prodPrice, cfg.currency||'IDR') : '';
-        var _prodImgHtml = cfg.prodImg
-          ? '<img src="'+cfg.prodImg+'" style="width:100%;height:100%;object-fit:cover" alt=""/>'
-          : '<i class="ti ti-package" style="font-size:20px;color:#94A3B8"></i>';
-        var _sum = ''+
-          '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:10px;border-bottom:1px dashed #D1D5DB">' +
-            '<div>' +
-              '<div style="font-size:9.5px;color:#6B7280;text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:2px">'+(_L.sumProduk?'No. '+_L.sumProduk:'Order ID')+'</div>' +
-              '<div style="font-size:12px;color:#111827;font-weight:600;font-family:\\'SF Mono\\',Menlo,monospace">#'+_invNo+'</div>' +
-            '</div>' +
-            '<span style="background:#DBEAFE;color:#1E40AF;font-size:9.5px;padding:3px 9px;border-radius:99px;font-weight:700;letter-spacing:.3px">'+_statusText+'</span>' +
-          '</div>' +
-          '<div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px dashed #D1D5DB;margin-bottom:12px">' +
-            '<div style="width:44px;height:44px;background:#F1F5F9;border-radius:8px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center">'+_prodImgHtml+'</div>' +
-            '<div style="flex:1;min-width:0;text-align:left">' +
-              '<div style="font-size:9.5px;color:#9CA3AF;text-transform:uppercase;letter-spacing:.4px;font-weight:600">'+(_L.sumProduk||'Produk')+'</div>' +
-              '<div style="font-size:12.5px;color:#111827;font-weight:600;line-height:1.3;margin-top:1px">'+(cfg.prodName||cfg.produkWA||'-')+'</div>' +
-            '</div>' +
-            (_priceStr ? '<div style="text-align:right;flex-shrink:0"><div style="font-size:9.5px;color:#9CA3AF;text-transform:uppercase;letter-spacing:.4px;font-weight:600">'+_totalText+'</div><div style="font-size:13px;color:#DC2626;font-weight:700;font-family:\\'SF Mono\\',Menlo,monospace">'+_priceStr+'</div></div>' : '') +
-          '</div>' +
-          '<div style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:#374151;text-align:left">' +
-            '<div style="display:flex;align-items:center;gap:8px"><i class="ti ti-user" style="color:#6B7280;font-size:14px;width:16px"></i><span style="color:#111827;font-weight:500">'+(nm||'-')+'</span></div>' +
-            '<div style="display:flex;align-items:center;gap:8px"><i class="ti ti-brand-whatsapp" style="color:#25D366;font-size:14px;width:16px"></i><a href="'+_custWaHref+'" target="_blank" style="color:#059669;text-decoration:none;font-weight:500">+'+custWaNorm+'</a></div>' +
-            ((al||kt||kc) ? '<div style="display:flex;align-items:flex-start;gap:8px"><i class="ti ti-map-pin" style="color:#6B7280;font-size:14px;width:16px;margin-top:2px"></i><div style="flex:1;line-height:1.5"><div>'+(al||'')+'</div>'+((kt||kc) ? '<div style="color:#6B7280;font-size:11px;margin-top:1px">'+[kt,kc].filter(Boolean).join(' · ')+'</div>' : '')+'</div></div>' : '') +
-          '</div>';
-        _typSum.innerHTML = _sum;
+        try {
+          var _L = cfg.l10n || {};
+          var _langKey = (cfg.country && ({62:'id',60:'my',673:'my',65:'en',66:'th',63:'en'})[cfg.country]) || 'id';
+          var _statusText = ({id:'DIPROSES',my:'DIPROSES',en:'PROCESSING',th:'PROCESSING'})[_langKey] || 'PROCESSING';
+          var _totalText = ({id:'Total',my:'Jumlah',en:'Total',th:'Total'})[_langKey] || 'Total';
+          var _custWaShow = custWaNorm || wa || '-';
+          var _fmtPrice = function(n, curCode){
+            var symMap = {IDR:'Rp',MYR:'RM',SGD:'S$',BND:'B$',THB:'฿',PHP:'₱',USD:'$'};
+            var locMap = {IDR:'id-ID',MYR:'ms-MY',SGD:'en-SG',BND:'ms-BN',THB:'th-TH',PHP:'en-PH',USD:'en-US'};
+            var dMap = {IDR:0,MYR:2,SGD:2,BND:2,THB:0,PHP:2,USD:2};
+            var s = symMap[curCode]||'Rp', l = locMap[curCode]||'id-ID', d = (dMap[curCode]!=null?dMap[curCode]:0);
+            try { return s+' '+(parseFloat(n)||0).toLocaleString(l,{minimumFractionDigits:d,maximumFractionDigits:d}); }
+            catch(e){ return s+' '+n; }
+          };
+          var _invNo = 'INV-'+String(cfg.productId||'0').slice(-4)+'-'+String(Date.now()).slice(-6);
+          var _priceStr = cfg.prodPrice > 0 ? _fmtPrice(cfg.prodPrice, cfg.currency||'IDR') : '';
+          var _prodImgHtml = cfg.prodImg
+            ? '<img src="'+cfg.prodImg+'" style="width:100%;height:100%;object-fit:cover" alt=""/>'
+            : '<i class="ti ti-package" style="font-size:20px;color:#94A3B8"></i>';
+          var _sum = '';
+          _sum += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:10px;border-bottom:1px dashed #D1D5DB">';
+          _sum += '<div>';
+          _sum += '<div style="font-size:9.5px;color:#6B7280;text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:2px">Order ID</div>';
+          _sum += '<div style="font-size:12px;color:#111827;font-weight:600;font-family:monospace">#'+_invNo+'</div>';
+          _sum += '</div>';
+          _sum += '<span style="background:#DBEAFE;color:#1E40AF;font-size:9.5px;padding:3px 9px;border-radius:99px;font-weight:700;letter-spacing:.3px">'+_statusText+'</span>';
+          _sum += '</div>';
+          _sum += '<div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px dashed #D1D5DB;margin-bottom:12px">';
+          _sum += '<div style="width:44px;height:44px;background:#F1F5F9;border-radius:8px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center">'+_prodImgHtml+'</div>';
+          _sum += '<div style="flex:1;min-width:0;text-align:left">';
+          _sum += '<div style="font-size:9.5px;color:#9CA3AF;text-transform:uppercase;letter-spacing:.4px;font-weight:600">'+(_L.sumProduk||'Produk')+'</div>';
+          _sum += '<div style="font-size:12.5px;color:#111827;font-weight:600;line-height:1.3;margin-top:1px">'+(cfg.prodName||cfg.produkWA||'-')+'</div>';
+          _sum += '</div>';
+          if(_priceStr){
+            _sum += '<div style="text-align:right;flex-shrink:0">';
+            _sum += '<div style="font-size:9.5px;color:#9CA3AF;text-transform:uppercase;letter-spacing:.4px;font-weight:600">'+_totalText+'</div>';
+            _sum += '<div style="font-size:13px;color:#DC2626;font-weight:700;font-family:monospace">'+_priceStr+'</div>';
+            _sum += '</div>';
+          }
+          _sum += '</div>';
+          _sum += '<div style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:#374151;text-align:left">';
+          _sum += '<div style="display:flex;align-items:center;gap:8px"><i class="ti ti-user" style="color:#6B7280;font-size:14px;width:16px"></i><span style="color:#111827;font-weight:500">'+(nm||'-')+'</span></div>';
+          _sum += '<div style="display:flex;align-items:center;gap:8px"><i class="ti ti-brand-whatsapp" style="color:#25D366;font-size:14px;width:16px"></i><a href="https://wa.me/'+_custWaShow+'" target="_blank" style="color:#059669;text-decoration:none;font-weight:500">+'+_custWaShow+'</a></div>';
+          if(al||kt||kc){
+            _sum += '<div style="display:flex;align-items:flex-start;gap:8px"><i class="ti ti-map-pin" style="color:#6B7280;font-size:14px;width:16px;margin-top:2px"></i><div style="flex:1;line-height:1.5">';
+            if(al) _sum += '<div>'+al+'</div>';
+            if(kt||kc) _sum += '<div style="color:#6B7280;font-size:11px;margin-top:1px">'+[kt,kc].filter(Boolean).join(' · ')+'</div>';
+            _sum += '</div></div>';
+          }
+          _sum += '</div>';
+          _typSum.innerHTML = _sum;
+        } catch(_e){
+          console.error('summary render error:', _e);
+          _typSum.innerHTML = '<div><b>'+(_L.sumProduk||'Produk')+':</b> '+(cfg.prodName||'-')+'</div><div><b>'+(_L.sumNama||'Nama')+':</b> '+(nm||'-')+'</div><div><b>'+(_L.sumWA||'WhatsApp')+':</b> '+(wa||'-')+'</div>'+(al?'<div><b>'+(_L.sumAlamat||'Alamat')+':</b> '+al+'</div>':'')+(kt?'<div><b>'+(_L.sumKota||'Kota')+':</b> '+kt+'</div>':'')+(kc?'<div><b>'+(_L.sumKecamatan||'Kecamatan')+':</b> '+kc+'</div>':'');
+        }
       }
     }
     /* ETA custom — raw text (no CS prefix) */
