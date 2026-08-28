@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-27-headline-l10n-final';
+window.__APP_VERSION = '2026-08-28-preview-sync';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -11809,18 +11809,65 @@ function updatePfv2Preview(){
   var warrantyLbl = gv('fWarrantyLabel') || '100% Jaminan Kepuasan';
   var sectionTitle = gv('fSectionTitle');
   var template = gv('fTemplate') || 'none';
+  var currency = gv('fCurrency') || 'IDR';
+  var country = gv('fCountry') || '62';
+  var freeOngkir = gc('fFreeOngkir');
+  // L10n bundle for preview matches live embed
+  var _prev_l10n = (window.HOSTED_L10N && window.getL10n) ? window.getL10n({country: country}) : {ctaBuy:'Beli', freeOngkir:'Gratis Ongkir'};
+
+  // Helper — format currency dengan symbol from map
+  var _fmtCur = function(n, cur){
+    if(!window.CURRENCY_MAP) return 'Rp ' + n;
+    var c = window.CURRENCY_MAP[cur] || window.CURRENCY_MAP.IDR;
+    var num = parseFloat(String(n).replace(/[^0-9.]/g,'')) || 0;
+    if(!num) return c.symbol + c.space + '0';
+    try { return c.symbol + c.space + num.toLocaleString(c.locale, {minimumFractionDigits:c.decimals, maximumFractionDigits:c.decimals}); }
+    catch(e){ return c.symbol + c.space + num; }
+  };
 
   // Basic fields
   var elName = document.getElementById('pvName'); if(elName) elName.textContent = name;
   var elPrice = document.getElementById('pvPrice');
-  if(elPrice){ elPrice.textContent = price ? (price.indexOf('Rp')>=0 ? price : 'Rp '+price) : 'Rp 0'; }
+  if(elPrice){ elPrice.textContent = _fmtCur(price, currency); }
   var elPriceNormal = document.getElementById('pvPriceNormal');
   if(elPriceNormal){
-    if(hargaNormal){ elPriceNormal.textContent = hargaNormal.indexOf('Rp')>=0 ? hargaNormal : 'Rp '+hargaNormal; elPriceNormal.style.display = ''; }
+    if(hargaNormal){ elPriceNormal.textContent = _fmtCur(hargaNormal, currency); elPriceNormal.style.display = ''; }
     else elPriceNormal.style.display = 'none';
   }
   var elBtn = document.getElementById('pvBtn');
-  if(elBtn){ elBtn.textContent = btnText; elBtn.style.background = btnColor; }
+  if(elBtn){
+    // Sync CTA text dengan live (Beli · Rp X)
+    var buyLbl = (_prev_l10n && _prev_l10n.ctaBuy) || 'Beli';
+    var priceNum = parseFloat(String(price).replace(/[^0-9.]/g,'')) || 0;
+    if(priceNum > 0){
+      elBtn.innerHTML = '🛒 ' + buyLbl + ' · ' + _fmtCur(price, currency);
+    } else {
+      elBtn.textContent = btnText;
+    }
+    elBtn.style.background = '#DC2626';
+    elBtn.style.color = '#fff';
+    elBtn.style.borderRadius = '10px';
+  }
+  // Show Free Ongkir badge di preview kalau enabled
+  var elOngkir = document.getElementById('pvOngkir');
+  if(!elOngkir && elPrice){
+    // Auto-insert badge kalau belum ada
+    var wrap = elPrice.parentElement;
+    if(wrap){
+      elOngkir = document.createElement('div');
+      elOngkir.id = 'pvOngkir';
+      elOngkir.style.cssText = 'display:none;margin-top:4px;background:#D1FAE5;color:#065F46;font-size:10px;padding:2px 7px;border-radius:99px;font-weight:600;display:inline-block';
+      wrap.appendChild(elOngkir);
+    }
+  }
+  if(elOngkir){
+    if(freeOngkir){
+      elOngkir.textContent = '🚚 ' + ((_prev_l10n && _prev_l10n.freeOngkir) || 'Gratis Ongkir');
+      elOngkir.style.display = 'inline-block';
+    } else {
+      elOngkir.style.display = 'none';
+    }
+  }
   var mockup = document.getElementById('pfv2PreviewMockup');
   if(mockup) mockup.style.background = bg;
 
@@ -11872,7 +11919,8 @@ function updatePfv2Preview(){
   var elTmpl = document.getElementById('pvTemplate');
   if(elTmpl){
     var lbl = template === 'right' ? 'Kanan Sidebar' : template === 'left' ? 'Kiri Sidebar' : 'Tidak Sidebar';
-    elTmpl.textContent = 'Template: ' + lbl + ' · Preview simplified';
+    var countryLbl = ({'62':'🇮🇩','60':'🇲🇾','65':'🇸🇬','673':'🇧🇳','66':'🇹🇭','63':'🇵🇭'})[country] || '';
+    elTmpl.innerHTML = 'Template: ' + lbl + ' · ' + countryLbl + ' ' + currency + ' · <a href="/f/' + (gv('fUrlSlug') || (typeof dgSlugify === 'function' ? dgSlugify(name) : name)) + '" target="_blank" style="color:var(--primary)">Buka full preview →</a>';
   }
 }
 
