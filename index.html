@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-17-success-page-l10n';
+window.__APP_VERSION = '2026-08-18-field-preset-persist';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -10833,6 +10833,7 @@ function showProdForm(id){
 
     // Section 8 — Bidang Diminta
     window.__prodFields = (p.formFields && p.formFields.length) ? p.formFields.slice() : DEFAULT_FIELDS.slice();
+    window.__prodFieldPreset = p.fieldPreset || '';
     renderFormFields();
     setFormType(p.formType || 'short');
 
@@ -10892,6 +10893,7 @@ function showProdForm(id){
     window.__prodGrosir = [];
     window.__prodVariants = [];
     window.__prodFields = DEFAULT_FIELDS.slice();
+    window.__prodFieldPreset = '';
     renderProdImages(); renderGrosirList(); renderVariants(); renderFormFields();
     setFormType('short'); // default
     setProdStatus('live'); setProdTipe('simple'); setProdTemplate('none');
@@ -11606,17 +11608,23 @@ function renderFormFields(){
   var list = document.getElementById('fFormFieldsList');
   if(!list) return;
   var editingIdx = (typeof window.__editingFieldIdx === 'number') ? window.__editingFieldIdx : -1;
-  // Header: preset template dropdown
+  // Header: preset template dropdown (stateful — remembers active preset)
+  var activePreset = window.__prodFieldPreset || '';
+  var presetLabels = { id:'🇮🇩 Indonesia', my:'🇲🇾 Bahasa Malaysia', en:'🇸🇬 English (SG/Global)', th:'🇹🇭 Thailand' };
+  var activeBadge = activePreset && presetLabels[activePreset]
+    ? '<span style="display:inline-flex;align-items:center;gap:3px;background:#059669;color:#fff;font-size:10px;padding:2px 8px;border-radius:99px;font-weight:600"><i class="ti ti-check" style="font-size:11px"></i> Aktif: '+presetLabels[activePreset]+'</span>'
+    : '';
   var presetHtml = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:10px 12px;background:#F0F9FF;border:1px solid #BAE6FD;border-radius:8px;flex-wrap:wrap">' +
     '<i class="ti ti-language" style="color:#0369A1;font-size:16px"></i>' +
     '<div style="font-size:12px;color:#075985;font-weight:600">Bahasa Preset:</div>' +
-    '<select onchange="applyFieldPreset(this.value);this.value=\'\'" style="flex:1;min-width:180px;padding:5px 8px;font-size:12px;border:1px solid #CBD5E1;border-radius:6px;background:#fff;cursor:pointer">' +
-      '<option value="">-- Pilih preset bahasa --</option>' +
-      '<option value="id">🇮🇩 Indonesia (default)</option>' +
-      '<option value="my">🇲🇾 Bahasa Malaysia</option>' +
-      '<option value="en">🇸🇬 English (SG/Global)</option>' +
-      '<option value="th">🇹🇭 Thailand</option>' +
+    '<select id="fieldPresetSelect" onchange="applyFieldPreset(this.value)" style="flex:1;min-width:180px;padding:5px 8px;font-size:12px;border:1px solid #CBD5E1;border-radius:6px;background:#fff;cursor:pointer">' +
+      '<option value=""'+(activePreset?'':' selected')+'>-- Pilih preset bahasa --</option>' +
+      '<option value="id"'+(activePreset==='id'?' selected':'')+'>🇮🇩 Indonesia (default)</option>' +
+      '<option value="my"'+(activePreset==='my'?' selected':'')+'>🇲🇾 Bahasa Malaysia</option>' +
+      '<option value="en"'+(activePreset==='en'?' selected':'')+'>🇸🇬 English (SG/Global)</option>' +
+      '<option value="th"'+(activePreset==='th'?' selected':'')+'>🇹🇭 Thailand</option>' +
     '</select>' +
+    (activeBadge ? activeBadge : '') +
     '<div style="font-size:11px;color:#64748B;flex-basis:100%">Terapkan semua label + placeholder sesuai bahasa target market. Bisa di-customize lebih lanjut per field.</div>' +
   '</div>';
   var rowsHtml = window.__prodFields.map(function(f, idx){
@@ -11661,10 +11669,23 @@ function toggleFieldEdit(idx){
 
 // Apply preset bahasa ke semua fields (label + placeholder) — enabled/required tetap
 function applyFieldPreset(key){
-  if(!key || !FIELD_PRESETS[key]) return;
+  if(!key){
+    // User pilih placeholder → clear active preset (kembali manual)
+    window.__prodFieldPreset = '';
+    renderFormFields();
+    return;
+  }
+  if(!FIELD_PRESETS[key]) return;
   var preset = FIELD_PRESETS[key];
-  var confirmMsg = 'Terapkan preset '+preset.flag+' '+preset.name+'?\n\nSemua label + placeholder field default akan diganti ke bahasa '+preset.name+'.\n(Field custom kamu tidak akan tersentuh.)';
-  if(!confirm(confirmMsg)) return;
+  // Skip confirm kalau preset yang di-apply sama dengan yang aktif
+  if(window.__prodFieldPreset !== key){
+    var confirmMsg = 'Terapkan preset '+preset.flag+' '+preset.name+'?\n\nSemua label + placeholder field default akan diganti ke bahasa '+preset.name+'.\n(Field custom kamu tidak akan tersentuh.)';
+    if(!confirm(confirmMsg)){
+      // User cancel → revert dropdown ke preset sebelumnya
+      renderFormFields();
+      return;
+    }
+  }
   window.__prodFields.forEach(function(f){
     if(f.custom) return; // skip custom fields
     var mapping = preset.fields[f.id];
@@ -11673,9 +11694,11 @@ function applyFieldPreset(key){
       if(mapping.placeholder) f.placeholder = mapping.placeholder;
     }
   });
+  // Save active preset key (persisted saat produk di-save)
+  window.__prodFieldPreset = key;
   renderFormFields();
   updatePfv2Preview();
-  toast('✅ Preset '+preset.flag+' '+preset.name+' diterapkan!');
+  toast('✅ Preset '+preset.flag+' '+preset.name+' diterapkan');
 }
 function moveField(idx, delta){
   var arr = window.__prodFields;
@@ -11989,6 +12012,7 @@ function saveProd(){
 
   // Section 8
   var formFields = (window.__prodFields||[]).slice();
+  var fieldPreset = window.__prodFieldPreset || '';
   var formType = gv('fFormType') || 'short';
 
   // Section 14
@@ -12066,7 +12090,7 @@ function saveProd(){
         showCoverAtCheckout,
         warrantyEnabled, warrantyLabel,
         variants,
-        formFields, formType, country, currency, currency,
+        formFields, formType, fieldPreset, country, currency, currency,
         isDropship: dropshipEnabled, dropshipEnabled,
         btnText, btnColor,
         videoUrl, kontenHeading, kontenBody,
@@ -12091,7 +12115,7 @@ function saveProd(){
       showCoverAtCheckout,
       warrantyEnabled, warrantyLabel,
       variants,
-      formFields, formType, country, currency,
+      formFields, formType, fieldPreset, country, currency,
       isDropship: dropshipEnabled, dropshipEnabled,
       btnText, btnColor,
       videoUrl, kontenHeading, kontenBody,
