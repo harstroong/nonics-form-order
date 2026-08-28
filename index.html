@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-16-hosted-l10n';
+window.__APP_VERSION = '2026-08-17-success-page-l10n';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -12203,7 +12203,8 @@ function generateProdEmbed(p){
     successEta: p.successEta || '',
     successShowSummary: p.successShowSummary !== false,
     prodName: p.name || '',
-    country: String(p.country || '62')
+    country: String(p.country || '62'),
+    l10n: (window.HOSTED_L10N && window.getL10n) ? window.getL10n(p) : {}
   }).replace(/</g,'\\u003c');
 
   const inlineCode=`<!-- ✅ Form Order — ${esc(p.name)} | Inline Embed -->
@@ -12235,15 +12236,15 @@ ${useKecamatan?`+'<input id="oo-kc${p.id}" type="text" autocomplete="address-lev
 +'<div id="oo-ok${p.id}" style="display:none;padding:16px 0">'
 +'<div id="oo-ok-wa-${p.id}" style="display:none;text-align:center">'
 +'<div style="font-size:56px;margin-bottom:10px">🎉<\\/div>'
-+'<div style="font-size:22px;font-weight:700;margin-bottom:8px;color:#1b5e20">Berhasil!<\\/div>'
-+'<div style="font-size:14px;color:#666;line-height:1.6;margin-bottom:18px">Tinggal <b>1 langkah lagi<\\/b>: lanjut chat ke WhatsApp untuk konfirmasi pesanan kakak 👇<\\/div>'
-+'<a id="oo-wa-btn-${p.id}" href="#" rel="noopener" style="display:block;background:#25D366;color:#fff;text-align:center;padding:18px;font-size:17px;font-weight:700;border-radius:8px;text-decoration:none;margin-bottom:6px;box-shadow:0 4px 12px rgba(37,211,102,.35)">💬 Lanjut ke WhatsApp →<\\/a>'
-+'<div style="font-size:12px;color:#999;margin-top:8px">Kalau WhatsApp tidak terbuka otomatis, tap tombol hijau di atas<\\/div>'
++'<div style="font-size:22px;font-weight:700;margin-bottom:8px;color:#1b5e20">'+((cfg.l10n&&cfg.l10n.successHeader)||'Berhasil!')+'<\\/div>'
++'<div style="font-size:14px;color:#666;line-height:1.6;margin-bottom:18px">'+((cfg.l10n&&cfg.l10n.successOneMore)||'Tinggal <b>1 langkah lagi</b>: lanjut chat ke WhatsApp untuk konfirmasi pesanan kakak 👇')+'<\\/div>'
++'<a id="oo-wa-btn-${p.id}" href="#" rel="noopener" style="display:block;background:#25D366;color:#fff;text-align:center;padding:18px;font-size:17px;font-weight:700;border-radius:8px;text-decoration:none;margin-bottom:6px;box-shadow:0 4px 12px rgba(37,211,102,.35)">'+((cfg.l10n&&cfg.l10n.successWaBtn)||'💬 Lanjut ke WhatsApp →')+'<\\/a>'
++'<div style="font-size:12px;color:#999;margin-top:8px">'+((cfg.l10n&&cfg.l10n.successWaHint)||'Kalau WhatsApp tidak terbuka otomatis, tap tombol hijau di atas')+'<\\/div>'
 +'<\\/div>'
 +'<div id="oo-ok-typ-${p.id}" style="display:none;text-align:center;padding:24px 12px">'
 +'<div style="width:76px;height:76px;margin:0 auto 16px;background:#D1FAE5;border-radius:50%;display:flex;align-items:center;justify-content:center"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/><\\/svg><\\/div>'
-+'<div style="font-size:22px;font-weight:700;margin:0 0 8px;color:#065F46">Pesanan Diterima!<\\/div>'
-+'<div id="oo-typ-msg-${p.id}" style="font-size:14px;color:#4B5563;line-height:1.6;margin-bottom:18px">Terima kasih, data pesanan udah masuk ke sistem kami. CS bakal hubungi kamu via WhatsApp dalam beberapa menit.<\\/div>'
++'<div style="font-size:22px;font-weight:700;margin:0 0 8px;color:#065F46">'+((cfg.l10n&&cfg.l10n.successTitle)||'Pesanan Diterima!')+'<\\/div>'
++'<div id="oo-typ-msg-${p.id}" style="font-size:14px;color:#4B5563;line-height:1.6;margin-bottom:18px">'+((cfg.l10n&&cfg.l10n.successDefaultMsg)||'Terima kasih, data pesanan udah masuk ke sistem kami. CS bakal hubungi kamu via WhatsApp dalam beberapa menit.').replace(/<b>\\{nama\\}<\\/b>/g,'').replace(/\\{nama\\}/g,'')+'<\\/div>'
 +'<div id="oo-typ-summary-${p.id}" style="background:#F9FAFB;border-radius:10px;padding:12px 14px;text-align:left;font-size:13px;color:#111827;line-height:1.7;margin-bottom:16px;border:1px solid #E5E7EB"><\\/div>'
 +'<div id="oo-typ-eta-${p.id}" style="font-size:12.5px;color:#6B7280;line-height:1.6"><i class="ti ti-clock" style="font-size:14px;vertical-align:-2px;margin-right:4px;color:#F59E0B" aria-hidden="true"><\\/i><span id="oo-typ-eta-txt-${p.id}">5-10 menit<\\/span><\\/div>'
 +'<a id="oo-typ-wa-${p.id}" href="#" rel="noopener" style="display:none"><\\/a>'
@@ -12362,13 +12363,14 @@ window['ooSub${p.id}']=function(){
       if(cfg.successShowSummary === false){
         _typSum.style.display = 'none';
       } else {
+        var _L = cfg.l10n || {};
         var _sum = '';
-        _sum += '<div><b>Produk:</b> '+(cfg.prodName||cfg.produkWA||'-')+'</div>';
-        _sum += '<div><b>Nama:</b> '+(nm||'-')+'</div>';
-        _sum += '<div><b>WhatsApp:</b> '+(wa||'-')+'</div>';
-        if(al) _sum += '<div><b>Alamat:</b> '+al+'</div>';
-        if(kt) _sum += '<div><b>Kota:</b> '+kt+'</div>';
-        if(kc) _sum += '<div><b>Kecamatan:</b> '+kc+'</div>';
+        _sum += '<div><b>'+(_L.sumProduk||'Produk')+':</b> '+(cfg.prodName||cfg.produkWA||'-')+'</div>';
+        _sum += '<div><b>'+(_L.sumNama||'Nama')+':</b> '+(nm||'-')+'</div>';
+        _sum += '<div><b>'+(_L.sumWA||'WhatsApp')+':</b> '+(wa||'-')+'</div>';
+        if(al) _sum += '<div><b>'+(_L.sumAlamat||'Alamat')+':</b> '+al+'</div>';
+        if(kt) _sum += '<div><b>'+(_L.sumKota||'Kota')+':</b> '+kt+'</div>';
+        if(kc) _sum += '<div><b>'+(_L.sumKecamatan||'Kecamatan')+':</b> '+kc+'</div>';
         _typSum.innerHTML = _sum;
       }
     }
@@ -13423,7 +13425,14 @@ window.HOSTED_L10N = {
     urgencyStockLeft: 'sisa stok tinggal',
     sslSafe: 'SSL Aman',
     bestSeller: 'Best Seller',
-    formLoading: 'Memuat form…'
+    formLoading: 'Memuat form…',
+    successHeader: 'Berhasil!',
+    successOneMore: 'Tinggal <b>1 langkah lagi</b>: lanjut chat ke WhatsApp untuk konfirmasi pesanan kakak 👇',
+    successWaBtn: '💬 Lanjut ke WhatsApp →',
+    successWaHint: 'Kalau WhatsApp tidak terbuka otomatis, tap tombol hijau di atas',
+    successTitle: 'Pesanan Diterima!',
+    successDefaultMsg: 'Terima kasih <b>{nama}</b>, data pesanan udah masuk ke sistem kami. CS bakal hubungi kamu via WhatsApp dalam beberapa menit.',
+    sumProduk: 'Produk', sumNama: 'Nama', sumWA: 'WhatsApp', sumAlamat: 'Alamat', sumKota: 'Kota', sumKecamatan: 'Kecamatan'
   },
   my: {
     freeOngkir: 'Percuma Penghantaran',
@@ -13442,7 +13451,14 @@ window.HOSTED_L10N = {
     urgencyStockLeft: 'baki stok tinggal',
     sslSafe: 'SSL Selamat',
     bestSeller: 'Paling Laku',
-    formLoading: 'Memuatkan borang…'
+    formLoading: 'Memuatkan borang…',
+    successHeader: 'Berjaya!',
+    successOneMore: 'Tinggal <b>1 langkah lagi</b>: sambung ke WhatsApp untuk sahkan pesanan anda 👇',
+    successWaBtn: '💬 Ke WhatsApp →',
+    successWaHint: 'Jika WhatsApp tidak buka automatik, tekan butang hijau di atas',
+    successTitle: 'Pesanan Diterima!',
+    successDefaultMsg: 'Terima kasih <b>{nama}</b>, pesanan anda sudah kami terima. CS kami akan hubungi anda melalui WhatsApp dalam beberapa minit.',
+    sumProduk: 'Produk', sumNama: 'Nama', sumWA: 'WhatsApp', sumAlamat: 'Alamat', sumKota: 'Bandar', sumKecamatan: 'Daerah'
   },
   en: {
     freeOngkir: 'Free Shipping',
@@ -13461,7 +13477,14 @@ window.HOSTED_L10N = {
     urgencyStockLeft: 'stock left',
     sslSafe: 'SSL Secure',
     bestSeller: 'Best Seller',
-    formLoading: 'Loading form…'
+    formLoading: 'Loading form…',
+    successHeader: 'Success!',
+    successOneMore: '<b>1 more step</b>: continue to WhatsApp to confirm your order 👇',
+    successWaBtn: '💬 Continue to WhatsApp →',
+    successWaHint: 'If WhatsApp doesn\\'t open automatically, tap the green button above',
+    successTitle: 'Order Received!',
+    successDefaultMsg: 'Thank you <b>{nama}</b>, your order has been received. Our CS will contact you via WhatsApp shortly.',
+    sumProduk: 'Product', sumNama: 'Name', sumWA: 'WhatsApp', sumAlamat: 'Address', sumKota: 'City', sumKecamatan: 'District'
   },
   th: {
     freeOngkir: 'ส่งฟรี',
@@ -13480,7 +13503,14 @@ window.HOSTED_L10N = {
     urgencyStockLeft: 'เหลือ',
     sslSafe: 'SSL ปลอดภัย',
     bestSeller: 'ขายดี',
-    formLoading: 'กำลังโหลด…'
+    formLoading: 'กำลังโหลด…',
+    successHeader: 'สำเร็จ!',
+    successOneMore: '<b>อีก 1 ขั้นตอน</b>: ไปที่ WhatsApp เพื่อยืนยันคำสั่งซื้อของคุณ 👇',
+    successWaBtn: '💬 ไปที่ WhatsApp →',
+    successWaHint: 'หาก WhatsApp ไม่เปิดอัตโนมัติ กดปุ่มสีเขียวด้านบน',
+    successTitle: 'ได้รับคำสั่งซื้อแล้ว!',
+    successDefaultMsg: 'ขอบคุณ <b>{nama}</b> คำสั่งซื้อของคุณได้รับการยืนยันแล้ว ทีม CS จะติดต่อคุณทาง WhatsApp เร็วๆ นี้',
+    sumProduk: 'สินค้า', sumNama: 'ชื่อ', sumWA: 'WhatsApp', sumAlamat: 'ที่อยู่', sumKota: 'จังหวัด', sumKecamatan: 'อำเภอ'
   }
 };
 
