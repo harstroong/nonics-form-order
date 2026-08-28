@@ -2652,7 +2652,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-01-date-filter-fixes';
+window.__APP_VERSION = '2026-08-02-calendar-click-ux';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -16978,6 +16978,7 @@ function toggleDatePicker(ev){
     trig.classList.add('open');
     // Sync current state
     window.__dpState.preset = window.__globalPeriod || 'today';
+    window.__dpState._selectionComplete = false;
     // Default view month = current
     var now = new Date();
     window.__dpState.viewMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -17018,6 +17019,7 @@ function dpMoveMonth(delta){
 
 function dpSelectPreset(preset){
   window.__dpState.preset = preset;
+  window.__dpState._selectionComplete = false;
   dpSyncRangeFromPreset(preset);
   dpRender();
 }
@@ -17118,15 +17120,27 @@ function dpRenderMonth(elId, year, month){
 function dpClickDay(year, month, day){
   var d = new Date(year, month, day);
   var st = window.__dpState;
-  // Range selection: if no start OR both set, reset. Else set end.
-  if(!st.rangeStart || (st.rangeStart && st.rangeEnd && st.rangeStart.getTime() !== st.rangeEnd.getTime())){
+  // Behavior:
+  // Klik pertama (setelah preset atau setelah range complete) → start fresh single-day
+  // Klik kedua di kalender → extend jadi range
+  // Klik ketiga → restart single-day
+  var fromPreset = st.preset !== 'custom-manual';
+  if(fromPreset || !st.rangeStart || st._selectionComplete){
+    // Start fresh single-day selection (user bisa langsung Terapkan buat 1 hari)
     st.rangeStart = d;
     st.rangeEnd = d;
+    st.preset = 'custom-manual';
+    st._selectionComplete = false;
   } else {
-    if(d < st.rangeStart){ st.rangeEnd = st.rangeStart; st.rangeStart = d; }
-    else st.rangeEnd = d;
+    // Second click — extend range
+    if(d.getTime() < st.rangeStart.getTime()){
+      st.rangeEnd = st.rangeStart;
+      st.rangeStart = d;
+    } else {
+      st.rangeEnd = d;
+    }
+    st._selectionComplete = true;
   }
-  st.preset = 'custom-manual';
   dpRender();
 }
 
