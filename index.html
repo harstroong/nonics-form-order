@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-14-free-ongkir';
+window.__APP_VERSION = '2026-08-15-multi-currency';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -4341,17 +4341,32 @@ document.addEventListener('DOMContentLoaded', function(){
                   <input class="pfv2-input" id="fKoleksi" type="text" placeholder="Contoh: Best Seller 2026"/>
                 </div>
               </div>
-              <div class="pfv2-field">
-                <label class="pfv2-label">Target Market / Negara <span style="color:var(--text-muted);font-weight:400">— country code WA + format nomor customer</span></label>
-                <select class="pfv2-input" id="fCountry">
-                  <option value="62">🇮🇩 Indonesia (+62)</option>
-                  <option value="60">🇲🇾 Malaysia (+60)</option>
-                  <option value="65">🇸🇬 Singapore (+65)</option>
-                  <option value="673">🇧🇳 Brunei (+673)</option>
-                  <option value="66">🇹🇭 Thailand (+66)</option>
-                  <option value="63">🇵🇭 Philippines (+63)</option>
-                </select>
-                <div class="pfv2-hint">Menentukan flag +kode negara di form + normalisasi nomor WA customer. Pilih sesuai target market produk.</div>
+              <div class="pfv2-row">
+                <div class="pfv2-field">
+                  <label class="pfv2-label">Target Market / Negara</label>
+                  <select class="pfv2-input" id="fCountry" onchange="autoSetCurrency(this.value)">
+                    <option value="62">🇮🇩 Indonesia (+62)</option>
+                    <option value="60">🇲🇾 Malaysia (+60)</option>
+                    <option value="65">🇸🇬 Singapore (+65)</option>
+                    <option value="673">🇧🇳 Brunei (+673)</option>
+                    <option value="66">🇹🇭 Thailand (+66)</option>
+                    <option value="63">🇵🇭 Philippines (+63)</option>
+                  </select>
+                  <div class="pfv2-hint">Country code WA + format nomor customer</div>
+                </div>
+                <div class="pfv2-field">
+                  <label class="pfv2-label">Mata Uang</label>
+                  <select class="pfv2-input" id="fCurrency">
+                    <option value="IDR">🇮🇩 Rupiah (Rp)</option>
+                    <option value="MYR">🇲🇾 Ringgit (RM)</option>
+                    <option value="SGD">🇸🇬 SG Dollar (S$)</option>
+                    <option value="BND">🇧🇳 Brunei Dollar (B$)</option>
+                    <option value="THB">🇹🇭 Baht (฿)</option>
+                    <option value="PHP">🇵🇭 Peso (₱)</option>
+                    <option value="USD">🇺🇸 US Dollar ($)</option>
+                  </select>
+                  <div class="pfv2-hint">Ditampilkan di form + admin</div>
+                </div>
               </div>
               <div class="pfv2-field">
                 <label class="pfv2-label">Status Produk</label>
@@ -4412,18 +4427,18 @@ document.addEventListener('DOMContentLoaded', function(){
               <div id="fHargaSimpleBox">
                 <div class="pfv2-row">
                   <div class="pfv2-field">
-                    <label class="pfv2-label">Harga Normal <span style="color:var(--text-muted);font-weight:400">(coret)</span></label>
-                    <input class="pfv2-input" id="fHargaNormal" type="text" placeholder="Rp 150.000"/>
+                    <label class="pfv2-label">Harga Normal <span style="color:var(--text-muted);font-weight:400">(coret) — <span id="fCurrencyLbl1">Rp</span></span></label>
+                    <input class="pfv2-input" id="fHargaNormal" type="text" placeholder="150000"/>
                   </div>
                   <div class="pfv2-field">
-                    <label class="pfv2-label">Harga Jual <span class="req">*</span></label>
-                    <input class="pfv2-input" id="fPrice" type="text" placeholder="Rp 99.000"/>
+                    <label class="pfv2-label">Harga Jual <span class="req">*</span> <span style="color:var(--text-muted);font-weight:400">— <span id="fCurrencyLbl2">Rp</span></span></label>
+                    <input class="pfv2-input" id="fPrice" type="text" placeholder="99000"/>
                   </div>
                 </div>
                 <div class="pfv2-row">
                   <div class="pfv2-field">
-                    <label class="pfv2-label">HPP <span style="color:var(--text-muted);font-weight:400">(Modal)</span></label>
-                    <input class="pfv2-input" id="fHpp" type="text" placeholder="Rp 45.000"/>
+                    <label class="pfv2-label">HPP <span style="color:var(--text-muted);font-weight:400">(Modal) — <span id="fCurrencyLbl3">Rp</span></span></label>
+                    <input class="pfv2-input" id="fHpp" type="text" placeholder="45000"/>
                   </div>
                   <div class="pfv2-field">
                     <label class="pfv2-label">Inventaris <span style="color:var(--text-muted);font-weight:400">(Stok)</span></label>
@@ -10735,6 +10750,8 @@ function showProdForm(id){
     setV('fKategori', p.kategori);
     setV('fKoleksi', p.koleksi);
     setV('fCountry', String(p.country || '62'));
+    setV('fCurrency', p.currency || COUNTRY_TO_CURRENCY[String(p.country || '62')] || 'IDR');
+    if(typeof updateCurrencyLabels === 'function') updateCurrencyLabels();
     setChk('fCaptcha', p.captcha);
     setV('fDesc', p.desc);
     setProdStatus(p.status || (p.active === false ? 'archived' : 'live'));
@@ -10860,6 +10877,8 @@ function showProdForm(id){
     var _foc = document.getElementById('fFreeOngkir'); if(_foc) _foc.checked = false;
     if(typeof toggleFreeOngkirRow === 'function') toggleFreeOngkirRow();
     var _fc = document.getElementById('fCountry'); if(_fc) _fc.value = '62';
+    var _fcur = document.getElementById('fCurrency'); if(_fcur){ _fcur.value = 'IDR'; delete _fcur.dataset.userOverride; }
+    if(typeof updateCurrencyLabels === 'function') updateCurrencyLabels();
     setV('fKlasifikasi','fisik'); setV('fResellerKomisiTipe','percent');
     setV('fKodeUnikMin', 1); setV('fKodeUnikMax', 999);
     setV('fWarrantyLabel', '100% Jaminan Kepuasan');
@@ -11917,6 +11936,7 @@ function saveProd(){
   var kategori = gv('fKategori').trim();
   var koleksi = gv('fKoleksi').trim();
   var country = gv('fCountry') || '62';
+  var currency = gv('fCurrency') || (window.COUNTRY_TO_CURRENCY ? window.COUNTRY_TO_CURRENCY[country] : null) || 'IDR';
   var captcha = gc('fCaptcha');
   var status = gv('fStatus') || 'live';
 
@@ -12046,7 +12066,7 @@ function saveProd(){
         showCoverAtCheckout,
         warrantyEnabled, warrantyLabel,
         variants,
-        formFields, formType, country,
+        formFields, formType, country, currency, currency,
         isDropship: dropshipEnabled, dropshipEnabled,
         btnText, btnColor,
         videoUrl, kontenHeading, kontenBody,
@@ -12071,7 +12091,7 @@ function saveProd(){
       showCoverAtCheckout,
       warrantyEnabled, warrantyLabel,
       variants,
-      formFields, formType, country,
+      formFields, formType, country, currency,
       isDropship: dropshipEnabled, dropshipEnabled,
       btnText, btnColor,
       videoUrl, kontenHeading, kontenBody,
@@ -13304,6 +13324,84 @@ function applyHostedFormBrand(){
   }
 }
 
+// ═══════════════════════════════════
+// MULTI-CURRENCY HELPERS
+// ═══════════════════════════════════
+window.CURRENCY_MAP = {
+  IDR: { symbol:'Rp',  code:'IDR', locale:'id-ID', decimals:0, position:'before', space:' ', country:'62' },
+  MYR: { symbol:'RM',  code:'MYR', locale:'ms-MY', decimals:2, position:'before', space:' ', country:'60' },
+  SGD: { symbol:'S$',  code:'SGD', locale:'en-SG', decimals:2, position:'before', space:'',  country:'65' },
+  BND: { symbol:'B$',  code:'BND', locale:'ms-BN', decimals:2, position:'before', space:'',  country:'673' },
+  THB: { symbol:'฿', code:'THB', locale:'th-TH', decimals:0, position:'before', space:'',  country:'66' },
+  PHP: { symbol:'₱', code:'PHP', locale:'en-PH', decimals:2, position:'before', space:'',  country:'63' },
+  USD: { symbol:'$',   code:'USD', locale:'en-US', decimals:2, position:'before', space:'',  country:null }
+};
+window.COUNTRY_TO_CURRENCY = { '62':'IDR', '60':'MYR', '65':'SGD', '673':'BND', '66':'THB', '63':'PHP' };
+
+// Format number as money dengan currency
+window.formatMoney = function(amount, currencyCode){
+  var cur = window.CURRENCY_MAP[currencyCode] || window.CURRENCY_MAP.IDR;
+  var n = parseFloat(amount) || 0;
+  var formatted;
+  try {
+    formatted = n.toLocaleString(cur.locale, {minimumFractionDigits: cur.decimals, maximumFractionDigits: cur.decimals});
+  } catch(e){ formatted = n.toFixed(cur.decimals); }
+  return cur.position === 'before' ? cur.symbol + cur.space + formatted : formatted + cur.space + cur.symbol;
+};
+
+// Compact format (auto scale ke jt/rb kalau > 1jt/1rb)
+window.formatMoneyCompact = function(amount, currencyCode){
+  var cur = window.CURRENCY_MAP[currencyCode] || window.CURRENCY_MAP.IDR;
+  var n = parseFloat(amount) || 0;
+  var abs = Math.abs(n);
+  var sign = n < 0 ? '-' : '';
+  var val, suffix;
+  if(currencyCode === 'IDR' || currencyCode === 'THB'){
+    if(abs >= 1000000000){ val = (abs/1000000000).toFixed(1).replace('.0',''); suffix = 'M'; }
+    else if(abs >= 1000000){ val = (abs/1000000).toFixed(1).replace('.0',''); suffix = 'jt'; }
+    else if(abs >= 1000){ val = Math.round(abs/1000).toLocaleString(cur.locale); suffix = 'rb'; }
+    else { val = Math.round(abs).toLocaleString(cur.locale); suffix = ''; }
+  } else {
+    if(abs >= 1000000){ val = (abs/1000000).toFixed(1).replace('.0',''); suffix = 'M'; }
+    else if(abs >= 1000){ val = (abs/1000).toFixed(1).replace('.0',''); suffix = 'K'; }
+    else { val = abs.toFixed(cur.decimals); suffix = ''; }
+  }
+  return cur.symbol + cur.space + sign + val + suffix;
+};
+
+// Auto-set currency berdasarkan country selection
+window.autoSetCurrency = function(countryCode){
+  var mapped = window.COUNTRY_TO_CURRENCY[String(countryCode)];
+  if(!mapped) return;
+  var el = document.getElementById('fCurrency');
+  if(el && !el.dataset.userOverride){
+    el.value = mapped;
+    updateCurrencyLabels();
+  }
+};
+
+// Update label "Rp" / "RM" / dll di field harga
+window.updateCurrencyLabels = function(){
+  var el = document.getElementById('fCurrency');
+  if(!el) return;
+  var cur = window.CURRENCY_MAP[el.value] || window.CURRENCY_MAP.IDR;
+  ['fCurrencyLbl1','fCurrencyLbl2','fCurrencyLbl3'].forEach(function(id){
+    var e = document.getElementById(id);
+    if(e) e.textContent = cur.symbol;
+  });
+};
+
+// Wire manual override tracking + init on load
+document.addEventListener('DOMContentLoaded', function(){
+  var el = document.getElementById('fCurrency');
+  if(el){
+    el.addEventListener('change', function(){
+      this.dataset.userOverride = 'true';
+      updateCurrencyLabels();
+    });
+  }
+});
+
 // Toggle ongkir note visibility berdasarkan Free Ongkir checkbox
 function toggleFreeOngkirRow(){
   var chk = document.getElementById('fFreeOngkir');
@@ -13330,18 +13428,15 @@ function renderHostedProdCard(p){
   } else {
     coverImg = '<i class="ti ti-photo" style="font-size:26px;color:#CBD5E1"></i>';
   }
-  // Harga + discount %
-  var priceStr = String(p.price||'').replace(/[^0-9]/g,'');
-  var priceNum = parseInt(priceStr, 10) || 0;
-  var hargaNormalStr = String(p.hargaNormal||'').replace(/[^0-9]/g,'');
-  var hargaNormalNum = parseInt(hargaNormalStr, 10) || 0;
+  // Harga + discount % (multi-currency)
+  var productCurrency = p.currency || (window.COUNTRY_TO_CURRENCY ? window.COUNTRY_TO_CURRENCY[String(p.country||'62')] : null) || 'IDR';
+  var priceStr = String(p.price||'').replace(/[^0-9.]/g,'');
+  var priceNum = parseFloat(priceStr) || 0;
+  var hargaNormalStr = String(p.hargaNormal||'').replace(/[^0-9.]/g,'');
+  var hargaNormalNum = parseFloat(hargaNormalStr) || 0;
   var discPct = (hargaNormalNum > priceNum && hargaNormalNum > 0) ? Math.round((1 - priceNum/hargaNormalNum) * 100) : 0;
-  var fmtRp = function(n){
-    if(n >= 1000000) return 'Rp ' + (n/1000000).toFixed(1).replace('.0','') + 'jt';
-    if(n >= 1000) return 'Rp ' + Math.round(n/1000).toLocaleString('id-ID') + 'rb';
-    return 'Rp ' + n.toLocaleString('id-ID');
-  };
-  var fmtRpFull = function(n){ return 'Rp ' + n.toLocaleString('id-ID'); };
+  var fmtRp = function(n){ return (typeof window.formatMoneyCompact === 'function') ? window.formatMoneyCompact(n, productCurrency) : ('Rp ' + n.toLocaleString('id-ID')); };
+  var fmtRpFull = function(n){ return (typeof window.formatMoney === 'function') ? window.formatMoney(n, productCurrency) : ('Rp ' + n.toLocaleString('id-ID')); };
   // Badges dari produk (kategori, koleksi, warranty)
   var badges = [];
   if(p.koleksi && /best|seller|terlaris/i.test(p.koleksi)) badges.push({txt:'Best Seller', bg:'#ECFDF5', color:'#065F46'});
@@ -13403,7 +13498,8 @@ function renderHostedProdCard(p){
     var btn = document.getElementById('oo-btn-' + p.id);
     if(btn && priceNum > 0){
       var origText = btn.textContent;
-      if(origText.indexOf('Rp') < 0){
+      var cur = window.CURRENCY_MAP && window.CURRENCY_MAP[productCurrency] ? window.CURRENCY_MAP[productCurrency] : {symbol:'Rp'};
+      if(origText.indexOf(cur.symbol) < 0){
         btn.innerHTML = '<i class="ti ti-shopping-cart" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Beli · ' + fmtRpFull(priceNum);
         btn.style.background = '#DC2626';
         btn.style.borderRadius = '10px';
