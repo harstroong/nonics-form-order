@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-29-readonly-mode';
+window.__APP_VERSION = '2026-08-30-countdown-timer';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -4460,6 +4460,33 @@ document.addEventListener('DOMContentLoaded', function(){
                   <div id="fOngkirNoteBox">
                     <label class="pfv2-label" style="font-size:11px;color:var(--text-muted);margin-bottom:3px">Catatan Ongkir <span style="color:var(--text-muted);font-weight:400">(opsional, muncul kalau Gratis Ongkir OFF)</span></label>
                     <input class="pfv2-input" id="fOngkirNote" type="text" placeholder="Contoh: Ongkir mulai Rp 15.000 · JNE/J&T"/>
+                  </div>
+                </div>
+
+                <div class="pfv2-field" style="border-top:1px dashed var(--border);padding-top:14px;margin-top:14px">
+                  <label class="pfv2-toggle" style="margin-bottom:8px">
+                    <input type="checkbox" id="fCountdownEnabled" onchange="toggleCountdownRow()"/>
+                    <span class="pfv2-toggle-slider"></span>
+                    <span class="pfv2-toggle-txt">Countdown Timer / Urgency <div class="pfv2-toggle-desc">Tampilkan timer countdown "Promo berakhir dalam X:XX:XX" di top hosted form</div></span>
+                  </label>
+                  <div id="fCountdownBox" style="display:none">
+                    <div class="pfv2-row">
+                      <div class="pfv2-field">
+                        <label class="pfv2-label" style="font-size:11px;color:var(--text-muted);margin-bottom:3px">Berakhir pada (tanggal/waktu)</label>
+                        <input class="pfv2-input" id="fCountdownEnd" type="datetime-local"/>
+                        <div class="pfv2-hint">Zona waktu = timezone browser lo. Setelah lewat waktu ini, aksi di bawah dijalankan.</div>
+                      </div>
+                      <div class="pfv2-field">
+                        <label class="pfv2-label" style="font-size:11px;color:var(--text-muted);margin-bottom:3px">Aksi ketika expired</label>
+                        <select class="pfv2-input" id="fCountdownExpiredAction">
+                          <option value="disable">Disable tombol beli + label "Promo Berakhir"</option>
+                          <option value="hide">Sembunyikan form total (cuma tampil produk + msg)</option>
+                          <option value="show">Tetap tampil (timer aja hilang)</option>
+                        </select>
+                      </div>
+                    </div>
+                    <label class="pfv2-label" style="font-size:11px;color:var(--text-muted);margin-bottom:3px;margin-top:8px">Label Custom (opsional, otomatis translate kalau kosong)</label>
+                    <input class="pfv2-input" id="fCountdownLabel" type="text" placeholder="Kosongkan untuk auto: 'Promo berakhir dalam' / 'Promo tamat dalam' / 'Sale ends in'"/>
                   </div>
                 </div>
               </div>
@@ -6800,6 +6827,12 @@ document.addEventListener('DOMContentLoaded', function(){
       <div style="display:flex;align-items:center;gap:5px;color:#94A3B8;font-size:11px">
         <i class="ti ti-shield-check" style="font-size:13px;color:#10B981"></i> SSL Aman
       </div>
+    </div>
+
+    <!-- Countdown timer banner (di-render dinamis via applyCountdown) -->
+    <div id="hostedCountdownBar" style="display:none;background:linear-gradient(90deg,#DC2626,#EA580C);color:#fff;padding:10px 18px;text-align:center;font-size:12px;font-weight:600">
+      <span id="hcbLabel">Promo berakhir dalam</span>
+      <span id="hcbTime" style="font-family:monospace;font-size:14px;letter-spacing:1px;margin-left:6px">00:00:00</span>
     </div>
 
     <!-- Product hero card (di-render dinamis via loadHostedProdukForm) -->
@@ -10878,6 +10911,11 @@ function showProdForm(id){
     setChk('fFreeOngkir', p.freeOngkir);
     setV('fOngkirNote', p.ongkirNote);
     toggleFreeOngkirRow();
+    setChk('fCountdownEnabled', p.countdownEnabled);
+    setV('fCountdownEnd', p.countdownEnd || '');
+    setV('fCountdownExpiredAction', p.countdownExpiredAction || 'disable');
+    setV('fCountdownLabel', p.countdownLabel || '');
+    if(typeof toggleCountdownRow === 'function') toggleCountdownRow();
     setV('fPrice', p.price);
     setV('fHpp', p.hpp);
     setV('fInventaris', (typeof p.inventaris === 'number') ? p.inventaris : '');
@@ -12152,6 +12190,10 @@ function saveProd(){
   var grosir = (window.__prodGrosir||[]).slice();
   var freeOngkir = gc('fFreeOngkir');
   var ongkirNote = gv('fOngkirNote').trim();
+  var countdownEnabled = gc('fCountdownEnabled');
+  var countdownEnd = gv('fCountdownEnd').trim();
+  var countdownExpiredAction = gv('fCountdownExpiredAction') || 'disable';
+  var countdownLabel = gv('fCountdownLabel').trim();
 
   // Section 4
   var kodeUnikEnabled = gc('fKodeUnikEnabled');
@@ -12263,7 +12305,7 @@ function saveProd(){
       prods[i] = {...prods[i], name, price, desc, hpp, inventaris, coverImage, images,
         urlSlug, kode, klasifikasi, kategori, koleksi, captcha, status,
         active: status !== 'archived',
-        tipe, hargaNormal, grosir, freeOngkir, ongkirNote,
+        tipe, hargaNormal, grosir, freeOngkir, ongkirNote, countdownEnabled, countdownEnd, countdownExpiredAction, countdownLabel, countdownEnabled, countdownEnd, countdownExpiredAction, countdownLabel,
         kodeUnikEnabled, kodeUnikMin, kodeUnikMax,
         resellerEnabled, resellerKomisi, resellerKomisiTipe,
         overrideCSRotator, shipperId, adminId,
@@ -12288,7 +12330,7 @@ function saveProd(){
     savedProd = {id: Date.now(), name, price, desc, hpp, inventaris, coverImage, images,
       urlSlug, kode, klasifikasi, kategori, koleksi, captcha, status,
       active: status !== 'archived',
-      tipe, hargaNormal, grosir, freeOngkir, ongkirNote,
+      tipe, hargaNormal, grosir, freeOngkir, ongkirNote, countdownEnabled, countdownEnd, countdownExpiredAction, countdownLabel,
       kodeUnikEnabled, kodeUnikMin, kodeUnikMax,
       resellerEnabled, resellerKomisi, resellerKomisiTipe,
       overrideCSRotator, shipperId, adminId,
@@ -13724,7 +13766,10 @@ window.HOSTED_L10N = {
     successDefaultMsg: 'Terima kasih <b>{nama}</b>, data pesanan udah masuk ke sistem kami. CS bakal hubungi kamu via WhatsApp dalam beberapa menit.',
     sumProduk: 'Produk', sumNama: 'Nama', sumWA: 'WhatsApp', sumAlamat: 'Alamat', sumKota: 'Kota', sumKecamatan: 'Kecamatan',
     formHeadline: 'Silahkan Isi Nama & No WhatsApp dibawah\nAgar Terhubung dengan CS kami :',
-    csHighlight: 'CS kami'
+    csHighlight: 'CS kami',
+    countdownLabel: 'Promo berakhir dalam',
+    countdownExpired: 'Promo Berakhir',
+    countdownDay: 'hari', countdownHour: 'jam', countdownMin: 'menit', countdownSec: 'detik'
   },
   my: {
     freeOngkir: 'Percuma Penghantaran',
@@ -13752,7 +13797,10 @@ window.HOSTED_L10N = {
     successDefaultMsg: 'Terima kasih <b>{nama}</b>, pesanan anda sudah kami terima. CS kami akan hubungi anda melalui WhatsApp dalam beberapa minit.',
     sumProduk: 'Produk', sumNama: 'Nama', sumWA: 'WhatsApp', sumAlamat: 'Alamat', sumKota: 'Bandar', sumKecamatan: 'Daerah',
     formHeadline: 'Sila Isi Nama & No WhatsApp anda di bawah\nUntuk berhubung dengan CS kami :',
-    csHighlight: 'CS kami'
+    csHighlight: 'CS kami',
+    countdownLabel: 'Promo tamat dalam',
+    countdownExpired: 'Promo Tamat',
+    countdownDay: 'hari', countdownHour: 'jam', countdownMin: 'minit', countdownSec: 'saat'
   },
   en: {
     freeOngkir: 'Free Shipping',
@@ -13780,7 +13828,10 @@ window.HOSTED_L10N = {
     successDefaultMsg: 'Thank you <b>{nama}</b>, your order has been received. Our CS will contact you via WhatsApp shortly.',
     sumProduk: 'Product', sumNama: 'Name', sumWA: 'WhatsApp', sumAlamat: 'Address', sumKota: 'City', sumKecamatan: 'District',
     formHeadline: 'Please fill in your Name & WhatsApp below\nTo connect with our CS :',
-    csHighlight: 'our CS'
+    csHighlight: 'our CS',
+    countdownLabel: 'Sale ends in',
+    countdownExpired: 'Sale Ended',
+    countdownDay: 'd', countdownHour: 'h', countdownMin: 'm', countdownSec: 's'
   },
   th: {
     freeOngkir: 'ส่งฟรี',
@@ -13808,7 +13859,10 @@ window.HOSTED_L10N = {
     successDefaultMsg: 'ขอบคุณ <b>{nama}</b> คำสั่งซื้อของคุณได้รับการยืนยันแล้ว ทีม CS จะติดต่อคุณทาง WhatsApp เร็วๆ นี้',
     sumProduk: 'สินค้า', sumNama: 'ชื่อ', sumWA: 'WhatsApp', sumAlamat: 'ที่อยู่', sumKota: 'จังหวัด', sumKecamatan: 'อำเภอ',
     formHeadline: 'กรุณากรอกชื่อและเบอร์ WhatsApp ด้านล่าง\nเพื่อติดต่อกับ CS ของเรา :',
-    csHighlight: 'CS ของเรา'
+    csHighlight: 'CS ของเรา',
+    countdownLabel: 'โปรโมชั่นสิ้นสุดใน',
+    countdownExpired: 'โปรโมชั่นสิ้นสุด',
+    countdownDay: 'วัน', countdownHour: 'ชม.', countdownMin: 'นาที', countdownSec: 'วินาที'
   }
 };
 
@@ -13821,6 +13875,14 @@ window.getL10n = function(p){
   return window.HOSTED_L10N[langKey] || window.HOSTED_L10N.id;
 };
 
+// Toggle countdown fields visibility
+function toggleCountdownRow(){
+  var chk = document.getElementById('fCountdownEnabled');
+  var box = document.getElementById('fCountdownBox');
+  if(!chk || !box) return;
+  box.style.display = chk.checked ? '' : 'none';
+}
+
 // Toggle ongkir note visibility berdasarkan Free Ongkir checkbox
 function toggleFreeOngkirRow(){
   var chk = document.getElementById('fFreeOngkir');
@@ -13828,6 +13890,63 @@ function toggleFreeOngkirRow(){
   if(!chk || !box) return;
   box.style.opacity = chk.checked ? '0.5' : '1';
   box.style.pointerEvents = chk.checked ? 'none' : '';
+}
+
+// Apply countdown timer + urgency ke hosted form
+window.__countdownTimer = null;
+function applyCountdown(p){
+  // Clear existing timer
+  if(window.__countdownTimer){ clearInterval(window.__countdownTimer); window.__countdownTimer = null; }
+  var bar = document.getElementById('hostedCountdownBar');
+  var lblEl = document.getElementById('hcbLabel');
+  var timeEl = document.getElementById('hcbTime');
+  if(!bar || !p || !p.countdownEnabled || !p.countdownEnd){
+    if(bar) bar.style.display = 'none';
+    return;
+  }
+  var endTs = new Date(p.countdownEnd).getTime();
+  if(isNaN(endTs)){ bar.style.display = 'none'; return; }
+  var t = (window.HOSTED_L10N && window.getL10n) ? window.getL10n(p) : (window.HOSTED_L10N ? window.HOSTED_L10N.id : {});
+  var customLabel = (p.countdownLabel && p.countdownLabel.trim()) ? p.countdownLabel.trim() : (t.countdownLabel || 'Promo berakhir dalam');
+  if(lblEl) lblEl.textContent = customLabel;
+  bar.style.display = 'block';
+
+  var _tick = function(){
+    var now = Date.now();
+    var diff = endTs - now;
+    if(diff <= 0){
+      // Expired
+      if(window.__countdownTimer){ clearInterval(window.__countdownTimer); window.__countdownTimer = null; }
+      var expiredLabel = t.countdownExpired || 'Promo Berakhir';
+      var action = p.countdownExpiredAction || 'disable';
+      if(action === 'hide'){
+        // Sembunyikan form total, keep product card + expired banner
+        var formMount = document.getElementById('hostedFormCard'); if(formMount) formMount.style.display = 'none';
+      } else if(action === 'disable'){
+        // Disable buy button + label expired
+        var btn = document.getElementById('oo-btn-' + p.id);
+        if(btn){ btn.disabled = true; btn.style.background = '#94A3B8'; btn.style.cursor = 'not-allowed'; btn.innerHTML = '<i class="ti ti-lock" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>' + expiredLabel; }
+      }
+      // Update banner
+      bar.style.background = '#374151';
+      lblEl.textContent = '';
+      timeEl.textContent = '⏰ ' + expiredLabel;
+      timeEl.style.fontFamily = 'inherit';
+      return;
+    }
+    // Compute d/h/m/s
+    var d = Math.floor(diff / 86400000);
+    var h = Math.floor((diff % 86400000) / 3600000);
+    var m = Math.floor((diff % 3600000) / 60000);
+    var s = Math.floor((diff % 60000) / 1000);
+    var pad = function(n){ return n < 10 ? '0' + n : String(n); };
+    var out = '';
+    if(d > 0) out = d + (t.countdownDay || 'd') + ' ' + pad(h) + ':' + pad(m) + ':' + pad(s);
+    else out = pad(h) + ':' + pad(m) + ':' + pad(s);
+    if(timeEl) timeEl.textContent = out;
+  };
+  _tick();
+  window.__countdownTimer = setInterval(_tick, 1000);
 }
 
 // Render product hero card (Option B — Trust-First Marketplace)
@@ -17886,6 +18005,8 @@ function loadHostedProdukForm(slug){
     try { document.title = (p.name || 'Order') + ' — Nonics Order'; } catch(e){}
     // Render product hero card (Option B Trust-First design)
     try { renderHostedProdCard(p); } catch(e){ console.warn('prod card render fail:', e); }
+    // Apply countdown timer kalau enabled
+    try { applyCountdown(p); } catch(e){ console.warn('countdown fail:', e); }
     // Generate embed HTML using existing template (simulate loading like landing page would)
     try {
       // Use generateProdEmbed to get code (produces inline embed)
