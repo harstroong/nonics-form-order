@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-06-fisik-only';
+window.__APP_VERSION = '2026-08-07-ads-roi-mvp';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -3592,6 +3592,7 @@ document.addEventListener('DOMContentLoaded', function(){
             <button class="tn-dropdown-item" onclick="gotoSettingsSection('team')"><i class="ti ti-users" style="color:#0EA5E9"></i> Tim &amp; Akses</button>
             <button class="tn-dropdown-item" onclick="gotoSettingsSection('sync')"><i class="ti ti-cloud-computing" style="color:#22C55E"></i> Sync &amp; Backup</button>
             <div class="tn-dropdown-divider"></div>
+            <button class="tn-dropdown-item" onclick="showPanel('ads')"><i class="ti ti-chart-arrows" style="color:#8B5CF6"></i> Iklan &amp; ROI</button>
             <button class="tn-dropdown-item" onclick="showPanel('debugtrack')"><i class="ti ti-bug" style="color:#8B5CF6"></i> Debug Tracking</button>
             <div class="tn-dropdown-divider"></div>
             <button class="tn-dropdown-item" onclick="gotoSettingsSection('security')"><i class="ti ti-lock" style="color:#EF4444"></i> Keamanan &amp; Password</button>
@@ -5832,6 +5833,135 @@ document.addEventListener('DOMContentLoaded', function(){
 
       </div>
 
+      <!-- ═══════════════════════════════════
+           ADS SPEND + ROI PANEL
+      ═══════════════════════════════════ -->
+      <div class="panel" id="panel-ads">
+        <div class="team-header">
+          <div>
+            <div class="team-title"><i class="ti ti-chart-arrows" style="vertical-align:-3px;margin-right:5px;color:#8B5CF6"></i>Iklan & ROI</div>
+            <div class="team-sub">Track spend iklan per produk, hitung ROAS, CPL, CPA otomatis dari data lead + revenue lo.</div>
+          </div>
+          <div class="team-actions-header">
+            <button class="btn-outline-sm" onclick="adsOpenAddModal()"><i class="ti ti-plus"></i><span>Input Spend</span></button>
+            <button class="btn-outline-sm" onclick="adsExportCSV()"><i class="ti ti-download"></i><span>Export CSV</span></button>
+          </div>
+        </div>
+
+        <!-- 4 KPI cards -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:14px">
+          <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><i class="ti ti-cash-banknote" style="color:#DC2626;font-size:14px"></i><span style="font-size:10.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;font-weight:500">Total Spend</span></div>
+            <div style="font-size:22px;font-weight:600;color:var(--text);line-height:1" id="ads-kpi-spend">Rp 0</div>
+            <div style="font-size:10.5px;margin-top:5px;color:var(--text-muted)" id="ads-kpi-spend-count">0 entries</div>
+          </div>
+          <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><i class="ti ti-coin" style="color:#059669;font-size:14px"></i><span style="font-size:10.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;font-weight:500">Revenue</span></div>
+            <div style="font-size:22px;font-weight:600;color:var(--text);line-height:1" id="ads-kpi-rev">Rp 0</div>
+            <div style="font-size:10.5px;margin-top:5px;color:var(--text-muted)" id="ads-kpi-rev-detail">0 closed</div>
+          </div>
+          <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><i class="ti ti-trending-up" style="color:#F59E0B;font-size:14px"></i><span style="font-size:10.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;font-weight:500">Blended ROAS</span></div>
+            <div style="font-size:22px;font-weight:600;color:var(--text);line-height:1" id="ads-kpi-roas">0.00x</div>
+            <div style="font-size:10.5px;margin-top:5px" id="ads-kpi-roas-status"></div>
+          </div>
+          <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><i class="ti ti-target" style="color:#0EA5E9;font-size:14px"></i><span style="font-size:10.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;font-weight:500">CPL / CPA</span></div>
+            <div style="font-size:14px;font-weight:600;color:var(--text);line-height:1.3" id="ads-kpi-cpl">-</div>
+            <div style="font-size:10.5px;margin-top:5px;color:var(--text-muted)">CPL = Spend/Lead · CPA = Spend/Closed</div>
+          </div>
+        </div>
+
+        <!-- Break-even settings -->
+        <div style="background:#FEF7ED;border:0.5px solid #FDBA74;border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <i class="ti ti-info-circle" style="color:#7C2D12;font-size:16px"></i>
+          <div style="flex:1;min-width:200px">
+            <div style="font-size:12px;font-weight:600;color:#7C2D12">Break-even ROAS: <span id="ads-breakeven">3.33x</span></div>
+            <div style="font-size:10.5px;color:#9A4B1C">Berdasarkan margin lo <span id="ads-margin-lbl">30%</span> — ROAS di bawah ini = rugi</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <label style="font-size:11px;color:#7C2D12">Margin:</label>
+            <input type="number" id="ads-margin-input" min="1" max="99" value="30" style="width:60px;padding:5px 8px;border:0.5px solid #FDBA74;border-radius:6px;font-size:12px;text-align:center" onchange="adsUpdateMargin(this.value)"/>
+            <span style="font-size:12px;color:#7C2D12">%</span>
+          </div>
+        </div>
+
+        <!-- Per-produk breakdown table -->
+        <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text)">Performance per Produk</div>
+              <div style="font-size:10.5px;color:var(--text-muted)">ROAS, CPL, dan profit breakdown</div>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted)" id="ads-period-label"></div>
+          </div>
+          <div id="ads-prod-table" style="overflow-x:auto"></div>
+        </div>
+
+        <!-- History table (recent entries) -->
+        <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text)">Riwayat Input Spend</div>
+              <div style="font-size:10.5px;color:var(--text-muted)">30 entry terakhir</div>
+            </div>
+            <button class="btn-outline-sm" onclick="adsOpenAddModal()" style="padding:5px 12px;font-size:11.5px"><i class="ti ti-plus"></i><span>Tambah</span></button>
+          </div>
+          <div id="ads-history-table" style="overflow-x:auto"></div>
+        </div>
+
+      </div>
+
+      <!-- ADS ADD MODAL -->
+      <div id="adsAddModal" style="display:none;position:fixed;inset:0;z-index:1060;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)adsCloseAddModal()">
+        <div style="background:var(--surface);border-radius:16px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.3)" onclick="event.stopPropagation()">
+          <div style="padding:16px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+            <div style="display:flex;align-items:center;gap:9px">
+              <div style="width:32px;height:32px;border-radius:9px;background:#EDE9FE;color:#5B21B6;display:flex;align-items:center;justify-content:center;font-size:16px"><i class="ti ti-currency-dollar"></i></div>
+              <div>
+                <div id="adsModalTitle" style="font-weight:600;font-size:15px">Input Spend Iklan</div>
+                <div style="font-size:11.5px;color:var(--text-muted)">Track budget iklan per produk</div>
+              </div>
+            </div>
+            <button onclick="adsCloseAddModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-muted);padding:4px 8px;line-height:1">✕</button>
+          </div>
+          <div style="padding:18px 22px">
+            <input type="hidden" id="adsEditId"/>
+            <div style="margin-bottom:12px">
+              <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px">Produk *</label>
+              <select id="adsProdSelect" class="input" style="width:100%"></select>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+              <div>
+                <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px">Tanggal *</label>
+                <input type="date" id="adsDate" class="input" style="width:100%"/>
+              </div>
+              <div>
+                <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px">Platform</label>
+                <select id="adsPlatform" class="input" style="width:100%">
+                  <option value="meta">🔵 Meta Ads (FB/IG)</option>
+                  <option value="tiktok">⚫ TikTok Ads</option>
+                  <option value="google">🟡 Google Ads</option>
+                  <option value="other">⚪ Lainnya</option>
+                </select>
+              </div>
+            </div>
+            <div style="margin-bottom:12px">
+              <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px">Spend Amount (Rp) *</label>
+              <input type="number" id="adsAmount" min="0" step="1000" class="input" style="width:100%;font-family:monospace;font-size:15px" placeholder="500000"/>
+            </div>
+            <div style="margin-bottom:12px">
+              <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px">Catatan (opsional)</label>
+              <input type="text" id="adsNote" class="input" style="width:100%" placeholder="Contoh: campaign winter sale, adset broad"/>
+            </div>
+          </div>
+          <div style="padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;background:var(--surface-2);border-radius:0 0 16px 16px">
+            <button class="btn btn-outline" onclick="adsCloseAddModal()" style="padding:7px 14px;font-size:12.5px">Batal</button>
+            <button class="btn btn-primary" onclick="adsSaveSpend()" style="padding:7px 14px;font-size:12.5px"><i class="ti ti-device-floppy"></i> Simpan</button>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /content -->
     <div class="powered-by">Powered by <span class="pb-brand">Harstroong</span></div>
   </div><!-- /main -->
@@ -6900,7 +7030,8 @@ var SPA_PANEL_TO_PATH = {
   embed: '/embed',
   cloud: '/cloud-sync',
   settings: '/settings',
-  debugtrack: '/debug-tracking'
+  debugtrack: '/debug-tracking',
+  ads: '/iklan'
 };
 var SPA_PATH_TO_PANEL = {};
 Object.keys(SPA_PANEL_TO_PATH).forEach(function(k){ SPA_PATH_TO_PANEL[SPA_PANEL_TO_PATH[k]] = k; });
@@ -7009,6 +7140,7 @@ function showPanel(name, opts){
   else if(name==='cloud')initCloudPanel();
   else if(name==='settings')initSettings();
   else if(name==='debugtrack')initDebugTrack();
+  else if(name==='ads')initAdsPanel();
 }
 function openSidebar(){
   // Legacy stub — sidebar is hidden in topnav v2. Buka drawer mobile instead.
@@ -7613,6 +7745,350 @@ function _v2RenderCsChart(leads){
       }
     }
   });
+}
+
+// ═══════════════════════════════════
+// ADS SPEND & ROI TRACKING
+// ═══════════════════════════════════
+function getAdSpend(){ return LS.g('od_ad_spend', []) || []; }
+function saveAdSpend(list){ LS.s('od_ad_spend', list); }
+function getAdsMargin(){
+  var m = parseInt(LS.g('od_ads_margin', 30), 10);
+  return isNaN(m) ? 30 : m;
+}
+
+function initAdsPanel(){
+  // Load margin
+  var m = getAdsMargin();
+  var mInput = document.getElementById('ads-margin-input');
+  if(mInput) mInput.value = m;
+  var mLbl = document.getElementById('ads-margin-lbl');
+  if(mLbl) mLbl.textContent = m + '%';
+  var breakEven = (m > 0) ? (100/m).toFixed(2) + 'x' : '∞';
+  var beEl = document.getElementById('ads-breakeven');
+  if(beEl) beEl.textContent = breakEven;
+
+  adsRenderAll();
+}
+
+function adsUpdateMargin(val){
+  var m = parseInt(val, 10);
+  if(isNaN(m) || m < 1) m = 30;
+  LS.s('od_ads_margin', m);
+  initAdsPanel();
+}
+
+function adsRenderAll(){
+  var range = getDateFilterRange('ov');
+  var allSpend = getAdSpend();
+  var spendInRange = allSpend.filter(function(s){
+    var ts = new Date(s.date + 'T12:00:00').getTime();
+    return ts >= range.from && ts <= range.to;
+  });
+  var totalSpend = spendInRange.reduce(function(a,s){ return a + (parseInt(s.amount,10)||0); }, 0);
+
+  // Leads in same range
+  var leads = getLeads() || [];
+  if(currentAdUser){
+    var prods0 = (getProds()||[]).filter(function(p){ return p.ownerRole === 'advertiser' && p.ownerId === currentAdUser.id; });
+    var myProdNames = new Set(prods0.map(function(p){ return p.produkWA || p.name; }));
+    leads = leads.filter(function(l){ return myProdNames.has(l.produk); });
+  }
+  var leadsInRange = filterLeadsByDate(leads, range);
+  var closedInRange = leadsInRange.filter(function(l){ return l.followStatus === 'closed'; });
+  var prods = getProds() || [];
+
+  // Revenue = closed × prod price
+  var prodPriceMap = {};
+  prods.forEach(function(p){
+    var priceStr = String(p.price||'').replace(/[^0-9]/g,'');
+    var price = parseInt(priceStr, 10) || 0;
+    prodPriceMap[p.produkWA || p.name] = price;
+    prodPriceMap['__id_' + p.id] = { price: price, name: p.name, hpp: parseInt(String(p.hpp||'').replace(/[^0-9]/g,''),10) || 0 };
+  });
+  var totalRevenue = 0;
+  closedInRange.forEach(function(l){
+    totalRevenue += (prodPriceMap[l.produk] || 0);
+  });
+  // + digital orders paid in range
+  var digOrders = LS.g('od_orders_digital', []) || [];
+  digOrders.forEach(function(o){
+    if(o.status !== 'paid') return;
+    var ts = o.paidAt || o.tsMs || o.ts || 0;
+    if(ts < range.from || ts > range.to) return;
+    totalRevenue += parseInt(o.grossAmount || o.amount || 0, 10);
+  });
+
+  // KPI 1 — Total Spend
+  var elSpend = document.getElementById('ads-kpi-spend');
+  if(elSpend) elSpend.textContent = _v2FmtIDR(totalSpend);
+  var elSpendCount = document.getElementById('ads-kpi-spend-count');
+  if(elSpendCount) elSpendCount.textContent = spendInRange.length + ' entries';
+
+  // KPI 2 — Revenue
+  var elRev = document.getElementById('ads-kpi-rev');
+  if(elRev) elRev.textContent = _v2FmtIDR(totalRevenue);
+  var elRevDet = document.getElementById('ads-kpi-rev-detail');
+  if(elRevDet) elRevDet.textContent = closedInRange.length + ' closed leads';
+
+  // KPI 3 — ROAS
+  var roas = totalSpend > 0 ? (totalRevenue / totalSpend) : 0;
+  var elRoas = document.getElementById('ads-kpi-roas');
+  if(elRoas) elRoas.textContent = roas.toFixed(2) + 'x';
+  var margin = getAdsMargin();
+  var breakEvenRoas = margin > 0 ? (100/margin) : 999;
+  var elStatus = document.getElementById('ads-kpi-roas-status');
+  if(elStatus){
+    if(totalSpend === 0){
+      elStatus.innerHTML = '<span style="color:var(--text-muted)">— belum ada spend</span>';
+    } else if(roas >= breakEvenRoas * 1.5){
+      elStatus.innerHTML = '<span style="color:#059669"><i class="ti ti-check" style="font-size:11px"></i> Profitable (>break-even)</span>';
+    } else if(roas >= breakEvenRoas){
+      elStatus.innerHTML = '<span style="color:#F59E0B"><i class="ti ti-alert-circle" style="font-size:11px"></i> Marginal (~break-even)</span>';
+    } else {
+      elStatus.innerHTML = '<span style="color:#DC2626"><i class="ti ti-alert-triangle" style="font-size:11px"></i> Rugi (di bawah break-even)</span>';
+    }
+  }
+
+  // KPI 4 — CPL / CPA
+  var cpl = leadsInRange.length > 0 ? totalSpend / leadsInRange.length : 0;
+  var cpa = closedInRange.length > 0 ? totalSpend / closedInRange.length : 0;
+  var elCpl = document.getElementById('ads-kpi-cpl');
+  if(elCpl) elCpl.innerHTML = '<div>CPL: ' + _v2FmtIDR(Math.round(cpl)) + '</div><div style="color:var(--text-muted);font-size:12px;margin-top:2px">CPA: ' + _v2FmtIDR(Math.round(cpa)) + '</div>';
+
+  // Period label
+  var periodEl = document.getElementById('ads-period-label');
+  if(periodEl) periodEl.textContent = range.label || '';
+
+  // Per-produk breakdown
+  adsRenderProdTable(spendInRange, leadsInRange, closedInRange, prods, prodPriceMap, breakEvenRoas);
+
+  // History table
+  adsRenderHistory(allSpend, prods);
+}
+
+function adsRenderProdTable(spendInRange, leadsInRange, closedInRange, prods, prodPriceMap, breakEvenRoas){
+  var el = document.getElementById('ads-prod-table');
+  if(!el) return;
+  // Aggregate per prodId
+  var byProd = {};
+  prods.forEach(function(p){
+    byProd[p.id] = { p: p, spend: 0, leads: 0, closed: 0, revenue: 0 };
+  });
+  spendInRange.forEach(function(s){
+    if(byProd[s.prodId]) byProd[s.prodId].spend += (parseInt(s.amount,10)||0);
+  });
+  leadsInRange.forEach(function(l){
+    // Match lead.produk (nama) ke produk by produkWA or name
+    var matched = null;
+    Object.values(byProd).forEach(function(row){
+      var key = row.p.produkWA || row.p.name;
+      if(key === l.produk) matched = row;
+    });
+    if(matched){
+      matched.leads++;
+      if(l.followStatus === 'closed'){
+        matched.closed++;
+        var price = parseInt(String(matched.p.price||'').replace(/[^0-9]/g,''),10) || 0;
+        matched.revenue += price;
+      }
+    }
+  });
+  var rows = Object.values(byProd)
+    .filter(function(r){ return r.spend > 0 || r.leads > 0; })
+    .sort(function(a,b){ return b.spend - a.spend; });
+  if(!rows.length){
+    el.innerHTML = '<div style="text-align:center;padding:30px 20px;color:var(--text-muted);font-size:12.5px"><i class="ti ti-inbox" style="font-size:32px;opacity:.4"></i><div style="margin-top:10px">Belum ada data spend di periode ini</div><button class="btn btn-outline" style="margin-top:12px;padding:6px 14px;font-size:12px" onclick="adsOpenAddModal()"><i class="ti ti-plus"></i> Input Spend Pertama</button></div>';
+    return;
+  }
+  var esc = function(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  var html = '<table style="width:100%;border-collapse:collapse;font-size:12.5px;min-width:640px">' +
+    '<thead><tr style="border-bottom:1px solid var(--border);color:var(--text-muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.3px">' +
+      '<th style="text-align:left;padding:8px 6px;font-weight:600">Produk</th>' +
+      '<th style="text-align:right;padding:8px 6px;font-weight:600">Spend</th>' +
+      '<th style="text-align:right;padding:8px 6px;font-weight:600">Leads</th>' +
+      '<th style="text-align:right;padding:8px 6px;font-weight:600">CPL</th>' +
+      '<th style="text-align:right;padding:8px 6px;font-weight:600">Closed</th>' +
+      '<th style="text-align:right;padding:8px 6px;font-weight:600">Revenue</th>' +
+      '<th style="text-align:right;padding:8px 6px;font-weight:600">ROAS</th>' +
+      '<th style="text-align:right;padding:8px 6px;font-weight:600">Profit</th>' +
+    '</tr></thead><tbody>';
+  rows.forEach(function(r){
+    var cpl = r.leads > 0 ? Math.round(r.spend / r.leads) : 0;
+    var roas = r.spend > 0 ? (r.revenue / r.spend) : 0;
+    var margin = getAdsMargin();
+    var profit = r.revenue * (margin/100) - r.spend;
+    var roasColor = r.spend === 0 ? 'var(--text-muted)' : roas >= breakEvenRoas ? '#059669' : '#DC2626';
+    var profitColor = profit > 0 ? '#059669' : profit < 0 ? '#DC2626' : 'var(--text-muted)';
+    html += '<tr style="border-bottom:0.5px solid var(--border)">' +
+      '<td style="padding:10px 6px;color:var(--text);font-weight:500">'+esc(r.p.name)+'</td>' +
+      '<td style="text-align:right;padding:10px 6px;color:var(--text);font-family:monospace">'+_v2FmtIDR(r.spend)+'</td>' +
+      '<td style="text-align:right;padding:10px 6px;color:var(--text)">'+r.leads+'</td>' +
+      '<td style="text-align:right;padding:10px 6px;color:var(--text);font-family:monospace">'+(cpl > 0 ? _v2FmtIDR(cpl) : '-')+'</td>' +
+      '<td style="text-align:right;padding:10px 6px;color:var(--text)">'+r.closed+'</td>' +
+      '<td style="text-align:right;padding:10px 6px;color:var(--text);font-family:monospace">'+_v2FmtIDR(r.revenue)+'</td>' +
+      '<td style="text-align:right;padding:10px 6px;font-weight:600;color:'+roasColor+'">'+(r.spend > 0 ? roas.toFixed(2)+'x' : '-')+'</td>' +
+      '<td style="text-align:right;padding:10px 6px;font-weight:600;color:'+profitColor+'">'+(r.spend > 0 || r.revenue > 0 ? (profit >= 0 ? '+' : '')+_v2FmtIDR(profit) : '-')+'</td>' +
+    '</tr>';
+  });
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+function adsRenderHistory(allSpend, prods){
+  var el = document.getElementById('ads-history-table');
+  if(!el) return;
+  if(!allSpend.length){
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px">Belum ada history</div>';
+    return;
+  }
+  var prodMap = {};
+  prods.forEach(function(p){ prodMap[p.id] = p.name; });
+  var platformIcons = { meta:'🔵 Meta', tiktok:'⚫ TikTok', google:'🟡 Google', other:'⚪ Other' };
+  var sorted = allSpend.slice().sort(function(a,b){
+    return (b.ts || 0) - (a.ts || 0);
+  }).slice(0, 30);
+  var esc = function(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  var html = '<table style="width:100%;border-collapse:collapse;font-size:12.5px;min-width:640px">' +
+    '<thead><tr style="border-bottom:1px solid var(--border);color:var(--text-muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.3px">' +
+      '<th style="text-align:left;padding:8px 6px;font-weight:600">Tanggal</th>' +
+      '<th style="text-align:left;padding:8px 6px;font-weight:600">Produk</th>' +
+      '<th style="text-align:left;padding:8px 6px;font-weight:600">Platform</th>' +
+      '<th style="text-align:right;padding:8px 6px;font-weight:600">Spend</th>' +
+      '<th style="text-align:left;padding:8px 6px;font-weight:600">Catatan</th>' +
+      '<th style="text-align:right;padding:8px 6px;font-weight:600;width:80px">Aksi</th>' +
+    '</tr></thead><tbody>';
+  sorted.forEach(function(s){
+    html += '<tr style="border-bottom:0.5px solid var(--border)">' +
+      '<td style="padding:10px 6px;color:var(--text);font-family:monospace">'+esc(s.date || '-')+'</td>' +
+      '<td style="padding:10px 6px;color:var(--text)">'+esc(prodMap[s.prodId] || '(produk deleted)')+'</td>' +
+      '<td style="padding:10px 6px;color:var(--text);font-size:11.5px">'+esc(platformIcons[s.platform] || s.platform || '-')+'</td>' +
+      '<td style="text-align:right;padding:10px 6px;color:var(--text);font-family:monospace;font-weight:500">'+_v2FmtIDR(parseInt(s.amount,10)||0)+'</td>' +
+      '<td style="padding:10px 6px;color:var(--text-muted);font-size:11.5px">'+esc(s.note || '-')+'</td>' +
+      '<td style="text-align:right;padding:10px 6px">' +
+        '<button onclick="adsEditSpend(\''+s.id+'\')" title="Edit" style="background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--text-muted);font-size:14px"><i class="ti ti-pencil"></i></button>' +
+        '<button onclick="adsDeleteSpend(\''+s.id+'\')" title="Hapus" style="background:none;border:none;cursor:pointer;padding:4px 6px;color:#DC2626;font-size:14px"><i class="ti ti-trash"></i></button>' +
+      '</td>' +
+    '</tr>';
+  });
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+function adsOpenAddModal(){
+  document.getElementById('adsEditId').value = '';
+  document.getElementById('adsModalTitle').textContent = 'Input Spend Iklan';
+  // Populate produk dropdown
+  var sel = document.getElementById('adsProdSelect');
+  if(sel){
+    var prods = getProds() || [];
+    if(!prods.length){
+      sel.innerHTML = '<option value="">-- Belum ada produk. Bikin produk dulu --</option>';
+    } else {
+      sel.innerHTML = prods.map(function(p){
+        return '<option value="'+p.id+'">'+String(p.name||'Produk').replace(/</g,'&lt;')+'</option>';
+      }).join('');
+    }
+  }
+  // Default date = today
+  var today = new Date();
+  var dt = today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+  document.getElementById('adsDate').value = dt;
+  document.getElementById('adsAmount').value = '';
+  document.getElementById('adsNote').value = '';
+  document.getElementById('adsPlatform').value = 'meta';
+  document.getElementById('adsAddModal').style.display = 'flex';
+}
+
+function adsCloseAddModal(){
+  document.getElementById('adsAddModal').style.display = 'none';
+}
+
+function adsSaveSpend(){
+  var editId = document.getElementById('adsEditId').value;
+  var prodId = document.getElementById('adsProdSelect').value;
+  var date = document.getElementById('adsDate').value;
+  var platform = document.getElementById('adsPlatform').value;
+  var amount = parseInt(document.getElementById('adsAmount').value, 10);
+  var note = document.getElementById('adsNote').value.trim();
+  if(!prodId){ toast('⚠️ Pilih produk dulu'); return; }
+  if(!date){ toast('⚠️ Isi tanggal'); return; }
+  if(!amount || amount <= 0){ toast('⚠️ Amount harus lebih dari 0'); return; }
+  var list = getAdSpend();
+  if(editId){
+    var idx = list.findIndex(function(x){ return x.id === editId; });
+    if(idx >= 0){
+      list[idx] = Object.assign(list[idx], { prodId: parseInt(prodId,10), date: date, platform: platform, amount: amount, note: note, updatedAt: Date.now() });
+    }
+  } else {
+    list.push({
+      id: 'AS' + Date.now() + Math.floor(Math.random()*1000),
+      prodId: parseInt(prodId,10),
+      date: date,
+      platform: platform,
+      amount: amount,
+      note: note,
+      ts: Date.now()
+    });
+  }
+  saveAdSpend(list);
+  // Sync ke Firestore
+  try {
+    if(fb.configured && typeof syncBulkUpsert === 'function'){
+      syncBulkUpsert('od_ad_spend', list).catch(function(){});
+    }
+  } catch(e){}
+  adsCloseAddModal();
+  adsRenderAll();
+  toast('✅ Spend tersimpan');
+}
+
+function adsEditSpend(id){
+  var list = getAdSpend();
+  var s = list.find(function(x){ return x.id === id; });
+  if(!s){ toast('⚠️ Data tidak ditemukan'); return; }
+  adsOpenAddModal();
+  document.getElementById('adsEditId').value = id;
+  document.getElementById('adsModalTitle').textContent = 'Edit Spend Iklan';
+  document.getElementById('adsProdSelect').value = s.prodId;
+  document.getElementById('adsDate').value = s.date || '';
+  document.getElementById('adsPlatform').value = s.platform || 'meta';
+  document.getElementById('adsAmount').value = s.amount || '';
+  document.getElementById('adsNote').value = s.note || '';
+}
+
+function adsDeleteSpend(id){
+  if(!confirm('Hapus entry spend ini?')) return;
+  var list = getAdSpend().filter(function(x){ return x.id !== id; });
+  saveAdSpend(list);
+  try {
+    if(fb.configured && typeof syncDelete === 'function'){
+      syncDelete('od_ad_spend', id).catch(function(){});
+    }
+  } catch(e){}
+  adsRenderAll();
+  toast('🗑️ Spend dihapus');
+}
+
+function adsExportCSV(){
+  var list = getAdSpend();
+  if(!list.length){ toast('⚠️ Belum ada data'); return; }
+  var prods = getProds() || [];
+  var prodMap = {}; prods.forEach(function(p){ prodMap[p.id] = p.name; });
+  var rows = [['Tanggal','Produk','Platform','Spend','Catatan']];
+  list.forEach(function(s){
+    rows.push([s.date, prodMap[s.prodId] || '(deleted)', s.platform, s.amount, s.note || '']);
+  });
+  var csv = rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
+  var blob = new Blob([csv], {type:'text/csv'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'ad-spend-' + new Date().toISOString().slice(0,10) + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+  toast('✅ CSV di-download');
 }
 
 function renderLeadsSparkline(leads){
