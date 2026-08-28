@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-13-hosted-form-trust-first';
+window.__APP_VERSION = '2026-08-14-free-ongkir';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -4434,6 +4434,18 @@ document.addEventListener('DOMContentLoaded', function(){
                   <label class="pfv2-label">Harga Grosir <span style="color:var(--text-muted);font-weight:400">(opsional, tiered pricing)</span></label>
                   <div id="fGrosirList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
                   <button type="button" class="btn btn-outline" style="padding:6px 12px;font-size:12px" onclick="addGrosirRow()"><i class="ti ti-plus" style="font-size:13px"></i> Tambah Harga Grosir</button>
+                </div>
+
+                <div class="pfv2-field" style="border-top:1px dashed var(--border);padding-top:14px;margin-top:14px">
+                  <label class="pfv2-toggle" style="margin-bottom:8px">
+                    <input type="checkbox" id="fFreeOngkir" onchange="toggleFreeOngkirRow()"/>
+                    <span class="pfv2-toggle-slider"></span>
+                    <span class="pfv2-toggle-txt">Gratis Ongkir <div class="pfv2-toggle-desc">Tampilkan badge hijau "Gratis Ongkir" di hosted form + product card</div></span>
+                  </label>
+                  <div id="fOngkirNoteBox">
+                    <label class="pfv2-label" style="font-size:11px;color:var(--text-muted);margin-bottom:3px">Catatan Ongkir <span style="color:var(--text-muted);font-weight:400">(opsional, muncul kalau Gratis Ongkir OFF)</span></label>
+                    <input class="pfv2-input" id="fOngkirNote" type="text" placeholder="Contoh: Ongkir mulai Rp 15.000 · JNE/J&T"/>
+                  </div>
                 </div>
               </div>
               <div id="fHargaVariableBox" style="display:none">
@@ -10735,6 +10747,9 @@ function showProdForm(id){
 
     // Section 3 — Harga
     setV('fHargaNormal', p.hargaNormal);
+    setChk('fFreeOngkir', p.freeOngkir);
+    setV('fOngkirNote', p.ongkirNote);
+    toggleFreeOngkirRow();
     setV('fPrice', p.price);
     setV('fHpp', p.hpp);
     setV('fInventaris', (typeof p.inventaris === 'number') ? p.inventaris : '');
@@ -10841,7 +10856,9 @@ function showProdForm(id){
     var brc2 = document.getElementById('prodFormBreadcrumb'); if(brc2) brc2.textContent = 'Baru';
     document.getElementById('prodFormTitle').textContent = 'Tambah Produk Baru';
     // Reset semua field
-    ['fName','fUrlSlug','fKode','fKategori','fKoleksi','fDesc','fHargaNormal','fPrice','fHpp','fInventaris','fProdWA','fGreeting','fShipperId','fAdminId','fSectionTitle','fHeaderTagline','fBtnText','fVideoUrl','fKontenHeading','fKontenBody','fFbPixelId','fFbPixelEvent','fGTM','fConv','fTtPixelId','fTtPixelEvent','fSuccessCustomUrl','fResellerKomisi'].forEach(function(i){ var el=document.getElementById(i); if(el) el.value = ''; });
+    ['fName','fUrlSlug','fKode','fKategori','fKoleksi','fDesc','fHargaNormal','fPrice','fHpp','fInventaris','fProdWA','fGreeting','fShipperId','fAdminId','fSectionTitle','fHeaderTagline','fBtnText','fVideoUrl','fKontenHeading','fKontenBody','fFbPixelId','fFbPixelEvent','fGTM','fConv','fTtPixelId','fTtPixelEvent','fSuccessCustomUrl','fResellerKomisi','fOngkirNote'].forEach(function(i){ var el=document.getElementById(i); if(el) el.value = ''; });
+    var _foc = document.getElementById('fFreeOngkir'); if(_foc) _foc.checked = false;
+    if(typeof toggleFreeOngkirRow === 'function') toggleFreeOngkirRow();
     var _fc = document.getElementById('fCountry'); if(_fc) _fc.value = '62';
     setV('fKlasifikasi','fisik'); setV('fResellerKomisiTipe','percent');
     setV('fKodeUnikMin', 1); setV('fKodeUnikMax', 999);
@@ -11907,6 +11924,8 @@ function saveProd(){
   var tipe = gv('fTipe') || 'simple';
   var hargaNormal = gv('fHargaNormal').trim();
   var grosir = (window.__prodGrosir||[]).slice();
+  var freeOngkir = gc('fFreeOngkir');
+  var ongkirNote = gv('fOngkirNote').trim();
 
   // Section 4
   var kodeUnikEnabled = gc('fKodeUnikEnabled');
@@ -12017,7 +12036,7 @@ function saveProd(){
       prods[i] = {...prods[i], name, price, desc, hpp, inventaris, coverImage, images,
         urlSlug, kode, klasifikasi, kategori, koleksi, captcha, status,
         active: status !== 'archived',
-        tipe, hargaNormal, grosir,
+        tipe, hargaNormal, grosir, freeOngkir, ongkirNote,
         kodeUnikEnabled, kodeUnikMin, kodeUnikMax,
         resellerEnabled, resellerKomisi, resellerKomisiTipe,
         overrideCSRotator, shipperId, adminId,
@@ -12042,7 +12061,7 @@ function saveProd(){
     savedProd = {id: Date.now(), name, price, desc, hpp, inventaris, coverImage, images,
       urlSlug, kode, klasifikasi, kategori, koleksi, captcha, status,
       active: status !== 'archived',
-      tipe, hargaNormal, grosir,
+      tipe, hargaNormal, grosir, freeOngkir, ongkirNote,
       kodeUnikEnabled, kodeUnikMin, kodeUnikMax,
       resellerEnabled, resellerKomisi, resellerKomisiTipe,
       overrideCSRotator, shipperId, adminId,
@@ -13285,6 +13304,15 @@ function applyHostedFormBrand(){
   }
 }
 
+// Toggle ongkir note visibility berdasarkan Free Ongkir checkbox
+function toggleFreeOngkirRow(){
+  var chk = document.getElementById('fFreeOngkir');
+  var box = document.getElementById('fOngkirNoteBox');
+  if(!chk || !box) return;
+  box.style.opacity = chk.checked ? '0.5' : '1';
+  box.style.pointerEvents = chk.checked ? 'none' : '';
+}
+
 // Render product hero card (Option B — Trust-First Marketplace)
 function renderHostedProdCard(p){
   var card = document.getElementById('hostedProdCard');
@@ -13350,6 +13378,7 @@ function renderHostedProdCard(p){
           (hargaNormalNum > priceNum ? '<div style="font-size:11px;color:#94A3B8;text-decoration:line-through">'+fmtRp(hargaNormalNum)+'</div>' : '') +
           (discPct > 0 ? '<span style="background:#FEE2E2;color:#991B1B;font-size:9.5px;padding:1px 5px;border-radius:4px;font-weight:600">-'+discPct+'%</span>' : '') +
         '</div>' : '') +
+        (p.freeOngkir ? '<div style="display:inline-flex;align-items:center;gap:3px;background:#D1FAE5;color:#065F46;font-size:10px;padding:2px 7px;border-radius:99px;font-weight:600;margin-top:5px"><i class="ti ti-truck-delivery" style="font-size:11px"></i> Gratis Ongkir</div>' : (p.ongkirNote ? '<div style="font-size:10.5px;color:#78716C;margin-top:5px"><i class="ti ti-truck" style="font-size:11px;vertical-align:-2px;color:#94A3B8"></i> '+esc(p.ongkirNote)+'</div>' : '')) +
         '<div style="display:flex;align-items:center;gap:5px;margin-top:4px;font-size:10.5px;color:#78716C">' +
           '<div style="color:#F59E0B;font-size:11px">★★★★★</div>' +
           '<span>'+rating.toFixed(1)+' · '+soldStr+'</span>' +
@@ -13357,6 +13386,18 @@ function renderHostedProdCard(p){
       '</div>' +
     '</div>' +
     urgencyHtml;
+  // Update trust footer di outer wrapper — swap kalau Free Ongkir aktif
+  try {
+    var trustFooter = document.querySelector('#viewProdukForm > div > div:nth-child(4) > div');
+    if(trustFooter && p.freeOngkir){
+      trustFooter.innerHTML =
+        '<div style="display:flex;align-items:center;gap:4px;color:#059669;font-weight:600"><i class="ti ti-truck-delivery" style="color:#059669;font-size:13px"></i>Gratis Ongkir</div>' +
+        '<div style="width:1px;height:14px;background:#E2E8F0"></div>' +
+        '<div style="display:flex;align-items:center;gap:4px"><i class="ti ti-cash" style="color:#F59E0B;font-size:13px"></i>COD</div>' +
+        '<div style="width:1px;height:14px;background:#E2E8F0"></div>' +
+        '<div style="display:flex;align-items:center;gap:4px"><i class="ti ti-refresh" style="color:#10B981;font-size:13px"></i>Retur 7 hari</div>';
+    }
+  } catch(e){}
   // Update tombol CTA embed dengan harga
   setTimeout(function(){
     var btn = document.getElementById('oo-btn-' + p.id);
