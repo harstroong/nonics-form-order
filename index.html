@@ -2652,7 +2652,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-07-28-global-pixel-fallback';
+window.__APP_VERSION = '2026-07-29-ga4-gads-headscript';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -8919,6 +8919,11 @@ function pdqRenderNotifikasi(p){
   var ttId = p.ttPixelId || cfg.globalTiktokPixel || '';
   var ttEv = p.ttPixelEvent || 'SubmitForm';
   var gtm = p.gtmId || cfg.globalGtmId || cfg.gtmId || '';
+  var gaId = cfg.globalGaId || '';
+  var gadsRaw = p.convLabel || cfg.globalGadsLabel || cfg.convLabel || '';
+  var gadsMatch = String(gadsRaw).match(/^(AW-\d+)/);
+  var gadsId = gadsMatch ? gadsMatch[1] : '';
+  var hasHeadScript = !!(cfg.globalHeadScript && cfg.globalHeadScript.trim());
   var esc = function(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
   var pxRow = function(icon,color,label,value,source){
     var status = value ? '<span style="background:#D1FAE5;color:#065F46;font-size:10px;padding:2px 7px;border-radius:99px;font-weight:600">AKTIF</span>' : '<span style="background:#F1F5F9;color:#64748B;font-size:10px;padding:2px 7px;border-radius:99px">-</span>';
@@ -8940,10 +8945,15 @@ function pdqRenderNotifikasi(p){
     pxRow('ti-brand-facebook','#1877F2','Meta Pixel', fbId, p.fbPixelId ? '(per-produk)' : (fbId ? '(global)' : '')) +
     pxRow('ti-brand-tiktok','#000000','TikTok Pixel', ttId, p.ttPixelId ? '(per-produk)' : (ttId ? '(global)' : '')) +
     pxRow('ti-tag','#4285F4','Google Tag Manager', gtm, p.gtmId ? '(per-produk)' : (gtm ? '(global)' : '')) +
+    pxRow('ti-chart-line','#F9AB00','Google Analytics 4', gaId, gaId ? '(global)' : '') +
+    pxRow('ti-brand-google','#4285F4','Google Ads', gadsId, p.convLabel ? '(per-produk)' : (gadsId ? '(global)' : '')) +
+    pxRow('ti-code-dots','#64748B','Custom Head Script', hasHeadScript ? 'Ada · ' + (cfg.globalHeadScript.length) + ' chars' : '', hasHeadScript ? '(global)' : '') +
     '<div style="margin-top:14px;padding:10px 12px;background:var(--surface-2);border-radius:9px;font-size:12px;color:var(--text-muted);line-height:1.55">' +
       '<strong style="color:var(--text)">Event yang di-track:</strong><br>' +
       '<span style="display:inline-block;margin-top:4px">• Meta: <code>'+esc(fbEv)+'</code> pas customer submit form</span><br>' +
       '<span>• TikTok: <code>'+esc(ttEv)+'</code> pas customer submit form</span>' +
+      (gadsId ? '<br><span>• Google Ads: <code>conversion</code> event dengan label lengkap</span>' : '') +
+      (gaId ? '<br><span>• GA4: <code>PageView</code> otomatis + <code>generate_lead</code> via dataLayer</span>' : '') +
     '</div>' +
     '<div style="margin-top:10px;font-size:11.5px;color:var(--text-muted);text-align:center;font-style:italic">Untuk edit pixel ID, klik "Buka edit lengkap" di bawah.</div>';
 }
@@ -10501,6 +10511,11 @@ function generateProdEmbed(p){
   const phKecamatan = phFor('kecamatan');
   const ttPixelId=(p.ttPixelId||'').trim() || (cfg.globalTiktokPixel||'').trim();
   const ttPixelEvent=(p.ttPixelEvent||'SubmitForm').trim();
+  // GA4 + Custom Head Script — dari Pengaturan Global
+  const gaId=(cfg.globalGaId||'').trim();
+  // Google Ads AW-ID (extract dari convLabel "AW-123456789/AbCdEfGhIjKl")
+  const gadsId=(function(){ var s=convLabel||''; var m=s.match(/^(AW-\d+)/); return m?m[1]:''; })();
+  const headScript=(cfg.globalHeadScript||'').trim();
 
   const cfgJ=JSON.stringify({
     storeName:cfg.storeName,
@@ -10873,7 +10888,9 @@ window['ooSub${p.id}']=function(){
 };
 ${gtmId?`if(!document.getElementById('oo-gtm-${p.id}')){var gs=document.createElement('script');gs.id='oo-gtm-${p.id}';gs.innerHTML='(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);})(window,document,"script","dataLayer","${gtmId}");';document.head.appendChild(gs);}`:``}
 ${fbPixelId?`if(!document.getElementById('oo-fbp-${p.id}')){var fps=document.createElement('script');fps.id='oo-fbp-${p.id}';fps.innerHTML='!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version=\"2.0\";n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,\"script\",\"https://connect.facebook.net/en_US/fbevents.js\");fbq(\"init\",\"${fbPixelId}\");fbq(\"track\",\"PageView\");';document.head.appendChild(fps);}`:``}
-${ttPixelId?`if(!document.getElementById('oo-ttp-${p.id}')){var tps=document.createElement('script');tps.id='oo-ttp-${p.id}';tps.innerHTML='!function(w,d,t){w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=[\"page\",\"track\",\"identify\",\"instances\",\"debug\",\"on\",\"off\",\"once\",\"ready\",\"alias\",\"group\",\"enableCookie\",\"disableCookie\"];ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};ttq.load=function(e,n){var i=\"https://analytics.tiktok.com/i18n/pixel/events.js\";ttq._i=ttq._i||{};ttq._i[e]=[];ttq._i[e]._u=i;ttq._t=ttq._t||{};ttq._t[e]=+new Date;ttq._o=ttq._o||{};ttq._o[e]=n||{};var o=document.createElement(\"script\");o.type=\"text/javascript\";o.async=!0;o.src=i+\"?sdkid=\"+e+\"&lib=\"+t;var a=document.getElementsByTagName(\"script\")[0];a.parentNode.insertBefore(o,a)};ttq.load(\"${ttPixelId}\");ttq.page();}(window,document,\"ttq\");';document.head.appendChild(tps);}`:``}}();
+${ttPixelId?`if(!document.getElementById('oo-ttp-${p.id}')){var tps=document.createElement('script');tps.id='oo-ttp-${p.id}';tps.innerHTML='!function(w,d,t){w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=[\"page\",\"track\",\"identify\",\"instances\",\"debug\",\"on\",\"off\",\"once\",\"ready\",\"alias\",\"group\",\"enableCookie\",\"disableCookie\"];ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};ttq.load=function(e,n){var i=\"https://analytics.tiktok.com/i18n/pixel/events.js\";ttq._i=ttq._i||{};ttq._i[e]=[];ttq._i[e]._u=i;ttq._t=ttq._t||{};ttq._t[e]=+new Date;ttq._o=ttq._o||{};ttq._o[e]=n||{};var o=document.createElement(\"script\");o.type=\"text/javascript\";o.async=!0;o.src=i+\"?sdkid=\"+e+\"&lib=\"+t;var a=document.getElementsByTagName(\"script\")[0];a.parentNode.insertBefore(o,a)};ttq.load(\"${ttPixelId}\");ttq.page();}(window,document,\"ttq\");';document.head.appendChild(tps);}`:``}
+${(gaId||gadsId)?`if(!document.getElementById('oo-gtag-${p.id}')){var _gtL=document.createElement('script');_gtL.id='oo-gtag-${p.id}';_gtL.async=true;_gtL.src='https://www.googletagmanager.com/gtag/js?id=${gaId||gadsId}';document.head.appendChild(_gtL);var _gtI=document.createElement('script');_gtI.innerHTML='window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=gtag;gtag(\"js\",new Date());${gaId?`gtag(\"config\",\"${gaId}\");`:``}${gadsId?`gtag(\"config\",\"${gadsId}\");`:``}';document.head.appendChild(_gtI);}`:``}
+${headScript?`if(!document.getElementById('oo-hs-${p.id}')){var _hsW=document.createElement('div');_hsW.id='oo-hs-${p.id}';_hsW.style.display='none';_hsW.innerHTML=${JSON.stringify(headScript)};Array.prototype.slice.call(_hsW.getElementsByTagName('script')).forEach(function(_os){var _ns=document.createElement('script');Array.prototype.slice.call(_os.attributes).forEach(function(a){_ns.setAttribute(a.name,a.value);});_ns.textContent=_os.textContent;document.head.appendChild(_ns);_os.parentNode.removeChild(_os);});document.head.appendChild(_hsW);}`:``}}();
 <\/script>`;
 
   const iframeCode=`<!-- iFrame — ${esc(p.name)} | Ganti URL_FORM_DISINI setelah upload -->
