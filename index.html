@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-15-multi-currency';
+window.__APP_VERSION = '2026-08-16-hosted-l10n';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -6797,7 +6797,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
     <!-- Form mount -->
     <div id="hostedFormCard" style="padding:16px 18px 8px">
-      <div id="hostedFormMount"><div style="text-align:center;padding:40px 20px;color:#94A3B8">Memuat form…</div></div>
+      <div id="hostedFormMount"><div style="text-align:center;padding:40px 20px;color:#94A3B8" id="hostedFormLoading">Memuat form…</div></div>
     </div>
 
     <!-- Trust badges footer -->
@@ -13402,6 +13402,97 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 });
 
+// ═══════════════════════════════════
+// HOSTED FORM TRANSLATIONS per country
+// ═══════════════════════════════════
+window.HOSTED_L10N = {
+  id: {
+    freeOngkir: 'Gratis Ongkir',
+    ongkirLead: 'Ongkir',
+    cod: 'COD',
+    guarantee: 'Garansi 1 thn',
+    return: 'Retur 7 hari',
+    dataEncrypted: 'Data terenkripsi',
+    poweredBy: 'Powered by',
+    ctaBuy: 'Beli',
+    ctaOrder: 'Pesan Sekarang',
+    ratingSoldSep: '·',
+    soldSuffix: 'terjual',
+    soldUnitK: 'rb',
+    urgencyCheckoutToday: 'orang checkout hari ini',
+    urgencyStockLeft: 'sisa stok tinggal',
+    sslSafe: 'SSL Aman',
+    bestSeller: 'Best Seller',
+    formLoading: 'Memuat form…'
+  },
+  my: {
+    freeOngkir: 'Percuma Penghantaran',
+    ongkirLead: 'Penghantaran',
+    cod: 'COD (Bayar Semasa Terima)',
+    guarantee: 'Jaminan 1 tahun',
+    return: 'Pemulangan 7 hari',
+    dataEncrypted: 'Data selamat & disulit',
+    poweredBy: 'Dikuasakan oleh',
+    ctaBuy: 'Beli',
+    ctaOrder: 'Pesan Sekarang',
+    ratingSoldSep: '·',
+    soldSuffix: 'terjual',
+    soldUnitK: 'k',
+    urgencyCheckoutToday: 'orang membeli hari ini',
+    urgencyStockLeft: 'baki stok tinggal',
+    sslSafe: 'SSL Selamat',
+    bestSeller: 'Paling Laku',
+    formLoading: 'Memuatkan borang…'
+  },
+  en: {
+    freeOngkir: 'Free Shipping',
+    ongkirLead: 'Shipping',
+    cod: 'Cash on Delivery',
+    guarantee: '1 year warranty',
+    return: '7 day return',
+    dataEncrypted: 'Data encrypted',
+    poweredBy: 'Powered by',
+    ctaBuy: 'Buy',
+    ctaOrder: 'Order Now',
+    ratingSoldSep: '·',
+    soldSuffix: 'sold',
+    soldUnitK: 'k',
+    urgencyCheckoutToday: 'people checkout today',
+    urgencyStockLeft: 'stock left',
+    sslSafe: 'SSL Secure',
+    bestSeller: 'Best Seller',
+    formLoading: 'Loading form…'
+  },
+  th: {
+    freeOngkir: 'ส่งฟรี',
+    ongkirLead: 'ค่าจัดส่ง',
+    cod: 'เก็บเงินปลายทาง',
+    guarantee: 'รับประกัน 1 ปี',
+    return: 'คืนสินค้าใน 7 วัน',
+    dataEncrypted: 'ข้อมูลปลอดภัย',
+    poweredBy: 'ขับเคลื่อนโดย',
+    ctaBuy: 'ซื้อเลย',
+    ctaOrder: 'สั่งซื้อเลย',
+    ratingSoldSep: '·',
+    soldSuffix: 'ขายแล้ว',
+    soldUnitK: 'k',
+    urgencyCheckoutToday: 'คนสั่งซื้อวันนี้',
+    urgencyStockLeft: 'เหลือ',
+    sslSafe: 'SSL ปลอดภัย',
+    bestSeller: 'ขายดี',
+    formLoading: 'กำลังโหลด…'
+  }
+};
+
+// Map country code → language key
+window.COUNTRY_TO_LANG = { '62':'id', '60':'my', '673':'my', '65':'en', '66':'th', '63':'en' };
+
+// Get translations for a product
+window.getL10n = function(p){
+  var langKey = window.COUNTRY_TO_LANG[String((p && p.country) || '62')] || 'id';
+  return window.HOSTED_L10N[langKey] || window.HOSTED_L10N.id;
+};
+
 // Toggle ongkir note visibility berdasarkan Free Ongkir checkbox
 function toggleFreeOngkirRow(){
   var chk = document.getElementById('fFreeOngkir');
@@ -13417,6 +13508,7 @@ function renderHostedProdCard(p){
   if(!card || !p) return;
   var cfg = getCfg();
   var primary = cfg.primaryColor || '#10B981';
+  var t = (typeof window.getL10n === 'function') ? window.getL10n(p) : (window.HOSTED_L10N && window.HOSTED_L10N.id) || {};
   var esc = function(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
   // Cover image
   var coverImg = '';
@@ -13439,26 +13531,28 @@ function renderHostedProdCard(p){
   var fmtRpFull = function(n){ return (typeof window.formatMoney === 'function') ? window.formatMoney(n, productCurrency) : ('Rp ' + n.toLocaleString('id-ID')); };
   // Badges dari produk (kategori, koleksi, warranty)
   var badges = [];
-  if(p.koleksi && /best|seller|terlaris/i.test(p.koleksi)) badges.push({txt:'Best Seller', bg:'#ECFDF5', color:'#065F46'});
-  else if(p.koleksi) badges.push({txt: p.koleksi.length > 12 ? p.koleksi.substring(0,12)+'…' : p.koleksi, bg:'#EDE9FE', color:'#5B21B6'});
-  badges.push({txt:'COD', bg:'#FEF3C7', color:'#78350F'});
-  if(p.warrantyEnabled) badges.push({txt: p.warrantyLabel || 'Garansi', bg:'#DBEAFE', color:'#1E40AF'});
+  if(p.koleksi && /best|seller|terlaris|laku|top/i.test(p.koleksi)) badges.push({txt: t.bestSeller || 'Best Seller', bg:'#ECFDF5', color:'#065F46'});
+  else if(p.koleksi) badges.push({txt: p.koleksi.length > 15 ? p.koleksi.substring(0,15)+'…' : p.koleksi, bg:'#EDE9FE', color:'#5B21B6'});
+  badges.push({txt: (t.cod || 'COD').replace(/\s*\(.+\)$/, ''), bg:'#FEF3C7', color:'#78350F'});
+  if(p.warrantyEnabled) badges.push({txt: p.warrantyLabel || t.guarantee || 'Garansi', bg:'#DBEAFE', color:'#1E40AF'});
   var badgesHtml = badges.slice(0,3).map(function(b){
     return '<span style="background:'+b.bg+';color:'+b.color+';font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:99px">'+esc(b.txt)+'</span>';
   }).join('');
   // Star rating (semi-fake — proses dari p.rating kalau ada, atau default 4.8/4.9)
   var rating = p.rating || (4.7 + Math.random() * 0.3);
   var soldCount = p.soldCount || Math.floor(1500 + Math.random() * 1000);
-  var soldStr = soldCount >= 1000 ? (soldCount/1000).toFixed(1).replace('.0','') + 'rb terjual' : soldCount + ' terjual';
+  var soldStr = soldCount >= 1000 ? (soldCount/1000).toFixed(1).replace('.0','') + (t.soldUnitK || 'rb') + ' ' + (t.soldSuffix || 'terjual') : soldCount + ' ' + (t.soldSuffix || 'terjual');
   // Urgency strip (kalau enabled — pake p.showUrgency atau default off, tapi bisa fake dynamic)
   var showUrgency = p.showUrgency !== false;
   var urgencyCount = p.urgencyCount || Math.floor(50 + Math.random() * 200);
   var stockLeft = p.inventaris ? parseInt(p.inventaris, 10) : Math.floor(5 + Math.random() * 15);
   var urgencyHtml = '';
   if(showUrgency){
+    var urgencyPeopleTxt = (t.urgencyCheckoutToday || 'orang checkout hari ini');
+    var urgencyStockTxt = (t.urgencyStockLeft || 'sisa stok tinggal');
     urgencyHtml = '<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#FEF7ED;border:0.5px solid #FDBA74;border-radius:9px;margin-top:12px">' +
       '<i class="ti ti-flame" style="color:#EA580C;font-size:14px;flex-shrink:0"></i>' +
-      '<div style="font-size:11px;color:#7C2D12;line-height:1.5"><b>'+urgencyCount+' orang</b> checkout hari ini' + (stockLeft > 0 && stockLeft < 30 ? ' · sisa stok <b>tinggal '+stockLeft+'</b>' : '') + '</div>' +
+      '<div style="font-size:11px;color:#7C2D12;line-height:1.5"><b>'+urgencyCount+'</b> ' + urgencyPeopleTxt + (stockLeft > 0 && stockLeft < 30 ? ' · ' + urgencyStockTxt + ' <b>'+stockLeft+'</b>' : '') + '</div>' +
     '</div>';
   }
   card.style.display = 'block';
@@ -13473,7 +13567,7 @@ function renderHostedProdCard(p){
           (hargaNormalNum > priceNum ? '<div style="font-size:11px;color:#94A3B8;text-decoration:line-through">'+fmtRp(hargaNormalNum)+'</div>' : '') +
           (discPct > 0 ? '<span style="background:#FEE2E2;color:#991B1B;font-size:9.5px;padding:1px 5px;border-radius:4px;font-weight:600">-'+discPct+'%</span>' : '') +
         '</div>' : '') +
-        (p.freeOngkir ? '<div style="display:inline-flex;align-items:center;gap:3px;background:#D1FAE5;color:#065F46;font-size:10px;padding:2px 7px;border-radius:99px;font-weight:600;margin-top:5px"><i class="ti ti-truck-delivery" style="font-size:11px"></i> Gratis Ongkir</div>' : (p.ongkirNote ? '<div style="font-size:10.5px;color:#78716C;margin-top:5px"><i class="ti ti-truck" style="font-size:11px;vertical-align:-2px;color:#94A3B8"></i> '+esc(p.ongkirNote)+'</div>' : '')) +
+        (p.freeOngkir ? '<div style="display:inline-flex;align-items:center;gap:3px;background:#D1FAE5;color:#065F46;font-size:10px;padding:2px 7px;border-radius:99px;font-weight:600;margin-top:5px"><i class="ti ti-truck-delivery" style="font-size:11px"></i> '+ (t.freeOngkir || 'Gratis Ongkir') +'</div>' : (p.ongkirNote ? '<div style="font-size:10.5px;color:#78716C;margin-top:5px"><i class="ti ti-truck" style="font-size:11px;vertical-align:-2px;color:#94A3B8"></i> '+esc(p.ongkirNote)+'</div>' : '')) +
         '<div style="display:flex;align-items:center;gap:5px;margin-top:4px;font-size:10.5px;color:#78716C">' +
           '<div style="color:#F59E0B;font-size:11px">★★★★★</div>' +
           '<span>'+rating.toFixed(1)+' · '+soldStr+'</span>' +
@@ -13481,18 +13575,39 @@ function renderHostedProdCard(p){
       '</div>' +
     '</div>' +
     urgencyHtml;
-  // Update trust footer di outer wrapper — swap kalau Free Ongkir aktif
+  // Update trust footer di outer wrapper — reflect Free Ongkir + translations
   try {
     var trustFooter = document.querySelector('#viewProdukForm > div > div:nth-child(4) > div');
-    if(trustFooter && p.freeOngkir){
-      trustFooter.innerHTML =
-        '<div style="display:flex;align-items:center;gap:4px;color:#059669;font-weight:600"><i class="ti ti-truck-delivery" style="color:#059669;font-size:13px"></i>Gratis Ongkir</div>' +
-        '<div style="width:1px;height:14px;background:#E2E8F0"></div>' +
-        '<div style="display:flex;align-items:center;gap:4px"><i class="ti ti-cash" style="color:#F59E0B;font-size:13px"></i>COD</div>' +
-        '<div style="width:1px;height:14px;background:#E2E8F0"></div>' +
-        '<div style="display:flex;align-items:center;gap:4px"><i class="ti ti-refresh" style="color:#10B981;font-size:13px"></i>Retur 7 hari</div>';
+    if(trustFooter){
+      var codShort = (t.cod || 'COD').replace(/\s*\(.+\)$/, '');
+      if(p.freeOngkir){
+        trustFooter.innerHTML =
+          '<div style="display:flex;align-items:center;gap:4px;color:#059669;font-weight:600"><i class="ti ti-truck-delivery" style="color:#059669;font-size:13px"></i>' + (t.freeOngkir || 'Gratis Ongkir') + '</div>' +
+          '<div style="width:1px;height:14px;background:#E2E8F0"></div>' +
+          '<div style="display:flex;align-items:center;gap:4px"><i class="ti ti-cash" style="color:#F59E0B;font-size:13px"></i>' + codShort + '</div>' +
+          '<div style="width:1px;height:14px;background:#E2E8F0"></div>' +
+          '<div style="display:flex;align-items:center;gap:4px"><i class="ti ti-refresh" style="color:#10B981;font-size:13px"></i>' + (t.return || 'Retur 7 hari') + '</div>';
+      } else {
+        trustFooter.innerHTML =
+          '<div style="display:flex;align-items:center;gap:4px"><i class="ti ti-truck" style="color:#10B981;font-size:13px"></i>' + codShort + '</div>' +
+          '<div style="width:1px;height:14px;background:#E2E8F0"></div>' +
+          '<div style="display:flex;align-items:center;gap:4px"><i class="ti ti-shield-check" style="color:#10B981;font-size:13px"></i>' + (t.guarantee || 'Garansi 1 thn') + '</div>' +
+          '<div style="width:1px;height:14px;background:#E2E8F0"></div>' +
+          '<div style="display:flex;align-items:center;gap:4px"><i class="ti ti-refresh" style="color:#10B981;font-size:13px"></i>' + (t.return || 'Retur 7 hari') + '</div>';
+      }
     }
-  } catch(e){}
+    // Update bottom footer "Data terenkripsi"
+    var brandFooter = document.getElementById('hfBrandFooter');
+    if(brandFooter){
+      var footerCustom = cfg.footerText || ((t.dataEncrypted || 'Data terenkripsi') + ' · ' + (t.poweredBy || 'Powered by') + ' ' + (cfg.storeName || 'Nonics Order'));
+      brandFooter.innerHTML = '<i class="ti ti-lock" style="font-size:11px"></i> ' + String(footerCustom).replace(/</g,'&lt;');
+    }
+    // Update SSL badge di header
+    var sslBadge = document.querySelector('#viewProdukForm > div > div:first-child > div:last-child');
+    if(sslBadge){
+      sslBadge.innerHTML = '<i class="ti ti-shield-check" style="font-size:13px;color:#10B981"></i> ' + (t.sslSafe || 'SSL Aman');
+    }
+  } catch(e){ console.warn('l10n apply fail:', e); }
   // Update tombol CTA embed dengan harga
   setTimeout(function(){
     var btn = document.getElementById('oo-btn-' + p.id);
@@ -13500,7 +13615,8 @@ function renderHostedProdCard(p){
       var origText = btn.textContent;
       var cur = window.CURRENCY_MAP && window.CURRENCY_MAP[productCurrency] ? window.CURRENCY_MAP[productCurrency] : {symbol:'Rp'};
       if(origText.indexOf(cur.symbol) < 0){
-        btn.innerHTML = '<i class="ti ti-shopping-cart" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Beli · ' + fmtRpFull(priceNum);
+        var buyLbl = (t.ctaBuy || 'Beli');
+        btn.innerHTML = '<i class="ti ti-shopping-cart" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>' + buyLbl + ' · ' + fmtRpFull(priceNum);
         btn.style.background = '#DC2626';
         btn.style.borderRadius = '10px';
         btn.style.padding = '13px';
