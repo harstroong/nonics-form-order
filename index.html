@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-07-ads-roi-mvp';
+window.__APP_VERSION = '2026-08-08-ads-produk-search';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -5927,9 +5927,16 @@ document.addEventListener('DOMContentLoaded', function(){
           </div>
           <div style="padding:18px 22px">
             <input type="hidden" id="adsEditId"/>
-            <div style="margin-bottom:12px">
+            <div style="margin-bottom:12px;position:relative">
               <label style="display:block;font-size:11.5px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px">Produk *</label>
-              <select id="adsProdSelect" class="input" style="width:100%"></select>
+              <div style="position:relative">
+                <i class="ti ti-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:14px;pointer-events:none"></i>
+                <input type="text" id="adsProdSearch" class="input" style="width:100%;padding-left:34px;padding-right:34px" placeholder="Cari produk..." autocomplete="off" oninput="adsFilterProd(this.value)" onfocus="adsFilterProd(this.value)" onkeydown="adsProdKeyNav(event)"/>
+                <button type="button" id="adsProdClear" onclick="adsClearProd()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:14px;padding:4px;display:none"><i class="ti ti-x"></i></button>
+              </div>
+              <input type="hidden" id="adsProdId"/>
+              <div id="adsProdOptions" style="position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:8px;max-height:220px;overflow-y:auto;display:none;z-index:10;margin-top:4px;box-shadow:0 8px 24px rgba(0,0,0,.08)"></div>
+              <div id="adsProdSelected" style="display:none;margin-top:6px;padding:5px 10px;background:var(--primary-light);color:var(--primary-dark);border-radius:6px;font-size:11.5px;font-weight:500"><i class="ti ti-check" style="font-size:12px"></i> <span id="adsProdSelectedLbl"></span></div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
               <div>
@@ -7978,18 +7985,12 @@ function adsRenderHistory(allSpend, prods){
 function adsOpenAddModal(){
   document.getElementById('adsEditId').value = '';
   document.getElementById('adsModalTitle').textContent = 'Input Spend Iklan';
-  // Populate produk dropdown
-  var sel = document.getElementById('adsProdSelect');
-  if(sel){
-    var prods = getProds() || [];
-    if(!prods.length){
-      sel.innerHTML = '<option value="">-- Belum ada produk. Bikin produk dulu --</option>';
-    } else {
-      sel.innerHTML = prods.map(function(p){
-        return '<option value="'+p.id+'">'+String(p.name||'Produk').replace(/</g,'&lt;')+'</option>';
-      }).join('');
-    }
-  }
+  // Reset produk picker
+  document.getElementById('adsProdSearch').value = '';
+  document.getElementById('adsProdId').value = '';
+  document.getElementById('adsProdSelected').style.display = 'none';
+  document.getElementById('adsProdOptions').style.display = 'none';
+  document.getElementById('adsProdClear').style.display = 'none';
   // Default date = today
   var today = new Date();
   var dt = today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
@@ -7998,7 +7999,112 @@ function adsOpenAddModal(){
   document.getElementById('adsNote').value = '';
   document.getElementById('adsPlatform').value = 'meta';
   document.getElementById('adsAddModal').style.display = 'flex';
+  // Focus search
+  setTimeout(function(){ document.getElementById('adsProdSearch').focus(); }, 100);
 }
+
+// Search-filter produk untuk combobox
+window.__adsProdActiveIdx = -1;
+function adsFilterProd(query){
+  var prods = getProds() || [];
+  var q = String(query||'').toLowerCase().trim();
+  var filtered = q ? prods.filter(function(p){
+    var name = String(p.name||'').toLowerCase();
+    var kode = String(p.kode||'').toLowerCase();
+    var kat = String(p.kategori||'').toLowerCase();
+    return name.indexOf(q) >= 0 || kode.indexOf(q) >= 0 || kat.indexOf(q) >= 0;
+  }) : prods.slice(0, 20);
+  var el = document.getElementById('adsProdOptions');
+  var clearBtn = document.getElementById('adsProdClear');
+  if(clearBtn) clearBtn.style.display = q ? '' : 'none';
+  if(!el) return;
+  if(!filtered.length){
+    el.innerHTML = '<div style="padding:12px 14px;color:var(--text-muted);font-size:12px;text-align:center">' + (prods.length === 0 ? 'Belum ada produk. Bikin produk dulu di /produk' : 'Tidak ada match untuk "' + q + '"') + '</div>';
+    el.style.display = 'block';
+    return;
+  }
+  window.__adsProdActiveIdx = -1;
+  var esc = function(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  // Highlight query in name
+  var hl = function(text, q){
+    if(!q) return esc(text);
+    var lower = text.toLowerCase();
+    var idx = lower.indexOf(q);
+    if(idx < 0) return esc(text);
+    return esc(text.substring(0,idx)) + '<mark style="background:var(--primary-light);color:var(--primary-dark);padding:0 2px;border-radius:2px">' + esc(text.substring(idx, idx+q.length)) + '</mark>' + esc(text.substring(idx+q.length));
+  };
+  el.innerHTML = filtered.slice(0, 10).map(function(p, i){
+    var kode = p.kode ? '<span style="font-size:10px;color:var(--text-muted);font-family:monospace;margin-left:6px">'+esc(p.kode)+'</span>' : '';
+    var kat = p.kategori ? '<div style="font-size:10.5px;color:var(--text-muted);margin-top:2px">'+esc(p.kategori)+'</div>' : '';
+    return '<div class="ads-prod-opt" data-idx="'+i+'" data-id="'+p.id+'" data-name="'+esc(p.name)+'" onclick="adsSelectProd('+p.id+',\''+esc(p.name).replace(/'/g,"\\'")+'\')" onmouseover="adsProdHover('+i+')" style="padding:9px 12px;cursor:pointer;border-bottom:0.5px solid var(--border);font-size:12.5px;color:var(--text)">' +
+      '<div style="display:flex;align-items:center"><span style="flex:1">'+hl(p.name||'', q)+'</span>'+kode+'</div>' +
+      kat +
+    '</div>';
+  }).join('');
+  el.style.display = 'block';
+}
+
+function adsProdHover(idx){
+  window.__adsProdActiveIdx = idx;
+  var opts = document.querySelectorAll('#adsProdOptions .ads-prod-opt');
+  opts.forEach(function(o, i){
+    o.style.background = i === idx ? 'var(--surface-2)' : '';
+  });
+}
+
+function adsProdKeyNav(ev){
+  var opts = document.querySelectorAll('#adsProdOptions .ads-prod-opt');
+  if(!opts.length) return;
+  var idx = window.__adsProdActiveIdx;
+  if(ev.key === 'ArrowDown'){
+    ev.preventDefault();
+    idx = (idx + 1) % opts.length;
+    adsProdHover(idx);
+    opts[idx].scrollIntoView({block:'nearest'});
+  } else if(ev.key === 'ArrowUp'){
+    ev.preventDefault();
+    idx = idx <= 0 ? opts.length - 1 : idx - 1;
+    adsProdHover(idx);
+    opts[idx].scrollIntoView({block:'nearest'});
+  } else if(ev.key === 'Enter' && idx >= 0){
+    ev.preventDefault();
+    opts[idx].click();
+  } else if(ev.key === 'Escape'){
+    document.getElementById('adsProdOptions').style.display = 'none';
+  }
+}
+
+function adsSelectProd(id, name){
+  document.getElementById('adsProdId').value = id;
+  document.getElementById('adsProdSearch').value = name;
+  document.getElementById('adsProdSelectedLbl').textContent = name;
+  document.getElementById('adsProdSelected').style.display = '';
+  document.getElementById('adsProdOptions').style.display = 'none';
+  document.getElementById('adsProdClear').style.display = '';
+  // Move focus to next field
+  var dateEl = document.getElementById('adsDate');
+  if(dateEl) dateEl.focus();
+}
+
+function adsClearProd(){
+  document.getElementById('adsProdId').value = '';
+  document.getElementById('adsProdSearch').value = '';
+  document.getElementById('adsProdSelected').style.display = 'none';
+  document.getElementById('adsProdClear').style.display = 'none';
+  document.getElementById('adsProdSearch').focus();
+  adsFilterProd('');
+}
+
+// Close options when clicking outside
+document.addEventListener('click', function(ev){
+  var opts = document.getElementById('adsProdOptions');
+  var search = document.getElementById('adsProdSearch');
+  if(!opts || !search) return;
+  if(opts.style.display !== 'block') return;
+  if(!opts.contains(ev.target) && ev.target !== search){
+    opts.style.display = 'none';
+  }
+});
 
 function adsCloseAddModal(){
   document.getElementById('adsAddModal').style.display = 'none';
@@ -8006,7 +8112,7 @@ function adsCloseAddModal(){
 
 function adsSaveSpend(){
   var editId = document.getElementById('adsEditId').value;
-  var prodId = document.getElementById('adsProdSelect').value;
+  var prodId = document.getElementById('adsProdId').value;
   var date = document.getElementById('adsDate').value;
   var platform = document.getElementById('adsPlatform').value;
   var amount = parseInt(document.getElementById('adsAmount').value, 10);
@@ -8050,7 +8156,12 @@ function adsEditSpend(id){
   adsOpenAddModal();
   document.getElementById('adsEditId').value = id;
   document.getElementById('adsModalTitle').textContent = 'Edit Spend Iklan';
-  document.getElementById('adsProdSelect').value = s.prodId;
+  // Preset produk via search combobox
+  var prods = getProds() || [];
+  var p = prods.find(function(x){ return x.id === s.prodId; });
+  if(p){
+    adsSelectProd(p.id, p.name);
+  }
   document.getElementById('adsDate').value = s.date || '';
   document.getElementById('adsPlatform').value = s.platform || 'meta';
   document.getElementById('adsAmount').value = s.amount || '';
