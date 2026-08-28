@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-10-ads-csv-importer';
+window.__APP_VERSION = '2026-08-11-ads-parser-fix';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -8502,43 +8502,103 @@ function _adsProcessRows(rows){
 
 function _adsDetectFormat(headers){
   var lower = headers.map(function(h){ return String(h).toLowerCase(); });
-  var find = function(patterns){
+  var findExact = function(patterns){
+    // Prefer exact match dulu (biar "cost" gak nyerempet ke "cost / conv.")
     for(var i=0; i<lower.length; i++){
       for(var j=0; j<patterns.length; j++){
-        if(lower[i].indexOf(patterns[j]) >= 0) return i;
+        if(lower[i] === patterns[j]) return i;
+      }
+    }
+    // Fallback partial
+    for(var k=0; k<lower.length; k++){
+      for(var l=0; l<patterns.length; l++){
+        if(lower[k].indexOf(patterns[l]) >= 0) return k;
       }
     }
     return -1;
   };
-  // Meta Ads Manager: "Reporting starts", "Campaign name", "Amount spent (IDR)"
-  // TikTok: "Date", "Campaign name", "Cost"
-  // Google Ads: "Day", "Campaign", "Cost"
-  var dateIdx = find(['reporting starts','date','day','tanggal','waktu']);
-  var campaignIdx = find(['campaign name','campaign','kampanye']);
-  var spendIdx = find(['amount spent','spend','cost','biaya','pengeluaran']);
-  var platform = 'other';
-  var detected = false;
   var joined = lower.join('|');
-  if(joined.indexOf('reporting starts') >= 0 || joined.indexOf('amount spent') >= 0){ platform = 'meta'; detected = true; }
-  else if(joined.indexOf('tiktok') >= 0 || (dateIdx >= 0 && spendIdx >= 0 && lower[spendIdx].indexOf('cost') === 0)){ platform = 'tiktok'; detected = true; }
-  else if(joined.indexOf('day') >= 0 && joined.indexOf('impressions') >= 0){ platform = 'google'; detected = true; }
+  // Platform detection — Google Ads has specific columns like "impr.", "optimization score", "bid strategy type"
+  var platform = 'other', detected = false;
+  var isGoogle = /(?:^|\|)impr\.?(?:\||$)/.test(joined) ||
+                 joined.indexOf('optimization score') >= 0 ||
+                 joined.indexOf('bid strategy') >= 0 ||
+                 joined.indexOf('conv. rate') >= 0 ||
+                 joined.indexOf('conv. value') >= 0;
+  var isMeta = joined.indexOf('reporting starts') >= 0 ||
+               joined.indexOf('amount spent') >= 0 ||
+               joined.indexOf('ad set name') >= 0 ||
+               joined.indexOf('reach') >= 0 && joined.indexOf('frequency') >= 0;
+  var isTikTok = joined.indexOf('tiktok') >= 0 ||
+                 joined.indexOf('ad group name') >= 0 && joined.indexOf('cost') >= 0 && !isGoogle && !isMeta;
+  if(isGoogle){ platform = 'google'; detected = true; }
+  else if(isMeta){ platform = 'meta'; detected = true; }
+  else if(isTikTok){ platform = 'tiktok'; detected = true; }
+  // Column detection — pake exact match dulu supaya "cost" gak nyerempet ke "cost / conv."
+  var dateIdx = findExact(['day','date','reporting starts','tanggal','waktu']);
+  var campaignIdx = -1;
+  // Google Ads: pilih "campaign" bukan "campaign status" / "campaign type"
+  for(var i=0; i<lower.length; i++){
+    if(lower[i] === 'campaign' || lower[i] === 'campaign name' || lower[i] === 'kampanye'){ campaignIdx = i; break; }
+  }
+  if(campaignIdx < 0){
+    // Fallback: cari yang bukan "campaign status/type"
+    for(var j=0; j<lower.length; j++){
+      if(lower[j].indexOf('campaign') >= 0 && lower[j].indexOf('status') < 0 && lower[j].indexOf('type') < 0){ campaignIdx = j; break; }
+    }
+  }
+  // Spend: prefer "cost" (exact) atau "amount spent"; avoid "cost / conv."
+  var spendIdx = -1;
+  for(var k=0; k<lower.length; k++){
+    if(lower[k] === 'cost' || lower[k] === 'amount spent' || lower[k].indexOf('amount spent (') === 0){ spendIdx = k; break; }
+  }
+  if(spendIdx < 0){
+    for(var m=0; m<lower.length; m++){
+      if((lower[m].indexOf('cost') >= 0 || lower[m].indexOf('spend') >= 0 || lower[m].indexOf('biaya') >= 0)
+         && lower[m].indexOf('/') < 0 && lower[m].indexOf('conv') < 0 && lower[m].indexOf('click') < 0 && lower[m].indexOf('view') < 0){
+        spendIdx = m; break;
+      }
+    }
+  }
   return { dateIdx: dateIdx, campaignIdx: campaignIdx, spendIdx: spendIdx, platform: platform, detected: detected };
 }
 
 function _adsParseDate(s){
-  if(!s) return null;
+  if(s === null || s === undefined || s === '') return null;
+  // Native Date object dari SheetJS
+  if(s instanceof Date && !isNaN(s.getTime())){
+    return s.getFullYear() + '-' + String(s.getMonth()+1).padStart(2,'0') + '-' + String(s.getDate()).padStart(2,'0');
+  }
+  // Number (Excel serial date)
+  if(typeof s === 'number' && s > 25000 && s < 100000){
+    // Excel epoch: 1900-01-01 (day 1), but bug: 1900 treated as leap → offset by 25569 for Unix
+    var ms = (s - 25569) * 86400000;
+    var d = new Date(ms);
+    if(!isNaN(d.getTime())){
+      return d.getUTCFullYear() + '-' + String(d.getUTCMonth()+1).padStart(2,'0') + '-' + String(d.getUTCDate()).padStart(2,'0');
+    }
+  }
   s = String(s).trim();
+  if(!s) return null;
   // ISO: 2026-08-28
   if(/^\d{4}-\d{2}-\d{2}/.test(s)) return s.substring(0,10);
+  // "Fri, Aug 21, 2026" (dari Google Ads UI)
+  var mday = s.match(/([a-z]{3,9})\s+(\d{1,2}),?\s+(\d{4})/i);
+  if(mday){
+    var months = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+    var mo = months[mday[1].substring(0,3).toLowerCase()];
+    if(mo != null){
+      return mday[3] + '-' + String(mo+1).padStart(2,'0') + '-' + String(parseInt(mday[2],10)).padStart(2,'0');
+    }
+  }
   // DD/MM/YYYY or MM/DD/YYYY
   var m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
   if(m){
-    var d = m[1], mo = m[2], y = m[3];
+    var dd = m[1], mm = m[2], y = m[3];
     if(y.length === 2) y = '20' + y;
-    // Assume DD/MM/YYYY (Indonesia default)
-    return y + '-' + mo.padStart(2,'0') + '-' + d.padStart(2,'0');
+    return y + '-' + mm.padStart(2,'0') + '-' + dd.padStart(2,'0');
   }
-  // Try Date.parse fallback
+  // Fallback
   var parsed = new Date(s);
   if(!isNaN(parsed.getTime())){
     return parsed.getFullYear() + '-' + String(parsed.getMonth()+1).padStart(2,'0') + '-' + String(parsed.getDate()).padStart(2,'0');
@@ -8547,9 +8607,47 @@ function _adsParseDate(s){
 }
 
 function _adsParseAmount(s){
+  if(s === null || s === undefined || s === '') return 0;
+  // Native number (dari SheetJS XLSX): pake langsung, jangan strip decimal
+  if(typeof s === 'number'){
+    if(!isFinite(s)) return 0;
+    return Math.round(s);
+  }
+  s = String(s).trim();
   if(!s) return 0;
-  s = String(s).replace(/[Rp\.\s,]/g,'').replace(/[^\d]/g,'');
-  return parseInt(s, 10) || 0;
+  // Strip currency symbols/prefixes + spaces
+  s = s.replace(/(?:IDR|Rp|USD|MYR|SGD|\$|€|£|¥|₩|RM)/gi, '').replace(/\s+/g, '');
+  var hasDot = s.indexOf('.') >= 0;
+  var hasComma = s.indexOf(',') >= 0;
+  var cleaned = s;
+  if(hasDot && hasComma){
+    // Both present — the LAST one is decimal separator
+    if(s.lastIndexOf(',') > s.lastIndexOf('.')){
+      // Indonesian: 1.234,56 → 1234.56
+      cleaned = s.replace(/\./g, '').replace(',', '.');
+    } else {
+      // English: 1,234.56 → 1234.56
+      cleaned = s.replace(/,/g, '');
+    }
+  } else if(hasComma){
+    // Only comma — decimal jika < 3 digit after, thousands jika 3 digit
+    var afterC = s.split(',').pop();
+    cleaned = (afterC.length <= 2) ? s.replace(',', '.') : s.replace(/,/g, '');
+  } else if(hasDot){
+    // Only dot — multiple dots = thousands (Indonesian), single dot with 3 digits after = also thousands
+    var parts = s.split('.');
+    if(parts.length > 2){
+      cleaned = s.replace(/\./g, '');
+    } else if(parts[1] && parts[1].length === 3){
+      // Likely Indonesian thousands: "1.234", "106.000", "12.500"
+      cleaned = s.replace(/\./g, '');
+    }
+    // else: decimal like "12.50" or "105884.61" - keep as-is
+  }
+  // Strip any remaining non-numeric (except . and -)
+  cleaned = cleaned.replace(/[^\d.\-]/g, '');
+  var n = parseFloat(cleaned);
+  return isFinite(n) ? Math.round(n) : 0;
 }
 
 // Fuzzy match campaign name → produk
