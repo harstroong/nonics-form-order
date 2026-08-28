@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-04-day-click-bubble-fix';
+window.__APP_VERSION = '2026-08-05-analytics-v2';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -3882,35 +3882,70 @@ document.addEventListener('DOMContentLoaded', function(){
           </div>
         </div>
 
-        <!-- 3 STAT CARDS (Leads · Today / Produk Aktif / CS Online) -->
-        <div class="ov-stat-grid">
-          <div class="ov-stat">
-            <div class="ov-stat-head">
-              <div class="ov-stat-label">Leads · Today</div>
-              <div class="ov-stat-icon icon-purple"><i class="ti ti-users" aria-hidden="true"></i></div>
+        <!-- ANALYTICS v2 — 4 KPI cards -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:14px">
+          <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><i class="ti ti-users" style="color:var(--primary);font-size:14px"></i><span style="font-size:10.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;font-weight:500">Total Leads</span></div>
+            <div style="font-size:22px;font-weight:600;color:var(--text);line-height:1" id="v2-kpi-leads">0</div>
+            <div style="font-size:10.5px;margin-top:5px" id="v2-kpi-leads-trend"></div>
+          </div>
+          <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><i class="ti ti-wallet" style="color:#059669;font-size:14px"></i><span style="font-size:10.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;font-weight:500">Revenue Est.</span></div>
+            <div style="font-size:22px;font-weight:600;color:var(--text);line-height:1" id="v2-kpi-revenue">Rp 0</div>
+            <div style="font-size:10.5px;margin-top:5px" id="v2-kpi-revenue-trend"></div>
+          </div>
+          <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><i class="ti ti-target-arrow" style="color:#F59E0B;font-size:14px"></i><span style="font-size:10.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;font-weight:500">Conv Rate</span></div>
+            <div style="font-size:22px;font-weight:600;color:var(--text);line-height:1" id="v2-kpi-conv">0%</div>
+            <div style="font-size:10.5px;margin-top:5px;color:var(--text-muted)" id="v2-kpi-conv-detail">0 closed / 0 leads</div>
+          </div>
+          <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><i class="ti ti-receipt" style="color:#8B5CF6;font-size:14px"></i><span style="font-size:10.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;font-weight:500">AOV</span></div>
+            <div style="font-size:22px;font-weight:600;color:var(--text);line-height:1" id="v2-kpi-aov">Rp 0</div>
+            <div style="font-size:10.5px;margin-top:5px;color:var(--text-muted)" id="v2-kpi-aov-detail">Avg per closed lead</div>
+          </div>
+        </div>
+
+        <!-- Revenue Trend Line Chart -->
+        <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text)">Lead & Revenue Trend</div>
+              <div style="font-size:10.5px;color:var(--text-muted)" id="v2-trend-sub">Sesuai periode terpilih</div>
             </div>
-            <div class="ov-stat-value" id="ov-leads-today">0</div>
-            <div class="ov-stat-foot">
-              <svg class="ov-sparkline" id="ov-leads-sparkline" width="100" height="22" viewBox="0 0 100 22" aria-hidden="true"></svg>
-              <div class="ov-stat-trend" id="ov-leads-trend"></div>
+            <div style="display:flex;gap:12px;font-size:11px;color:var(--text-secondary)">
+              <span style="display:flex;align-items:center;gap:4px"><span style="width:9px;height:9px;background:var(--primary);border-radius:2px"></span>Leads</span>
+              <span style="display:flex;align-items:center;gap:4px"><span style="width:9px;height:9px;background:#059669;border-radius:2px"></span>Closed</span>
             </div>
           </div>
-          <div class="ov-stat">
-            <div class="ov-stat-head">
-              <div class="ov-stat-label">Produk Aktif</div>
-              <div class="ov-stat-icon icon-green"><i class="ti ti-package" aria-hidden="true"></i></div>
-            </div>
-            <div class="ov-stat-value" id="ov-prods">0</div>
-            <div class="ov-stat-sub">terdaftar</div>
+          <div style="position:relative;width:100%;height:200px">
+            <canvas id="v2TrendChart" role="img" aria-label="Lead and closed revenue trend line chart">Trend chart of leads and closed conversions over time.</canvas>
           </div>
-          <div class="ov-stat">
-            <div class="ov-stat-head">
-              <div class="ov-stat-label">CS Online</div>
-              <div class="ov-stat-icon icon-green ov-stat-icon-dot"><i class="ti ti-headset" aria-hidden="true"></i></div>
-            </div>
-            <div class="ov-stat-value"><span id="ov-cs-online">0</span><span class="ov-stat-suffix" id="ov-cs-total"> / 0 CS</span></div>
-            <div class="ov-stat-foot" id="ov-cs-avatars"></div>
+        </div>
+
+        <!-- Funnel + Top CS Bar -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+          <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px">
+            <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px">Funnel Konversi</div>
+            <div style="font-size:10.5px;color:var(--text-muted);margin-bottom:14px">Lead → Contacted → Closed</div>
+            <div id="v2-funnel-stages"></div>
+            <div id="v2-funnel-insight" style="display:none;margin-top:12px;padding:8px 10px;border-radius:8px;font-size:10.5px;line-height:1.5"></div>
           </div>
+          <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px">
+            <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px">Top CS · Performance</div>
+            <div style="font-size:10.5px;color:var(--text-muted);margin-bottom:14px">Closed vs Total (stacked)</div>
+            <div style="position:relative;width:100%;height:220px" id="v2-cs-chart-wrap">
+              <canvas id="v2CsChart" role="img" aria-label="Top CS performance bar chart">Top CS by closed vs total leads.</canvas>
+            </div>
+            <div id="v2-cs-empty" style="display:none;text-align:center;color:var(--text-muted);font-size:12px;padding:40px 0">Belum ada data CS</div>
+          </div>
+        </div>
+
+        <!-- HIDDEN — old KPIs (dipertahankan agar legacy code gak break, disembunyikan) -->
+        <div class="ov-stat-grid" style="display:none">
+          <div class="ov-stat"><div class="ov-stat-value" id="ov-leads-today">0</div><svg id="ov-leads-sparkline"></svg><div id="ov-leads-trend"></div></div>
+          <div class="ov-stat"><div class="ov-stat-value" id="ov-prods">0</div></div>
+          <div class="ov-stat"><div class="ov-stat-value"><span id="ov-cs-online">0</span><span id="ov-cs-total"></span></div><div id="ov-cs-avatars"></div></div>
         </div>
 
         <!-- Top Produk + Top CS side by side (di atas heatmap) -->
@@ -7266,6 +7301,9 @@ function renderOverview(){
   const range = getDateFilterRange('ov');
   const filteredByRange = filterLeadsByDate(leads, range);
 
+  // ── ANALYTICS v2: KPI cards + trend chart + funnel + top CS ──
+  try { renderAnalyticsV2(filteredByRange, leads, prods, range); } catch(e){ console.warn('Analytics v2 error:', e); }
+
   // ── CARD 1: Leads · Today (atau periode terpilih) ──
   const leadsCount = filteredByRange.length;
   const elLeads = document.getElementById('ov-leads-today');
@@ -7299,6 +7337,282 @@ function renderOverview(){
   // ── TOP PRODUK / TOP CS ──
   renderOverviewTopProduk(filteredByRange);
   renderOverviewTopCS(filteredByRange);
+}
+
+// ═══════════════════════════════════
+// ANALYTICS DASHBOARD v2 — chart trend + funnel + top CS
+// ═══════════════════════════════════
+window.__chartJsLoading = null;
+window.__v2Charts = {};
+
+function loadChartJs(){
+  if(window.Chart) return Promise.resolve(window.Chart);
+  if(window.__chartJsLoading) return window.__chartJsLoading;
+  window.__chartJsLoading = new Promise(function(resolve, reject){
+    var s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
+    s.onload = function(){ resolve(window.Chart); };
+    s.onerror = function(){ reject(new Error('Chart.js failed to load')); };
+    document.head.appendChild(s);
+  });
+  return window.__chartJsLoading;
+}
+
+// Aggregate leads by day within range
+function _v2LeadsByDay(leads, range){
+  var D = 86400000;
+  var from = new Date(range.from); from.setHours(0,0,0,0);
+  var to = new Date(range.to); to.setHours(23,59,59,999);
+  var days = Math.max(1, Math.ceil((to.getTime() - from.getTime()) / D));
+  var buckets = {};
+  var labels = [];
+  for(var i=0; i<days; i++){
+    var d = new Date(from.getTime() + i*D);
+    var key = d.toISOString().slice(0,10);
+    buckets[key] = { leads:0, closed:0 };
+    labels.push(key);
+  }
+  (leads||[]).forEach(function(l){
+    if(!l.ts) return;
+    var d = new Date(l.ts); d.setHours(0,0,0,0);
+    var key = d.toISOString().slice(0,10);
+    if(buckets[key]){
+      buckets[key].leads++;
+      if(l.followStatus === 'closed') buckets[key].closed++;
+    }
+  });
+  return { labels: labels, leads: labels.map(function(k){return buckets[k].leads;}), closed: labels.map(function(k){return buckets[k].closed;}) };
+}
+
+// Estimate revenue from closed leads × product price
+function _v2EstimateRevenue(leads, prods){
+  var prodPriceMap = {};
+  (prods||[]).forEach(function(p){
+    var priceStr = String(p.price||'').replace(/[^0-9]/g,'');
+    var price = parseInt(priceStr, 10) || 0;
+    var key = p.produkWA || p.name;
+    prodPriceMap[key] = price;
+  });
+  var total = 0, count = 0;
+  (leads||[]).forEach(function(l){
+    if(l.followStatus === 'closed'){
+      var price = prodPriceMap[l.produk] || 0;
+      total += price;
+      if(price > 0) count++;
+    }
+  });
+  return { total: total, count: count, aov: count > 0 ? Math.round(total/count) : 0 };
+}
+
+// Get orders paid from Firestore (od_orders_digital) — digital products
+function _v2GetDigitalRevenue(range){
+  var orders = LS.g('od_orders_digital', []) || [];
+  var total = 0, count = 0;
+  orders.forEach(function(o){
+    if(o.status !== 'paid') return;
+    var ts = o.paidAt || o.tsMs || o.ts || 0;
+    if(range && (ts < range.from || ts > range.to)) return;
+    var amt = parseInt(o.grossAmount || o.amount || o.productPrice || 0, 10);
+    total += amt;
+    count++;
+  });
+  return { total: total, count: count };
+}
+
+// Compute trend % vs previous period
+function _v2Trend(current, previous){
+  if(previous === 0) return current > 0 ? 100 : 0;
+  return Math.round(((current - previous) / previous) * 100);
+}
+
+// Format currency IDR compact
+function _v2FmtIDR(n){
+  n = Math.round(n);
+  if(n >= 1000000000) return 'Rp ' + (n/1000000000).toFixed(1) + 'M';
+  if(n >= 1000000) return 'Rp ' + (n/1000000).toFixed(1) + 'jt';
+  if(n >= 1000) return 'Rp ' + (n/1000).toFixed(0) + 'rb';
+  return 'Rp ' + n.toLocaleString('id-ID');
+}
+
+function _v2TrendBadge(pct){
+  if(pct === 0) return '<span style="color:var(--text-muted)">— stabil</span>';
+  var color = pct > 0 ? '#059669' : '#DC2626';
+  var icon = pct > 0 ? 'ti-trending-up' : 'ti-trending-down';
+  return '<span style="color:'+color+'"><i class="ti '+icon+'" style="font-size:11px"></i> ' + (pct > 0 ? '+' : '') + pct + '% vs prev</span>';
+}
+
+function renderAnalyticsV2(filteredLeads, allLeads, prods, range){
+  // ── KPI 1: Total Leads + trend ──
+  var elLeads = document.getElementById('v2-kpi-leads');
+  if(elLeads) elLeads.textContent = filteredLeads.length.toLocaleString('id-ID');
+  // Previous period (same duration, shifted back)
+  var duration = range.to - range.from;
+  var prevRange = { from: range.from - duration - 1, to: range.from - 1 };
+  var prevLeads = filterLeadsByDate(allLeads, prevRange);
+  var elLeadsTrend = document.getElementById('v2-kpi-leads-trend');
+  if(elLeadsTrend) elLeadsTrend.innerHTML = _v2TrendBadge(_v2Trend(filteredLeads.length, prevLeads.length));
+
+  // ── KPI 2: Revenue (dari closed leads × produk price + digital paid orders) ──
+  var estRev = _v2EstimateRevenue(filteredLeads, prods);
+  var digRev = _v2GetDigitalRevenue(range);
+  var totalRev = estRev.total + digRev.total;
+  var elRev = document.getElementById('v2-kpi-revenue');
+  if(elRev) elRev.textContent = _v2FmtIDR(totalRev);
+  var prevEstRev = _v2EstimateRevenue(prevLeads, prods);
+  var prevDigRev = _v2GetDigitalRevenue(prevRange);
+  var elRevTrend = document.getElementById('v2-kpi-revenue-trend');
+  if(elRevTrend) elRevTrend.innerHTML = _v2TrendBadge(_v2Trend(totalRev, prevEstRev.total + prevDigRev.total));
+
+  // ── KPI 3: Conv Rate ──
+  var closedCount = filteredLeads.filter(function(l){ return l.followStatus === 'closed'; }).length;
+  var convRate = filteredLeads.length > 0 ? (closedCount / filteredLeads.length * 100) : 0;
+  var elConv = document.getElementById('v2-kpi-conv');
+  if(elConv) elConv.textContent = convRate.toFixed(1) + '%';
+  var elConvDetail = document.getElementById('v2-kpi-conv-detail');
+  if(elConvDetail) elConvDetail.textContent = closedCount + ' closed / ' + filteredLeads.length + ' leads';
+
+  // ── KPI 4: AOV ──
+  var totalPaidCount = estRev.count + digRev.count;
+  var aov = totalPaidCount > 0 ? Math.round(totalRev / totalPaidCount) : 0;
+  var elAov = document.getElementById('v2-kpi-aov');
+  if(elAov) elAov.textContent = _v2FmtIDR(aov);
+  var elAovDetail = document.getElementById('v2-kpi-aov-detail');
+  if(elAovDetail) elAovDetail.textContent = totalPaidCount + ' order paid · avg';
+
+  // ── FUNNEL ──
+  var totalLeads = filteredLeads.length;
+  var contactedCount = filteredLeads.filter(function(l){ return l.followStatus === 'contacted' || l.followStatus === 'closed'; }).length;
+  var noRespCount = filteredLeads.filter(function(l){ return l.followStatus === 'no_response'; }).length;
+  var stages = [
+    { label:'Lead Masuk',   count: totalLeads,      color:'var(--primary)', pctFromPrev: 100 },
+    { label:'Contacted',    count: contactedCount,  color:'#F59E0B', pctFromPrev: totalLeads ? Math.round(contactedCount/totalLeads*100) : 0 },
+    { label:'Closed',       count: closedCount,     color:'#059669', pctFromPrev: contactedCount ? Math.round(closedCount/contactedCount*100) : 0 }
+  ];
+  var funnelHtml = stages.map(function(s, i){
+    var widthPct = totalLeads > 0 ? Math.max(2, (s.count/totalLeads*100)) : 0;
+    var overallPct = totalLeads > 0 ? Math.round(s.count/totalLeads*100) : 0;
+    var dropPill = i === 0 ? '' : ' <span style="color:'+(s.pctFromPrev >= 70 ? '#059669' : s.pctFromPrev >= 40 ? '#F59E0B' : '#DC2626')+';font-weight:400;font-size:10px">('+s.pctFromPrev+'% dari prev)</span>';
+    return '<div style="margin-bottom:9px">' +
+      '<div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:3px"><span style="color:var(--text);font-weight:500">'+s.label+dropPill+'</span><span style="color:var(--text-muted)">'+s.count+' · '+overallPct+'%</span></div>' +
+      '<div style="height:20px;background:var(--surface-2);border-radius:6px;overflow:hidden"><div style="width:'+widthPct+'%;height:100%;background:'+s.color+'"></div></div>' +
+    '</div>';
+  }).join('');
+  var funEl = document.getElementById('v2-funnel-stages');
+  if(funEl) funEl.innerHTML = funnelHtml;
+  // Insight
+  var insightEl = document.getElementById('v2-funnel-insight');
+  if(insightEl){
+    var lowStage = null;
+    for(var si=1; si<stages.length; si++){
+      if(stages[si].pctFromPrev < 40 && stages[si-1].count > 0){
+        lowStage = stages[si];
+        break;
+      }
+    }
+    if(lowStage && totalLeads >= 5){
+      insightEl.style.display = '';
+      insightEl.style.background = '#FEF7ED';
+      insightEl.style.border = '0.5px solid #FDBA74';
+      insightEl.style.color = '#7C2D12';
+      insightEl.innerHTML = '<i class="ti ti-info-circle" style="vertical-align:-1px;font-size:12px"></i> Biggest drop-off: <b>'+lowStage.label+'</b> ('+lowStage.pctFromPrev+'% conv). Ada '+noRespCount+' no-response — followup ulang?';
+    } else if(totalLeads === 0){
+      insightEl.style.display = '';
+      insightEl.style.background = 'var(--surface-2)';
+      insightEl.style.border = '0.5px solid var(--border)';
+      insightEl.style.color = 'var(--text-muted)';
+      insightEl.innerHTML = '<i class="ti ti-info-circle" style="vertical-align:-1px;font-size:12px"></i> Belum ada lead di periode ini. Coba periode lebih luas.';
+    } else {
+      insightEl.style.display = 'none';
+    }
+  }
+
+  // ── CHARTS: load Chart.js on demand ──
+  loadChartJs().then(function(){
+    _v2RenderTrendChart(filteredLeads, range);
+    _v2RenderCsChart(filteredLeads);
+  }).catch(function(e){ console.warn('Chart.js load fail:', e); });
+
+  // ── Update trend subtitle ──
+  var subEl = document.getElementById('v2-trend-sub');
+  if(subEl) subEl.textContent = range.label || 'Sesuai periode terpilih';
+}
+
+function _v2RenderTrendChart(leads, range){
+  var ctx = document.getElementById('v2TrendChart');
+  if(!ctx || !window.Chart) return;
+  var data = _v2LeadsByDay(leads, range);
+  // Destroy previous instance
+  if(window.__v2Charts.trend){ try { window.__v2Charts.trend.destroy(); } catch(e){} }
+  // Simplify labels — kalau > 10 hari, cuma show every N
+  var showLabels = data.labels.map(function(l){
+    var d = new Date(l);
+    return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0');
+  });
+  window.__v2Charts.trend = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: showLabels,
+      datasets: [
+        { label:'Leads', data:data.leads, borderColor:'#FF6B4A', backgroundColor:'rgba(255,107,74,0.08)', fill:true, tension:0.35, pointRadius:0, pointHoverRadius:5, borderWidth:2 },
+        { label:'Closed', data:data.closed, borderColor:'#059669', backgroundColor:'rgba(5,150,105,0.05)', fill:false, tension:0.35, pointRadius:0, pointHoverRadius:5, borderWidth:2, borderDash:[4,3] }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{intersect:false, mode:'index'}
+      },
+      scales:{
+        x:{grid:{display:false}, ticks:{color:'#78716C', font:{size:10}, maxRotation:0, autoSkip:true, maxTicksLimit:10}},
+        y:{grid:{color:'rgba(120,113,108,0.08)'}, beginAtZero:true, ticks:{color:'#78716C', font:{size:10}, precision:0}}
+      }
+    }
+  });
+}
+
+function _v2RenderCsChart(leads){
+  var ctx = document.getElementById('v2CsChart');
+  var emptyEl = document.getElementById('v2-cs-empty');
+  var wrapEl = document.getElementById('v2-cs-chart-wrap');
+  if(!ctx || !window.Chart) return;
+  var csList = (typeof getCSList === 'function') ? getCSList() : [];
+  // Aggregate leads per CS
+  var byId = {};
+  csList.forEach(function(c){ byId[c.id] = { name: c.name || '?', total: 0, closed: 0 }; });
+  leads.forEach(function(l){
+    if(!l.csId || !byId[l.csId]) return;
+    byId[l.csId].total++;
+    if(l.followStatus === 'closed') byId[l.csId].closed++;
+  });
+  var rows = Object.values(byId).filter(function(r){ return r.total > 0; }).sort(function(a,b){ return b.total - a.total; }).slice(0, 6);
+  if(!rows.length){
+    if(wrapEl) wrapEl.style.display = 'none';
+    if(emptyEl) emptyEl.style.display = 'block';
+    return;
+  } else {
+    if(wrapEl) wrapEl.style.display = '';
+    if(emptyEl) emptyEl.style.display = 'none';
+  }
+  if(window.__v2Charts.cs){ try { window.__v2Charts.cs.destroy(); } catch(e){} }
+  window.__v2Charts.cs = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: rows.map(function(r){ return r.name; }),
+      datasets: [
+        { label:'Closed', data: rows.map(function(r){return r.closed;}), backgroundColor:'#059669' },
+        { label:'Belum', data: rows.map(function(r){return r.total - r.closed;}), backgroundColor:'#F59E0B' }
+      ]
+    },
+    options: {
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{intersect:false, mode:'index'} },
+      scales:{
+        x:{stacked:true, grid:{color:'rgba(120,113,108,0.08)'}, ticks:{color:'#78716C', font:{size:10}, precision:0}},
+        y:{stacked:true, grid:{display:false}, ticks:{color:'var(--text)', font:{size:11}}}
+      }
+    }
+  });
 }
 
 function renderLeadsSparkline(leads){
