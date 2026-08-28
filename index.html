@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-26-headline-l10n-fix';
+window.__APP_VERSION = '2026-08-27-headline-l10n-final';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -12323,13 +12323,13 @@ ${useKecamatan?`+'<input id="oo-kc${p.id}" type="text" autocomplete="address-lev
   var _dl = 'Silahkan Isi Nama & No WhatsApp dibawah\\nAgar Terhubung dengan CS kami :';
   var _lh = (cfg.l10n && cfg.l10n.formHeadline) ? cfg.l10n.formHeadline : '';
   var _ch = (cfg.l10n && cfg.l10n.csHighlight) ? cfg.l10n.csHighlight : 'CS kami';
-  var _use = _lh && (!_h || _h === _dl) ? _lh : _h;
+  var _use = (_lh && (!_h || _h === _dl)) ? _lh : _h;
   if(!_use) _use = _dl;
-  var _html = _use.replace(/\\n/g,'<br>');
-  try {
-    var _esc = _ch.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\\\$&');
-    _html = _html.replace(new RegExp(_esc,'g'), '<span style="color:#1b5e20;font-weight:700">'+_ch+'<\\/span>');
-  } catch(_re){}
+  var _html = _use.split('\\n').join('<br>');
+  var _idx = _html.indexOf(_ch);
+  if(_idx >= 0){
+    _html = _html.substring(0,_idx) + '<span style="color:#1b5e20;font-weight:700">' + _ch + '<\\/span>' + _html.substring(_idx+_ch.length);
+  }
   _hEl.innerHTML = _html;
 })();
 var ooSubmitting${p.id}=false;
