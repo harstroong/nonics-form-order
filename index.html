@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-21-typ-summary-fix';
+window.__APP_VERSION = '2026-08-22-typ-summary-debug';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -12431,20 +12431,27 @@ window['ooSub${p.id}']=function(){
       } else {
         try {
           var _L = cfg.l10n || {};
-          var _langKey = (cfg.country && ({62:'id',60:'my',673:'my',65:'en',66:'th',63:'en'})[cfg.country]) || 'id';
-          var _statusText = ({id:'DIPROSES',my:'DIPROSES',en:'PROCESSING',th:'PROCESSING'})[_langKey] || 'PROCESSING';
-          var _totalText = ({id:'Total',my:'Jumlah',en:'Total',th:'Total'})[_langKey] || 'Total';
+          var _cCode = String(cfg.country||'62');
+          var _langMap = {'62':'id','60':'my','673':'my','65':'en','66':'th','63':'en'};
+          var _langKey = _langMap[_cCode] || 'id';
+          var _statusMap = {id:'DIPROSES',my:'DIPROSES',en:'PROCESSING',th:'PROCESSING'};
+          var _statusText = _statusMap[_langKey] || 'PROCESSING';
+          var _totalMap = {id:'Total',my:'Jumlah',en:'Total',th:'Total'};
+          var _totalText = _totalMap[_langKey] || 'Total';
           var _custWaShow = custWaNorm || wa || '-';
           var _fmtPrice = function(n, curCode){
-            var symMap = {IDR:'Rp',MYR:'RM',SGD:'S$',BND:'B$',THB:'฿',PHP:'₱',USD:'$'};
+            var symMap = {IDR:'Rp',MYR:'RM',SGD:'S$',BND:'B$',THB:'\\u0e3f',PHP:'\\u20b1',USD:'$'};
             var locMap = {IDR:'id-ID',MYR:'ms-MY',SGD:'en-SG',BND:'ms-BN',THB:'th-TH',PHP:'en-PH',USD:'en-US'};
             var dMap = {IDR:0,MYR:2,SGD:2,BND:2,THB:0,PHP:2,USD:2};
-            var s = symMap[curCode]||'Rp', l = locMap[curCode]||'id-ID', d = (dMap[curCode]!=null?dMap[curCode]:0);
+            var s = symMap[curCode]||'Rp';
+            var l = locMap[curCode]||'id-ID';
+            var d = (dMap[curCode]!=null?dMap[curCode]:0);
             try { return s+' '+(parseFloat(n)||0).toLocaleString(l,{minimumFractionDigits:d,maximumFractionDigits:d}); }
             catch(e){ return s+' '+n; }
           };
-          var _invNo = 'INV-'+String(cfg.productId||'0').slice(-4)+'-'+String(Date.now()).slice(-6);
-          var _priceStr = cfg.prodPrice > 0 ? _fmtPrice(cfg.prodPrice, cfg.currency||'IDR') : '';
+          var _pidStr = String(cfg.productId||'0');
+          var _invNo = 'INV-'+_pidStr.substring(_pidStr.length-4)+'-'+String(Date.now()).substring(String(Date.now()).length-6);
+          var _priceStr = (cfg.prodPrice && cfg.prodPrice > 0) ? _fmtPrice(cfg.prodPrice, cfg.currency||'IDR') : '';
           var _prodImgHtml = cfg.prodImg
             ? '<img src="'+cfg.prodImg+'" style="width:100%;height:100%;object-fit:cover" alt=""/>'
             : '<i class="ti ti-package" style="font-size:20px;color:#94A3B8"></i>';
@@ -12481,8 +12488,9 @@ window['ooSub${p.id}']=function(){
           _sum += '</div>';
           _typSum.innerHTML = _sum;
         } catch(_e){
-          console.error('summary render error:', _e);
-          _typSum.innerHTML = '<div><b>'+(_L.sumProduk||'Produk')+':</b> '+(cfg.prodName||'-')+'</div><div><b>'+(_L.sumNama||'Nama')+':</b> '+(nm||'-')+'</div><div><b>'+(_L.sumWA||'WhatsApp')+':</b> '+(wa||'-')+'</div>'+(al?'<div><b>'+(_L.sumAlamat||'Alamat')+':</b> '+al+'</div>':'')+(kt?'<div><b>'+(_L.sumKota||'Kota')+':</b> '+kt+'</div>':'')+(kc?'<div><b>'+(_L.sumKecamatan||'Kecamatan')+':</b> '+kc+'</div>':'');
+          console.error('[nonics] summary render error:', _e && _e.message, _e);
+          var _Lfb = (cfg && cfg.l10n) || {};
+          _typSum.innerHTML = '<div style="color:#DC2626;font-size:10px;padding:6px;background:#FEE2E2;border-radius:6px;margin-bottom:8px">Debug: '+((_e&&_e.message)||'unknown')+'</div><div><b>'+(_Lfb.sumProduk||'Produk')+':</b> '+(cfg.prodName||'-')+'</div><div><b>'+(_Lfb.sumNama||'Nama')+':</b> '+(nm||'-')+'</div><div><b>'+(_Lfb.sumWA||'WhatsApp')+':</b> '+(wa||'-')+'</div>'+(al?'<div><b>'+(_Lfb.sumAlamat||'Alamat')+':</b> '+al+'</div>':'')+(kt?'<div><b>'+(_Lfb.sumKota||'Kota')+':</b> '+kt+'</div>':'')+(kc?'<div><b>'+(_Lfb.sumKecamatan||'Kecamatan')+':</b> '+kc+'</div>':'');
         }
       }
     }
