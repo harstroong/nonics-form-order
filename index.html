@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-24-hide-hero-on-success';
+window.__APP_VERSION = '2026-08-25-headline-l10n';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -12285,7 +12285,7 @@ var trustHtml=(cfg.trust||'').split(',').map(function(t){return t.trim()?'<span 
 R.innerHTML='<div style="max-width:420px;margin:0 auto;font-family:Segoe UI,system-ui,sans-serif">'
 +'<div style="background:#fff;border-radius:12px;padding:24px 20px;box-shadow:0 4px 24px rgba(0,0,0,.1)">'
 +'<div id="oo-f${p.id}">'
-+'<p style="font-size:15px;font-weight:600;margin-bottom:18px;line-height:1.5;color:#222">'+cfg.headline.replace(/\\n/g,'<br>').replace(/CS kami/g,'<span style="color:#1b5e20;font-weight:700">CS kami<\\/span>')+'<\\/p>'
++'<p style="font-size:15px;font-weight:600;margin-bottom:18px;line-height:1.5;color:#222">'+(function(){var _h=cfg.headline||'';var _dl='Silahkan Isi Nama & No WhatsApp dibawah\\nAgar Terhubung dengan CS kami :';var _lh=(cfg.l10n&&cfg.l10n.formHeadline)?cfg.l10n.formHeadline:'';var _ch=(cfg.l10n&&cfg.l10n.csHighlight)?cfg.l10n.csHighlight:'CS kami';var _use=_lh&&(!_h||_h===_dl)?_lh:_h;return _use.replace(/\\n/g,'<br>').replace(new RegExp(_ch.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\\\$&'),'g'),'<span style="color:#1b5e20;font-weight:700">'+_ch+'<\\/span>');})()+'<\\/p>'
 +'<input id="oo-n${p.id}" type="text" autocomplete="name" placeholder="${esc(phNama)}" oninput="if(this.value.trim()){this.style.borderColor=\\'#e0e0e0\\';var e=document.getElementById(\\'oo-en${p.id}\\');if(e)e.style.display=\\'none\\';}" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box">'
 +'<p id="oo-en${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Nama wajib diisi<\\/p>'
 +'<div id="oo-wwrap${p.id}" style="display:flex;gap:6px;margin-bottom:4px;align-items:stretch">'
@@ -13557,7 +13557,9 @@ window.HOSTED_L10N = {
     successWaHint: 'Kalau WhatsApp tidak terbuka otomatis, tap tombol hijau di atas',
     successTitle: 'Pesanan Diterima!',
     successDefaultMsg: 'Terima kasih <b>{nama}</b>, data pesanan udah masuk ke sistem kami. CS bakal hubungi kamu via WhatsApp dalam beberapa menit.',
-    sumProduk: 'Produk', sumNama: 'Nama', sumWA: 'WhatsApp', sumAlamat: 'Alamat', sumKota: 'Kota', sumKecamatan: 'Kecamatan'
+    sumProduk: 'Produk', sumNama: 'Nama', sumWA: 'WhatsApp', sumAlamat: 'Alamat', sumKota: 'Kota', sumKecamatan: 'Kecamatan',
+    formHeadline: 'Silahkan Isi Nama & No WhatsApp dibawah\nAgar Terhubung dengan CS kami :',
+    csHighlight: 'CS kami'
   },
   my: {
     freeOngkir: 'Percuma Penghantaran',
@@ -13583,7 +13585,9 @@ window.HOSTED_L10N = {
     successWaHint: 'Jika WhatsApp tidak buka automatik, tekan butang hijau di atas',
     successTitle: 'Pesanan Diterima!',
     successDefaultMsg: 'Terima kasih <b>{nama}</b>, pesanan anda sudah kami terima. CS kami akan hubungi anda melalui WhatsApp dalam beberapa minit.',
-    sumProduk: 'Produk', sumNama: 'Nama', sumWA: 'WhatsApp', sumAlamat: 'Alamat', sumKota: 'Bandar', sumKecamatan: 'Daerah'
+    sumProduk: 'Produk', sumNama: 'Nama', sumWA: 'WhatsApp', sumAlamat: 'Alamat', sumKota: 'Bandar', sumKecamatan: 'Daerah',
+    formHeadline: 'Sila Isi Nama & No WhatsApp anda di bawah\nUntuk berhubung dengan CS kami :',
+    csHighlight: 'CS kami'
   },
   en: {
     freeOngkir: 'Free Shipping',
@@ -13609,7 +13613,9 @@ window.HOSTED_L10N = {
     successWaHint: 'If WhatsApp does not open automatically, tap the green button above',
     successTitle: 'Order Received!',
     successDefaultMsg: 'Thank you <b>{nama}</b>, your order has been received. Our CS will contact you via WhatsApp shortly.',
-    sumProduk: 'Product', sumNama: 'Name', sumWA: 'WhatsApp', sumAlamat: 'Address', sumKota: 'City', sumKecamatan: 'District'
+    sumProduk: 'Product', sumNama: 'Name', sumWA: 'WhatsApp', sumAlamat: 'Address', sumKota: 'City', sumKecamatan: 'District',
+    formHeadline: 'Please fill in your Name & WhatsApp below\nTo connect with our CS :',
+    csHighlight: 'our CS'
   },
   th: {
     freeOngkir: 'ส่งฟรี',
@@ -13635,7 +13641,9 @@ window.HOSTED_L10N = {
     successWaHint: 'หาก WhatsApp ไม่เปิดอัตโนมัติ กดปุ่มสีเขียวด้านบน',
     successTitle: 'ได้รับคำสั่งซื้อแล้ว!',
     successDefaultMsg: 'ขอบคุณ <b>{nama}</b> คำสั่งซื้อของคุณได้รับการยืนยันแล้ว ทีม CS จะติดต่อคุณทาง WhatsApp เร็วๆ นี้',
-    sumProduk: 'สินค้า', sumNama: 'ชื่อ', sumWA: 'WhatsApp', sumAlamat: 'ที่อยู่', sumKota: 'จังหวัด', sumKecamatan: 'อำเภอ'
+    sumProduk: 'สินค้า', sumNama: 'ชื่อ', sumWA: 'WhatsApp', sumAlamat: 'ที่อยู่', sumKota: 'จังหวัด', sumKecamatan: 'อำเภอ',
+    formHeadline: 'กรุณากรอกชื่อและเบอร์ WhatsApp ด้านล่าง\nเพื่อติดต่อกับ CS ของเรา :',
+    csHighlight: 'CS ของเรา'
   }
 };
 
@@ -14082,7 +14090,7 @@ var trustHtml=(cfg.trust||'').split(',').map(function(t){return'<span style="fon
 R.innerHTML='<div style="max-width:420px;margin:0 auto;font-family:Segoe UI,system-ui,sans-serif">'
 +'<div style="background:#fff;border-radius:12px;padding:24px 20px;box-shadow:0 4px 24px rgba(0,0,0,.1)">'
 +'<div id="oo-form">'
-+'<p style="font-size:15px;font-weight:600;margin-bottom:18px;line-height:1.5;color:#222">'+cfg.headline.replace(/\\n/g,'<br>').replace(/CS kami/g,'<span style="color:#1b5e20;font-weight:700">CS kami<\\/span>')+'<\\/p>'
++'<p style="font-size:15px;font-weight:600;margin-bottom:18px;line-height:1.5;color:#222">'+(function(){var _h=cfg.headline||'';var _dl='Silahkan Isi Nama & No WhatsApp dibawah\\nAgar Terhubung dengan CS kami :';var _lh=(cfg.l10n&&cfg.l10n.formHeadline)?cfg.l10n.formHeadline:'';var _ch=(cfg.l10n&&cfg.l10n.csHighlight)?cfg.l10n.csHighlight:'CS kami';var _use=_lh&&(!_h||_h===_dl)?_lh:_h;return _use.replace(/\\n/g,'<br>').replace(new RegExp(_ch.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\\\$&'),'g'),'<span style="color:#1b5e20;font-weight:700">'+_ch+'<\\/span>');})()+'<\\/p>'
 +'<input id="oo-nm" type="text" autocomplete="name" placeholder="Nama Anda" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box">'
 +'<p id="oo-en" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">Nama wajib diisi<\\/p>'
 +'<input id="oo-wa" type="tel" inputmode="numeric" autocomplete="tel" placeholder="No. WhatsApp Anda" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;box-sizing:border-box">'
