@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-11-ads-parser-fix';
+window.__APP_VERSION = '2026-08-12-ads-period-rerender';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -18423,6 +18423,12 @@ function setGlobalPeriod(value){
       if(activePanel === 'overview' && typeof renderOverview === 'function') renderOverview();
       else if(activePanel === 'leads' && typeof renderLeads === 'function') renderLeads();
       else if(activePanel === 'produk' && typeof renderProdList === 'function') renderProdList();
+      else if(activePanel === 'ads' && typeof adsRenderAll === 'function') adsRenderAll();
+      else if(activePanel === 'team' && typeof renderTeam === 'function') renderTeam();
+    }
+    // Kalau lagi buka detail produk, refresh juga funnel + orders
+    if(window.__pdCurrentProdId && typeof renderProdDetail === 'function'){
+      try { renderProdDetail(window.__pdCurrentProdId); } catch(e){}
     }
   } catch(e){ console.warn('global period re-render fail:', e); }
 }
