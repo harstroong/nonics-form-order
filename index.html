@@ -2652,7 +2652,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-07-31-warm-friendly-theme';
+window.__APP_VERSION = '2026-08-01-date-filter-fixes';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -3705,11 +3705,15 @@ document.addEventListener('DOMContentLoaded', function(){
             <div class="dp-sidebar">
               <button type="button" class="dp-preset" data-dppreset="yesterday" onclick="dpSelectPreset('yesterday')">Kemarin</button>
               <button type="button" class="dp-preset active" data-dppreset="today" onclick="dpSelectPreset('today')">Hari ini</button>
-              <button type="button" class="dp-preset" data-dppreset="thismonth" onclick="dpSelectPreset('thismonth')">Bulan ini</button>
-              <button type="button" class="dp-preset" data-dppreset="lastmonth" onclick="dpSelectPreset('lastmonth')">Bulan lalu</button>
+              <button type="button" class="dp-preset" data-dppreset="3d" onclick="dpSelectPreset('3d')">3 Hari Terakhir</button>
               <button type="button" class="dp-preset" data-dppreset="7d" onclick="dpSelectPreset('7d')">7 Hari Terakhir</button>
+              <button type="button" class="dp-preset" data-dppreset="14d" onclick="dpSelectPreset('14d')">14 Hari Terakhir</button>
               <button type="button" class="dp-preset" data-dppreset="30d" onclick="dpSelectPreset('30d')">30 Hari Terakhir</button>
               <button type="button" class="dp-preset" data-dppreset="90d" onclick="dpSelectPreset('90d')">90 Hari Terakhir</button>
+              <button type="button" class="dp-preset" data-dppreset="thismonth" onclick="dpSelectPreset('thismonth')">Bulan ini</button>
+              <button type="button" class="dp-preset" data-dppreset="lastmonth" onclick="dpSelectPreset('lastmonth')">Bulan lalu</button>
+              <button type="button" class="dp-preset" data-dppreset="thisyear" onclick="dpSelectPreset('thisyear')">Tahun ini</button>
+              <button type="button" class="dp-preset" data-dppreset="lastyear" onclick="dpSelectPreset('lastyear')">Tahun lalu</button>
               <button type="button" class="dp-preset" data-dppreset="all" onclick="dpSelectPreset('all')">Semua Waktu</button>
             </div>
             <div class="dp-cals">
@@ -16857,7 +16861,16 @@ function getDateRange(preset, customStart, customEnd){
       from = new Date(now.getFullYear(), now.getMonth()-1, 1, 0,0,0,0).getTime();
       to = new Date(now.getFullYear(), now.getMonth(), 0, 23,59,59,999).getTime();
       label = 'Bulan lalu'; break;
+    case 'thisyear':
+      from = new Date(now.getFullYear(), 0, 1, 0,0,0,0).getTime();
+      to = endOfToday.getTime();
+      label = 'Tahun ini'; break;
+    case 'lastyear':
+      from = new Date(now.getFullYear()-1, 0, 1, 0,0,0,0).getTime();
+      to = new Date(now.getFullYear()-1, 11, 31, 23,59,59,999).getTime();
+      label = 'Tahun lalu'; break;
     case 'custom':
+    case 'custom-manual':
       from = customStart ? new Date(customStart+'T00:00:00').getTime() : 0;
       to = customEnd ? new Date(customEnd+'T23:59:59').getTime() : endOfToday.getTime();
       label = (customStart||'?')+' s/d '+(customEnd||'?'); break;
@@ -16875,11 +16888,14 @@ function getDateFilterRange(prefix){
   var isCSScope = (prefix === 'cs');
   if(!isCSScope && window.__globalPeriod && window.__globalPeriod !== 'custom-disabled'){
     const g = window.__globalPeriod;
-    if(g === 'today' || g === 'yesterday' || g === '3d' || g === '7d' || g === '14d' || g === '30d' || g === '90d' || g === 'thismonth' || g === 'lastmonth') return getDateRange(g);
+    var validPresets = ['today','yesterday','3d','7d','14d','30d','90d','thismonth','lastmonth','thisyear','lastyear'];
+    if(validPresets.indexOf(g) >= 0) return getDateRange(g);
     if(g === 'all') return getDateRange('lifetime');
     if(g === 'custom' && window.__globalPeriodCustom){
       return getDateRange('custom', window.__globalPeriodCustom.from, window.__globalPeriodCustom.to);
     }
+    // Unknown global period — fallback safely
+    return getDateRange('lifetime');
   }
   // Fallback: per-panel filter (CS view selalu masuk sini)
   const sel = document.getElementById(prefix+'DateSel');
@@ -16897,7 +16913,13 @@ function getDateFilterRange(prefix){
 window.__globalPeriod = 'today'; // default
 function setGlobalPeriod(value){
   window.__globalPeriod = value;
-  try { localStorage.setItem('od_global_period', value); } catch(e){}
+  try {
+    localStorage.setItem('od_global_period', value);
+    // Persist custom range juga biar bisa restore on reload
+    if(value === 'custom' && window.__globalPeriodCustom){
+      localStorage.setItem('od_global_period_custom', JSON.stringify(window.__globalPeriodCustom));
+    }
+  } catch(e){}
   // Update active state di topbar buttons (legacy hidden buttons untuk backward compat)
   const btns = document.querySelectorAll('.topbar-period button[data-period]');
   btns.forEach(function(b){
@@ -16933,7 +16955,9 @@ function updateDatePickerLabel(){
     'today':'Hari ini', 'yesterday':'Kemarin',
     '3d':'3 Hari Terakhir', '7d':'7 Hari Terakhir', '14d':'14 Hari Terakhir',
     '30d':'30 Hari Terakhir', '90d':'90 Hari Terakhir',
-    'thismonth':'Bulan ini', 'lastmonth':'Bulan lalu', 'all':'Semua Waktu'
+    'thismonth':'Bulan ini', 'lastmonth':'Bulan lalu',
+    'thisyear':'Tahun ini', 'lastyear':'Tahun lalu',
+    'all':'Semua Waktu'
   };
   var text = map[g] || 'Hari ini';
   if(g === 'custom' && window.__globalPeriodCustom){
@@ -17006,8 +17030,12 @@ function dpSyncRangeFromPreset(preset){
     s = new Date(today); s.setDate(s.getDate()-1); e = new Date(s);
   } else if(preset === 'today'){
     s = today; e = today;
+  } else if(preset === '3d'){
+    s = new Date(today); s.setDate(s.getDate()-2); e = today;
   } else if(preset === '7d'){
     s = new Date(today); s.setDate(s.getDate()-6); e = today;
+  } else if(preset === '14d'){
+    s = new Date(today); s.setDate(s.getDate()-13); e = today;
   } else if(preset === '30d'){
     s = new Date(today); s.setDate(s.getDate()-29); e = today;
   } else if(preset === '90d'){
@@ -17017,8 +17045,19 @@ function dpSyncRangeFromPreset(preset){
   } else if(preset === 'lastmonth'){
     s = new Date(today.getFullYear(), today.getMonth()-1, 1);
     e = new Date(today.getFullYear(), today.getMonth(), 0);
+  } else if(preset === 'thisyear'){
+    s = new Date(today.getFullYear(), 0, 1); e = today;
+  } else if(preset === 'lastyear'){
+    s = new Date(today.getFullYear()-1, 0, 1);
+    e = new Date(today.getFullYear()-1, 11, 31);
   } else if(preset === 'all'){
     s = new Date(2020, 0, 1); e = today;
+  } else if(preset === 'custom' && window.__globalPeriodCustom){
+    var c = window.__globalPeriodCustom;
+    try {
+      s = new Date(c.from+'T00:00:00');
+      e = new Date(c.to+'T00:00:00');
+    } catch(err){ s = today; e = today; }
   }
   window.__dpState.rangeStart = s;
   window.__dpState.rangeEnd = e;
@@ -17094,11 +17133,15 @@ function dpClickDay(year, month, day){
 function applyDatePicker(){
   var st = window.__dpState;
   var preset = st.preset;
-  var stdPresets = ['today','yesterday','7d','30d','90d','all','thismonth','lastmonth'];
+  var stdPresets = ['today','yesterday','3d','7d','14d','30d','90d','all','thismonth','lastmonth','thisyear','lastyear'];
   if(stdPresets.indexOf(preset) >= 0){
     setGlobalPeriod(preset); // getDateRange sekarang support semua
   } else {
-    // Manual range picked via calendar clicks
+    // Manual range picked via calendar clicks — fallback safe kalau range null
+    if(!st.rangeStart || !st.rangeEnd){
+      toast('⚠️ Pilih tanggal dulu di kalender');
+      return;
+    }
     var fmt2 = function(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
     window.__globalPeriodCustom = { from: fmt2(st.rangeStart), to: fmt2(st.rangeEnd) };
     setGlobalPeriod('custom');
@@ -17181,20 +17224,29 @@ function customPeriodQuickset(days){
     toEl.value = fmt(today);
   }
 }
-// Restore saved global period on load
+// Restore saved global period on load — support semua preset yang valid
 (function(){
   try {
     const saved = localStorage.getItem('od_global_period');
-    if(saved && ['today','yesterday','7d','30d','all'].indexOf(saved) >= 0){
+    const validPresets = ['today','yesterday','3d','7d','14d','30d','90d','thismonth','lastmonth','thisyear','lastyear','all','custom'];
+    if(saved && validPresets.indexOf(saved) >= 0){
       window.__globalPeriod = saved;
+      // Restore custom range juga
+      if(saved === 'custom'){
+        try {
+          var customJson = localStorage.getItem('od_global_period_custom');
+          if(customJson) window.__globalPeriodCustom = JSON.parse(customJson);
+        } catch(e){}
+      }
     }
   } catch(e){}
-  // Sync button state when DOM ready
+  // Sync button state + label when DOM ready
   document.addEventListener('DOMContentLoaded', function(){
     const btns = document.querySelectorAll('.topbar-period button[data-period]');
     btns.forEach(function(b){
       b.classList.toggle('active', b.getAttribute('data-period') === (window.__globalPeriod || 'today'));
     });
+    if(typeof updateDatePickerLabel === 'function') updateDatePickerLabel();
   });
 })();
 
