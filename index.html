@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-09-03-lp-wave1-conversion-boosters';
+window.__APP_VERSION = '2026-09-03-lp-wave2-analytics-abtest';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -4276,6 +4276,20 @@ document.addEventListener('DOMContentLoaded', function(){
               <tbody id="pdCheckoutTableBody"></tbody>
             </table>
           </div>
+
+          <!-- W2.3: LP Analytics Panel -->
+          <div id="pdLpAnalyticsCard" style="margin-top:24px;background:#fff;border:1px solid #E2E8F0;border-radius:14px;padding:20px 22px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+              <div>
+                <h2 style="font-size:16px;font-weight:700;color:#0F172A;margin:0 0 3px;display:flex;align-items:center;gap:8px"><i class="ti ti-chart-histogram" style="color:#7C3AED"></i>Landing Page Analytics</h2>
+                <div style="font-size:11.5px;color:#64748B">Data 30 hari terakhir · Funnel views → scroll → CTA → form → submit</div>
+              </div>
+              <button class="pd-btn pd-btn-outline" onclick="pdLoadLpAnalytics()" style="padding:6px 12px;font-size:11.5px"><i class="ti ti-refresh"></i>Refresh</button>
+            </div>
+            <div id="pdLpAnalyticsBody">
+              <div style="text-align:center;padding:40px;color:#94A3B8;font-size:13px"><i class="ti ti-loader-2" style="animation:lpSpin 1s linear infinite;font-size:24px;display:block;margin-bottom:8px"></i>Loading analytics...</div>
+            </div>
+          </div>
         </div>
 
         <!-- Product Detail Form v2 (20-section OrderHero-style layout, hidden by default) -->
@@ -4942,6 +4956,28 @@ document.addEventListener('DOMContentLoaded', function(){
                         <div style="margin-bottom:8px"><label style="font-size:11px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Headline</label><input type="text" id="fLpExitHeadline" placeholder="Tunggu! Ada Diskon Khusus 🎁" style="width:100%;padding:6px 9px;font-size:12px;border:1px solid var(--border);border-radius:6px;box-sizing:border-box"/></div>
                         <div style="margin-bottom:8px"><label style="font-size:11px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Pesan</label><textarea id="fLpExitMsg" rows="2" placeholder="Order sekarang & dapatkan free ongkir + potongan Rp 20.000" style="width:100%;padding:6px 9px;font-size:12px;border:1px solid var(--border);border-radius:6px;box-sizing:border-box;resize:vertical"></textarea></div>
                         <div><label style="font-size:11px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Teks Tombol CTA</label><input type="text" id="fLpExitCta" placeholder="Ambil Diskon Sekarang" style="width:100%;padding:6px 9px;font-size:12px;border:1px solid var(--border);border-radius:6px;box-sizing:border-box"/></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- W2: A/B Testing -->
+                  <div style="border-top:1px dashed var(--border);padding-top:14px;margin-top:14px">
+                    <label class="pfv2-label" style="display:flex;align-items:center;gap:6px"><i class="ti ti-arrows-split-2" style="color:#7C3AED"></i>A/B Testing <span style="font-size:9px;background:#FEF3C7;color:#92400E;padding:1px 6px;border-radius:99px;font-weight:600">BETA</span></label>
+                    <div class="pfv2-hint" style="margin-bottom:10px">Split traffic 50/50 ke Variant A & B. Tracking di panel Analytics.</div>
+                    <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:10px 12px">
+                      <label class="pfv2-toggle" style="margin:0">
+                        <input type="checkbox" id="fLpAbEnabled" onchange="toggleLpAbFields()"/>
+                        <span class="pfv2-toggle-slider"></span>
+                        <span class="pfv2-toggle-txt" style="font-size:12.5px">🧪 Aktifkan A/B Testing<div class="pfv2-toggle-desc" style="font-size:10.5px">Random split — half visitor liat Variant A, half liat Variant B</div></span>
+                      </label>
+                      <div id="fLpAbBox" style="display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border)">
+                        <div style="display:flex;gap:8px;margin-bottom:10px">
+                          <button type="button" class="btn btn-outline" style="flex:1;padding:7px 10px;font-size:11.5px" onclick="lpEditVariant('a')"><i class="ti ti-edit" style="font-size:12px"></i> Edit Variant A</button>
+                          <button type="button" class="btn btn-outline" style="flex:1;padding:7px 10px;font-size:11.5px" onclick="lpEditVariant('b')"><i class="ti ti-edit" style="font-size:12px"></i> Edit Variant B</button>
+                        </div>
+                        <div style="font-size:11px;color:var(--text-muted);padding:8px 10px;background:#F0F9FF;border:1px solid #BAE6FD;border-radius:7px" id="fLpAbInfo">
+                          <i class="ti ti-info-circle" style="color:#0284C7;vertical-align:-1px"></i> Editing: <b id="fLpAbCurrent">Variant A</b> · <button type="button" onclick="lpCopyAtoB()" style="background:none;border:none;color:#0284C7;cursor:pointer;padding:0;font-size:11px;font-weight:600;text-decoration:underline">Copy A → B</button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -10686,7 +10722,135 @@ function showProdDetail(id){
         '</td>' +
       '</tr>';
   }
+  // W2.3: Load LP Analytics
+  try { pdLoadLpAnalytics(); } catch(e){ console.warn('LP analytics fail:', e); }
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// W2.3: LP Analytics loader — fetches od_lp_sessions for current product, aggregates, renders
+function pdLoadLpAnalytics(){
+  var pid = window.__pdCurrentProdId;
+  var body = document.getElementById('pdLpAnalyticsBody');
+  if(!pid || !body) return;
+  var p = getProds().find(function(x){ return x.id === pid; });
+  var cfg = getFBConfig() || {};
+  if(!cfg.apiKey || !cfg.projectId){
+    body.innerHTML = '<div style="text-align:center;padding:40px;color:#94A3B8;font-size:13px">Firebase belum di-setup. Setup dulu di Pengaturan → Firebase Sync.</div>';
+    return;
+  }
+  body.innerHTML = '<div style="text-align:center;padding:40px;color:#94A3B8;font-size:13px"><i class="ti ti-loader-2" style="animation:lpSpin 1s linear infinite;font-size:24px;display:block;margin-bottom:8px"></i>Loading analytics...</div>';
+
+  // Firestore structured query: WHERE productId = pid AND date >= 30 days ago
+  var thirtyDaysAgo = new Date(Date.now() - 30*24*60*60*1000).toISOString().slice(0,10);
+  var pidStr = String(pid);
+  var qUrl = 'https://firestore.googleapis.com/v1/projects/'+cfg.projectId+'/databases/(default)/documents:runQuery?key='+cfg.apiKey;
+  var qBody = {
+    structuredQuery: {
+      from: [{ collectionId: 'od_lp_sessions' }],
+      where: {
+        compositeFilter: {
+          op: 'AND',
+          filters: [
+            { fieldFilter: { field: { fieldPath: 'productId' }, op: 'EQUAL', value: { stringValue: pidStr } } },
+            { fieldFilter: { field: { fieldPath: 'date' }, op: 'GREATER_THAN_OR_EQUAL', value: { stringValue: thirtyDaysAgo } } }
+          ]
+        }
+      },
+      limit: 5000
+    }
+  };
+  fetch(qUrl, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(qBody) })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var docs = Array.isArray(data) ? data.filter(function(d){ return d.document; }) : [];
+      var sessions = docs.map(function(d){
+        var o = {}; var f = (d.document.fields||{});
+        for(var k in f) o[k] = (typeof fsDecode === 'function') ? fsDecode(f[k]) : null;
+        return o;
+      });
+      renderLpAnalytics(sessions, p);
+    })
+    .catch(function(err){
+      body.innerHTML = '<div style="text-align:center;padding:40px;color:#DC2626;font-size:13px"><i class="ti ti-alert-circle" style="font-size:24px;display:block;margin-bottom:8px"></i>Gagal load: '+String(err&&err.message||err)+'</div>';
+    });
+}
+
+function renderLpAnalytics(sessions, p){
+  var body = document.getElementById('pdLpAnalyticsBody');
+  if(!body) return;
+  if(!sessions || !sessions.length){
+    body.innerHTML = '<div style="text-align:center;padding:40px;color:#94A3B8;font-size:13px"><i class="ti ti-chart-histogram" style="font-size:32px;display:block;margin-bottom:8px;color:#CBD5E1"></i>Belum ada data. Landing page baru akan mulai record data begitu ada visitor.<div style="margin-top:12px;font-size:11px">Buka <code>/lp/'+(p.urlSlug||p.id)+'</code> untuk generate data pertama.</div></div>';
+    return;
+  }
+  // Aggregate by variant
+  var buckets = { a:[], b:[] };
+  sessions.forEach(function(s){
+    var v = (s.variant === 'b') ? 'b' : 'a';
+    buckets[v].push(s);
+  });
+  var hasB = buckets.b.length > 0;
+
+  var aggFn = function(arr){
+    var n = arr.length;
+    var scroll25 = arr.filter(function(s){ return s.scroll25; }).length;
+    var scroll50 = arr.filter(function(s){ return s.scroll50; }).length;
+    var scroll75 = arr.filter(function(s){ return s.scroll75; }).length;
+    var scroll100 = arr.filter(function(s){ return s.scroll100; }).length;
+    var cta = arr.filter(function(s){ return (s.ctaClicks||0) > 0; }).length;
+    var ctaTotal = arr.reduce(function(a,s){ return a + (s.ctaClicks||0); }, 0);
+    var formStart = arr.filter(function(s){ return s.formStarted; }).length;
+    var submit = arr.filter(function(s){ return s.submitted; }).length;
+    var avgDur = n > 0 ? Math.round(arr.reduce(function(a,s){ return a + (s.durationSec||0); }, 0) / n) : 0;
+    return { views:n, scroll25:scroll25, scroll50:scroll50, scroll75:scroll75, scroll100:scroll100, cta:cta, ctaTotal:ctaTotal, formStart:formStart, submit:submit, avgDur:avgDur };
+  };
+
+  var aggA = aggFn(buckets.a);
+  var aggB = hasB ? aggFn(buckets.b) : null;
+
+  var pct = function(a, b){ return b > 0 ? Math.round((a/b)*100) : 0; };
+  var fmtDur = function(s){ if(s < 60) return s+'s'; var m = Math.floor(s/60); var r = s%60; return m+'m '+r+'s'; };
+
+  var makeFunnel = function(agg, label, color){
+    var stages = [
+      { label:'Views', val:agg.views, pct:100 },
+      { label:'Scroll 50%', val:agg.scroll50, pct:pct(agg.scroll50, agg.views) },
+      { label:'CTA Click', val:agg.cta, pct:pct(agg.cta, agg.views) },
+      { label:'Form Start', val:agg.formStart, pct:pct(agg.formStart, agg.views) },
+      { label:'Submit', val:agg.submit, pct:pct(agg.submit, agg.views) }
+    ];
+    var bars = stages.map(function(st, i){
+      var w = st.pct;
+      return '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:11.5px"><span style="color:#64748B">'+st.label+'</span><span style="font-weight:700;color:#0F172A">'+st.val.toLocaleString('id-ID')+' <span style="color:#94A3B8;font-weight:400">('+st.pct+'%)</span></span></div>' +
+        '<div style="height:8px;background:#F1F5F9;border-radius:4px;overflow:hidden"><div style="height:100%;width:'+w+'%;background:'+color+';transition:width .4s"></div></div></div>';
+    }).join('');
+    return '<div style="flex:1;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:14px 16px">' +
+      (label ? '<div style="font-size:12px;font-weight:700;color:'+color+';margin-bottom:12px;display:flex;justify-content:space-between;align-items:center"><span>'+label+'</span><span style="font-size:10px;color:#94A3B8;font-weight:500">avg '+fmtDur(agg.avgDur)+'</span></div>' : '') +
+      bars +
+      '<div style="margin-top:10px;padding-top:10px;border-top:1px dashed #E2E8F0;display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:10.5px;color:#64748B">' +
+        '<div>Total CTA clicks: <b>'+agg.ctaTotal.toLocaleString('id-ID')+'</b></div>' +
+        '<div>Bounce (no scroll 50%): <b>'+(agg.views - agg.scroll50).toLocaleString('id-ID')+'</b></div>' +
+      '</div>' +
+    '</div>';
+  };
+
+  var html = '';
+  if(hasB){
+    // Determine winner
+    var convA = pct(aggA.submit, aggA.views);
+    var convB = pct(aggB.submit, aggB.views);
+    var winner = convA > convB ? 'A' : (convB > convA ? 'B' : null);
+    var winMsg = '';
+    if(winner && Math.max(aggA.views, aggB.views) >= 30){
+      winMsg = '<div style="background:linear-gradient(135deg,#ECFDF5,#F0FDF4);border:1px solid #A7F3D0;padding:10px 14px;border-radius:9px;margin-bottom:14px;font-size:12.5px;color:#065F46"><b>🏆 Winner: Variant '+winner+'</b> — Conversion '+(winner==='A'?convA:convB)+'% (vs '+(winner==='A'?convB:convA)+'%)</div>';
+    } else if(Math.max(aggA.views, aggB.views) < 30){
+      winMsg = '<div style="background:#FEF3C7;border:1px solid #FDE68A;padding:10px 14px;border-radius:9px;margin-bottom:14px;font-size:12.5px;color:#92400E">⏳ Belum cukup data. Butuh minimal 30 views per variant untuk conclusive winner.</div>';
+    }
+    html = winMsg + '<div style="display:flex;gap:14px">' + makeFunnel(aggA, 'Variant A ('+aggA.views+' views)', '#7C3AED') + makeFunnel(aggB, 'Variant B ('+aggB.views+' views)', '#EA580C') + '</div>';
+  } else {
+    html = makeFunnel(aggA, null, '#7C3AED');
+  }
+
+  body.innerHTML = html;
 }
 
 function closeProdDetail(){
@@ -11081,6 +11245,13 @@ function showProdForm(id){
     setV('fLpExitMsg', p.lpExitMsg || '');
     setV('fLpExitCta', p.lpExitCta || '');
     if(typeof toggleLpBoosterFields === 'function') toggleLpBoosterFields();
+    // W2: A/B
+    setChk('fLpAbEnabled', p.lpAbEnabled);
+    window.__lpSectionsB = (p.lpSectionsB && p.lpSectionsB.length) ? JSON.parse(JSON.stringify(p.lpSectionsB)) : null;
+    window.__lpEditingVariant = 'a';
+    window.__lpSectionsA_stash = null;
+    var _abLbl = document.getElementById('fLpAbCurrent'); if(_abLbl) _abLbl.textContent = 'Variant A';
+    if(typeof toggleLpAbFields === 'function') toggleLpAbFields();
     setV('fPrice', p.price);
     setV('fHpp', p.hpp);
     setV('fInventaris', (typeof p.inventaris === 'number') ? p.inventaris : '');
@@ -12360,7 +12531,16 @@ function saveProd(){
   var countdownExpiredAction = gv('fCountdownExpiredAction') || 'disable';
   var countdownLabel = gv('fCountdownLabel').trim();
   var lpEnabled = gc('fLpEnabled');
-  var lpSections = window.__lpSections ? JSON.parse(JSON.stringify(window.__lpSections)) : [];
+  // Sync current editing variant back to correct storage
+  if(window.__lpEditingVariant === 'b'){
+    window.__lpSectionsB = window.__lpSections ? JSON.parse(JSON.stringify(window.__lpSections)) : [];
+    // Restore A as the "primary" lpSections
+    var lpSections = window.__lpSectionsA_stash ? JSON.parse(JSON.stringify(window.__lpSectionsA_stash)) : [];
+  } else {
+    var lpSections = window.__lpSections ? JSON.parse(JSON.stringify(window.__lpSections)) : [];
+  }
+  var lpAbEnabled = gc('fLpAbEnabled');
+  var lpSectionsB = (lpAbEnabled && window.__lpSectionsB) ? JSON.parse(JSON.stringify(window.__lpSectionsB)) : [];
   // W1: Conversion boosters
   var lpFloatingWA = gc('fLpFloatingWA');
   var lpFloatingWAMsg = gv('fLpFloatingWAMsg').trim();
@@ -12482,6 +12662,7 @@ function saveProd(){
         active: status !== 'archived',
         tipe, hargaNormal, grosir, freeOngkir, ongkirNote, countdownEnabled, countdownEnd, countdownExpiredAction, countdownLabel, lpEnabled, lpSections, lpEnabled, lpSections, countdownEnabled, countdownEnd, countdownExpiredAction, countdownLabel,
         lpFloatingWA, lpFloatingWAMsg, lpStickyCTA, lpExitIntent, lpExitHeadline, lpExitMsg, lpExitCta,
+        lpAbEnabled, lpSectionsB,
         kodeUnikEnabled, kodeUnikMin, kodeUnikMax,
         resellerEnabled, resellerKomisi, resellerKomisiTipe,
         overrideCSRotator, shipperId, adminId,
@@ -12508,6 +12689,7 @@ function saveProd(){
       active: status !== 'archived',
       tipe, hargaNormal, grosir, freeOngkir, ongkirNote, countdownEnabled, countdownEnd, countdownExpiredAction, countdownLabel, lpEnabled, lpSections,
       lpFloatingWA, lpFloatingWAMsg, lpStickyCTA, lpExitIntent, lpExitHeadline, lpExitMsg, lpExitCta,
+      lpAbEnabled, lpSectionsB,
       kodeUnikEnabled, kodeUnikMin, kodeUnikMax,
       resellerEnabled, resellerKomisi, resellerKomisiTipe,
       overrideCSRotator, shipperId, adminId,
@@ -13005,6 +13187,9 @@ window['ooSub${p.id}']=function(){
         if(window.dataLayer)window.dataLayer.push({event:'lead_sync_fail',lead_id:leadId,err:String(e&&e.message||e)});
       }
     }
+
+    /* W2: Signal LP tracker */
+    try{ window.dispatchEvent(new Event('oo-lead-submit')); }catch(e){}
 
     /* Redirect — multi-fallback (SKIP kalau mode success_page → biar user liat thank you page) */
     if(!_showTYP){
@@ -14078,6 +14263,56 @@ function toggleLpBoosterFields(){
   var ex = document.getElementById('fLpExitIntent');
   var exBox = document.getElementById('fLpExitIntentBox');
   if(ex && exBox) exBox.style.display = ex.checked ? 'block' : 'none';
+}
+
+// W2: A/B Testing helpers
+window.__lpEditingVariant = 'a';
+window.__lpSectionsB = null; // cached B sections
+
+function toggleLpAbFields(){
+  var chk = document.getElementById('fLpAbEnabled');
+  var box = document.getElementById('fLpAbBox');
+  if(chk && box) box.style.display = chk.checked ? '' : 'none';
+  if(chk && chk.checked && !window.__lpSectionsB){
+    // Auto-init B as copy of A
+    window.__lpSectionsB = JSON.parse(JSON.stringify(window.__lpSections || []));
+  }
+}
+
+function lpEditVariant(v){
+  // Save current variant sections back to storage
+  if(window.__lpEditingVariant === 'a'){
+    // Currently editing A, save then switch
+  } else {
+    window.__lpSectionsB = JSON.parse(JSON.stringify(window.__lpSections || []));
+  }
+  // Load target variant into __lpSections
+  if(v === 'b'){
+    if(!window.__lpSectionsB || !window.__lpSectionsB.length){
+      window.__lpSectionsB = JSON.parse(JSON.stringify(window.__lpSections || []));
+    }
+    // Stash A first
+    window.__lpSectionsA_stash = JSON.parse(JSON.stringify(window.__lpSections || []));
+    window.__lpSections = JSON.parse(JSON.stringify(window.__lpSectionsB));
+  } else {
+    // Restore A from stash if exists
+    if(window.__lpSectionsA_stash){
+      window.__lpSections = JSON.parse(JSON.stringify(window.__lpSectionsA_stash));
+    }
+  }
+  window.__lpEditingVariant = v;
+  var lbl = document.getElementById('fLpAbCurrent');
+  if(lbl) lbl.textContent = 'Variant ' + v.toUpperCase();
+  lpRenderSectionsList();
+  toast('Editing Variant ' + v.toUpperCase());
+}
+
+function lpCopyAtoB(){
+  if(!confirm('Copy Variant A sections ke Variant B? Ini akan mengganti sections di Variant B.')) return;
+  var srcA = window.__lpEditingVariant === 'a' ? window.__lpSections : window.__lpSectionsA_stash;
+  if(!srcA || !srcA.length){ toast('Variant A kosong'); return; }
+  window.__lpSectionsB = JSON.parse(JSON.stringify(srcA));
+  toast('✅ Copied A → B');
 }
 
 function toggleLpEnabled(){
@@ -19009,6 +19244,153 @@ function getDefaultLpSections(p){
   ];
 }
 
+// ═══════════════════════════════════
+// W2.1: LP Session Tracker
+// ═══════════════════════════════════
+// Tracks: view (on load), scroll milestones (25/50/75/100), CTA clicks, form_start, submit
+// Batches state, PATCHes Firestore doc per session
+window.__lpSession = null;
+function lpStartTracking(p, contentEl){
+  if(!p || !p.id) return;
+  var cfg = getFBConfig() || {};
+  if(!cfg.apiKey || !cfg.projectId) return; // No FB config, skip
+  var sid = 'lps_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
+  var variant = (window.__lpVariant || 'a');
+  window.__lpSession = {
+    id: sid,
+    productId: String(p.id),
+    urlSlug: p.urlSlug || '',
+    variant: variant,
+    startTs: Date.now(),
+    lastFlushTs: 0,
+    maxScrollPct: 0,
+    scrollBuckets: { s25:false, s50:false, s75:false, s100:false },
+    ctaClicks: 0,
+    formStarted: false,
+    submitted: false,
+    referrer: (document.referrer || '').substring(0, 200),
+    ua: (navigator.userAgent || '').substring(0, 120),
+    dirty: true
+  };
+
+  // Create initial session doc
+  lpFlushSession(true);
+
+  // Scroll depth tracking
+  var onScroll = function(){
+    var s = window.__lpSession; if(!s) return;
+    var docH = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+    var viewH = window.innerHeight;
+    var scrolled = window.scrollY + viewH;
+    var pct = Math.min(100, Math.round((scrolled / Math.max(1, docH)) * 100));
+    if(pct > s.maxScrollPct){ s.maxScrollPct = pct; s.dirty = true; }
+    if(pct >= 25 && !s.scrollBuckets.s25){ s.scrollBuckets.s25 = true; s.dirty = true; }
+    if(pct >= 50 && !s.scrollBuckets.s50){ s.scrollBuckets.s50 = true; s.dirty = true; }
+    if(pct >= 75 && !s.scrollBuckets.s75){ s.scrollBuckets.s75 = true; s.dirty = true; }
+    if(pct >= 100 && !s.scrollBuckets.s100){ s.scrollBuckets.s100 = true; s.dirty = true; }
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // CTA click tracking — any <a> that has href="#lp-form" or button with data-cta
+  if(contentEl){
+    contentEl.addEventListener('click', function(e){
+      var t = e.target;
+      while(t && t !== contentEl){
+        var isCta = (t.tagName === 'A' && String(t.getAttribute('href')||'').indexOf('#lp-form') === 0) ||
+                    (t.tagName === 'BUTTON' && t.getAttribute('data-cta'));
+        if(isCta){ var s = window.__lpSession; if(s){ s.ctaClicks++; s.dirty = true; } break; }
+        t = t.parentElement;
+      }
+    });
+  }
+
+  // Form start tracking — any focus on input/textarea within contentEl
+  var onFocus = function(e){
+    var s = window.__lpSession; if(!s || s.formStarted) return;
+    var tag = e.target && e.target.tagName;
+    if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'){
+      s.formStarted = true;
+      s.dirty = true;
+    }
+  };
+  document.addEventListener('focus', onFocus, true);
+
+  // Submit tracking — listen for form submit events + custom oo-lead-submit signal
+  document.addEventListener('submit', function(){
+    var s = window.__lpSession; if(!s) return;
+    s.submitted = true; s.dirty = true;
+    lpFlushSession(false);
+  }, true);
+  window.addEventListener('oo-lead-submit', function(){
+    var s = window.__lpSession; if(!s) return;
+    s.submitted = true; s.dirty = true;
+    lpFlushSession(false);
+  });
+
+  // Periodic flush every 8s if dirty
+  setInterval(function(){
+    var s = window.__lpSession; if(!s || !s.dirty) return;
+    if(Date.now() - s.lastFlushTs < 6000) return;
+    lpFlushSession(false);
+  }, 8000);
+
+  // Flush on visibility hidden / pagehide
+  var flushOnLeave = function(){ var s = window.__lpSession; if(s && s.dirty) lpFlushSession(false); };
+  document.addEventListener('visibilitychange', function(){ if(document.hidden) flushOnLeave(); });
+  window.addEventListener('pagehide', flushOnLeave);
+  window.addEventListener('beforeunload', flushOnLeave);
+}
+
+function lpFlushSession(isCreate){
+  var s = window.__lpSession; if(!s) return;
+  var cfg = getFBConfig() || {};
+  if(!cfg.apiKey || !cfg.projectId) return;
+  var dur = Math.round((Date.now() - s.startTs) / 1000);
+  var todayStr = new Date().toISOString().slice(0,10);
+  var payload = {
+    productId: s.productId,
+    urlSlug: s.urlSlug || '',
+    variant: s.variant || 'a',
+    date: todayStr,
+    startTs: s.startTs,
+    durationSec: dur,
+    maxScroll: s.maxScrollPct,
+    scroll25: !!s.scrollBuckets.s25,
+    scroll50: !!s.scrollBuckets.s50,
+    scroll75: !!s.scrollBuckets.s75,
+    scroll100: !!s.scrollBuckets.s100,
+    ctaClicks: s.ctaClicks,
+    formStarted: !!s.formStarted,
+    submitted: !!s.submitted,
+    referrer: s.referrer || '',
+    ua: s.ua || ''
+  };
+  var fields = {};
+  for(var k in payload) fields[k] = (typeof fsEncode === 'function') ? fsEncode(payload[k]) : { stringValue: String(payload[k]) };
+  var base = 'https://firestore.googleapis.com/v1/projects/'+cfg.projectId+'/databases/(default)/documents/od_lp_sessions';
+  var url, method;
+  if(isCreate){
+    url = base + '?documentId=' + s.id + '&key=' + cfg.apiKey;
+    method = 'POST';
+  } else {
+    // PATCH with all fields (merges via updateMask.paths)
+    var maskParams = Object.keys(payload).map(function(k){ return 'updateMask.fieldPaths='+k; }).join('&');
+    url = base + '/' + s.id + '?' + maskParams + '&key=' + cfg.apiKey;
+    method = 'PATCH';
+  }
+  try {
+    fetch(url, {
+      method: method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields: fields }),
+      keepalive: true
+    }).catch(function(){});
+  } catch(e){}
+  s.lastFlushTs = Date.now();
+  s.dirty = false;
+}
+
 // M4: Inject SEO meta tags (og:title/description/image, twitter, canonical) for LP
 function lpInjectSEO(p){
   if(!p) return;
@@ -19086,6 +19468,25 @@ function loadLandingPage(slug){
     }
     try { document.title = (p.name || 'Landing') + ' — Nonics Order'; } catch(e){}
     try { lpInjectSEO(p); } catch(e){ console.warn('SEO inject fail:', e); }
+    // W2: A/B variant assignment
+    var variant = 'a';
+    if(p.lpAbEnabled && p.lpSectionsB && p.lpSectionsB.length){
+      var storageKey = 'lp_variant_' + (p.urlSlug || p.id);
+      try {
+        var stored = sessionStorage.getItem(storageKey);
+        if(stored === 'a' || stored === 'b'){
+          variant = stored;
+        } else {
+          variant = Math.random() < 0.5 ? 'a' : 'b';
+          sessionStorage.setItem(storageKey, variant);
+        }
+      } catch(e){ variant = Math.random() < 0.5 ? 'a' : 'b'; }
+      // Override sections if B
+      if(variant === 'b'){
+        p = Object.assign({}, p, { lpSections: p.lpSectionsB });
+      }
+    }
+    window.__lpVariant = variant;
     if(loadingEl) loadingEl.style.display = 'none';
     renderLandingPage(p, contentEl);
   };
@@ -19299,6 +19700,9 @@ function renderLandingPage(p, contentEl){
       onScroll();
     }, 100);
   }
+
+  // W2.1: LP Session Tracker
+  try { lpStartTracking(p, contentEl); } catch(e){ console.warn('LP tracker fail:', e); }
 
   // W1: Wire exit-intent trigger
   if(p.lpExitIntent){

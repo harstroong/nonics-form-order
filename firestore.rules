@@ -9,6 +9,7 @@ service cloud.firestore {
     match /od_cs_users/{document=**} { allow read, write: if true; }
     match /od_qr_templates/{document=**} { allow read, write: if true; }
     match /od_ad_users/{document=**} { allow read, write: if true; }
+    match /od_lp_sessions/{document=**} { allow read, write: if true; }
 
     // Digital collections — read public (untuk public checkout form), write hanya server (Functions)
     match /od_prods_digital/{document} {
