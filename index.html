@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-09-03-landing-page-m3-m4-m5';
+window.__APP_VERSION = '2026-09-03-lp-wave1-conversion-boosters';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -4900,9 +4900,51 @@ document.addEventListener('DOMContentLoaded', function(){
 
                   <div id="fLpSectionsList" style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px"></div>
 
-                  <button type="button" class="btn btn-outline" style="width:100%;padding:8px;font-size:12px;border-style:dashed" onclick="lpResetSections()">
+                  <button type="button" class="btn btn-outline" style="width:100%;padding:8px;font-size:12px;border-style:dashed;margin-bottom:16px" onclick="lpResetSections()">
                     <i class="ti ti-refresh" style="font-size:13px"></i> Reset ke Default Template
                   </button>
+
+                  <!-- W1: Conversion Boosters -->
+                  <div style="border-top:1px dashed var(--border);padding-top:14px">
+                    <label class="pfv2-label" style="display:flex;align-items:center;gap:6px"><i class="ti ti-flame" style="color:#EA580C"></i>Conversion Boosters <span style="font-size:9px;background:#FEF3C7;color:#92400E;padding:1px 6px;border-radius:99px;font-weight:600">NEW</span></label>
+                    <div class="pfv2-hint" style="margin-bottom:10px">Fitur tambahan buat naikin conversion rate.</div>
+
+                    <!-- Floating WA -->
+                    <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:10px 12px;margin-bottom:8px">
+                      <label class="pfv2-toggle" style="margin:0">
+                        <input type="checkbox" id="fLpFloatingWA" onchange="toggleLpBoosterFields()"/>
+                        <span class="pfv2-toggle-slider"></span>
+                        <span class="pfv2-toggle-txt" style="font-size:12.5px">🟢 Floating WhatsApp Button<div class="pfv2-toggle-desc" style="font-size:10.5px">Tombol WA melayang bottom-right, klik langsung buka chat CS</div></span>
+                      </label>
+                      <div id="fLpFloatingWABox" style="display:none;margin-top:8px;padding-top:8px;border-top:1px dashed var(--border)">
+                        <label style="font-size:11px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Pesan Default (opsional)</label>
+                        <input type="text" id="fLpFloatingWAMsg" placeholder="Halo, saya tertarik dengan produk ..." style="width:100%;padding:6px 9px;font-size:12px;border:1px solid var(--border);border-radius:6px;box-sizing:border-box"/>
+                      </div>
+                    </div>
+
+                    <!-- Sticky CTA -->
+                    <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:10px 12px;margin-bottom:8px">
+                      <label class="pfv2-toggle" style="margin:0">
+                        <input type="checkbox" id="fLpStickyCTA"/>
+                        <span class="pfv2-toggle-slider"></span>
+                        <span class="pfv2-toggle-txt" style="font-size:12.5px">📱 Sticky CTA Bar (Mobile)<div class="pfv2-toggle-desc" style="font-size:10.5px">Bar dengan harga + tombol Pesan nempel bawah setelah scroll 40%</div></span>
+                      </label>
+                    </div>
+
+                    <!-- Exit-intent -->
+                    <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:10px 12px">
+                      <label class="pfv2-toggle" style="margin:0">
+                        <input type="checkbox" id="fLpExitIntent" onchange="toggleLpBoosterFields()"/>
+                        <span class="pfv2-toggle-slider"></span>
+                        <span class="pfv2-toggle-txt" style="font-size:12.5px">🚪 Popup Exit-Intent<div class="pfv2-toggle-desc" style="font-size:10.5px">Muncul saat user mau tinggalin halaman — kasih diskon/reminder biar gak kabur</div></span>
+                      </label>
+                      <div id="fLpExitIntentBox" style="display:none;margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);display:none">
+                        <div style="margin-bottom:8px"><label style="font-size:11px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Headline</label><input type="text" id="fLpExitHeadline" placeholder="Tunggu! Ada Diskon Khusus 🎁" style="width:100%;padding:6px 9px;font-size:12px;border:1px solid var(--border);border-radius:6px;box-sizing:border-box"/></div>
+                        <div style="margin-bottom:8px"><label style="font-size:11px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Pesan</label><textarea id="fLpExitMsg" rows="2" placeholder="Order sekarang & dapatkan free ongkir + potongan Rp 20.000" style="width:100%;padding:6px 9px;font-size:12px;border:1px solid var(--border);border-radius:6px;box-sizing:border-box;resize:vertical"></textarea></div>
+                        <div><label style="font-size:11px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Teks Tombol CTA</label><input type="text" id="fLpExitCta" placeholder="Ambil Diskon Sekarang" style="width:100%;padding:6px 9px;font-size:12px;border:1px solid var(--border);border-radius:6px;box-sizing:border-box"/></div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -11030,6 +11072,15 @@ function showProdForm(id){
     if(_lpLink) _lpLink.href = '/lp/' + (p.urlSlug || '');
     // M4: Publish state indicator
     if(typeof lpUpdatePublishCard === 'function') lpUpdatePublishCard(p);
+    // W1: Conversion boosters
+    setChk('fLpFloatingWA', p.lpFloatingWA);
+    setV('fLpFloatingWAMsg', p.lpFloatingWAMsg || '');
+    setChk('fLpStickyCTA', p.lpStickyCTA);
+    setChk('fLpExitIntent', p.lpExitIntent);
+    setV('fLpExitHeadline', p.lpExitHeadline || '');
+    setV('fLpExitMsg', p.lpExitMsg || '');
+    setV('fLpExitCta', p.lpExitCta || '');
+    if(typeof toggleLpBoosterFields === 'function') toggleLpBoosterFields();
     setV('fPrice', p.price);
     setV('fHpp', p.hpp);
     setV('fInventaris', (typeof p.inventaris === 'number') ? p.inventaris : '');
@@ -12310,6 +12361,14 @@ function saveProd(){
   var countdownLabel = gv('fCountdownLabel').trim();
   var lpEnabled = gc('fLpEnabled');
   var lpSections = window.__lpSections ? JSON.parse(JSON.stringify(window.__lpSections)) : [];
+  // W1: Conversion boosters
+  var lpFloatingWA = gc('fLpFloatingWA');
+  var lpFloatingWAMsg = gv('fLpFloatingWAMsg').trim();
+  var lpStickyCTA = gc('fLpStickyCTA');
+  var lpExitIntent = gc('fLpExitIntent');
+  var lpExitHeadline = gv('fLpExitHeadline').trim();
+  var lpExitMsg = gv('fLpExitMsg').trim();
+  var lpExitCta = gv('fLpExitCta').trim();
 
   // Section 4
   var kodeUnikEnabled = gc('fKodeUnikEnabled');
@@ -12422,6 +12481,7 @@ function saveProd(){
         urlSlug, kode, klasifikasi, kategori, koleksi, captcha, status,
         active: status !== 'archived',
         tipe, hargaNormal, grosir, freeOngkir, ongkirNote, countdownEnabled, countdownEnd, countdownExpiredAction, countdownLabel, lpEnabled, lpSections, lpEnabled, lpSections, countdownEnabled, countdownEnd, countdownExpiredAction, countdownLabel,
+        lpFloatingWA, lpFloatingWAMsg, lpStickyCTA, lpExitIntent, lpExitHeadline, lpExitMsg, lpExitCta,
         kodeUnikEnabled, kodeUnikMin, kodeUnikMax,
         resellerEnabled, resellerKomisi, resellerKomisiTipe,
         overrideCSRotator, shipperId, adminId,
@@ -12447,6 +12507,7 @@ function saveProd(){
       urlSlug, kode, klasifikasi, kategori, koleksi, captcha, status,
       active: status !== 'archived',
       tipe, hargaNormal, grosir, freeOngkir, ongkirNote, countdownEnabled, countdownEnd, countdownExpiredAction, countdownLabel, lpEnabled, lpSections,
+      lpFloatingWA, lpFloatingWAMsg, lpStickyCTA, lpExitIntent, lpExitHeadline, lpExitMsg, lpExitCta,
       kodeUnikEnabled, kodeUnikMin, kodeUnikMax,
       resellerEnabled, resellerKomisi, resellerKomisiTipe,
       overrideCSRotator, shipperId, adminId,
@@ -14004,8 +14065,20 @@ var LP_SECTION_META = {
   video:        { icon:'ti-brand-youtube',  color:'#DC2626', bg:'#FEE2E2', name:'Video' },
   form:         { icon:'ti-shopping-cart',  color:'#1E40AF', bg:'#DBEAFE', name:'Form Order' },
   faq:          { icon:'ti-help-circle',    color:'#DC2626', bg:'#FEE2E2', name:'FAQ' },
-  trust:        { icon:'ti-shield-check',   color:'#059669', bg:'#F0FDF4', name:'Trust Badges' }
+  trust:        { icon:'ti-shield-check',   color:'#059669', bg:'#F0FDF4', name:'Trust Badges' },
+  beforeafter:  { icon:'ti-arrows-diff',    color:'#0891B2', bg:'#CFFAFE', name:'Before / After' },
+  pricing:      { icon:'ti-tags',           color:'#DB2777', bg:'#FCE7F3', name:'Pricing Table' }
 };
+
+// W1: Toggle helper untuk conversion booster fields (WA msg + exit-intent config)
+function toggleLpBoosterFields(){
+  var wa = document.getElementById('fLpFloatingWA');
+  var waBox = document.getElementById('fLpFloatingWABox');
+  if(wa && waBox) waBox.style.display = wa.checked ? '' : 'none';
+  var ex = document.getElementById('fLpExitIntent');
+  var exBox = document.getElementById('fLpExitIntentBox');
+  if(ex && exBox) exBox.style.display = ex.checked ? 'block' : 'none';
+}
 
 function toggleLpEnabled(){
   var chk = document.getElementById('fLpEnabled');
@@ -14311,6 +14384,8 @@ function lpRenderSectionsList(){
     else if(s.type === 'hero') subtitle = pr.headline ? esc((pr.headline||'').substring(0,32)) : 'default';
     else if(s.type === 'form') subtitle = 'integrated';
     else if(s.type === 'trust') subtitle = 'auto';
+    else if(s.type === 'beforeafter') subtitle = (pr.beforeImg && pr.afterImg) ? 'gambar siap' : 'upload gambar dulu';
+    else if(s.type === 'pricing') subtitle = (pr.items||[]).length + ' paket';
     var canEdit = s.type !== 'form' && s.type !== 'trust';
     return '<div class="lp-section-row" style="background:'+meta.bg+';border:1px solid '+meta.color+'40;border-radius:8px;padding:9px 11px;display:flex;align-items:center;gap:9px;opacity:'+(isOn?'1':'0.55')+'">' +
       '<div style="display:flex;flex-direction:column;gap:1px">' +
@@ -14418,8 +14493,143 @@ function lpRenderEditForm(sec){
     return html;
   } else if(sec.type === 'video'){
     return '<div style="'+fieldWrap+'"><label style="'+lbl+'">YouTube URL</label><input id="_lpVideoUrl" type="text" style="'+inp+'" value="'+esc(pr.url||'')+'" placeholder="https://youtube.com/watch?v=xxx atau https://youtu.be/xxx"/><div style="font-size:11px;color:var(--text-muted);margin-top:6px">Support format: watch?v=, youtu.be/, embed/</div></div>';
+  } else if(sec.type === 'beforeafter'){
+    var bImg = pr.beforeImg || '';
+    var aImg = pr.afterImg || '';
+    return '<div style="'+fieldWrap+'"><label style="'+lbl+'">Judul Section</label><input id="_lpBaTitle" type="text" style="'+inp+'" value="'+esc(pr.title||'')+'" placeholder="Hasil Nyata"/></div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">' +
+        '<div><label style="'+lbl+'">Label Kiri</label><input id="_lpBaBeforeLabel" type="text" style="'+inp+'" value="'+esc(pr.beforeLabel||'Sebelum')+'"/></div>' +
+        '<div><label style="'+lbl+'">Label Kanan</label><input id="_lpBaAfterLabel" type="text" style="'+inp+'" value="'+esc(pr.afterLabel||'Sesudah')+'"/></div>' +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">' +
+        '<div><label style="'+lbl+'">Gambar Sebelum</label>' +
+          '<label style="display:block;aspect-ratio:1;border:2px dashed var(--border);border-radius:8px;overflow:hidden;cursor:pointer;background:'+(bImg?'transparent':'#F8FAFC')+' url('+(bImg||'')+') center/cover no-repeat" id="_lpBaBeforePreview">' +
+          '<input type="file" accept="image/*" style="display:none" onchange="lpBaHandleImg(event,\'before\')"/>' +
+          (bImg ? '' : '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:11px;text-align:center;padding:8px"><i class="ti ti-upload" style="font-size:20px;display:block;margin-bottom:4px"></i>Klik pilih<br/>gambar</div>') +
+          '</label>' +
+        '</div>' +
+        '<div><label style="'+lbl+'">Gambar Sesudah</label>' +
+          '<label style="display:block;aspect-ratio:1;border:2px dashed var(--border);border-radius:8px;overflow:hidden;cursor:pointer;background:'+(aImg?'transparent':'#F8FAFC')+' url('+(aImg||'')+') center/cover no-repeat" id="_lpBaAfterPreview">' +
+          '<input type="file" accept="image/*" style="display:none" onchange="lpBaHandleImg(event,\'after\')"/>' +
+          (aImg ? '' : '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:11px;text-align:center;padding:8px"><i class="ti ti-upload" style="font-size:20px;display:block;margin-bottom:4px"></i>Klik pilih<br/>gambar</div>') +
+          '</label>' +
+        '</div>' +
+      '</div>' +
+      '<div style="'+fieldWrap+'"><label style="'+lbl+'">Caption (opsional)</label><input id="_lpBaCaption" type="text" style="'+inp+'" value="'+esc(pr.caption||'')+'" placeholder="Hasil setelah 2 minggu pemakaian"/></div>';
+  } else if(sec.type === 'pricing'){
+    window.__lpEditItems = (pr.items || []).map(function(it){ return Object.assign({}, it); });
+    return '<div style="'+fieldWrap+'"><label style="'+lbl+'">Judul Section</label><input id="_lpPrTitle" type="text" style="'+inp+'" value="'+esc(pr.title||'')+'" placeholder="Pilih Paket Hemat"/></div>' +
+      '<div style="'+fieldWrap+'"><label style="'+lbl+'">Subtitle</label><input id="_lpPrSubtitle" type="text" style="'+inp+'" value="'+esc(pr.subtitle||'')+'" placeholder="Semakin banyak semakin hemat"/></div>' +
+      '<div style="border-top:1px dashed var(--border);padding-top:14px;margin-top:14px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><label style="'+lbl+';margin-bottom:0">Paket (<span id="_lpItemCount">'+window.__lpEditItems.length+'</span>)</label>' +
+      '<button type="button" class="btn btn-outline" style="padding:5px 10px;font-size:11px" onclick="lpAddPricingItem()"><i class="ti ti-plus" style="font-size:12px"></i> Tambah Paket</button></div>' +
+      '<div id="_lpItemsList" style="display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto"></div>' +
+      '</div>';
   }
   return '<div style="padding:20px;text-align:center;color:var(--text-muted)">Section ini tidak bisa di-edit (auto-managed).</div>';
+}
+
+// W1.4: Handle image upload for Before/After
+function lpBaHandleImg(evt, which){
+  var file = evt.target.files && evt.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var b64 = e.target.result;
+    // Resize to max 800px to keep b64 small
+    var img = new Image();
+    img.onload = function(){
+      var canvas = document.createElement('canvas');
+      var maxW = 800;
+      var scale = Math.min(1, maxW / img.width);
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      var resized = canvas.toDataURL('image/jpeg', 0.85);
+      var previewId = which === 'before' ? '_lpBaBeforePreview' : '_lpBaAfterPreview';
+      var el = document.getElementById(previewId);
+      if(el){
+        el.style.background = 'transparent url('+resized+') center/cover no-repeat';
+        el.innerHTML = '<input type="file" accept="image/*" style="display:none" onchange="lpBaHandleImg(event,\''+which+'\')"/>';
+      }
+      // Stash on window for save
+      window.__lpBaImgs = window.__lpBaImgs || {};
+      window.__lpBaImgs[which] = resized;
+    };
+    img.src = b64;
+  };
+  reader.readAsDataURL(file);
+}
+
+// W1.5: Pricing item management
+function lpAddPricingItem(){
+  lpCapturePricingFromForm();
+  window.__lpEditItems = window.__lpEditItems || [];
+  window.__lpEditItems.push({ qty:1, label:'Paket Baru', price:0, savings:'', best:false });
+  lpRenderPricingGUI();
+}
+function lpDeletePricingItem(idx){
+  if(!confirm('Hapus paket ini?')) return;
+  lpCapturePricingFromForm();
+  window.__lpEditItems.splice(idx, 1);
+  lpRenderPricingGUI();
+}
+function lpMovePricingItem(idx, delta){
+  lpCapturePricingFromForm();
+  var arr = window.__lpEditItems;
+  var n = idx + delta;
+  if(n < 0 || n >= arr.length) return;
+  var tmp = arr[idx]; arr[idx] = arr[n]; arr[n] = tmp;
+  lpRenderPricingGUI();
+}
+function lpTogglePricingBest(idx){
+  lpCapturePricingFromForm();
+  // Only one can be "best" — clear others
+  window.__lpEditItems.forEach(function(it,i){ it.best = (i === idx) ? !it.best : false; });
+  lpRenderPricingGUI();
+}
+function lpCapturePricingFromForm(){
+  var items = window.__lpEditItems || [];
+  var g = function(id){ var el = document.getElementById(id); return el ? el.value : ''; };
+  items.forEach(function(it, idx){
+    it.qty = parseInt(g('_lpPr_qty_'+idx),10) || 1;
+    it.label = g('_lpPr_label_'+idx).trim();
+    it.price = parseInt(String(g('_lpPr_price_'+idx)).replace(/[^0-9]/g,''),10) || 0;
+    it.savings = g('_lpPr_savings_'+idx).trim();
+  });
+}
+function lpRenderPricingGUI(){
+  var listEl = document.getElementById('_lpItemsList');
+  if(!listEl) return;
+  var items = window.__lpEditItems || [];
+  var esc = function(s){ return String(s||'').replace(/</g,'&lt;').replace(/"/g,'&quot;'); };
+  var lbl = 'display:block;font-size:10.5px;font-weight:600;color:var(--text-muted);margin-bottom:3px';
+  var inp = 'width:100%;padding:6px 9px;font-size:12px;border:1px solid var(--border);border-radius:6px;box-sizing:border-box;font-family:inherit';
+  var html = items.map(function(it, idx){
+    var head = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+      '<div style="display:flex;align-items:center;gap:6px"><div style="font-size:11px;font-weight:600;color:var(--text-muted)">#'+(idx+1)+'</div>' +
+      '<button type="button" onclick="lpTogglePricingBest('+idx+')" style="background:'+(it.best?'#FEF3C7':'transparent')+';border:1px solid '+(it.best?'#F59E0B':'var(--border)')+';color:'+(it.best?'#92400E':'var(--text-muted)')+';padding:2px 8px;border-radius:99px;font-size:10px;font-weight:600;cursor:pointer">'+(it.best?'⭐ Best':'Set as Best')+'</button></div>' +
+      '<div style="display:flex;gap:4px">' +
+        '<button type="button" onclick="lpMovePricingItem('+idx+',-1)" '+(idx===0?'disabled':'')+' style="background:none;border:none;padding:2px 5px;cursor:'+(idx===0?'not-allowed':'pointer')+';color:var(--text-muted);opacity:'+(idx===0?'.3':'.7')+'"><i class="ti ti-chevron-up" style="font-size:13px"></i></button>' +
+        '<button type="button" onclick="lpMovePricingItem('+idx+',1)" '+(idx===items.length-1?'disabled':'')+' style="background:none;border:none;padding:2px 5px;cursor:'+(idx===items.length-1?'not-allowed':'pointer')+';color:var(--text-muted);opacity:'+(idx===items.length-1?'.3':'.7')+'"><i class="ti ti-chevron-down" style="font-size:13px"></i></button>' +
+        '<button type="button" onclick="lpDeletePricingItem('+idx+')" style="background:none;border:none;padding:2px 5px;cursor:pointer;color:#DC2626"><i class="ti ti-trash" style="font-size:13px"></i></button>' +
+      '</div></div>';
+    return '<div style="background:'+(it.best?'#FFFBEB':'var(--surface-2)')+';border:1px solid '+(it.best?'#FDE68A':'var(--border)')+';border-radius:8px;padding:10px 12px">' + head +
+      '<div style="display:grid;grid-template-columns:60px 1fr 100px 90px;gap:8px">' +
+        '<div><label style="'+lbl+'">Qty</label><input id="_lpPr_qty_'+idx+'" type="number" min="1" style="'+inp+'" value="'+(it.qty||1)+'"/></div>' +
+        '<div><label style="'+lbl+'">Label</label><input id="_lpPr_label_'+idx+'" type="text" style="'+inp+'" value="'+esc(it.label||'')+'" placeholder="Beli 2 Hemat 10%"/></div>' +
+        '<div><label style="'+lbl+'">Harga Total</label><input id="_lpPr_price_'+idx+'" type="text" style="'+inp+'" value="'+(it.price||0)+'"/></div>' +
+        '<div><label style="'+lbl+'">Badge Hemat</label><input id="_lpPr_savings_'+idx+'" type="text" style="'+inp+'" value="'+esc(it.savings||'')+'" placeholder="Hemat 10%"/></div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+  if(!html){
+    html = '<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px;background:var(--surface-2);border:1px dashed var(--border);border-radius:8px">Belum ada paket. Klik <b>+ Tambah Paket</b>.</div>';
+  }
+  listEl.innerHTML = html;
+  var cntEl = document.getElementById('_lpItemCount');
+  if(cntEl) cntEl.textContent = items.length;
 }
 
 // Render items GUI (called after lpRenderEditForm)
@@ -14552,8 +14762,11 @@ window.lpEditSection = function(idx){
   document.getElementById('lpEditBody').innerHTML = lpRenderEditForm(sec);
   document.getElementById('lpEditModal').style.display = 'flex';
   // Post-render: kalau items-based section, render items GUI
+  window.__lpBaImgs = { before: (sec.props||{}).beforeImg||'', after: (sec.props||{}).afterImg||'' };
   if(sec.type === 'benefits' || sec.type === 'testimonials' || sec.type === 'faq'){
     setTimeout(function(){ lpRenderItemsGUI(sec.type); }, 30);
+  } else if(sec.type === 'pricing'){
+    setTimeout(function(){ lpRenderPricingGUI(); }, 30);
   }
 };
 
@@ -14574,6 +14787,19 @@ function lpSaveEditSection(){
       newProps.items = (window.__lpEditItems || []).slice();
     } else if(sec.type === 'video'){
       newProps.url = g('_lpVideoUrl').trim();
+    } else if(sec.type === 'beforeafter'){
+      newProps.title = g('_lpBaTitle').trim();
+      newProps.beforeLabel = g('_lpBaBeforeLabel').trim() || 'Sebelum';
+      newProps.afterLabel = g('_lpBaAfterLabel').trim() || 'Sesudah';
+      newProps.caption = g('_lpBaCaption').trim();
+      var _imgs = window.__lpBaImgs || {};
+      newProps.beforeImg = _imgs.before || newProps.beforeImg || '';
+      newProps.afterImg = _imgs.after || newProps.afterImg || '';
+    } else if(sec.type === 'pricing'){
+      newProps.title = g('_lpPrTitle').trim();
+      newProps.subtitle = g('_lpPrSubtitle').trim();
+      lpCapturePricingFromForm();
+      newProps.items = (window.__lpEditItems || []).slice();
     }
     window.__lpSections[idx].props = newProps;
     lpRenderSectionsList();
@@ -18753,6 +18979,23 @@ function getDefaultLpSections(p){
       ]
     }},
     { id:'video', type:'video', enabled:false, props:{ url:'' }},
+    { id:'beforeafter', type:'beforeafter', enabled:false, props:{
+      title: 'Hasil Nyata Sebelum & Sesudah',
+      beforeLabel: 'Sebelum',
+      afterLabel: 'Sesudah',
+      beforeImg: '',
+      afterImg: '',
+      caption: 'Hasil setelah pemakaian rutin 2 minggu'
+    }},
+    { id:'pricing', type:'pricing', enabled:false, props:{
+      title: 'Pilih Paket Hemat',
+      subtitle: 'Semakin banyak semakin hemat — bonus free ongkir untuk paket 2+ pcs',
+      items: [
+        { qty:1, label:'Beli 1', price: priceNum || 0, savings:'', best:false },
+        { qty:2, label:'Beli 2 (Hemat 10%)', price: Math.round((priceNum||0)*2*0.9), savings:'Hemat 10%', best:true },
+        { qty:3, label:'Beli 3 (Hemat 20%)', price: Math.round((priceNum||0)*3*0.8), savings:'Hemat 20%', best:false }
+      ]
+    }},
     { id:'form', type:'form', enabled:true, props:{} },
     { id:'faq', type:'faq', enabled:true, props:{
       title: 'Pertanyaan yang sering diajukan',
@@ -18964,11 +19207,128 @@ function renderLandingPage(p, contentEl){
           '<div style="display:flex;align-items:center;gap:4px"><i class="ti ti-shield-check" style="color:#10B981;font-size:13px"></i>'+(t.guarantee || 'Garansi')+'</div>' +
         '</div>' +
       '</section>';
+    } else if(sec.type === 'beforeafter'){
+      if(pr.beforeImg || pr.afterImg){
+        html += '<section style="padding:32px 22px;background:linear-gradient(180deg,#F8FAFC,#fff)">' +
+          '<h2 style="font-size:18px;font-weight:700;color:#0F172A;margin:0 0 16px;text-align:center">'+esc(pr.title || 'Sebelum & Sesudah')+'</h2>' +
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' +
+            '<div style="position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:'+(pr.beforeImg?'transparent url('+pr.beforeImg+') center/cover':'#E2E8F0')+'"><div style="position:absolute;top:8px;left:8px;background:rgba(220,38,38,.9);color:#fff;padding:3px 10px;border-radius:99px;font-size:10px;font-weight:600">'+esc(pr.beforeLabel || 'Sebelum')+'</div></div>' +
+            '<div style="position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:'+(pr.afterImg?'transparent url('+pr.afterImg+') center/cover':'#E2E8F0')+'"><div style="position:absolute;top:8px;left:8px;background:rgba(16,185,129,.9);color:#fff;padding:3px 10px;border-radius:99px;font-size:10px;font-weight:600">'+esc(pr.afterLabel || 'Sesudah')+'</div></div>' +
+          '</div>' +
+          (pr.caption ? '<div style="text-align:center;font-size:12px;color:#64748B;margin-top:12px;font-style:italic">'+esc(pr.caption)+'</div>' : '') +
+        '</section>';
+      }
+    } else if(sec.type === 'pricing'){
+      var prItems = pr.items || [];
+      if(prItems.length){
+        var pricingCards = prItems.map(function(it){
+          var isBest = !!it.best;
+          return '<div style="position:relative;background:'+(isBest?'linear-gradient(135deg,'+primary+',' +_v2AdjustColor(primary,-20)+')':'#fff')+';border:2px solid '+(isBest?primary:'#E2E8F0')+';border-radius:14px;padding:16px 14px;text-align:center;'+(isBest?'transform:scale(1.03);box-shadow:0 8px 24px '+primary+'40':'')+'">' +
+            (isBest ? '<div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#F59E0B;color:#fff;padding:3px 12px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:.5px">⭐ BEST VALUE</div>' : '') +
+            '<div style="font-size:12px;font-weight:600;color:'+(isBest?'#fff':'#64748B')+';margin-bottom:6px">'+esc(it.label || 'Paket')+'</div>' +
+            '<div style="font-size:22px;font-weight:800;color:'+(isBest?'#fff':'#0F172A')+';font-family:\'SF Mono\',Menlo,monospace;margin-bottom:4px">'+fmtP(it.price||0)+'</div>' +
+            (it.savings ? '<div style="display:inline-block;background:'+(isBest?'rgba(255,255,255,.25)':'#FEF3C7')+';color:'+(isBest?'#fff':'#92400E')+';padding:2px 10px;border-radius:99px;font-size:10.5px;font-weight:600;margin-bottom:10px">'+esc(it.savings)+'</div>' : '<div style="height:22px"></div>') +
+            '<a href="#lp-form" data-qty="'+(it.qty||1)+'" onclick="if(window.__lpSelectQty)window.__lpSelectQty('+(it.qty||1)+')" style="display:block;background:'+(isBest?'#fff':primary)+';color:'+(isBest?primary:'#fff')+';padding:9px 14px;border-radius:9px;font-size:12.5px;font-weight:700;text-decoration:none;margin-top:6px">Pilih Paket →</a>' +
+          '</div>';
+        }).join('');
+        html += '<section style="padding:32px 22px;background:#F8FAFC">' +
+          '<h2 style="font-size:18px;font-weight:700;color:#0F172A;margin:0 0 6px;text-align:center">'+esc(pr.title || 'Pilih Paket')+'</h2>' +
+          (pr.subtitle ? '<div style="font-size:12.5px;color:#64748B;text-align:center;margin-bottom:20px">'+esc(pr.subtitle)+'</div>' : '<div style="margin-bottom:16px"></div>') +
+          '<div style="display:grid;grid-template-columns:repeat('+Math.min(prItems.length,3)+',1fr);gap:14px;padding-top:12px">'+pricingCards+'</div>' +
+        '</section>';
+      }
     }
   });
   // Bottom footer
   html += '<div style="background:#0F172A;padding:14px 22px;text-align:center;color:#94A3B8;font-size:10.5px">🔒 '+(t.dataEncrypted || 'Data terenkripsi')+' · '+(t.poweredBy || 'Powered by')+' '+esc(cfg.storeName || 'Nonics Order')+'</div>';
+
+  // W1: Conversion Boosters — Floating WA, Sticky CTA, Exit-intent
+  if(p.lpFloatingWA){
+    var waNum = String(p.produkWA || p.waNum || '').replace(/[^0-9]/g,'');
+    if(waNum){
+      var waMsg = encodeURIComponent(p.lpFloatingWAMsg || ('Halo, saya tertarik dengan ' + (p.name || 'produk ini')));
+      html += '<a href="https://wa.me/'+waNum+'?text='+waMsg+'" target="_blank" id="lpFloatingWA" style="position:fixed;bottom:20px;right:20px;width:56px;height:56px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(37,211,102,.4);z-index:1000;text-decoration:none;animation:lpWaPulse 2s ease-in-out infinite">' +
+        '<svg viewBox="0 0 24 24" width="30" height="30" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>' +
+      '</a>' +
+      '<style>@keyframes lpWaPulse{0%,100%{box-shadow:0 8px 24px rgba(37,211,102,.4)}50%{box-shadow:0 8px 24px rgba(37,211,102,.7),0 0 0 8px rgba(37,211,102,.1)}}</style>';
+    }
+  }
+
+  // W1: Sticky CTA (mobile only)
+  if(p.lpStickyCTA){
+    html += '<div id="lpStickyCTA" style="position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #E2E8F0;padding:10px 14px;z-index:999;display:none;box-shadow:0 -4px 16px rgba(0,0,0,.08);align-items:center;gap:10px">' +
+        '<div style="flex:1;min-width:0">' +
+          (priceNum > 0 ? '<div style="font-size:13px;font-weight:700;color:#0F172A;font-family:\'SF Mono\',Menlo,monospace">'+fmtP(priceNum)+'</div>' : '') +
+          '<div style="font-size:10px;color:#64748B;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(p.name || 'Produk')+'</div>' +
+        '</div>' +
+        '<a href="#lp-form" style="background:'+primary+';color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;box-shadow:0 4px 12px '+primary+'40">Pesan Sekarang →</a>' +
+      '</div>' +
+      '<style>@media (max-width:768px){#lpStickyCTA.visible{display:flex!important}#lpFloatingWA{bottom:80px!important}#lpRoot{padding-bottom:70px}}</style>';
+  }
+
+  // W1: Exit-intent popup
+  if(p.lpExitIntent){
+    var exH = esc(p.lpExitHeadline || 'Tunggu Dulu! 🎁');
+    var exM = esc(p.lpExitMsg || 'Sebelum lo pergi, dapatkan penawaran spesial hari ini. Order sekarang biar gak kehabisan!');
+    var exC = esc(p.lpExitCta || 'Lanjut Order Sekarang');
+    html += '<div id="lpExitModal" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.7);align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)document.getElementById(\'lpExitModal\').style.display=\'none\'">' +
+        '<div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:28px 24px 22px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.4);position:relative;animation:lpExitIn .3s ease-out">' +
+          '<button onclick="document.getElementById(\'lpExitModal\').style.display=\'none\'" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:22px;color:#94A3B8;cursor:pointer">✕</button>' +
+          '<div style="font-size:42px;margin-bottom:10px">🎁</div>' +
+          '<h3 style="font-size:22px;font-weight:800;color:#0F172A;margin:0 0 10px;line-height:1.25">'+exH+'</h3>' +
+          '<p style="font-size:13.5px;color:#64748B;line-height:1.55;margin:0 0 20px">'+exM+'</p>' +
+          '<a href="#lp-form" onclick="document.getElementById(\'lpExitModal\').style.display=\'none\'" style="display:block;background:linear-gradient(135deg,'+primary+','+_v2AdjustColor(primary,-25)+');color:#fff;padding:13px 20px;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none;box-shadow:0 6px 16px '+primary+'50">'+exC+' →</a>' +
+        '</div>' +
+      '</div>' +
+      '<style>@keyframes lpExitIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}</style>';
+  }
+
   contentEl.innerHTML = html;
+
+  // W1: Wire sticky CTA scroll detection
+  if(p.lpStickyCTA){
+    setTimeout(function(){
+      var sticky = document.getElementById('lpStickyCTA');
+      if(!sticky) return;
+      var onScroll = function(){
+        var pct = (window.scrollY / Math.max(1, document.body.scrollHeight - window.innerHeight)) * 100;
+        if(pct > 20) sticky.classList.add('visible');
+        else sticky.classList.remove('visible');
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    }, 100);
+  }
+
+  // W1: Wire exit-intent trigger
+  if(p.lpExitIntent){
+    setTimeout(function(){
+      var shown = false;
+      var storageKey = 'lpExitShown_' + (p.urlSlug || p.id);
+      // Once per session
+      try { if(sessionStorage.getItem(storageKey)) shown = true; } catch(e){}
+      var trigger = function(){
+        if(shown) return;
+        shown = true;
+        try { sessionStorage.setItem(storageKey, '1'); } catch(e){}
+        var m = document.getElementById('lpExitModal');
+        if(m) m.style.display = 'flex';
+      };
+      // Desktop: mouseleave top edge
+      document.addEventListener('mouseleave', function(e){
+        if(e.clientY <= 5 && !shown) trigger();
+      });
+      // Mobile: scroll up after scrolling 30% down
+      var lastY = 0, scrolledDown = false;
+      window.addEventListener('scroll', function(){
+        var y = window.scrollY;
+        var pct = (y / Math.max(1, document.body.scrollHeight - window.innerHeight)) * 100;
+        if(pct > 30) scrolledDown = true;
+        if(scrolledDown && y < lastY - 60 && y < 200 && !shown) trigger();
+        lastY = y;
+      }, { passive: true });
+    }, 100);
+  }
 
   // Mount form embed into #lpFormMount kalau ada section form
   var formMount = document.getElementById('lpFormMount');
