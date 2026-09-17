@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-09-04-lp-adform-style';
+window.__APP_VERSION = '2026-09-04-lp-menu-opsib';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -3581,6 +3581,7 @@ document.addEventListener('DOMContentLoaded', function(){
         <button class="tn-nav-item active" data-nav="overview" onclick="showPanel('overview')">Dashboard</button>
         <button class="tn-nav-item" data-nav="leads" onclick="showPanel('leads')">Leads</button>
         <button class="tn-nav-item" data-nav="produk" onclick="showPanel('produk')">Produk</button>
+        <button class="tn-nav-item" data-nav="landing" onclick="showPanel('landing')">Landing Page <span style="background:#FEF3C7;color:#92400E;padding:1px 6px;border-radius:99px;font-size:9px;font-weight:700;margin-left:4px;vertical-align:1px">NEW</span></button>
         <button class="tn-nav-item" data-nav="team" onclick="showPanel('team')">Team Members</button>
 
         <div class="tn-nav-wrap">
@@ -3758,6 +3759,7 @@ document.addEventListener('DOMContentLoaded', function(){
       <button class="tn-drawer-item active" data-drawer-nav="overview" onclick="tnDrawerGo('overview')"><i class="ti ti-layout-dashboard"></i> Dashboard</button>
       <button class="tn-drawer-item" data-drawer-nav="leads" onclick="tnDrawerGo('leads')"><i class="ti ti-users"></i> Leads</button>
       <button class="tn-drawer-item" data-drawer-nav="produk" onclick="tnDrawerGo('produk')"><i class="ti ti-package"></i> Produk</button>
+      <button class="tn-drawer-item" data-drawer-nav="landing" onclick="tnDrawerGo('landing')"><i class="ti ti-layout"></i> Landing Page <span style="background:#FEF3C7;color:#92400E;padding:1px 6px;border-radius:99px;font-size:9px;font-weight:700;margin-left:auto">NEW</span></button>
       <button class="tn-drawer-item" data-drawer-nav="team" onclick="tnDrawerGo('team')"><i class="ti ti-users-group"></i> Team Members</button>
       <div class="tn-drawer-section">Pengaturan</div>
       <button class="tn-drawer-item" onclick="closeTnDrawer();gotoSettingsSection('brand')"><i class="ti ti-building-store" style="color:#10B981"></i> Brand &amp; Toko</button>
@@ -5130,6 +5132,11 @@ document.addEventListener('DOMContentLoaded', function(){
         <!-- Legacy stub — orphan cleaned -->
         <div style="display:none" id="ppanel-info-stub"></div>
 
+      </div>
+
+      <!-- ── LANDING PAGE MENU (Opsi B) ── -->
+      <div class="panel" id="panel-landing">
+        <div id="lpListContainer"><!-- Populated by renderLandingPageList() --></div>
       </div>
 
       <!-- ── FORM BUILDER ── -->
@@ -7553,6 +7560,7 @@ function showDashboard(){
 ═════════════════════════════════════════════ */
 const panelTitles={
   overview:'Overview',leads:'Leads',produk:'Produk',
+  landing:'Landing Page',
   team:'Team Members',
   form:'Form Builder',cs:'Greeting Templates',
   csaccess:'Akses Login CS',
@@ -7571,6 +7579,7 @@ var SPA_PANEL_TO_PATH = {
   overview: '/dashboard',
   leads: '/leads',
   produk: '/produk',
+  landing: '/landing-page',
   team: '/team',
   form: '/form-builder',
   cs: '/greeting',
@@ -7680,6 +7689,7 @@ function showPanel(name, opts){
   if(name==='overview')renderOverview();
   else if(name==='leads'){initLeadsPanel();renderLeads();}
   else if(name==='produk'){renderProdList();document.getElementById('prodListCard').style.display='block';document.getElementById('prodFormCard').style.display='none';var pdC=document.getElementById('prodDetailCard');if(pdC)pdC.style.display='none';}
+  else if(name==='landing')renderLandingPageList();
   else if(name==='team')initTeamPanel();
   else if(name==='form')initFormPanel();
   else if(name==='cs')initCSPanel();
@@ -7708,6 +7718,7 @@ function closeSidebar(){
 // Map panel name → which top-level nav button should look active
 var TN_NAV_MAP = {
   overview: 'overview', leads: 'leads', produk: 'produk',
+  landing: 'landing',
   team: 'team', csaccess: 'team', adaccess: 'team',
   form: 'more', cs: 'more', quickreply: 'more',
   gtm: 'more', embed: 'more', cloud: 'more', settings: 'more'
@@ -19680,6 +19691,307 @@ function lpGetProd(id){
   if(window.__lpProdCache && window.__lpProdCache[idStr]) return window.__lpProdCache[idStr];
   var lsProds = (typeof getProds === 'function') ? (getProds() || []) : [];
   return lsProds.find(function(x){ return String(x.id) === idStr; });
+}
+
+// ═══════════════════════════════════════════
+// LANDING PAGE MENU (Opsi B) — /landing-page
+// List all products with LP, aggregate analytics, filter, click-to-edit
+// ═══════════════════════════════════════════
+window.__lpListFilter = 'all'; // all|live|draft|ab
+window.__lpListSearch = '';
+window.__lpListStats = {}; // { [productId]: { views, submits, convRate } }
+
+function renderLandingPageList(){
+  var container = document.getElementById('lpListContainer');
+  if(!container) return;
+  var allProds = (typeof getProds === 'function') ? (getProds() || []) : [];
+  // Filter: only physical products (klasifikasi !== 'digital')
+  var lpProds = allProds.filter(function(x){ return x.klasifikasi !== 'digital'; });
+
+  var esc = function(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); };
+
+  var totalCount = lpProds.filter(function(x){ return !!x.lpEnabled; }).length;
+  var liveCount = lpProds.filter(function(x){ return !!x.lpEnabled && x.status !== 'archived'; }).length;
+  var draftCount = lpProds.filter(function(x){ return x.lpSections && x.lpSections.length && !x.lpEnabled; }).length;
+  var abCount = lpProds.filter(function(x){ return !!x.lpEnabled && x.lpAbEnabled && x.lpSectionsB && x.lpSectionsB.length; }).length;
+
+  // Include products WITHOUT LP enabled — show as "Belum diaktifkan" state
+  var showList = lpProds.filter(function(x){
+    // Filter tab
+    if(window.__lpListFilter === 'live' && !(x.lpEnabled && x.status !== 'archived')) return false;
+    if(window.__lpListFilter === 'draft' && !(x.lpSections && x.lpSections.length && !x.lpEnabled)) return false;
+    if(window.__lpListFilter === 'ab' && !(x.lpAbEnabled && x.lpSectionsB && x.lpSectionsB.length)) return false;
+    // Search
+    var q = (window.__lpListSearch || '').toLowerCase();
+    if(q){
+      var hay = (x.name || '').toLowerCase() + ' ' + (x.urlSlug || '').toLowerCase();
+      if(hay.indexOf(q) < 0) return false;
+    }
+    return true;
+  });
+
+  // Compute aggregate stats from __lpListStats
+  var stats = window.__lpListStats || {};
+  var totalViews = 0, totalSubmits = 0;
+  Object.keys(stats).forEach(function(pid){
+    totalViews += (stats[pid].views || 0);
+    totalSubmits += (stats[pid].submits || 0);
+  });
+  var avgConv = totalViews > 0 ? Math.round((totalSubmits / totalViews) * 1000) / 10 : 0;
+
+  var fmt = function(n){
+    if(n >= 1000) return (n/1000).toFixed(1) + 'K';
+    return n.toLocaleString('id-ID');
+  };
+  var fmtRelTime = function(ts){
+    if(!ts) return '—';
+    var d = Date.now() - ts;
+    var mins = Math.floor(d/60000);
+    if(mins < 1) return 'baru saja';
+    if(mins < 60) return mins + ' menit lalu';
+    var hrs = Math.floor(mins/60);
+    if(hrs < 24) return hrs + ' jam lalu';
+    var days = Math.floor(hrs/24);
+    if(days < 30) return days + ' hari lalu';
+    var mons = Math.floor(days/30);
+    return mons + ' bulan lalu';
+  };
+
+  var flags = {'62':'🇮🇩','60':'🇲🇾','65':'🇸🇬','673':'🇧🇳','66':'🇹🇭','63':'🇵🇭'};
+
+  // Build HTML
+  var html = '<style>' +
+    '.nol-lpl-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:6px}' +
+    '.nol-lpl-title{font-size:22px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:10px}' +
+    '.nol-lpl-title i{color:var(--primary);font-size:24px}' +
+    '.nol-lpl-desc{font-size:13px;color:var(--text-muted);margin-bottom:18px}' +
+    '.nol-lpl-callout{background:linear-gradient(135deg,var(--primary-soft,#FDF6EC),#FEF3C7);border:1px solid #F0DFC0;border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:14px;margin-bottom:18px}' +
+    '.nol-lpl-callout-icon{width:38px;height:38px;background:rgba(201,136,74,.2);color:#A66E3A;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}' +
+    '.nol-lpl-callout-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}' +
+    '.nol-lpl-callout-desc{font-size:11.5px;color:var(--text-muted);line-height:1.5}' +
+    '.nol-lpl-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}' +
+    '@media(max-width:768px){.nol-lpl-stats{grid-template-columns:repeat(2,1fr)}}' +
+    '.nol-lpl-stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px}' +
+    '.nol-lpl-stat-label{font-size:11px;color:var(--text-muted);font-weight:500;display:flex;align-items:center;gap:5px;margin-bottom:5px}' +
+    '.nol-lpl-stat-label i{font-size:13px}' +
+    '.nol-lpl-stat-value{font-size:22px;font-weight:700;color:var(--text);font-family:"SF Mono",Menlo,monospace}' +
+    '.nol-lpl-stat-sub{font-size:10.5px;color:var(--text-soft,#94a3b8);margin-top:2px}' +
+    '.nol-lpl-toolbar{background:var(--surface);border:1px solid var(--border);border-radius:12px 12px 0 0;padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);flex-wrap:wrap}' +
+    '.nol-lpl-search{flex:1;max-width:340px;position:relative}' +
+    '.nol-lpl-search input{width:100%;padding:8px 12px 8px 32px;border:1px solid var(--border-strong,#E5D9C4);border-radius:8px;font-size:13px;font-family:inherit;background:var(--bg,#FAF9F7)}' +
+    '.nol-lpl-search input:focus{outline:none;border-color:var(--primary);background:#fff}' +
+    '.nol-lpl-search i{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:14px;pointer-events:none}' +
+    '.nol-lpl-tabs{display:flex;gap:4px;background:var(--bg,#FAF9F7);padding:3px;border-radius:8px}' +
+    '.nol-lpl-tab{padding:6px 12px;font-size:12px;font-weight:500;color:var(--text-muted);border-radius:6px;background:none;border:none;cursor:pointer;transition:all .12s}' +
+    '.nol-lpl-tab.active{background:var(--surface);color:var(--text);box-shadow:0 1px 2px rgba(0,0,0,.06);font-weight:600}' +
+    '.nol-lpl-tab .count{margin-left:4px;opacity:.6;font-size:11px}' +
+    '.nol-lpl-list{background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 12px 12px;overflow:hidden}' +
+    '.nol-lpl-list-header{display:grid;grid-template-columns:60px 1fr 100px 90px 100px 120px 80px;gap:14px;padding:10px 16px;background:var(--bg,#FAF9F7);font-size:10.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)}' +
+    '.nol-lpl-list-header>div:nth-child(3),.nol-lpl-list-header>div:nth-child(4),.nol-lpl-list-header>div:nth-child(5){text-align:center}' +
+    '.nol-lpl-list-header>div:nth-child(6){text-align:right}' +
+    '@media(max-width:900px){.nol-lpl-list-header{display:none}}' +
+    '.nol-lpl-row{display:grid;grid-template-columns:60px 1fr 100px 90px 100px 120px 80px;gap:14px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);transition:background .12s;cursor:pointer}' +
+    '.nol-lpl-row:hover{background:var(--bg,#FAF9F7)}' +
+    '.nol-lpl-row:last-child{border-bottom:none}' +
+    '@media(max-width:900px){.nol-lpl-row{grid-template-columns:52px 1fr auto;gap:10px;padding:12px}.nol-lpl-row .nol-lpl-metric,.nol-lpl-row .nol-lpl-conv,.nol-lpl-row .nol-lpl-updated{display:none}}' +
+    '.nol-lpl-thumb{width:52px;height:52px;border-radius:9px;background:linear-gradient(135deg,#EEF2FF,#DBEAFE) center/cover no-repeat;display:flex;align-items:center;justify-content:center;font-size:22px;color:#94a3b8;flex-shrink:0}' +
+    '.nol-lpl-info{min-width:0}' +
+    '.nol-lpl-name{font-size:13.5px;font-weight:600;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}' +
+    '.nol-lpl-slug{font-size:11px;color:var(--text-muted);font-family:"SF Mono",Menlo,monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
+    '.nol-lpl-badge{padding:1px 7px;border-radius:99px;font-size:9.5px;font-weight:700;letter-spacing:0.3px}' +
+    '.nol-lpl-badge.ab{background:#EDE9FE;color:#6D28D9}' +
+    '.nol-lpl-badge.country{background:var(--bg,#FAF9F7);color:var(--text-muted);font-weight:600}' +
+    '.nol-lpl-status{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;white-space:nowrap;width:fit-content}' +
+    '.nol-lpl-status.live{background:#ecfdf5;color:#10b981}' +
+    '.nol-lpl-status.draft{background:#fffbeb;color:#f59e0b}' +
+    '.nol-lpl-status.off{background:#f1f5f9;color:#64748b}' +
+    '.nol-lpl-status .dot{width:6px;height:6px;border-radius:50%;background:currentColor}' +
+    '.nol-lpl-status.live .dot{animation:nolPulse 2s infinite}' +
+    '@keyframes nolPulse{50%{opacity:.4}}' +
+    '.nol-lpl-metric{text-align:center;font-size:13px;font-weight:700;color:var(--text);font-family:"SF Mono",Menlo,monospace}' +
+    '.nol-lpl-metric-sub{font-size:10px;color:var(--text-soft,#94a3b8);font-weight:500;font-family:inherit;text-align:center;margin-top:2px}' +
+    '.nol-lpl-conv{text-align:center}' +
+    '.nol-lpl-conv-value{font-size:13px;font-weight:700;color:#10b981;font-family:"SF Mono",Menlo,monospace}' +
+    '.nol-lpl-conv.low .nol-lpl-conv-value{color:#f59e0b}' +
+    '.nol-lpl-conv.very-low .nol-lpl-conv-value{color:#ef4444}' +
+    '.nol-lpl-updated{font-size:11.5px;color:var(--text-muted);text-align:right}' +
+    '.nol-lpl-actions{display:flex;gap:4px;justify-content:flex-end;opacity:1}' +
+    '@media(hover:hover){.nol-lpl-actions{opacity:0;transition:opacity .12s}.nol-lpl-row:hover .nol-lpl-actions{opacity:1}}' +
+    '.nol-lpl-act-btn{width:28px;height:28px;background:var(--surface);border:1px solid var(--border-strong,#E5D9C4);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);transition:all .12s;cursor:pointer}' +
+    '.nol-lpl-act-btn:hover{background:var(--primary-soft,#FDF6EC);color:var(--primary);border-color:var(--primary)}' +
+    '.nol-lpl-act-btn i{font-size:13px}' +
+    '.nol-lpl-empty{padding:60px 20px;text-align:center;color:var(--text-muted)}' +
+    '.nol-lpl-empty i{font-size:44px;color:var(--text-soft,#94a3b8);display:block;margin-bottom:12px}' +
+    '.nol-lpl-empty h3{font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px}' +
+    '.nol-lpl-empty p{font-size:13px;margin-bottom:16px}' +
+  '</style>';
+
+  html += '<div class="nol-lpl-header">' +
+    '<div><h1 class="nol-lpl-title"><i class="ti ti-layout"></i>Landing Page</h1></div>' +
+    '<button class="btn-primary-sm" onclick="showProdForm(null)" style="padding:8px 14px;font-size:12.5px"><i class="ti ti-plus"></i>Buat Landing Page</button>' +
+  '</div>';
+  html += '<p class="nol-lpl-desc">Kelola semua landing page produk lo. Klik row untuk buka LP editor, atau klik icon aksi untuk buka live / duplicate.</p>';
+
+  // Callout (only show if there's data)
+  if(totalCount > 0){
+    html += '<div class="nol-lpl-callout">' +
+      '<div class="nol-lpl-callout-icon"><i class="ti ti-bulb"></i></div>' +
+      '<div>' +
+        '<div class="nol-lpl-callout-title">Tip: LP dengan conversion &gt; 5% biasanya di-scale ke Meta Ads/TikTok</div>' +
+        '<div class="nol-lpl-callout-desc">Cek A/B analytics di setiap LP — kalau conversion rate rendah (&lt;2%), consider revisi copywriting hero &amp; testimonial.</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  // Stats
+  html += '<div class="nol-lpl-stats">' +
+    '<div class="nol-lpl-stat"><div class="nol-lpl-stat-label"><i class="ti ti-layout" style="color:#8B5CF6"></i>Total Landing Page</div><div class="nol-lpl-stat-value">'+totalCount+'</div><div class="nol-lpl-stat-sub">'+liveCount+' live · '+draftCount+' draft</div></div>' +
+    '<div class="nol-lpl-stat"><div class="nol-lpl-stat-label"><i class="ti ti-eye" style="color:#3B82F6"></i>Total Views (30d)</div><div class="nol-lpl-stat-value" id="lplStatViews">'+fmt(totalViews)+'</div><div class="nol-lpl-stat-sub">dari analytics tracker</div></div>' +
+    '<div class="nol-lpl-stat"><div class="nol-lpl-stat-label"><i class="ti ti-shopping-cart" style="color:#10B981"></i>Total Submit (30d)</div><div class="nol-lpl-stat-value" id="lplStatSubmits">'+fmt(totalSubmits)+'</div><div class="nol-lpl-stat-sub">form completion</div></div>' +
+    '<div class="nol-lpl-stat"><div class="nol-lpl-stat-label"><i class="ti ti-percentage" style="color:#F59E0B"></i>Avg Conversion</div><div class="nol-lpl-stat-value" id="lplStatConv">'+avgConv+'%</div><div class="nol-lpl-stat-sub">median industri: 2-5%</div></div>' +
+  '</div>';
+
+  // Toolbar
+  html += '<div class="nol-lpl-toolbar">' +
+    '<div class="nol-lpl-search"><i class="ti ti-search"></i><input placeholder="Cari nama produk atau slug LP..." value="'+esc(window.__lpListSearch)+'" oninput="window.__lpListSearch=this.value;renderLandingPageList()"></div>' +
+    '<div class="nol-lpl-tabs">' +
+      '<button class="nol-lpl-tab' + (window.__lpListFilter==='all'?' active':'') + '" onclick="window.__lpListFilter=\'all\';renderLandingPageList()">Semua<span class="count">'+lpProds.length+'</span></button>' +
+      '<button class="nol-lpl-tab' + (window.__lpListFilter==='live'?' active':'') + '" onclick="window.__lpListFilter=\'live\';renderLandingPageList()">Live<span class="count">'+liveCount+'</span></button>' +
+      '<button class="nol-lpl-tab' + (window.__lpListFilter==='draft'?' active':'') + '" onclick="window.__lpListFilter=\'draft\';renderLandingPageList()">Draft<span class="count">'+draftCount+'</span></button>' +
+      '<button class="nol-lpl-tab' + (window.__lpListFilter==='ab'?' active':'') + '" onclick="window.__lpListFilter=\'ab\';renderLandingPageList()">A/B Test<span class="count">'+abCount+'</span></button>' +
+    '</div>' +
+    '<button class="prod-tb-btn" style="margin-left:auto;padding:8px 12px;font-size:12px" onclick="lpListRefreshStats()" title="Refresh analytics"><i class="ti ti-refresh"></i>Refresh Stats</button>' +
+  '</div>';
+
+  // List
+  html += '<div class="nol-lpl-list">';
+
+  if(!showList.length){
+    html += '<div class="nol-lpl-empty"><i class="ti ti-layout-off"></i><h3>Belum ada Landing Page</h3><p>Buka produk mana aja → Section 12 (Landing Page) → aktifin toggle. Atau bikin produk baru langsung dengan LP enabled.</p><button class="btn-primary-sm" onclick="showProdForm(null)" style="padding:8px 16px;font-size:12.5px"><i class="ti ti-plus"></i>Buat Produk Baru</button></div>';
+  } else {
+    // Header row
+    html += '<div class="nol-lpl-list-header">' +
+      '<div></div><div>Produk / LP</div><div>Status</div><div>Views 30d</div><div>Conv Rate</div><div>Updated</div><div></div>' +
+    '</div>';
+
+    showList.forEach(function(p){
+      var pid = String(p.id);
+      var st = (window.__lpListStats && window.__lpListStats[pid]) || { views:0, submits:0, convRate:0 };
+      var isLive = !!(p.lpEnabled && p.status !== 'archived');
+      var hasLpDraft = p.lpSections && p.lpSections.length && !p.lpEnabled;
+      var status = isLive ? 'live' : (hasLpDraft ? 'draft' : 'off');
+      var statusLbl = isLive ? 'Live' : (hasLpDraft ? 'Draft' : 'Off');
+      var slug = p.urlSlug || p.id;
+      var imgSrc = p.coverImage || (p.images && p.images[0] && (p.images[0].b64 || p.images[0])) || '';
+      var thumbStyle = imgSrc ? 'background-image:url('+imgSrc+')' : '';
+      var thumbInner = imgSrc ? '' : '<i class="ti ti-package"></i>';
+      var isAb = !!(p.lpAbEnabled && p.lpSectionsB && p.lpSectionsB.length);
+      var country = String(p.country || '62');
+      var flag = flags[country] || '🌐';
+      var convClass = st.convRate >= 4 ? '' : (st.convRate >= 2 ? 'low' : 'very-low');
+      var updateTime = p.lastEdited || p.updatedAt || p.id;
+      var ownerBadge = p.ownerRole === 'advertiser' ? '<div style="font-size:10px;color:var(--text-soft,#94a3b8);margin-top:2px">by '+esc(p.ownerName||'advertiser')+'</div>' : '<div style="font-size:10px;color:var(--text-soft,#94a3b8);margin-top:2px">by admin</div>';
+
+      html += '<div class="nol-lpl-row" onclick="lpListOpenEditor('+p.id+')">' +
+        '<div class="nol-lpl-thumb" style="'+thumbStyle+'">'+thumbInner+'</div>' +
+        '<div class="nol-lpl-info">' +
+          '<div class="nol-lpl-name">'+esc(p.name || '—') + (isAb ? ' <span class="nol-lpl-badge ab">A/B</span>' : '') + ' <span class="nol-lpl-badge country">'+flag+' '+country+'</span></div>' +
+          '<div class="nol-lpl-slug">/lp/'+esc(slug)+'</div>' +
+        '</div>' +
+        '<div><span class="nol-lpl-status '+status+'"><span class="dot"></span>'+statusLbl+'</span></div>' +
+        '<div>' +
+          (st.views > 0 ? '<div class="nol-lpl-metric">'+fmt(st.views)+'</div><div class="nol-lpl-metric-sub">last 30d</div>' : '<div class="nol-lpl-metric" style="color:var(--text-soft,#94a3b8)">—</div><div class="nol-lpl-metric-sub">no data</div>') +
+        '</div>' +
+        '<div class="nol-lpl-conv '+convClass+'">' +
+          (st.views > 0 ? '<div class="nol-lpl-conv-value">'+st.convRate+'%</div><div class="nol-lpl-metric-sub">'+st.submits+' submit</div>' : '<div class="nol-lpl-conv-value" style="color:var(--text-soft,#94a3b8)">—</div><div class="nol-lpl-metric-sub">—</div>') +
+        '</div>' +
+        '<div class="nol-lpl-updated">' + fmtRelTime(updateTime) + ownerBadge + '</div>' +
+        '<div class="nol-lpl-actions" onclick="event.stopPropagation()">' +
+          '<button class="nol-lpl-act-btn" title="Edit LP" onclick="lpListOpenEditor('+p.id+')"><i class="ti ti-edit"></i></button>' +
+          (isLive ? '<button class="nol-lpl-act-btn" title="Buka Live" onclick="window.open(\'/lp/'+esc(slug)+'\',\'_blank\')"><i class="ti ti-external-link"></i></button>' : '<button class="nol-lpl-act-btn" title="Preview" onclick="window.open(\'/lp/'+esc(slug)+'\',\'_blank\')" style="opacity:.5"><i class="ti ti-external-link"></i></button>') +
+          '<button class="nol-lpl-act-btn" title="Copy Link LP" onclick="lpListCopyLink(\''+esc(slug)+'\')"><i class="ti ti-copy"></i></button>' +
+        '</div>' +
+      '</div>';
+    });
+  }
+
+  html += '</div>';
+
+  container.innerHTML = html;
+
+  // Kick off async stats fetch (only first render or on demand)
+  if(!window.__lpListStatsFetched){
+    window.__lpListStatsFetched = true;
+    lpListRefreshStats();
+  }
+}
+
+// Open LP editor for a product — bypass the scroll ordeal
+function lpListOpenEditor(pid){
+  showProdForm(pid);
+  setTimeout(function(){
+    // Expand Section 12 (Landing Page) — remove collapsed class + scroll to it
+    var lpSec = document.getElementById('ppanel-lp');
+    if(lpSec){
+      lpSec.classList.remove('collapsed');
+      // Auto-enable toggle so user langsung liat editor
+      var fLpEnabled = document.getElementById('fLpEnabled');
+      // Don't force-check — respect current state, just make section visible
+      lpSec.scrollIntoView({ behavior:'smooth', block:'start' });
+    }
+  }, 250);
+}
+
+function lpListCopyLink(slug){
+  var url = window.location.origin + '/lp/' + slug;
+  try {
+    navigator.clipboard.writeText(url);
+    if(typeof toast === 'function') toast('📋 Link LP di-copy ke clipboard');
+  } catch(e){ prompt('Copy manual:', url); }
+}
+
+// Fetch aggregate stats from od_lp_sessions per product
+function lpListRefreshStats(){
+  var cfg = (typeof getFBConfig === 'function') ? (getFBConfig() || {}) : {};
+  if(!cfg.apiKey || !cfg.projectId){
+    if(typeof toast === 'function') toast('⚠️ Firebase belum di-setup buat load analytics');
+    return;
+  }
+  var thirtyDaysAgo = new Date(Date.now() - 30*24*60*60*1000).toISOString().slice(0,10);
+  var qUrl = 'https://firestore.googleapis.com/v1/projects/'+cfg.projectId+'/databases/(default)/documents:runQuery?key='+cfg.apiKey;
+  var qBody = {
+    structuredQuery: {
+      from: [{ collectionId: 'od_lp_sessions' }],
+      where: {
+        fieldFilter: { field: { fieldPath: 'date' }, op: 'GREATER_THAN_OR_EQUAL', value: { stringValue: thirtyDaysAgo } }
+      },
+      limit: 10000
+    }
+  };
+  fetch(qUrl, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(qBody) })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var docs = Array.isArray(data) ? data.filter(function(d){ return d.document; }) : [];
+      var byProd = {};
+      docs.forEach(function(d){
+        var f = d.document.fields || {};
+        var pid = f.productId && f.productId.stringValue || '';
+        if(!pid) return;
+        if(!byProd[pid]) byProd[pid] = { views:0, submits:0 };
+        byProd[pid].views++;
+        if(f.submitted && f.submitted.booleanValue) byProd[pid].submits++;
+      });
+      // Compute conv rate
+      Object.keys(byProd).forEach(function(pid){
+        var s = byProd[pid];
+        s.convRate = s.views > 0 ? Math.round((s.submits / s.views) * 1000) / 10 : 0;
+      });
+      window.__lpListStats = byProd;
+      renderLandingPageList();
+    })
+    .catch(function(err){
+      console.warn('LP stats fetch fail:', err);
+    });
 }
 
 // M4: Inject SEO meta tags (og:title/description/image, twitter, canonical) for LP
