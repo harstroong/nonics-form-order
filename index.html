@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-30-countdown-timer';
+window.__APP_VERSION = '2026-08-31-countdown-debug';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -13895,17 +13895,27 @@ function toggleFreeOngkirRow(){
 // Apply countdown timer + urgency ke hosted form
 window.__countdownTimer = null;
 function applyCountdown(p){
+  // Store for debug inspection: window.__lastLoadedProd
+  try { window.__lastLoadedProd = p; } catch(e){}
   // Clear existing timer
   if(window.__countdownTimer){ clearInterval(window.__countdownTimer); window.__countdownTimer = null; }
   var bar = document.getElementById('hostedCountdownBar');
   var lblEl = document.getElementById('hcbLabel');
   var timeEl = document.getElementById('hcbTime');
+  console.log('[nonics] applyCountdown called with:', {
+    countdownEnabled: p && p.countdownEnabled,
+    countdownEnd: p && p.countdownEnd,
+    countdownExpiredAction: p && p.countdownExpiredAction,
+    barExists: !!bar
+  });
   if(!bar || !p || !p.countdownEnabled || !p.countdownEnd){
     if(bar) bar.style.display = 'none';
+    console.log('[nonics] countdown skipped:', !bar?'no banner el':(!p?'no product':(!p.countdownEnabled?'toggle OFF':'no end date')));
     return;
   }
   var endTs = new Date(p.countdownEnd).getTime();
-  if(isNaN(endTs)){ bar.style.display = 'none'; return; }
+  console.log('[nonics] countdown endTs:', endTs, 'now:', Date.now(), 'diff:', endTs - Date.now(), 'ms');
+  if(isNaN(endTs)){ bar.style.display = 'none'; console.warn('[nonics] countdown: invalid date format:', p.countdownEnd); return; }
   var t = (window.HOSTED_L10N && window.getL10n) ? window.getL10n(p) : (window.HOSTED_L10N ? window.HOSTED_L10N.id : {});
   var customLabel = (p.countdownLabel && p.countdownLabel.trim()) ? p.countdownLabel.trim() : (t.countdownLabel || 'Promo berakhir dalam');
   if(lblEl) lblEl.textContent = customLabel;
