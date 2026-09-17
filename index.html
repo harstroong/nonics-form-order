@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-09-04-lp-editor-mockup-exact';
+window.__APP_VERSION = '2026-09-04-lp-editor-iframe-preview';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -20471,22 +20471,82 @@ function lpEditorRenderCanvas(){
   tb.innerHTML =
     '<div class="lpe-canvas-url"><i class="ti ti-lock"></i><span>' + (window.location.host || 'preview') + '/lp/' + slug + '</span></div>' +
     '<div class="lpe-canvas-zoom"><button onclick="lpEditorZoom(-1)">−</button><span>100%</span><button onclick="lpEditorZoom(1)">+</button></div>' +
-    '<a class="lpe-canvas-open" onclick="window.open(\'/lp/'+slug+'\',\'_blank\')"><i class="ti ti-external-link"></i>Open Live</a>';
+    '<button class="lpe-canvas-open" onclick="lpEditorReloadPreview()" title="Reload preview" style="border:none;background:none"><i class="ti ti-refresh" style="font-size:13px"></i></button>' +
+    '<a class="lpe-canvas-open" onclick="window.open(\'/lp/__lpe_preview__\',\'_blank\')"><i class="ti ti-external-link"></i>Open Live</a>';
 
-  // Device widths — smaller to match mockup exactly
+  // Device widths
   var widths = { desktop:'780px', tablet:'640px', mobile:'380px' };
   var w = widths[window.__lpEditorDevice] || '780px';
 
-  // Render inline preview using scoped mini-renderer
-  area.innerHTML = '<div class="lpe-device-frame" style="max-width:'+w+'">' + lpEditorMiniPreview(p) + '</div>';
-  // Wire click-to-select on sections
-  area.querySelectorAll('[data-secidx]').forEach(function(node){
-    node.addEventListener('click', function(e){
-      e.stopPropagation();
-      var idx = parseInt(node.getAttribute('data-secidx'), 10);
-      lpEditorSelectSection(idx);
+  // IFRAME APPROACH — real LP renderer, exact match to live
+  // Save current p to special LS key + iframe loads /lp/__lpe_preview__
+  lpEditorSavePreviewData(p);
+  var existingIframe = area.querySelector('iframe');
+  if(existingIframe){
+    // Just reload iframe (debounced by caller)
+    if(!window.__lpEditorReloadTimer){
+      window.__lpEditorReloadTimer = setTimeout(function(){
+        window.__lpEditorReloadTimer = null;
+        var f = document.querySelector('.lpe-device-frame iframe');
+        if(f){ f.contentWindow.location.reload(); }
+      }, 400);
+    }
+  } else {
+    area.innerHTML = '<div class="lpe-device-frame" style="max-width:'+w+';height:calc(100vh - 200px);min-height:600px;overflow:hidden">' +
+      '<iframe src="/lp/__lpe_preview__" style="width:100%;height:100%;border:none;background:#F8FBFF" onload="lpEditorWireIframeClicks(this)"></iframe>' +
+    '</div>';
+  }
+}
+
+function lpEditorReloadPreview(){
+  var f = document.querySelector('.lpe-device-frame iframe');
+  if(f){ f.contentWindow.location.reload(); }
+}
+
+function lpEditorSavePreviewData(p){
+  try {
+    // Save a copy of the product data with the special preview slug
+    var preview = JSON.parse(JSON.stringify(p));
+    preview.id = '__lpe_preview__';
+    preview.urlSlug = '__lpe_preview__';
+    preview.lpEnabled = true; // Force enabled for preview
+    localStorage.setItem('__lpe_preview_data', JSON.stringify(preview));
+  } catch(e){ console.warn('Preview save fail:', e); }
+}
+
+function lpEditorWireIframeClicks(iframe){
+  // Wire click on sections inside iframe to select in editor
+  try {
+    var doc = iframe.contentDocument;
+    if(!doc) return;
+    var body = doc.body;
+    if(!body) return;
+    // Inject click handler for section highlighting
+    var style = doc.createElement('style');
+    style.textContent = 'section{cursor:pointer;position:relative;transition:box-shadow .12s} section:hover{box-shadow:inset 0 0 0 2px #2563eb;outline:none}';
+    doc.head.appendChild(style);
+    // Wire clicks
+    var sections = doc.querySelectorAll('section');
+    sections.forEach(function(sec, idx){
+      sec.addEventListener('click', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        // Find matching section in state
+        var p = window.__lpEditorProd;
+        if(!p || !p.lpSections) return;
+        var visIdx = 0;
+        for(var i = 0; i < p.lpSections.length; i++){
+          if(p.lpSections[i].enabled && p.lpSections[i].type !== 'form'){
+            if(visIdx === idx){
+              lpEditorSelectSection(i);
+              break;
+            }
+            visIdx++;
+          }
+        }
+      });
     });
-  });
+  } catch(e){ console.warn('Wire iframe clicks fail:', e); }
 }
 
 // Mini preview — compact Adform-style, matches mockup
@@ -21039,6 +21099,18 @@ function landingPageRoute(slug){
 function loadLandingPage(slug){
   var loadingEl = document.getElementById('lpLoadingState');
   var contentEl = document.getElementById('lpContent');
+  // Special preview slug — read from LS instead of Firestore
+  if(slug === '__lpe_preview__'){
+    try {
+      var stored = localStorage.getItem('__lpe_preview_data');
+      if(stored){
+        var previewP = JSON.parse(stored);
+        if(loadingEl) loadingEl.style.display = 'none';
+        renderLandingPage(previewP, contentEl);
+        return;
+      }
+    } catch(e){}
+  }
   var render = function(p){
     if(!p){
       if(loadingEl) loadingEl.style.display = 'none';
