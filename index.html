@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-09-04-lp-form-toggleable';
+window.__APP_VERSION = '2026-09-04-lp-form-editor';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -20754,6 +20754,46 @@ function lpEditorRenderRight(){
       body += '<div class="lpe-rp-field" style="padding:14px;background:var(--lpe-bg);border-radius:8px;font-size:11.5px;color:var(--lpe-tmuted)"><i class="ti ti-info-circle" style="color:#F59E0B"></i> Edit produk cross-sell / bundle via panel "Legacy Editor" (klik hapus section terus tambah lagi kalau perlu). Deep editor coming soon.</div>';
     } else if(s.type === 'trust'){
       body = '<div style="padding:20px;text-align:center;color:var(--lpe-tmuted);font-size:12px"><i class="ti ti-shield-check" style="font-size:32px;color:var(--lpe-primary);display:block;margin-bottom:10px"></i>Trust badges otomatis dari setting Free Ongkir + Garansi di Product Info.</div>';
+    } else if(s.type === 'form'){
+      // Form section editor — title, subtitle + form fields config
+      var ff = p.formFields || [];
+      var isFieldOn = function(id){
+        var f = ff.find(function(x){ return x.id === id; });
+        return f ? !!f.enabled : false;
+      };
+      var formType = p.formType || 'short';
+      body = '<div class="lpe-rp-field"><div class="lpe-rp-label">Judul Section</div><input class="lpe-rp-input" value="'+esc(pr.title||'Pesan Sekarang')+'" oninput="lpEditorUpdatePropAndRender(\'sections.'+sel+'.props.title\',this.value)"/></div>' +
+        '<div class="lpe-rp-field"><div class="lpe-rp-label">Subtitle</div><textarea class="lpe-rp-input" rows="2" oninput="lpEditorUpdatePropAndRender(\'sections.'+sel+'.props.subtitle\',this.value)" placeholder="CS akan hubungi via WhatsApp dalam 5 menit">'+esc(pr.subtitle||'')+'</textarea></div>' +
+        '<div class="lpe-rp-field"><div class="lpe-rp-label">Preset Form</div>' +
+          '<div style="display:flex;gap:6px">' +
+            '<button class="lpe-rp-input" style="cursor:pointer;text-align:center;background:'+(formType==='short'?'var(--lpe-primary-soft)':'var(--lpe-surface)')+';border-color:'+(formType==='short'?'var(--lpe-primary)':'var(--lpe-border-strong)')+';color:'+(formType==='short'?'var(--lpe-primary)':'var(--lpe-text)')+';font-weight:'+(formType==='short'?'700':'500')+'" onclick="lpEditorSetFormType(\'short\')">Short<br><span style="font-size:10px;opacity:.7;font-weight:500">Nama + WA</span></button>' +
+            '<button class="lpe-rp-input" style="cursor:pointer;text-align:center;background:'+(formType==='full'?'var(--lpe-primary-soft)':'var(--lpe-surface)')+';border-color:'+(formType==='full'?'var(--lpe-primary)':'var(--lpe-border-strong)')+';color:'+(formType==='full'?'var(--lpe-primary)':'var(--lpe-text)')+';font-weight:'+(formType==='full'?'700':'500')+'" onclick="lpEditorSetFormType(\'full\')">Full<br><span style="font-size:10px;opacity:.7;font-weight:500">+ Alamat + Kota</span></button>' +
+            '<button class="lpe-rp-input" style="cursor:pointer;text-align:center;background:'+(formType==='custom'?'var(--lpe-primary-soft)':'var(--lpe-surface)')+';border-color:'+(formType==='custom'?'var(--lpe-primary)':'var(--lpe-border-strong)')+';color:'+(formType==='custom'?'var(--lpe-primary)':'var(--lpe-text)')+';font-weight:'+(formType==='custom'?'700':'500')+'" onclick="lpEditorSetFormType(\'custom\')">Custom<br><span style="font-size:10px;opacity:.7;font-weight:500">Pilih sendiri</span></button>' +
+          '</div>' +
+        '</div>';
+      // Field toggles (only shown when custom OR always for info)
+      body += '<div class="lpe-rp-field"><div class="lpe-rp-label">Field Aktif' + (formType!=='custom'?' <span style="text-transform:none;font-size:10px;color:var(--lpe-tsoft);font-weight:500">(pilih "Custom" untuk edit)</span>':'') + '</div>';
+      var fields = [
+        {id:'alamat', label:'Alamat Lengkap', icon:'ti-map-pin'},
+        {id:'kota', label:'Kota / Kabupaten', icon:'ti-building'},
+        {id:'kecamatan', label:'Kecamatan', icon:'ti-map-2'},
+        {id:'provinsi', label:'Provinsi', icon:'ti-flag'},
+        {id:'email', label:'Email', icon:'ti-mail'},
+        {id:'qty', label:'Quantity (Jumlah)', icon:'ti-calculator'},
+        {id:'catatan', label:'Catatan Tambahan', icon:'ti-note'}
+      ];
+      // Compute effective enabled state based on formType
+      var effectiveOn = {};
+      if(formType === 'full'){ effectiveOn = { alamat:true, kota:true, kecamatan:true }; }
+      else if(formType === 'short'){ effectiveOn = {}; }
+      else { fields.forEach(function(f){ effectiveOn[f.id] = isFieldOn(f.id); }); }
+      var isDisabled = formType !== 'custom';
+      fields.forEach(function(f){
+        var on = !!effectiveOn[f.id];
+        body += '<div class="lpe-rp-toggle-row" style="opacity:'+(isDisabled?'.55':'1')+';pointer-events:'+(isDisabled?'none':'auto')+'"><div style="display:flex;align-items:center;gap:8px"><i class="ti '+f.icon+'" style="color:var(--lpe-tmuted);font-size:16px"></i><div class="lpe-rp-toggle-lbl">'+f.label+'</div></div><div class="lpe-sec-toggle'+(on?' on':'')+'" onclick="lpEditorToggleFormField(\''+f.id+'\')"></div></div>';
+      });
+      body += '</div>';
+      body += '<div style="padding:12px 14px;background:var(--lpe-primary-soft);border:1px dashed var(--lpe-primary);border-radius:9px;font-size:11.5px;color:var(--lpe-primary-dark);line-height:1.5"><i class="ti ti-info-circle"></i> Field <b>Nama</b> dan <b>WhatsApp</b> selalu required (tidak bisa di-hide). Kalau lo mau custom label/placeholder per field, edit di halaman Produk (Section 8).</div>';
     }
 
     body += '<div style="border-top:1px solid var(--lpe-border);padding-top:14px;margin-top:14px"><button class="lpe-rp-danger" onclick="lpEditorDeleteSection('+sel+')"><i class="ti ti-trash"></i>Hapus Section</button></div>';
@@ -20846,6 +20886,58 @@ function lpEditorEditItem(secIdx, itemIdx){
   lpEditorRenderRight();
   lpEditorRenderCanvas();
   lpEditorRenderLeft();
+}
+
+function lpEditorSetFormType(type){
+  var p = window.__lpEditorProd;
+  if(!p) return;
+  p.formType = type;
+  // Auto-set formFields based on preset
+  if(type === 'short'){
+    p.formFields = [];
+  } else if(type === 'full'){
+    p.formFields = [
+      { id:'nama', enabled:true },
+      { id:'wa', enabled:true },
+      { id:'alamat', enabled:true },
+      { id:'kota', enabled:true },
+      { id:'kecamatan', enabled:true }
+    ];
+  } else if(type === 'custom'){
+    // Preserve existing or init with defaults
+    if(!p.formFields || !p.formFields.length){
+      p.formFields = [
+        { id:'nama', enabled:true },
+        { id:'wa', enabled:true },
+        { id:'alamat', enabled:true }
+      ];
+    }
+  }
+  lpEditorMarkDirty();
+  lpEditorRenderRight();
+  lpEditorRenderCanvas();
+}
+
+function lpEditorToggleFormField(fieldId){
+  var p = window.__lpEditorProd;
+  if(!p) return;
+  p.formType = 'custom'; // toggle only works in custom mode
+  p.formFields = p.formFields || [];
+  var f = p.formFields.find(function(x){ return x.id === fieldId; });
+  if(f){
+    f.enabled = !f.enabled;
+  } else {
+    p.formFields.push({ id:fieldId, enabled:true });
+  }
+  // Also make sure nama + wa always enabled
+  ['nama','wa'].forEach(function(id){
+    var fx = p.formFields.find(function(x){ return x.id === id; });
+    if(!fx) p.formFields.push({ id:id, enabled:true });
+    else fx.enabled = true;
+  });
+  lpEditorMarkDirty();
+  lpEditorRenderRight();
+  lpEditorRenderCanvas();
 }
 
 function lpEditorHandleImage(evt){
