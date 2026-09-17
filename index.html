@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-09-01-landing-page-m1';
+window.__APP_VERSION = '2026-09-02-landing-page-m2';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -4852,9 +4852,63 @@ document.addEventListener('DOMContentLoaded', function(){
           </div>
 
           <!-- 12. SAVE / EMBED -->
-          <div class="pfv2-section" data-sec="12" id="ppanel-embed">
+          <!-- SECTION LANDING PAGE (M2 Editor) -->
+          <div class="pfv2-section" data-sec="12" id="ppanel-lp">
             <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
-              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">12</span><i class="ti ti-device-floppy pfv2-sec-icon"></i>Simpan & Embed Code</div>
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">12</span><i class="ti ti-layout pfv2-sec-icon"></i>Landing Page (Beta) <span style="font-size:9px;background:#EDE9FE;color:#5B21B6;padding:1px 6px;border-radius:99px;font-weight:600;margin-left:5px">NEW</span></div>
+              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
+            </div>
+            <div class="pfv2-sec-body">
+              <div class="pfv2-field">
+                <label class="pfv2-toggle" style="margin-bottom:12px">
+                  <input type="checkbox" id="fLpEnabled" onchange="toggleLpEnabled()"/>
+                  <span class="pfv2-toggle-slider"></span>
+                  <span class="pfv2-toggle-txt">Aktifkan Landing Page <div class="pfv2-toggle-desc">Ganti /f/{slug} jadi full landing page dengan hero/benefits/testimonials/FAQ. Kalau OFF, tetap pake form biasa.</div></span>
+                </label>
+
+                <div id="fLpBox" style="display:none">
+                  <div class="pfv2-info-card" style="background:#F0F9FF;color:#075985;border-color:#BAE6FD;margin-bottom:12px">
+                    <i class="ti ti-info-circle"></i>
+                    <div>Landing page URL: <code>/lp/<span id="fLpSlugPreview">slug-produk</span></code> · <a href="#" id="fLpOpenLink" target="_blank" style="color:var(--primary)">Buka preview →</a></div>
+                  </div>
+
+                  <label class="pfv2-label">Sections</label>
+                  <div class="pfv2-hint" style="margin-bottom:10px;padding-bottom:8px;border-bottom:1px dashed var(--border)">Tarik atas/bawah untuk reorder. Toggle untuk enable/disable per section.</div>
+
+                  <div id="fLpSectionsList" style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px"></div>
+
+                  <button type="button" class="btn btn-outline" style="width:100%;padding:8px;font-size:12px;border-style:dashed" onclick="lpResetSections()">
+                    <i class="ti ti-refresh" style="font-size:13px"></i> Reset ke Default Template
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- LP Section Editor Modal -->
+          <div id="lpEditModal" style="display:none;position:fixed;inset:0;z-index:1080;background:rgba(0,0,0,.6);align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)lpCloseEditModal()">
+            <div style="background:var(--surface);border-radius:16px;max-width:540px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.3)" onclick="event.stopPropagation()">
+              <div style="padding:16px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+                <div style="display:flex;align-items:center;gap:9px">
+                  <div id="lpEditIcon" style="width:32px;height:32px;border-radius:9px;background:#EDE9FE;color:#5B21B6;display:flex;align-items:center;justify-content:center;font-size:16px"><i class="ti ti-pencil"></i></div>
+                  <div>
+                    <div id="lpEditTitle" style="font-weight:600;font-size:15px">Edit Section</div>
+                    <div style="font-size:11.5px;color:var(--text-muted)">Kustomisasi konten section</div>
+                  </div>
+                </div>
+                <button onclick="lpCloseEditModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-muted);padding:4px 8px;line-height:1">✕</button>
+              </div>
+              <div id="lpEditBody" style="padding:18px 22px"></div>
+              <div style="padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;background:var(--surface-2);border-radius:0 0 16px 16px">
+                <button class="btn btn-outline" onclick="lpCloseEditModal()" style="padding:7px 14px;font-size:12.5px">Batal</button>
+                <button class="btn btn-primary" onclick="lpSaveEditSection()" style="padding:7px 14px;font-size:12.5px"><i class="ti ti-check"></i> Simpan Section</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="pfv2-section" data-sec="13" id="ppanel-embed">
+            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">13</span><i class="ti ti-device-floppy pfv2-sec-icon"></i>Simpan & Embed Code</div>
               <i class="ti ti-chevron-down pfv2-sec-chev"></i>
             </div>
             <div class="pfv2-sec-body">
@@ -10931,6 +10985,16 @@ function showProdForm(id){
     setV('fCountdownExpiredAction', p.countdownExpiredAction || 'disable');
     setV('fCountdownLabel', p.countdownLabel || '');
     if(typeof toggleCountdownRow === 'function') toggleCountdownRow();
+    // Landing Page
+    setChk('fLpEnabled', p.lpEnabled);
+    window.__lpSections = (p.lpSections && p.lpSections.length) ? JSON.parse(JSON.stringify(p.lpSections)) : (typeof getDefaultLpSections === 'function' ? getDefaultLpSections(p) : []);
+    if(typeof toggleLpEnabled === 'function') toggleLpEnabled();
+    if(typeof lpRenderSectionsList === 'function') lpRenderSectionsList();
+    // Update LP slug preview + open link
+    var _lpSlugEl = document.getElementById('fLpSlugPreview');
+    if(_lpSlugEl) _lpSlugEl.textContent = p.urlSlug || 'slug-produk';
+    var _lpLink = document.getElementById('fLpOpenLink');
+    if(_lpLink) _lpLink.href = '/lp/' + (p.urlSlug || '');
     setV('fPrice', p.price);
     setV('fHpp', p.hpp);
     setV('fInventaris', (typeof p.inventaris === 'number') ? p.inventaris : '');
@@ -12209,6 +12273,8 @@ function saveProd(){
   var countdownEnd = gv('fCountdownEnd').trim();
   var countdownExpiredAction = gv('fCountdownExpiredAction') || 'disable';
   var countdownLabel = gv('fCountdownLabel').trim();
+  var lpEnabled = gc('fLpEnabled');
+  var lpSections = window.__lpSections ? JSON.parse(JSON.stringify(window.__lpSections)) : [];
 
   // Section 4
   var kodeUnikEnabled = gc('fKodeUnikEnabled');
@@ -12320,7 +12386,7 @@ function saveProd(){
       prods[i] = {...prods[i], name, price, desc, hpp, inventaris, coverImage, images,
         urlSlug, kode, klasifikasi, kategori, koleksi, captcha, status,
         active: status !== 'archived',
-        tipe, hargaNormal, grosir, freeOngkir, ongkirNote, countdownEnabled, countdownEnd, countdownExpiredAction, countdownLabel, countdownEnabled, countdownEnd, countdownExpiredAction, countdownLabel,
+        tipe, hargaNormal, grosir, freeOngkir, ongkirNote, countdownEnabled, countdownEnd, countdownExpiredAction, countdownLabel, lpEnabled, lpSections, lpEnabled, lpSections, countdownEnabled, countdownEnd, countdownExpiredAction, countdownLabel,
         kodeUnikEnabled, kodeUnikMin, kodeUnikMax,
         resellerEnabled, resellerKomisi, resellerKomisiTipe,
         overrideCSRotator, shipperId, adminId,
@@ -12345,7 +12411,7 @@ function saveProd(){
     savedProd = {id: Date.now(), name, price, desc, hpp, inventaris, coverImage, images,
       urlSlug, kode, klasifikasi, kategori, koleksi, captcha, status,
       active: status !== 'archived',
-      tipe, hargaNormal, grosir, freeOngkir, ongkirNote, countdownEnabled, countdownEnd, countdownExpiredAction, countdownLabel,
+      tipe, hargaNormal, grosir, freeOngkir, ongkirNote, countdownEnabled, countdownEnd, countdownExpiredAction, countdownLabel, lpEnabled, lpSections,
       kodeUnikEnabled, kodeUnikMin, kodeUnikMax,
       resellerEnabled, resellerKomisi, resellerKomisiTipe,
       overrideCSRotator, shipperId, adminId,
@@ -13889,6 +13955,170 @@ window.getL10n = function(p){
   var langKey = window.COUNTRY_TO_LANG[String((p && p.country) || '62')] || 'id';
   return window.HOSTED_L10N[langKey] || window.HOSTED_L10N.id;
 };
+
+// ═══════════════════════════════════
+// LANDING PAGE EDITOR (M2)
+// ═══════════════════════════════════
+window.__lpSections = null;
+window.__lpEditingIdx = -1;
+
+var LP_SECTION_META = {
+  hero:         { icon:'ti-photo',          color:'#7C3AED', bg:'#EDE9FE', name:'Hero' },
+  benefits:     { icon:'ti-checks',         color:'#059669', bg:'#F0FDF4', name:'Benefits' },
+  testimonials: { icon:'ti-message-circle', color:'#EA580C', bg:'#FFF7ED', name:'Testimonials' },
+  video:        { icon:'ti-brand-youtube',  color:'#DC2626', bg:'#FEE2E2', name:'Video' },
+  form:         { icon:'ti-shopping-cart',  color:'#1E40AF', bg:'#DBEAFE', name:'Form Order' },
+  faq:          { icon:'ti-help-circle',    color:'#DC2626', bg:'#FEE2E2', name:'FAQ' },
+  trust:        { icon:'ti-shield-check',   color:'#059669', bg:'#F0FDF4', name:'Trust Badges' }
+};
+
+function toggleLpEnabled(){
+  var chk = document.getElementById('fLpEnabled');
+  var box = document.getElementById('fLpBox');
+  if(!chk || !box) return;
+  box.style.display = chk.checked ? '' : 'none';
+  if(chk.checked && (!window.__lpSections || !window.__lpSections.length)){
+    // Auto-load default sections
+    var pTemp = { name: (document.getElementById('fName')||{}).value || 'Produk' };
+    window.__lpSections = getDefaultLpSections(pTemp);
+    lpRenderSectionsList();
+  }
+}
+
+function lpRenderSectionsList(){
+  var listEl = document.getElementById('fLpSectionsList');
+  if(!listEl) return;
+  var sections = window.__lpSections || [];
+  var esc = function(s){ return String(s||'').replace(/</g,'&lt;'); };
+  listEl.innerHTML = sections.map(function(s, idx){
+    var meta = LP_SECTION_META[s.type] || { icon:'ti-square', color:'#64748B', bg:'#F1F5F9', name: s.type };
+    var isOn = !!s.enabled;
+    var pr = s.props || {};
+    var subtitle = '';
+    if(s.type === 'benefits') subtitle = (pr.items||[]).length + ' items';
+    else if(s.type === 'testimonials') subtitle = (pr.items||[]).length + ' testimonials';
+    else if(s.type === 'faq') subtitle = (pr.items||[]).length + ' Q&A';
+    else if(s.type === 'video') subtitle = pr.url ? 'YouTube link ada' : 'belum di-set';
+    else if(s.type === 'hero') subtitle = pr.headline ? esc((pr.headline||'').substring(0,32)) : 'default';
+    else if(s.type === 'form') subtitle = 'integrated';
+    else if(s.type === 'trust') subtitle = 'auto';
+    var canEdit = s.type !== 'form' && s.type !== 'trust';
+    return '<div class="lp-section-row" style="background:'+meta.bg+';border:1px solid '+meta.color+'40;border-radius:8px;padding:9px 11px;display:flex;align-items:center;gap:9px;opacity:'+(isOn?'1':'0.55')+'">' +
+      '<div style="display:flex;flex-direction:column;gap:1px">' +
+        '<button type="button" onclick="lpMoveSection('+idx+',-1)" '+(idx===0?'disabled':'')+' style="background:none;border:none;padding:0;cursor:'+(idx===0?'not-allowed':'pointer')+';color:'+meta.color+';opacity:'+(idx===0?'.3':'.7')+';height:14px;line-height:1"><i class="ti ti-chevron-up" style="font-size:12px"></i></button>' +
+        '<button type="button" onclick="lpMoveSection('+idx+',1)" '+(idx===sections.length-1?'disabled':'')+' style="background:none;border:none;padding:0;cursor:'+(idx===sections.length-1?'not-allowed':'pointer')+';color:'+meta.color+';opacity:'+(idx===sections.length-1?'.3':'.7')+';height:14px;line-height:1"><i class="ti ti-chevron-down" style="font-size:12px"></i></button>' +
+      '</div>' +
+      '<i class="ti '+meta.icon+'" style="color:'+meta.color+';font-size:15px"></i>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:12px;font-weight:600;color:'+meta.color+'">'+meta.name+'</div>' +
+        '<div style="font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+subtitle+'</div>' +
+      '</div>' +
+      '<label style="width:32px;height:16px;background:'+(isOn?meta.color:'#CBD5E1')+';border-radius:99px;position:relative;cursor:pointer;flex-shrink:0" onclick="lpToggleSection('+idx+')">' +
+        '<span style="position:absolute;'+(isOn?'right:2px':'left:2px')+';top:2px;width:12px;height:12px;background:#fff;border-radius:50%;transition:all .15s"></span>' +
+      '</label>' +
+      (canEdit ? '<button type="button" onclick="lpEditSection('+idx+')" style="background:none;border:none;cursor:pointer;color:'+meta.color+';padding:4px;font-size:14px" title="Edit"><i class="ti ti-pencil"></i></button>' : '<div style="width:22px"></div>') +
+    '</div>';
+  }).join('');
+}
+
+function lpToggleSection(idx){
+  if(!window.__lpSections || !window.__lpSections[idx]) return;
+  window.__lpSections[idx].enabled = !window.__lpSections[idx].enabled;
+  lpRenderSectionsList();
+}
+
+function lpMoveSection(idx, delta){
+  var arr = window.__lpSections;
+  if(!arr) return;
+  var newIdx = idx + delta;
+  if(newIdx < 0 || newIdx >= arr.length) return;
+  var tmp = arr[idx]; arr[idx] = arr[newIdx]; arr[newIdx] = tmp;
+  lpRenderSectionsList();
+}
+
+function lpResetSections(){
+  if(!confirm('Reset semua section ke default template?\n\nSemua perubahan konten akan hilang.')) return;
+  var pTemp = { name: (document.getElementById('fName')||{}).value || 'Produk', price: (document.getElementById('fPrice')||{}).value, desc: (document.getElementById('fDesc')||{}).value };
+  window.__lpSections = getDefaultLpSections(pTemp);
+  lpRenderSectionsList();
+  toast('✅ Section di-reset ke default');
+}
+
+function lpEditSection(idx){
+  window.__lpEditingIdx = idx;
+  var sec = window.__lpSections[idx];
+  var meta = LP_SECTION_META[sec.type] || { icon:'ti-square', color:'#64748B', bg:'#F1F5F9', name: sec.type };
+  document.getElementById('lpEditTitle').textContent = 'Edit ' + meta.name;
+  document.getElementById('lpEditIcon').style.background = meta.bg;
+  document.getElementById('lpEditIcon').style.color = meta.color;
+  document.getElementById('lpEditIcon').innerHTML = '<i class="ti '+meta.icon+'"></i>';
+  document.getElementById('lpEditBody').innerHTML = lpRenderEditForm(sec);
+  document.getElementById('lpEditModal').style.display = 'flex';
+}
+
+function lpCloseEditModal(){
+  document.getElementById('lpEditModal').style.display = 'none';
+  window.__lpEditingIdx = -1;
+}
+
+function lpRenderEditForm(sec){
+  var pr = sec.props || {};
+  var esc = function(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); };
+  var lbl = 'display:block;font-size:11.5px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px';
+  var inp = 'width:100%;padding:8px 10px;font-size:13px;border:1.5px solid var(--border);border-radius:7px;box-sizing:border-box;font-family:inherit';
+  var ta = inp + ';resize:vertical;min-height:60px;line-height:1.5';
+  var fieldWrap = 'margin-bottom:12px';
+
+  if(sec.type === 'hero'){
+    return '<div style="'+fieldWrap+'"><label style="'+lbl+'">Headline (H1)</label><input id="_lpHeadline" type="text" style="'+inp+'" value="'+esc(pr.headline||'')+'" placeholder="Nama produk / benefit utama"/></div>' +
+      '<div style="'+fieldWrap+'"><label style="'+lbl+'">Subheadline</label><textarea id="_lpSubheadline" style="'+ta+'" placeholder="Deskripsi singkat / value proposition">'+esc(pr.subheadline||'')+'</textarea></div>' +
+      '<div style="'+fieldWrap+'"><label style="'+lbl+'">CTA Button Text</label><input id="_lpCtaText" type="text" style="'+inp+'" value="'+esc(pr.ctaText||'Pesan Sekarang')+'" placeholder="Pesan Sekarang / Beli / Order"/></div>';
+  } else if(sec.type === 'benefits'){
+    var itemsJson = JSON.stringify(pr.items || [], null, 2);
+    return '<div style="'+fieldWrap+'"><label style="'+lbl+'">Judul Section</label><input id="_lpTitle" type="text" style="'+inp+'" value="'+esc(pr.title||'Benefits')+'"/></div>' +
+      '<div style="'+fieldWrap+'"><label style="'+lbl+'">Items (JSON list — {icon, title, desc})</label><textarea id="_lpItemsJson" style="'+ta+';min-height:180px;font-family:monospace;font-size:11px">'+esc(itemsJson)+'</textarea><div style="font-size:11px;color:var(--text-muted);margin-top:6px;line-height:1.5">Icon dari Tabler (ti-check / ti-shield-check / ti-heart / ti-star / ti-truck / ti-clock / ti-refresh / ti-gift). <a href="https://tabler.io/icons" target="_blank" style="color:var(--primary)">Browse ikon →</a></div></div>';
+  } else if(sec.type === 'testimonials'){
+    var itemsJson2 = JSON.stringify(pr.items || [], null, 2);
+    return '<div style="'+fieldWrap+'"><label style="'+lbl+'">Judul Section</label><input id="_lpTitle" type="text" style="'+inp+'" value="'+esc(pr.title||'Testimonials')+'"/></div>' +
+      '<div style="'+fieldWrap+'"><label style="'+lbl+'">Items (JSON list — {name, text, rating})</label><textarea id="_lpItemsJson" style="'+ta+';min-height:200px;font-family:monospace;font-size:11px">'+esc(itemsJson2)+'</textarea><div style="font-size:11px;color:var(--text-muted);margin-top:6px">rating: 1-5 (integer)</div></div>';
+  } else if(sec.type === 'video'){
+    return '<div style="'+fieldWrap+'"><label style="'+lbl+'">YouTube URL</label><input id="_lpVideoUrl" type="text" style="'+inp+'" value="'+esc(pr.url||'')+'" placeholder="https://youtube.com/watch?v=xxx atau https://youtu.be/xxx"/><div style="font-size:11px;color:var(--text-muted);margin-top:6px">Support format: watch?v=, youtu.be/, embed/</div></div>';
+  } else if(sec.type === 'faq'){
+    var itemsJson3 = JSON.stringify(pr.items || [], null, 2);
+    return '<div style="'+fieldWrap+'"><label style="'+lbl+'">Judul Section</label><input id="_lpTitle" type="text" style="'+inp+'" value="'+esc(pr.title||'FAQ')+'"/></div>' +
+      '<div style="'+fieldWrap+'"><label style="'+lbl+'">Items (JSON list — {question, answer})</label><textarea id="_lpItemsJson" style="'+ta+';min-height:200px;font-family:monospace;font-size:11px">'+esc(itemsJson3)+'</textarea></div>';
+  }
+  return '<div style="padding:20px;text-align:center;color:var(--text-muted)">Section ini tidak bisa di-edit (auto-managed).</div>';
+}
+
+function lpSaveEditSection(){
+  var idx = window.__lpEditingIdx;
+  if(idx < 0 || !window.__lpSections || !window.__lpSections[idx]) return;
+  var sec = window.__lpSections[idx];
+  var g = function(id){ var el = document.getElementById(id); return el ? el.value : ''; };
+  var newProps = Object.assign({}, sec.props || {});
+  try {
+    if(sec.type === 'hero'){
+      newProps.headline = g('_lpHeadline').trim();
+      newProps.subheadline = g('_lpSubheadline').trim();
+      newProps.ctaText = g('_lpCtaText').trim() || 'Pesan Sekarang';
+    } else if(sec.type === 'benefits' || sec.type === 'testimonials' || sec.type === 'faq'){
+      newProps.title = g('_lpTitle').trim();
+      var jsonStr = g('_lpItemsJson');
+      try { newProps.items = JSON.parse(jsonStr); }
+      catch(e){ toast('⚠️ JSON items invalid: ' + e.message); return; }
+      if(!Array.isArray(newProps.items)){ toast('⚠️ Items harus berupa list/array'); return; }
+    } else if(sec.type === 'video'){
+      newProps.url = g('_lpVideoUrl').trim();
+    }
+    window.__lpSections[idx].props = newProps;
+    lpRenderSectionsList();
+    lpCloseEditModal();
+    toast('✅ Section di-update');
+  } catch(err){
+    toast('❌ Error: ' + err.message);
+  }
+}
 
 // Toggle countdown fields visibility
 function toggleCountdownRow(){
