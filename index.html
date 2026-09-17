@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-09-03-lp-wave2-analytics-abtest';
+window.__APP_VERSION = '2026-09-03-lp-wave3-multiproduct-upsell';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -5007,9 +5007,64 @@ document.addEventListener('DOMContentLoaded', function(){
             </div>
           </div>
 
-          <div class="pfv2-section" data-sec="13" id="ppanel-embed">
+          <!-- SECTION 13 — ORDER BUMP (W3.1) -->
+          <div class="pfv2-section" data-sec="13" id="ppanel-bump">
             <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
-              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">13</span><i class="ti ti-device-floppy pfv2-sec-icon"></i>Simpan & Embed Code</div>
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">13</span><i class="ti ti-shopping-cart-plus pfv2-sec-icon"></i>Order Bump (Upsell) <span style="font-size:9px;background:#FEF3C7;color:#92400E;padding:1px 6px;border-radius:99px;font-weight:600;margin-left:5px">NEW</span></div>
+              <i class="ti ti-chevron-down pfv2-sec-chev"></i>
+            </div>
+            <div class="pfv2-sec-body">
+              <div class="pfv2-field">
+                <label class="pfv2-toggle" style="margin-bottom:12px">
+                  <input type="checkbox" id="fBumpEnabled" onchange="toggleBumpRow()"/>
+                  <span class="pfv2-toggle-slider"></span>
+                  <span class="pfv2-toggle-txt">Aktifkan Order Bump <div class="pfv2-toggle-desc">Tampilin checkbox add-on ("Tambah 1 pcs lagi diskon 20%") tepat di atas tombol beli. Rata-rata boost AOV 15-30%.</div></span>
+                </label>
+                <div id="fBumpBox" style="display:none">
+                  <div class="pfv2-info-card" style="background:#F0FDF4;color:#065F46;border-color:#A7F3D0;margin-bottom:12px">
+                    <i class="ti ti-info-circle"></i>
+                    <div><b>Tips:</b> Bikin offer yang related sama produk utama, kasih diskon jelas (misal 20-40%), dan tulis benefit yang concrete ("Gratis ongkir untuk semua item").</div>
+                  </div>
+                  <div class="pfv2-field-row">
+                    <label class="pfv2-label">Judul Offer</label>
+                    <input type="text" id="fBumpTitle" class="pfv2-input" placeholder="Tambah 1 pcs lagi + hemat 20%"/>
+                    <div class="pfv2-hint">Judul singkat menonjolkan manfaat</div>
+                  </div>
+                  <div class="pfv2-field-row">
+                    <label class="pfv2-label">Deskripsi Detail</label>
+                    <textarea id="fBumpDesc" class="pfv2-input" rows="2" placeholder="Perfect buat stok cadangan atau kado. Total hanya Rp 79.000 (normal Rp 99.000)"></textarea>
+                    <div class="pfv2-hint">1-2 kalimat yang jelasin apa yang didapet</div>
+                  </div>
+                  <div class="pfv2-field-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                    <div><label class="pfv2-label">Harga Bump</label><input type="text" id="fBumpPrice" class="pfv2-input" placeholder="79000"/><div class="pfv2-hint">Harga add-on ini</div></div>
+                    <div><label class="pfv2-label">Harga Normal (coret)</label><input type="text" id="fBumpNormalPrice" class="pfv2-input" placeholder="99000"/><div class="pfv2-hint">Opsional — untuk show diskon</div></div>
+                  </div>
+                  <div class="pfv2-field-row">
+                    <label class="pfv2-label">Gambar Add-on (opsional)</label>
+                    <label id="fBumpImgUpload" style="display:block;aspect-ratio:2/1;max-width:180px;border:2px dashed var(--border);border-radius:8px;overflow:hidden;cursor:pointer;background:#F8FAFC center/cover no-repeat">
+                      <input type="file" accept="image/*" style="display:none" onchange="handleBumpImg(event)"/>
+                      <div id="fBumpImgPlaceholder" style="height:100%;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:11px;text-align:center;padding:8px"><i class="ti ti-upload" style="font-size:20px;display:block;margin-bottom:4px"></i>Klik pilih gambar</div>
+                    </label>
+                    <div class="pfv2-hint">Auto-resize ke max 400px, disimpan sebagai base64</div>
+                  </div>
+                  <div class="pfv2-field-row">
+                    <label class="pfv2-label">Warna Highlight</label>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap">
+                      <label style="cursor:pointer"><input type="radio" name="bumpColor" value="#F59E0B" checked style="display:none"/><div class="bump-color-swatch" style="width:32px;height:32px;background:#FEF3C7;border:2px solid #F59E0B;border-radius:8px"></div></label>
+                      <label style="cursor:pointer"><input type="radio" name="bumpColor" value="#DC2626" style="display:none"/><div class="bump-color-swatch" style="width:32px;height:32px;background:#FEE2E2;border:2px solid transparent;border-radius:8px"></div></label>
+                      <label style="cursor:pointer"><input type="radio" name="bumpColor" value="#10B981" style="display:none"/><div class="bump-color-swatch" style="width:32px;height:32px;background:#D1FAE5;border:2px solid transparent;border-radius:8px"></div></label>
+                      <label style="cursor:pointer"><input type="radio" name="bumpColor" value="#7C3AED" style="display:none"/><div class="bump-color-swatch" style="width:32px;height:32px;background:#EDE9FE;border:2px solid transparent;border-radius:8px"></div></label>
+                    </div>
+                    <div class="pfv2-hint">Warna aksen untuk card order bump</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pfv2-section" data-sec="14" id="ppanel-embed">
+            <div class="pfv2-sec-head" onclick="toggleProdSec(this)">
+              <div class="pfv2-sec-head-title"><span class="pfv2-sec-num">14</span><i class="ti ti-device-floppy pfv2-sec-icon"></i>Simpan & Embed Code</div>
               <i class="ti ti-chevron-down pfv2-sec-chev"></i>
             </div>
             <div class="pfv2-sec-body">
@@ -11252,6 +11307,30 @@ function showProdForm(id){
     window.__lpSectionsA_stash = null;
     var _abLbl = document.getElementById('fLpAbCurrent'); if(_abLbl) _abLbl.textContent = 'Variant A';
     if(typeof toggleLpAbFields === 'function') toggleLpAbFields();
+    // W3.1: Order Bump
+    setChk('fBumpEnabled', p.bumpEnabled);
+    setV('fBumpTitle', p.bumpTitle || '');
+    setV('fBumpDesc', p.bumpDesc || '');
+    setV('fBumpPrice', p.bumpPrice || '');
+    setV('fBumpNormalPrice', p.bumpNormalPrice || '');
+    var _bumpImgEl = document.getElementById('fBumpImgUpload');
+    if(_bumpImgEl){
+      _bumpImgEl.dataset.b64 = p.bumpImg || '';
+      if(p.bumpImg){
+        _bumpImgEl.style.background = 'transparent url('+p.bumpImg+') center/cover no-repeat';
+        var ph = document.getElementById('fBumpImgPlaceholder'); if(ph) ph.style.display = 'none';
+      } else {
+        _bumpImgEl.style.background = '#F8FAFC center/cover no-repeat';
+        var ph2 = document.getElementById('fBumpImgPlaceholder'); if(ph2) ph2.style.display = '';
+      }
+    }
+    var bumpC = p.bumpColor || '#F59E0B';
+    document.querySelectorAll('input[name="bumpColor"]').forEach(function(i){
+      i.checked = (i.value === bumpC);
+      var s = i.parentElement.querySelector('.bump-color-swatch');
+      if(s) s.style.borderColor = i.checked ? bumpC : 'transparent';
+    });
+    if(typeof toggleBumpRow === 'function') toggleBumpRow();
     setV('fPrice', p.price);
     setV('fHpp', p.hpp);
     setV('fInventaris', (typeof p.inventaris === 'number') ? p.inventaris : '');
@@ -12541,6 +12620,16 @@ function saveProd(){
   }
   var lpAbEnabled = gc('fLpAbEnabled');
   var lpSectionsB = (lpAbEnabled && window.__lpSectionsB) ? JSON.parse(JSON.stringify(window.__lpSectionsB)) : [];
+  // W3.1: Order Bump
+  var bumpEnabled = gc('fBumpEnabled');
+  var bumpTitle = gv('fBumpTitle').trim();
+  var bumpDesc = gv('fBumpDesc').trim();
+  var bumpPrice = gv('fBumpPrice').trim();
+  var bumpNormalPrice = gv('fBumpNormalPrice').trim();
+  var _bumpImgEl = document.getElementById('fBumpImgUpload');
+  var bumpImg = (_bumpImgEl && _bumpImgEl.dataset && _bumpImgEl.dataset.b64) ? _bumpImgEl.dataset.b64 : '';
+  var _bumpColorInp = document.querySelector('input[name="bumpColor"]:checked');
+  var bumpColor = _bumpColorInp ? _bumpColorInp.value : '#F59E0B';
   // W1: Conversion boosters
   var lpFloatingWA = gc('fLpFloatingWA');
   var lpFloatingWAMsg = gv('fLpFloatingWAMsg').trim();
@@ -12663,6 +12752,7 @@ function saveProd(){
         tipe, hargaNormal, grosir, freeOngkir, ongkirNote, countdownEnabled, countdownEnd, countdownExpiredAction, countdownLabel, lpEnabled, lpSections, lpEnabled, lpSections, countdownEnabled, countdownEnd, countdownExpiredAction, countdownLabel,
         lpFloatingWA, lpFloatingWAMsg, lpStickyCTA, lpExitIntent, lpExitHeadline, lpExitMsg, lpExitCta,
         lpAbEnabled, lpSectionsB,
+        bumpEnabled, bumpTitle, bumpDesc, bumpPrice, bumpNormalPrice, bumpImg, bumpColor,
         kodeUnikEnabled, kodeUnikMin, kodeUnikMax,
         resellerEnabled, resellerKomisi, resellerKomisiTipe,
         overrideCSRotator, shipperId, adminId,
@@ -12690,6 +12780,7 @@ function saveProd(){
       tipe, hargaNormal, grosir, freeOngkir, ongkirNote, countdownEnabled, countdownEnd, countdownExpiredAction, countdownLabel, lpEnabled, lpSections,
       lpFloatingWA, lpFloatingWAMsg, lpStickyCTA, lpExitIntent, lpExitHeadline, lpExitMsg, lpExitCta,
       lpAbEnabled, lpSectionsB,
+      bumpEnabled, bumpTitle, bumpDesc, bumpPrice, bumpNormalPrice, bumpImg, bumpColor,
       kodeUnikEnabled, kodeUnikMin, kodeUnikMax,
       resellerEnabled, resellerKomisi, resellerKomisiTipe,
       overrideCSRotator, shipperId, adminId,
@@ -12820,6 +12911,14 @@ function generateProdEmbed(p){
       var im = imgs[0];
       return typeof im === 'string' ? im : (im.b64 || '');
     })(),
+    // W3.1: Order Bump
+    bumpEnabled: !!p.bumpEnabled,
+    bumpTitle: p.bumpTitle || '',
+    bumpDesc: p.bumpDesc || '',
+    bumpPrice: parseInt(String(p.bumpPrice||'').replace(/[^0-9]/g,''), 10) || 0,
+    bumpNormalPrice: parseInt(String(p.bumpNormalPrice||'').replace(/[^0-9]/g,''), 10) || 0,
+    bumpImg: p.bumpImg || '',
+    bumpColor: p.bumpColor || '#F59E0B',
     l10n: (window.HOSTED_L10N && window.getL10n) ? window.getL10n(p) : {}
   }).replace(/</g,'\\u003c');
 
@@ -12846,6 +12945,7 @@ R.innerHTML='<div style="max-width:420px;margin:0 auto;font-family:Segoe UI,syst
 ${useAlamat?`+'<textarea id="oo-al${p.id}" autocomplete="street-address" placeholder="${esc(phAlamat)}" oninput="if(this.value.trim()){this.style.borderColor=\\'#e0e0e0\\';var e=document.getElementById(\\'oo-eal${p.id}\\');if(e)e.style.display=\\'none\\';}" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box;resize:none;height:80px"><\\/textarea>'+'<p id="oo-eal${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">${esc(phAlamat)} wajib diisi<\\/p>'`:''}
 ${useKota?`+'<input id="oo-kt${p.id}" type="text" autocomplete="address-level2" placeholder="${esc(phKota)}" oninput="if(this.value.trim()){this.style.borderColor=\\'#e0e0e0\\';var e=document.getElementById(\\'oo-ekt${p.id}\\');if(e)e.style.display=\\'none\\';}" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box">'+'<p id="oo-ekt${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">${esc(phKota)} wajib diisi<\\/p>'`:''}
 ${useKecamatan?`+'<input id="oo-kc${p.id}" type="text" autocomplete="address-level3" placeholder="${esc(phKecamatan)}" oninput="if(this.value.trim()){this.style.borderColor=\\'#e0e0e0\\';var e=document.getElementById(\\'oo-ekc${p.id}\\');if(e)e.style.display=\\'none\\';}" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box">'+'<p id="oo-ekc${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">${esc(phKecamatan)} wajib diisi<\\/p>'`:''}
++(cfg.bumpEnabled&&cfg.bumpTitle?('<label id="oo-bump-wrap-${p.id}" style="display:block;margin:16px 0 10px;padding:12px;border:2px dashed '+cfg.bumpColor+';border-radius:10px;background:'+cfg.bumpColor+'15;cursor:pointer;transition:all .15s"><div style="display:flex;gap:10px;align-items:flex-start"><input id="oo-bump-${p.id}" type="checkbox" style="margin-top:3px;width:18px;height:18px;accent-color:'+cfg.bumpColor+';cursor:pointer;flex-shrink:0" onchange="var w=document.getElementById(\\'oo-bump-wrap-${p.id}\\');if(w){w.style.background=this.checked?\\''+cfg.bumpColor+'25\\':\\''+cfg.bumpColor+'15\\';w.style.borderStyle=this.checked?\\'solid\\':\\'dashed\\';}"/><div style="flex:1;min-width:0">'+(cfg.bumpImg?'<img src="'+cfg.bumpImg+'" style="width:100%;max-width:120px;aspect-ratio:2/1;object-fit:cover;border-radius:6px;margin-bottom:8px;display:block"/>':'')+'<div style="font-size:13.5px;font-weight:700;color:#0F172A;line-height:1.35;margin-bottom:4px">🎁 '+cfg.bumpTitle+'<\\/div>'+(cfg.bumpDesc?'<div style="font-size:11.5px;color:#64748B;line-height:1.5;margin-bottom:6px">'+cfg.bumpDesc+'<\\/div>':'')+'<div style="display:flex;align-items:baseline;gap:6px"><span style="font-size:14px;font-weight:700;color:'+cfg.bumpColor+'">+ '+(function(){var _cur=cfg.currency||\\'IDR\\';var _sym={IDR:\\'Rp \\',MYR:\\'RM \\',SGD:\\'S$\\',USD:\\'$\\',THB:\\'฿\\',PHP:\\'₱\\',BND:\\'B$\\'};return (_sym[_cur]||\\'\\')+cfg.bumpPrice.toLocaleString(\\'id-ID\\');})()+'<\\/span>'+(cfg.bumpNormalPrice&&cfg.bumpNormalPrice>cfg.bumpPrice?'<span style="font-size:11px;color:#94A3B8;text-decoration:line-through">'+(function(){var _cur=cfg.currency||\\'IDR\\';var _sym={IDR:\\'Rp \\',MYR:\\'RM \\',SGD:\\'S$\\',USD:\\'$\\',THB:\\'฿\\',PHP:\\'₱\\',BND:\\'B$\\'};return (_sym[_cur]||\\'\\')+cfg.bumpNormalPrice.toLocaleString(\\'id-ID\\');})()+'<\\/span>':'')+'<\\/div><\\/div><\\/div><\\/label>'):'')
 +'<button id="oo-btn-${p.id}" onclick="ooSub${p.id}()" style="width:100%;background:'+c+';color:#fff;border:none;border-radius:8px;padding:15px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit">'+cfg.cta+'<\\/button>'
 +'<div style="display:flex;justify-content:center;gap:14px;margin-top:12px;flex-wrap:wrap">'+trustHtml+'<\\/div>'
 +'<\\/div>'
@@ -13153,7 +13253,10 @@ window['ooSub${p.id}']=function(){
 
     /* Build lead — store normalized WA (dengan country code) biar konsisten */
     var leadId='L'+Date.now()+Math.floor(Math.random()*1000);
-    var lead={id:leadId,ts:Date.now(),nama:nm,wa:custWaNorm||wa,waRaw:wa,waCountry:cc,produk:produkWA,csId:chosenCsId,alamat:al,kota:kt,kecamatan:kc,followStatus:'pending',waAttempted:true};
+    /* W3.1: Capture order bump acceptance */
+    var _bumpEl=document.getElementById('oo-bump-${p.id}');
+    var _bumpTaken=(_bumpEl&&_bumpEl.checked)?true:false;
+    var lead={id:leadId,ts:Date.now(),nama:nm,wa:custWaNorm||wa,waRaw:wa,waCountry:cc,produk:produkWA,csId:chosenCsId,alamat:al,kota:kt,kecamatan:kc,followStatus:'pending',waAttempted:true,bumpTaken:_bumpTaken,bumpTitle:_bumpTaken?(cfg.bumpTitle||''):'',bumpPrice:_bumpTaken?(cfg.bumpPrice||0):0};
 
     /* GTM events */
     if(window.dataLayer)window.dataLayer.push({event:'generate_lead',lead_name:nm,lead_product:produkWA});
@@ -14252,7 +14355,9 @@ var LP_SECTION_META = {
   faq:          { icon:'ti-help-circle',    color:'#DC2626', bg:'#FEE2E2', name:'FAQ' },
   trust:        { icon:'ti-shield-check',   color:'#059669', bg:'#F0FDF4', name:'Trust Badges' },
   beforeafter:  { icon:'ti-arrows-diff',    color:'#0891B2', bg:'#CFFAFE', name:'Before / After' },
-  pricing:      { icon:'ti-tags',           color:'#DB2777', bg:'#FCE7F3', name:'Pricing Table' }
+  pricing:      { icon:'ti-tags',           color:'#DB2777', bg:'#FCE7F3', name:'Pricing Table' },
+  crosssell:    { icon:'ti-basket-plus',    color:'#0284C7', bg:'#E0F2FE', name:'Cross-sell (Related)' },
+  bundle:       { icon:'ti-package',        color:'#16A34A', bg:'#DCFCE7', name:'Bundle Deal' }
 };
 
 // W1: Toggle helper untuk conversion booster fields (WA msg + exit-intent config)
@@ -14621,6 +14726,8 @@ function lpRenderSectionsList(){
     else if(s.type === 'trust') subtitle = 'auto';
     else if(s.type === 'beforeafter') subtitle = (pr.beforeImg && pr.afterImg) ? 'gambar siap' : 'upload gambar dulu';
     else if(s.type === 'pricing') subtitle = (pr.items||[]).length + ' paket';
+    else if(s.type === 'crosssell') subtitle = (pr.productIds||[]).length + ' produk';
+    else if(s.type === 'bundle') subtitle = pr.bundleProductId ? 'diskon '+(pr.bundleDiscount||0)+'%' : 'pilih produk bundle';
     var canEdit = s.type !== 'form' && s.type !== 'trust';
     return '<div class="lp-section-row" style="background:'+meta.bg+';border:1px solid '+meta.color+'40;border-radius:8px;padding:9px 11px;display:flex;align-items:center;gap:9px;opacity:'+(isOn?'1':'0.55')+'">' +
       '<div style="display:flex;flex-direction:column;gap:1px">' +
@@ -14751,6 +14858,41 @@ function lpRenderEditForm(sec){
         '</div>' +
       '</div>' +
       '<div style="'+fieldWrap+'"><label style="'+lbl+'">Caption (opsional)</label><input id="_lpBaCaption" type="text" style="'+inp+'" value="'+esc(pr.caption||'')+'" placeholder="Hasil setelah 2 minggu pemakaian"/></div>';
+  } else if(sec.type === 'crosssell'){
+    var allProds = (typeof getProds === 'function') ? getProds() : [];
+    var currentId = (window.__pdCurrentProdId || (typeof editProdId !== 'undefined' ? editProdId : null));
+    var otherProds = allProds.filter(function(x){
+      return String(x.id) !== String(currentId) && (x.status !== 'archived') && (x.klasifikasi !== 'digital');
+    });
+    var selectedIds = (pr.productIds || []).map(String);
+    var prodOpts = otherProds.map(function(x){
+      var checked = selectedIds.indexOf(String(x.id)) >= 0;
+      var img = (x.coverImage || (x.images && x.images[0] && x.images[0].b64) || '');
+      return '<label style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1.5px solid '+(checked?'var(--primary)':'var(--border)')+';border-radius:8px;cursor:pointer;background:'+(checked?'#F0FDF4':'#fff')+';margin-bottom:6px">' +
+        '<input type="checkbox" name="_lpCsProd" value="'+x.id+'"'+(checked?' checked':'')+' style="width:16px;height:16px;accent-color:var(--primary);flex-shrink:0"/>' +
+        (img?'<div style="width:44px;height:44px;border-radius:6px;background:url('+img+') center/cover no-repeat;flex-shrink:0"></div>':'<div style="width:44px;height:44px;border-radius:6px;background:#F1F5F9;display:flex;align-items:center;justify-content:center;color:#94A3B8;flex-shrink:0"><i class="ti ti-package"></i></div>') +
+        '<div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:600;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(x.name||'')+'</div>' +
+        '<div style="font-size:10.5px;color:var(--text-muted)">Rp '+(parseInt(String(x.price||'').replace(/[^0-9]/g,''),10)||0).toLocaleString('id-ID')+'</div></div>' +
+      '</label>';
+    }).join('');
+    if(!prodOpts) prodOpts = '<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px;background:var(--surface-2);border:1px dashed var(--border);border-radius:8px">Belum ada produk lain. Bikin produk lain dulu untuk dijadikan cross-sell.</div>';
+    return '<div style="'+fieldWrap+'"><label style="'+lbl+'">Judul Section</label><input id="_lpCsTitle" type="text" style="'+inp+'" value="'+esc(pr.title||'')+'" placeholder="Sering Dibeli Bareng"/></div>' +
+      '<div style="'+fieldWrap+'"><label style="'+lbl+'">Subtitle</label><input id="_lpCsSubtitle" type="text" style="'+inp+'" value="'+esc(pr.subtitle||'')+'" placeholder="Pelanggan juga tertarik"/></div>' +
+      '<div><label style="'+lbl+'">Pilih Produk (max 4)</label><div style="max-height:280px;overflow-y:auto">'+prodOpts+'</div></div>';
+  } else if(sec.type === 'bundle'){
+    var allProds2 = (typeof getProds === 'function') ? getProds() : [];
+    var currentId2 = (window.__pdCurrentProdId || (typeof editProdId !== 'undefined' ? editProdId : null));
+    var bundOpts = '<option value="">-- Pilih produk bundle --</option>' + allProds2.filter(function(x){
+      return String(x.id) !== String(currentId2) && (x.status !== 'archived') && (x.klasifikasi !== 'digital');
+    }).map(function(x){
+      var sel = String(pr.bundleProductId||'') === String(x.id) ? ' selected' : '';
+      return '<option value="'+x.id+'"'+sel+'>'+esc(x.name||'')+' — Rp '+(parseInt(String(x.price||'').replace(/[^0-9]/g,''),10)||0).toLocaleString('id-ID')+'</option>';
+    }).join('');
+    return '<div style="'+fieldWrap+'"><label style="'+lbl+'">Judul Section</label><input id="_lpBdTitle" type="text" style="'+inp+'" value="'+esc(pr.title||'')+'" placeholder="Bundle Hemat"/></div>' +
+      '<div style="'+fieldWrap+'"><label style="'+lbl+'">Subtitle</label><input id="_lpBdSubtitle" type="text" style="'+inp+'" value="'+esc(pr.subtitle||'')+'" placeholder="Beli 2 produk sekaligus"/></div>' +
+      '<div style="'+fieldWrap+'"><label style="'+lbl+'">Produk Bundle</label><select id="_lpBdProdId" style="'+inp+'">'+bundOpts+'</select><div style="font-size:11px;color:var(--text-muted);margin-top:4px">Produk yang di-bundle sama produk ini</div></div>' +
+      '<div style="'+fieldWrap+'"><label style="'+lbl+'">Diskon Bundle (%)</label><input id="_lpBdDiscount" type="number" min="0" max="90" style="'+inp+'" value="'+(pr.bundleDiscount||20)+'"/></div>' +
+      '<div style="'+fieldWrap+'"><label style="'+lbl+'">Teks Tombol CTA</label><input id="_lpBdCta" type="text" style="'+inp+'" value="'+esc(pr.ctaText||'Ambil Bundle Deal')+'"/></div>';
   } else if(sec.type === 'pricing'){
     window.__lpEditItems = (pr.items || []).map(function(it){ return Object.assign({}, it); });
     return '<div style="'+fieldWrap+'"><label style="'+lbl+'">Judul Section</label><input id="_lpPrTitle" type="text" style="'+inp+'" value="'+esc(pr.title||'')+'" placeholder="Pilih Paket Hemat"/></div>' +
@@ -15035,6 +15177,19 @@ function lpSaveEditSection(){
       newProps.subtitle = g('_lpPrSubtitle').trim();
       lpCapturePricingFromForm();
       newProps.items = (window.__lpEditItems || []).slice();
+    } else if(sec.type === 'crosssell'){
+      newProps.title = g('_lpCsTitle').trim();
+      newProps.subtitle = g('_lpCsSubtitle').trim();
+      var chks = document.querySelectorAll('input[name="_lpCsProd"]:checked');
+      var ids = [];
+      chks.forEach(function(c){ if(ids.length < 4) ids.push(c.value); });
+      newProps.productIds = ids;
+    } else if(sec.type === 'bundle'){
+      newProps.title = g('_lpBdTitle').trim();
+      newProps.subtitle = g('_lpBdSubtitle').trim();
+      newProps.bundleProductId = g('_lpBdProdId');
+      newProps.bundleDiscount = parseInt(g('_lpBdDiscount'), 10) || 20;
+      newProps.ctaText = g('_lpBdCta').trim() || 'Ambil Bundle Deal';
     }
     window.__lpSections[idx].props = newProps;
     lpRenderSectionsList();
@@ -15044,6 +15199,56 @@ function lpSaveEditSection(){
     toast('❌ Error: ' + err.message);
   }
 }
+
+// W3.1: Order Bump helpers
+function toggleBumpRow(){
+  var chk = document.getElementById('fBumpEnabled');
+  var box = document.getElementById('fBumpBox');
+  if(!chk || !box) return;
+  box.style.display = chk.checked ? '' : 'none';
+}
+function handleBumpImg(evt){
+  var file = evt.target.files && evt.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var img = new Image();
+    img.onload = function(){
+      var canvas = document.createElement('canvas');
+      var maxW = 400;
+      var scale = Math.min(1, maxW / img.width);
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      var b64 = canvas.toDataURL('image/jpeg', 0.85);
+      var el = document.getElementById('fBumpImgUpload');
+      if(el){
+        el.style.background = 'transparent url('+b64+') center/cover no-repeat';
+        var ph = document.getElementById('fBumpImgPlaceholder');
+        if(ph) ph.style.display = 'none';
+      }
+      el.dataset.b64 = b64;
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+// Init bump color swatches
+document.addEventListener('DOMContentLoaded', function(){
+  document.addEventListener('click', function(e){
+    var lbl = e.target.closest ? e.target.closest('label') : null;
+    if(!lbl) return;
+    var inp = lbl.querySelector('input[name="bumpColor"]');
+    if(!inp) return;
+    // Update all swatches
+    document.querySelectorAll('input[name="bumpColor"]').forEach(function(i){
+      var s = i.parentElement.querySelector('.bump-color-swatch');
+      if(s) s.style.borderColor = (i === inp) ? i.value : 'transparent';
+    });
+    inp.checked = true;
+  });
+});
 
 // Toggle countdown fields visibility
 function toggleCountdownRow(){
@@ -19231,6 +19436,18 @@ function getDefaultLpSections(p){
         { qty:3, label:'Beli 3 (Hemat 20%)', price: Math.round((priceNum||0)*3*0.8), savings:'Hemat 20%', best:false }
       ]
     }},
+    { id:'crosssell', type:'crosssell', enabled:false, props:{
+      title: 'Sering Dibeli Bareng',
+      subtitle: 'Pelanggan yang beli produk ini juga tertarik dengan:',
+      productIds: []
+    }},
+    { id:'bundle', type:'bundle', enabled:false, props:{
+      title: 'Bundle Hemat',
+      subtitle: 'Beli 2 produk sekaligus, hemat lebih banyak',
+      bundleProductId: '',
+      bundleDiscount: 20,
+      ctaText: 'Ambil Bundle Deal'
+    }},
     { id:'form', type:'form', enabled:true, props:{} },
     { id:'faq', type:'faq', enabled:true, props:{
       title: 'Pertanyaan yang sering diajukan',
@@ -19618,6 +19835,71 @@ function renderLandingPage(p, contentEl){
           '</div>' +
           (pr.caption ? '<div style="text-align:center;font-size:12px;color:#64748B;margin-top:12px;font-style:italic">'+esc(pr.caption)+'</div>' : '') +
         '</section>';
+      }
+    } else if(sec.type === 'crosssell'){
+      var csIds = pr.productIds || [];
+      if(csIds.length){
+        // Fetch products from local storage (already available since we're on client-rendered LP)
+        var allP = (typeof getProds === 'function') ? getProds() : [];
+        var csProds = csIds.map(function(id){
+          return allP.find(function(x){ return String(x.id) === String(id); });
+        }).filter(Boolean);
+        if(csProds.length){
+          var csCards = csProds.map(function(cp){
+            var cImg = cp.coverImage || (cp.images && cp.images[0] && (cp.images[0].b64 || cp.images[0])) || '';
+            var cPrice = parseInt(String(cp.price||'').replace(/[^0-9]/g,''),10) || 0;
+            var cSlug = cp.urlSlug || cp.id;
+            var cCur = cp.currency || currency;
+            var _cSymMap = {IDR:'Rp ',MYR:'RM ',SGD:'S$',USD:'$',THB:'฿',PHP:'₱',BND:'B$'};
+            var _cPriceStr = (_cSymMap[cCur]||'') + cPrice.toLocaleString('id-ID');
+            return '<a href="/lp/'+encodeURIComponent(cSlug)+'" style="flex:0 0 160px;background:#fff;border:1px solid #E2E8F0;border-radius:10px;overflow:hidden;text-decoration:none;color:inherit;transition:transform .15s,box-shadow .15s" onmouseover="this.style.transform=\'translateY(-2px)\';this.style.boxShadow=\'0 6px 16px rgba(0,0,0,.08)\'" onmouseout="this.style.transform=\'\';this.style.boxShadow=\'\'">' +
+              (cImg?'<div style="aspect-ratio:1;background:url('+cImg+') center/cover no-repeat"></div>':'<div style="aspect-ratio:1;background:#F1F5F9;display:flex;align-items:center;justify-content:center;color:#94A3B8"><i class="ti ti-package" style="font-size:36px"></i></div>') +
+              '<div style="padding:10px 12px">' +
+                '<div style="font-size:12.5px;font-weight:600;color:#0F172A;line-height:1.35;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">'+esc(cp.name||'')+'</div>' +
+                '<div style="font-size:13px;font-weight:700;color:'+primary+';font-family:\'SF Mono\',Menlo,monospace">'+_cPriceStr+'</div>' +
+              '</div>' +
+            '</a>';
+          }).join('');
+          html += '<section style="padding:24px 22px 32px;background:#F8FAFC">' +
+            '<h2 style="font-size:18px;font-weight:700;color:#0F172A;margin:0 0 4px;text-align:center">'+esc(pr.title || 'Sering Dibeli Bareng')+'</h2>' +
+            (pr.subtitle ? '<div style="font-size:12.5px;color:#64748B;text-align:center;margin-bottom:18px">'+esc(pr.subtitle)+'</div>' : '<div style="margin-bottom:14px"></div>') +
+            '<div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;scrollbar-width:thin">'+csCards+'</div>' +
+          '</section>';
+        }
+      }
+    } else if(sec.type === 'bundle'){
+      var bId = pr.bundleProductId;
+      if(bId){
+        var allP2 = (typeof getProds === 'function') ? getProds() : [];
+        var bProd = allP2.find(function(x){ return String(x.id) === String(bId); });
+        if(bProd){
+          var bImg = bProd.coverImage || (bProd.images && bProd.images[0] && (bProd.images[0].b64 || bProd.images[0])) || '';
+          var mainPrice = priceNum || 0;
+          var bPrice = parseInt(String(bProd.price||'').replace(/[^0-9]/g,''),10) || 0;
+          var totalNormal = mainPrice + bPrice;
+          var discount = pr.bundleDiscount || 20;
+          var totalDeal = Math.round(totalNormal * (100 - discount) / 100);
+          var savings = totalNormal - totalDeal;
+          var mainImg = coverB64 || '';
+          html += '<section style="padding:28px 22px;background:linear-gradient(135deg,'+primary+'12,'+primary+'05)">' +
+            '<h2 style="font-size:18px;font-weight:700;color:#0F172A;margin:0 0 4px;text-align:center">🎁 '+esc(pr.title || 'Bundle Hemat')+'</h2>' +
+            (pr.subtitle ? '<div style="font-size:12.5px;color:#64748B;text-align:center;margin-bottom:18px">'+esc(pr.subtitle)+'</div>' : '<div style="margin-bottom:14px"></div>') +
+            '<div style="background:#fff;border:2px solid '+primary+';border-radius:14px;padding:16px;box-shadow:0 8px 24px '+primary+'20">' +
+              '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">' +
+                (mainImg?'<div style="width:70px;height:70px;border-radius:9px;background:url('+mainImg+') center/cover no-repeat;flex-shrink:0"></div>':'<div style="width:70px;height:70px;background:#F1F5F9;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-package" style="color:#94A3B8;font-size:26px"></i></div>') +
+                '<div style="font-size:18px;font-weight:700;color:'+primary+'">+</div>' +
+                (bImg?'<div style="width:70px;height:70px;border-radius:9px;background:url('+bImg+') center/cover no-repeat;flex-shrink:0"></div>':'<div style="width:70px;height:70px;background:#F1F5F9;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-package" style="color:#94A3B8;font-size:26px"></i></div>') +
+                '<div style="flex:1;min-width:0"><div style="font-size:11px;color:#64748B;line-height:1.4">'+esc(p.name||'')+' <b>+</b> '+esc(bProd.name||'')+'</div>' +
+                '<div style="font-size:10.5px;color:#94A3B8;text-decoration:line-through;margin-top:2px">'+fmtP(totalNormal)+'</div></div>' +
+              '</div>' +
+              '<div style="text-align:center;margin-bottom:14px">' +
+                '<div style="display:inline-flex;align-items:baseline;gap:6px"><span style="font-size:11px;color:#64748B">Total bundle</span><span style="font-size:24px;font-weight:800;color:'+primary+';font-family:\'SF Mono\',Menlo,monospace">'+fmtP(totalDeal)+'</span></div>' +
+                '<div style="display:inline-block;background:#DCFCE7;color:#065F46;padding:3px 12px;border-radius:99px;font-size:11px;font-weight:700;margin-top:6px;margin-left:6px">Hemat '+fmtP(savings)+' ('+discount+'%)</div>' +
+              '</div>' +
+              '<a href="#lp-form" data-cta="bundle" style="display:block;background:'+primary+';color:#fff;padding:12px;border-radius:9px;font-size:13.5px;font-weight:700;text-decoration:none;text-align:center;box-shadow:0 4px 12px '+primary+'40">'+esc(pr.ctaText || 'Ambil Bundle Deal')+' →</a>' +
+            '</div>' +
+          '</section>';
+        }
       }
     } else if(sec.type === 'pricing'){
       var prItems = pr.items || [];
