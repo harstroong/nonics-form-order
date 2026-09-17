@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-08-31-countdown-debug';
+window.__APP_VERSION = '2026-09-01-landing-page-m1';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -6860,6 +6860,21 @@ document.addEventListener('DOMContentLoaded', function(){
     </div>
   </div>
 </div>
+
+<!-- ═══════════════════════════════════
+     VIEW LANDING PAGE — /lp/{slug}
+     Full landing page dengan section customizable
+═══════════════════════════════════ -->
+<div id="viewLandingPage" style="display:none;min-height:100vh;background:#F8FAFC">
+  <div id="lpRoot" style="max-width:680px;margin:0 auto;background:#fff;min-height:100vh">
+    <div id="lpLoadingState" style="text-align:center;padding:80px 20px;color:#94A3B8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+      <div style="width:40px;height:40px;border:3px solid #E2E8F0;border-top-color:#10B981;border-radius:50%;margin:0 auto 16px;animation:lpSpin 1s linear infinite"></div>
+      <div style="font-size:13px">Memuat halaman...</div>
+    </div>
+    <div id="lpContent"></div>
+  </div>
+</div>
+<style>@keyframes lpSpin{to{transform:rotate(360deg)}}</style>
 
 <div id="viewDigitalCheckout" style="display:none;min-height:100vh;background:#FAFAFA">
 
@@ -17973,6 +17988,12 @@ function selectCheckoutPayment(idx){
    HOSTED FORM (produk fisik) — ?produk={slug|id}
 ═════════════════════════════════════════════ */
 function produkFormMaybeRoute(){
+  // Priority 0: /lp/{slug} — full landing page (jika lpEnabled)
+  var mLP = window.location.pathname.match(/^\/lp\/(.+)$/);
+  if(mLP){
+    var lpSlug = decodeURIComponent(mLP[1]);
+    return landingPageRoute(lpSlug);
+  }
   var params = new URLSearchParams(window.location.search);
   var slug = params.get('produk') || params.get('form-fisik');
   // Priority 1: /f/{slug} — customer-facing hosted form URL (always hosted form)
@@ -18003,6 +18024,251 @@ function produkFormMaybeRoute(){
   // Load product from LS (via getProds) OR Firestore
   loadHostedProdukForm(slug);
   return true;
+}
+
+// ═══════════════════════════════════
+// LANDING PAGE — /lp/{slug}
+// ═══════════════════════════════════
+
+// Default landing page sections (kalau produk belum di-configure)
+function getDefaultLpSections(p){
+  p = p || {};
+  var priceStr = String(p.price||'').replace(/[^0-9]/g,'');
+  var priceNum = parseInt(priceStr, 10) || 0;
+  return [
+    { id:'hero', type:'hero', enabled:true, props:{
+      headline: p.name || 'Produk Unggulan',
+      subheadline: p.desc || 'Solusi praktis untuk kebutuhan sehari-hari',
+      ctaText: 'Pesan Sekarang',
+      bgStyle: 'gradient'
+    }},
+    { id:'benefits', type:'benefits', enabled:true, props:{
+      title: 'Kenapa pilih kami?',
+      items: [
+        { icon:'ti-check', title:'Praktis', desc:'Mudah digunakan siapa saja, kapan saja' },
+        { icon:'ti-shield-check', title:'Aman & Higienis', desc:'Material berkualitas food-grade' },
+        { icon:'ti-refresh', title:'Garansi 1 Tahun', desc:'Retur/tukar bila ada masalah' }
+      ]
+    }},
+    { id:'testimonials', type:'testimonials', enabled:true, props:{
+      title: 'Kata pelanggan kami',
+      items: [
+        { name:'Sari Marlina', text:'Produk sesuai dengan foto, kirim cepat. Recommended!', rating:5 },
+        { name:'Budi Santoso', text:'Kualitas bagus, harga terjangkau. Puas banget.', rating:5 },
+        { name:'Rina Ayu', text:'CS responsif, produk sampai dalam 2 hari. Mantap!', rating:5 }
+      ]
+    }},
+    { id:'video', type:'video', enabled:false, props:{ url:'' }},
+    { id:'form', type:'form', enabled:true, props:{} },
+    { id:'faq', type:'faq', enabled:true, props:{
+      title: 'Pertanyaan yang sering diajukan',
+      items: [
+        { question:'Berapa lama pengiriman?', answer:'1-3 hari kerja untuk area Jabodetabek, 3-7 hari untuk luar kota.' },
+        { question:'Bisa retur/tukar?', answer:'Ya, dalam 7 hari sejak barang diterima. Barang harus dalam kondisi baru.' },
+        { question:'Bagaimana cara pembayaran?', answer:'Bisa COD (bayar di tempat), transfer bank, atau QRIS.' }
+      ]
+    }},
+    { id:'trust', type:'trust', enabled:true, props:{} }
+  ];
+}
+
+function landingPageRoute(slug){
+  // Hide all views
+  var ids = ['viewLogin','viewDashboard','viewCS','viewDashboardDigital','viewMember','viewDigitalCheckout','viewProdukForm'];
+  ids.forEach(function(id){ var el=document.getElementById(id); if(el){ el.style.display='none'; el.classList && el.classList.remove('show'); } });
+  var v = document.getElementById('viewLandingPage');
+  if(!v) return false;
+  v.style.display = 'block';
+  loadLandingPage(slug);
+  return true;
+}
+
+function loadLandingPage(slug){
+  var loadingEl = document.getElementById('lpLoadingState');
+  var contentEl = document.getElementById('lpContent');
+  var render = function(p){
+    if(!p){
+      if(loadingEl) loadingEl.style.display = 'none';
+      contentEl.innerHTML = '<div style="text-align:center;padding:80px 20px;color:#DC2626"><i class="ti ti-alert-circle" style="font-size:36px"></i><div style="margin-top:8px;font-weight:600">Produk tidak ditemukan</div><div style="font-size:12px;color:#94A3B8;margin-top:4px">Link ini gak valid atau produk udah dihapus.</div></div>';
+      return;
+    }
+    // Kalau LP tidak enabled → redirect ke /f/{slug}
+    if(!p.lpEnabled){
+      var s = p.urlSlug || slug;
+      window.location.replace('/f/' + s);
+      return;
+    }
+    try { document.title = (p.name || 'Landing') + ' — Nonics Order'; } catch(e){}
+    if(loadingEl) loadingEl.style.display = 'none';
+    renderLandingPage(p, contentEl);
+  };
+  // Try LS first
+  var prods = getProds() || [];
+  var found = prods.find(function(x){
+    return (x.urlSlug && x.urlSlug === slug) || String(x.id) === String(slug);
+  });
+  if(found){ render(found); return; }
+  // Try Firestore
+  var cfg = getFBConfig() || {};
+  if(!cfg.apiKey || !cfg.projectId){ render(null); return; }
+  var url = 'https://firestore.googleapis.com/v1/projects/'+cfg.projectId+'/databases/(default)/documents/od_prods?key='+cfg.apiKey;
+  fetch(url).then(function(r){ return r.json(); }).then(function(data){
+    var docs = (data && data.documents) || [];
+    var fsParseValue = function(v){
+      if(!v) return null;
+      if('stringValue' in v) return v.stringValue;
+      if('integerValue' in v) return parseInt(v.integerValue,10);
+      if('doubleValue' in v) return v.doubleValue;
+      if('booleanValue' in v) return v.booleanValue;
+      if('nullValue' in v) return null;
+      if('arrayValue' in v) return (v.arrayValue.values||[]).map(fsParseValue);
+      if('mapValue' in v){ var o={}; var f=v.mapValue.fields||{}; for(var k in f) o[k]=fsParseValue(f[k]); return o; }
+      return null;
+    };
+    var match = null;
+    docs.forEach(function(d){
+      var o = {}; var f = d.fields||{};
+      for(var k in f) o[k] = fsParseValue(f[k]);
+      if((o.urlSlug && o.urlSlug === slug) || String(o.id) === String(slug)){ match = o; }
+    });
+    render(match);
+  }).catch(function(err){
+    console.error('LP load fail:', err);
+    render(null);
+  });
+}
+
+function renderLandingPage(p, contentEl){
+  var sections = (p.lpSections && p.lpSections.length) ? p.lpSections : getDefaultLpSections(p);
+  var cfg = getCfg();
+  var primary = p.primaryColor || cfg.primaryColor || '#10B981';
+  var currency = p.currency || (window.COUNTRY_TO_CURRENCY ? window.COUNTRY_TO_CURRENCY[String(p.country||'62')] : null) || 'IDR';
+  var t = (window.getL10n) ? window.getL10n(p) : {};
+  var esc = function(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  var priceStr = String(p.price||'').replace(/[^0-9]/g,'');
+  var priceNum = parseInt(priceStr, 10) || 0;
+  var fmtP = function(n){ return (window.formatMoney) ? window.formatMoney(n, currency) : ('Rp '+n); };
+  var coverB64 = '';
+  var imgs = (p.images && p.images.length) ? p.images : (p.coverImage ? [{b64:p.coverImage}] : []);
+  if(imgs.length){ coverB64 = typeof imgs[0] === 'string' ? imgs[0] : imgs[0].b64; }
+  var html = '';
+  sections.filter(function(s){ return s.enabled; }).forEach(function(sec){
+    var pr = sec.props || {};
+    if(sec.type === 'hero'){
+      html += '<section style="background:linear-gradient(135deg,'+primary+' 0%,'+_v2AdjustColor(primary,-30)+' 100%);color:#fff;padding:36px 22px 40px;text-align:center">' +
+        '<h1 style="font-size:22px;font-weight:700;line-height:1.25;margin:0 0 10px">'+esc(pr.headline || p.name)+'</h1>' +
+        (pr.subheadline ? '<p style="font-size:13.5px;line-height:1.55;opacity:.95;margin:0 auto 18px;max-width:400px">'+esc(pr.subheadline)+'</p>' : '') +
+        (coverB64 ? '<div style="max-width:280px;margin:0 auto 18px;aspect-ratio:16/10;background:rgba(255,255,255,.12);border-radius:12px;overflow:hidden"><img src="'+coverB64+'" style="width:100%;height:100%;object-fit:cover" alt=""/></div>' : '') +
+        (priceNum > 0 ? '<div style="display:inline-flex;align-items:baseline;gap:8px;background:rgba(255,255,255,.15);padding:8px 16px;border-radius:99px;margin-bottom:14px"><span style="font-size:18px;font-weight:700">'+fmtP(priceNum)+'</span></div><br>' : '') +
+        '<a href="#lp-form" style="display:inline-block;background:#fff;color:'+primary+';padding:12px 30px;border-radius:99px;font-size:14px;font-weight:600;text-decoration:none;box-shadow:0 4px 12px rgba(0,0,0,.15)">'+esc(pr.ctaText || 'Pesan Sekarang')+' →</a>' +
+      '</section>';
+    } else if(sec.type === 'benefits'){
+      var itemsHtml = (pr.items||[]).map(function(it){
+        return '<div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:0.5px solid #F1F5F9">' +
+          '<div style="width:36px;height:36px;background:'+primary+'20;color:'+primary+';border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti '+(it.icon||'ti-check')+'" style="font-size:18px"></i></div>' +
+          '<div style="flex:1"><div style="font-size:14px;font-weight:600;color:#0F172A;margin-bottom:2px">'+esc(it.title)+'</div><div style="font-size:12px;color:#64748B;line-height:1.5">'+esc(it.desc)+'</div></div>' +
+        '</div>';
+      }).join('');
+      html += '<section style="padding:32px 22px">' +
+        '<h2 style="font-size:18px;font-weight:700;color:#0F172A;margin:0 0 16px;text-align:center">'+esc(pr.title || 'Benefits')+'</h2>' +
+        itemsHtml +
+      '</section>';
+    } else if(sec.type === 'testimonials'){
+      var starsFn = function(n){ var s=''; for(var i=0;i<5;i++) s += (i<n?'★':'☆'); return s; };
+      var bgColors = ['#DBEAFE','#FEE2E2','#EDE9FE','#FEF3C7','#D1FAE5','#FCE7F3'];
+      var txtColors = ['#1E40AF','#991B1B','#5B21B6','#78350F','#065F46','#9D174D'];
+      var itemsHtml2 = (pr.items||[]).map(function(it,i){
+        var init = (it.name||'?').split(' ').map(function(w){return w[0];}).slice(0,2).join('').toUpperCase();
+        var ci = i % bgColors.length;
+        return '<div style="background:#F8FAFC;border:0.5px solid #E2E8F0;border-radius:12px;padding:14px 16px;margin-bottom:10px">' +
+          '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">' +
+            '<div style="width:36px;height:36px;background:'+bgColors[ci]+';color:'+txtColors[ci]+';border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">'+esc(init)+'</div>' +
+            '<div style="flex:1"><div style="font-size:13px;font-weight:600;color:#0F172A">'+esc(it.name)+'</div><div style="color:#F59E0B;font-size:12px">'+starsFn(it.rating||5)+'</div></div>' +
+          '</div>' +
+          '<div style="font-size:12.5px;color:#475569;line-height:1.55;font-style:italic">"'+esc(it.text)+'"</div>' +
+        '</div>';
+      }).join('');
+      html += '<section style="padding:24px 22px 32px;background:#FEF7ED">' +
+        '<h2 style="font-size:18px;font-weight:700;color:#0F172A;margin:0 0 16px;text-align:center">'+esc(pr.title || 'Testimonials')+'</h2>' +
+        itemsHtml2 +
+      '</section>';
+    } else if(sec.type === 'video' && pr.url){
+      var vid = _extractYtId(pr.url);
+      if(vid){
+        html += '<section style="padding:24px 22px;background:#0F172A"><div style="max-width:520px;margin:0 auto"><div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px"><iframe src="https://www.youtube.com/embed/'+vid+'" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none" allowfullscreen></iframe></div></div></section>';
+      }
+    } else if(sec.type === 'form'){
+      html += '<section id="lp-form" style="padding:24px 22px;background:#F8FAFC">' +
+        '<h2 style="font-size:18px;font-weight:700;color:#0F172A;margin:0 0 16px;text-align:center"><i class="ti ti-shopping-cart" style="color:'+primary+';vertical-align:-3px;margin-right:5px"></i>Pesan Sekarang</h2>' +
+        '<div id="lpFormMount"></div>' +
+      '</section>';
+    } else if(sec.type === 'faq'){
+      var itemsHtml3 = (pr.items||[]).map(function(it, idx){
+        return '<details style="background:#fff;border:0.5px solid #E2E8F0;border-radius:10px;margin-bottom:8px;overflow:hidden"><summary style="padding:12px 14px;font-size:13px;font-weight:600;color:#0F172A;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center"><span>'+esc(it.question)+'</span><i class="ti ti-chevron-down" style="font-size:14px;color:#94A3B8"></i></summary><div style="padding:0 14px 12px;font-size:12.5px;color:#64748B;line-height:1.6">'+esc(it.answer)+'</div></details>';
+      }).join('');
+      html += '<section style="padding:24px 22px 32px">' +
+        '<h2 style="font-size:18px;font-weight:700;color:#0F172A;margin:0 0 16px;text-align:center">'+esc(pr.title || 'FAQ')+'</h2>' +
+        itemsHtml3 +
+      '</section>';
+    } else if(sec.type === 'trust'){
+      var codShort = (t.cod || 'COD').replace(/\s*\(.+\)$/, '');
+      html += '<section style="padding:16px 22px;background:#F8FAFC;border-top:0.5px solid #E2E8F0">' +
+        '<div style="display:flex;justify-content:space-around;align-items:center;gap:8px;font-size:11px;color:#64748B">' +
+          (p.freeOngkir ? '<div style="display:flex;align-items:center;gap:4px;color:#059669;font-weight:600"><i class="ti ti-truck-delivery" style="font-size:13px"></i>'+(t.freeOngkir || 'Gratis Ongkir')+'</div><div style="width:1px;height:14px;background:#E2E8F0"></div>' : '') +
+          '<div style="display:flex;align-items:center;gap:4px"><i class="ti ti-cash" style="color:#F59E0B;font-size:13px"></i>'+codShort+'</div>' +
+          '<div style="width:1px;height:14px;background:#E2E8F0"></div>' +
+          '<div style="display:flex;align-items:center;gap:4px"><i class="ti ti-shield-check" style="color:#10B981;font-size:13px"></i>'+(t.guarantee || 'Garansi')+'</div>' +
+        '</div>' +
+      '</section>';
+    }
+  });
+  // Bottom footer
+  html += '<div style="background:#0F172A;padding:14px 22px;text-align:center;color:#94A3B8;font-size:10.5px">🔒 '+(t.dataEncrypted || 'Data terenkripsi')+' · '+(t.poweredBy || 'Powered by')+' '+esc(cfg.storeName || 'Nonics Order')+'</div>';
+  contentEl.innerHTML = html;
+
+  // Mount form embed into #lpFormMount kalau ada section form
+  var formMount = document.getElementById('lpFormMount');
+  if(formMount){
+    try {
+      var oldTarget = document.getElementById('prodEmbedInline');
+      var stashInline = oldTarget ? oldTarget.textContent : '';
+      generateProdEmbed(p);
+      var code = (document.getElementById('prodEmbedInline')||{}).textContent || '';
+      if(oldTarget) oldTarget.textContent = stashInline;
+      if(code && code.indexOf('Simpan produk dulu') < 0){
+        var wrapper = document.createElement('div');
+        wrapper.innerHTML = code;
+        Array.prototype.slice.call(wrapper.childNodes).forEach(function(node){
+          if(node.tagName === 'SCRIPT'){
+            var s = document.createElement('script');
+            if(node.src) s.src = node.src; else s.textContent = node.textContent;
+            document.body.appendChild(s);
+          } else {
+            formMount.appendChild(node);
+          }
+        });
+      }
+    } catch(err){ console.error('LP form mount error:', err); formMount.innerHTML = '<div style="text-align:center;color:#DC2626;padding:20px">Gagal load form</div>'; }
+  }
+}
+
+// Helper: extract YouTube video ID from various URL formats
+function _extractYtId(url){
+  if(!url) return '';
+  var m = String(url).match(/(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([^&?\s]+)/);
+  return m ? m[1] : '';
+}
+
+// Helper: adjust color brightness (positive=lighter, negative=darker)
+function _v2AdjustColor(hex, amt){
+  try {
+    var h = hex.replace('#','');
+    if(h.length === 3) h = h.split('').map(function(c){return c+c;}).join('');
+    var r = Math.max(0, Math.min(255, parseInt(h.substring(0,2),16) + amt));
+    var g = Math.max(0, Math.min(255, parseInt(h.substring(2,4),16) + amt));
+    var b = Math.max(0, Math.min(255, parseInt(h.substring(4,6),16) + amt));
+    return '#' + [r,g,b].map(function(x){ return x.toString(16).padStart(2,'0'); }).join('');
+  } catch(e){ return hex; }
 }
 
 function loadHostedProdukForm(slug){
