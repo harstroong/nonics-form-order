@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-09-04-lp-form-editor';
+window.__APP_VERSION = '2026-09-04-lp-hero-image';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -20723,6 +20723,13 @@ function lpEditorRenderRight(){
     if(s.type === 'hero'){
       body = '<div class="lpe-rp-field"><div class="lpe-rp-label">Headline (H1)</div><input class="lpe-rp-input" value="'+esc(pr.headline||'')+'" oninput="lpEditorUpdatePropAndRender(\'sections.'+sel+'.props.headline\',this.value)" placeholder="Nama produk / benefit utama"/></div>' +
         '<div class="lpe-rp-field"><div class="lpe-rp-label">Subheadline</div><textarea class="lpe-rp-input" rows="2" oninput="lpEditorUpdatePropAndRender(\'sections.'+sel+'.props.subheadline\',this.value)" placeholder="Value proposition">'+esc(pr.subheadline||'')+'</textarea></div>' +
+        '<div class="lpe-rp-field"><div class="lpe-rp-label">Gambar Hero</div>' +
+          '<label class="lpe-rp-image-picker" style="'+(p.coverImage?'aspect-ratio:16/9;background:url('+p.coverImage+') center/cover no-repeat;border:2px solid var(--lpe-primary)':'')+'">' +
+            '<input type="file" accept="image/*" style="display:none" onchange="lpEditorHandleImage(event)"/>' +
+            (p.coverImage ? '<div style="align-self:flex-end;background:rgba(0,0,0,.6);color:#fff;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600">Ganti gambar</div>' : '<div><i class="ti ti-upload"></i>Upload gambar produk</div>') +
+          '</label>' +
+          '<div style="font-size:11px;color:var(--lpe-tmuted);margin-top:6px"><i class="ti ti-info-circle" style="font-size:12px;vertical-align:-1px"></i> Gambar sama dengan cover produk (bisa di-edit juga di Product Info)</div>' +
+        '</div>' +
         '<div class="lpe-rp-field"><div class="lpe-rp-label">CTA Button</div><input class="lpe-rp-input" value="'+esc(pr.ctaText||'Pesan Sekarang')+'" oninput="lpEditorUpdatePropAndRender(\'sections.'+sel+'.props.ctaText\',this.value)"/></div>';
     } else if(s.type === 'benefits' || s.type === 'testimonials' || s.type === 'faq'){
       body = '<div class="lpe-rp-field"><div class="lpe-rp-label">Judul Section</div><input class="lpe-rp-input" value="'+esc(pr.title||'')+'" oninput="lpEditorUpdatePropAndRender(\'sections.'+sel+'.props.title\',this.value)"/></div>';
