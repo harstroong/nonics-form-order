@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-09-03-lp-wave3-multiproduct-upsell';
+window.__APP_VERSION = '2026-09-03-lp-w3-bugfix';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -12911,12 +12911,22 @@ function generateProdEmbed(p){
       var im = imgs[0];
       return typeof im === 'string' ? im : (im.b64 || '');
     })(),
-    // W3.1: Order Bump
+    // W3.1: Order Bump (precomputed display strings)
     bumpEnabled: !!p.bumpEnabled,
     bumpTitle: p.bumpTitle || '',
     bumpDesc: p.bumpDesc || '',
     bumpPrice: parseInt(String(p.bumpPrice||'').replace(/[^0-9]/g,''), 10) || 0,
     bumpNormalPrice: parseInt(String(p.bumpNormalPrice||'').replace(/[^0-9]/g,''), 10) || 0,
+    bumpPriceDisplay: (function(){
+      var _n = parseInt(String(p.bumpPrice||'').replace(/[^0-9]/g,''), 10) || 0;
+      var _cur = p.currency || (window.COUNTRY_TO_CURRENCY ? window.COUNTRY_TO_CURRENCY[String(p.country||'62')] : null) || 'IDR';
+      return (typeof window.formatMoney === 'function') ? window.formatMoney(_n, _cur) : ('Rp '+_n.toLocaleString('id-ID'));
+    })(),
+    bumpNormalPriceDisplay: (function(){
+      var _n = parseInt(String(p.bumpNormalPrice||'').replace(/[^0-9]/g,''), 10) || 0;
+      var _cur = p.currency || (window.COUNTRY_TO_CURRENCY ? window.COUNTRY_TO_CURRENCY[String(p.country||'62')] : null) || 'IDR';
+      return (typeof window.formatMoney === 'function') ? window.formatMoney(_n, _cur) : ('Rp '+_n.toLocaleString('id-ID'));
+    })(),
     bumpImg: p.bumpImg || '',
     bumpColor: p.bumpColor || '#F59E0B',
     l10n: (window.HOSTED_L10N && window.getL10n) ? window.getL10n(p) : {}
@@ -12945,7 +12955,7 @@ R.innerHTML='<div style="max-width:420px;margin:0 auto;font-family:Segoe UI,syst
 ${useAlamat?`+'<textarea id="oo-al${p.id}" autocomplete="street-address" placeholder="${esc(phAlamat)}" oninput="if(this.value.trim()){this.style.borderColor=\\'#e0e0e0\\';var e=document.getElementById(\\'oo-eal${p.id}\\');if(e)e.style.display=\\'none\\';}" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box;resize:none;height:80px"><\\/textarea>'+'<p id="oo-eal${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">${esc(phAlamat)} wajib diisi<\\/p>'`:''}
 ${useKota?`+'<input id="oo-kt${p.id}" type="text" autocomplete="address-level2" placeholder="${esc(phKota)}" oninput="if(this.value.trim()){this.style.borderColor=\\'#e0e0e0\\';var e=document.getElementById(\\'oo-ekt${p.id}\\');if(e)e.style.display=\\'none\\';}" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box">'+'<p id="oo-ekt${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">${esc(phKota)} wajib diisi<\\/p>'`:''}
 ${useKecamatan?`+'<input id="oo-kc${p.id}" type="text" autocomplete="address-level3" placeholder="${esc(phKecamatan)}" oninput="if(this.value.trim()){this.style.borderColor=\\'#e0e0e0\\';var e=document.getElementById(\\'oo-ekc${p.id}\\');if(e)e.style.display=\\'none\\';}" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:15px;font-family:inherit;outline:none;margin-bottom:4px;box-sizing:border-box">'+'<p id="oo-ekc${p.id}" style="font-size:12px;color:#e53935;display:none;margin:2px 0 10px">${esc(phKecamatan)} wajib diisi<\\/p>'`:''}
-+(cfg.bumpEnabled&&cfg.bumpTitle?('<label id="oo-bump-wrap-${p.id}" style="display:block;margin:16px 0 10px;padding:12px;border:2px dashed '+cfg.bumpColor+';border-radius:10px;background:'+cfg.bumpColor+'15;cursor:pointer;transition:all .15s"><div style="display:flex;gap:10px;align-items:flex-start"><input id="oo-bump-${p.id}" type="checkbox" style="margin-top:3px;width:18px;height:18px;accent-color:'+cfg.bumpColor+';cursor:pointer;flex-shrink:0" onchange="var w=document.getElementById(\\'oo-bump-wrap-${p.id}\\');if(w){w.style.background=this.checked?\\''+cfg.bumpColor+'25\\':\\''+cfg.bumpColor+'15\\';w.style.borderStyle=this.checked?\\'solid\\':\\'dashed\\';}"/><div style="flex:1;min-width:0">'+(cfg.bumpImg?'<img src="'+cfg.bumpImg+'" style="width:100%;max-width:120px;aspect-ratio:2/1;object-fit:cover;border-radius:6px;margin-bottom:8px;display:block"/>':'')+'<div style="font-size:13.5px;font-weight:700;color:#0F172A;line-height:1.35;margin-bottom:4px">🎁 '+cfg.bumpTitle+'<\\/div>'+(cfg.bumpDesc?'<div style="font-size:11.5px;color:#64748B;line-height:1.5;margin-bottom:6px">'+cfg.bumpDesc+'<\\/div>':'')+'<div style="display:flex;align-items:baseline;gap:6px"><span style="font-size:14px;font-weight:700;color:'+cfg.bumpColor+'">+ '+(function(){var _cur=cfg.currency||\\'IDR\\';var _sym={IDR:\\'Rp \\',MYR:\\'RM \\',SGD:\\'S$\\',USD:\\'$\\',THB:\\'฿\\',PHP:\\'₱\\',BND:\\'B$\\'};return (_sym[_cur]||\\'\\')+cfg.bumpPrice.toLocaleString(\\'id-ID\\');})()+'<\\/span>'+(cfg.bumpNormalPrice&&cfg.bumpNormalPrice>cfg.bumpPrice?'<span style="font-size:11px;color:#94A3B8;text-decoration:line-through">'+(function(){var _cur=cfg.currency||\\'IDR\\';var _sym={IDR:\\'Rp \\',MYR:\\'RM \\',SGD:\\'S$\\',USD:\\'$\\',THB:\\'฿\\',PHP:\\'₱\\',BND:\\'B$\\'};return (_sym[_cur]||\\'\\')+cfg.bumpNormalPrice.toLocaleString(\\'id-ID\\');})()+'<\\/span>':'')+'<\\/div><\\/div><\\/div><\\/label>'):'')
++(cfg.bumpEnabled&&cfg.bumpTitle?('<label id="oo-bump-wrap-${p.id}" style="display:block;margin:16px 0 10px;padding:12px;border:2px dashed '+cfg.bumpColor+';border-radius:10px;background:'+cfg.bumpColor+'15;cursor:pointer;transition:all .15s"><div style="display:flex;gap:10px;align-items:flex-start"><input id="oo-bump-${p.id}" type="checkbox" style="margin-top:3px;width:18px;height:18px;accent-color:'+cfg.bumpColor+';cursor:pointer;flex-shrink:0" onchange="var w=document.getElementById(\\'oo-bump-wrap-${p.id}\\');if(w){w.style.background=this.checked?(\\''+cfg.bumpColor+'\\'+\\'25\\'):(\\''+cfg.bumpColor+'\\'+\\'15\\');w.style.borderStyle=this.checked?\\'solid\\':\\'dashed\\';}"/><div style="flex:1;min-width:0">'+(cfg.bumpImg?'<img src="'+cfg.bumpImg+'" style="width:100%;max-width:120px;aspect-ratio:2/1;object-fit:cover;border-radius:6px;margin-bottom:8px;display:block"/>':'')+'<div style="font-size:13.5px;font-weight:700;color:#0F172A;line-height:1.35;margin-bottom:4px">🎁 '+cfg.bumpTitle+'<\\/div>'+(cfg.bumpDesc?'<div style="font-size:11.5px;color:#64748B;line-height:1.5;margin-bottom:6px">'+cfg.bumpDesc+'<\\/div>':'')+'<div style="display:flex;align-items:baseline;gap:6px"><span style="font-size:14px;font-weight:700;color:'+cfg.bumpColor+'">+ '+cfg.bumpPriceDisplay+'<\\/span>'+(cfg.bumpNormalPrice&&cfg.bumpNormalPrice>cfg.bumpPrice?'<span style="font-size:11px;color:#94A3B8;text-decoration:line-through">'+cfg.bumpNormalPriceDisplay+'<\\/span>':'')+'<\\/div><\\/div><\\/div><\\/label>'):'')
 +'<button id="oo-btn-${p.id}" onclick="ooSub${p.id}()" style="width:100%;background:'+c+';color:#fff;border:none;border-radius:8px;padding:15px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit">'+cfg.cta+'<\\/button>'
 +'<div style="display:flex;justify-content:center;gap:14px;margin-top:12px;flex-wrap:wrap">'+trustHtml+'<\\/div>'
 +'<\\/div>'
@@ -14385,6 +14395,8 @@ function toggleLpAbFields(){
 }
 
 function lpEditVariant(v){
+  // Guard: same variant = no-op (don't clobber stash)
+  if(v === window.__lpEditingVariant){ toast('Already editing Variant ' + v.toUpperCase()); return; }
   // Save current variant sections back to storage
   if(window.__lpEditingVariant === 'a'){
     // Currently editing A, save then switch
@@ -19608,6 +19620,66 @@ function lpFlushSession(isCreate){
   s.dirty = false;
 }
 
+// W3.2/W3.3: Pre-fetch products referenced by cross-sell/bundle sections
+// Populates window.__lpProdCache so renderer can look up without needing admin LS
+window.__lpProdCache = {};
+function lpPrefetchRelatedProds(p){
+  var sections = (p && p.lpSections) || [];
+  var neededIds = new Set();
+  sections.forEach(function(sec){
+    if(!sec || !sec.enabled) return;
+    var pr = sec.props || {};
+    if(sec.type === 'crosssell' && Array.isArray(pr.productIds)){
+      pr.productIds.forEach(function(id){ if(id) neededIds.add(String(id)); });
+    } else if(sec.type === 'bundle' && pr.bundleProductId){
+      neededIds.add(String(pr.bundleProductId));
+    }
+  });
+  if(!neededIds.size) return Promise.resolve();
+  // Check LS first (for admin viewing their own LP)
+  var lsProds = (typeof getProds === 'function') ? (getProds() || []) : [];
+  lsProds.forEach(function(x){
+    var idStr = String(x.id);
+    if(neededIds.has(idStr)){
+      window.__lpProdCache[idStr] = x;
+      neededIds.delete(idStr);
+    }
+  });
+  if(!neededIds.size) return Promise.resolve();
+  // Fetch remaining from Firestore
+  var cfg = getFBConfig() || {};
+  if(!cfg.apiKey || !cfg.projectId) return Promise.resolve();
+  var url = 'https://firestore.googleapis.com/v1/projects/'+cfg.projectId+'/databases/(default)/documents/od_prods?key='+cfg.apiKey+'&pageSize=300';
+  return fetch(url).then(function(r){ return r.json(); }).then(function(data){
+    var docs = (data && data.documents) || [];
+    var fsParseValue = function(v){
+      if(!v) return null;
+      if('stringValue' in v) return v.stringValue;
+      if('integerValue' in v) return parseInt(v.integerValue,10);
+      if('doubleValue' in v) return v.doubleValue;
+      if('booleanValue' in v) return v.booleanValue;
+      if('nullValue' in v) return null;
+      if('arrayValue' in v) return (v.arrayValue.values||[]).map(fsParseValue);
+      if('mapValue' in v){ var o={}; var f=v.mapValue.fields||{}; for(var k in f) o[k]=fsParseValue(f[k]); return o; }
+      return null;
+    };
+    docs.forEach(function(d){
+      var o = {}; var f = d.fields||{};
+      for(var k in f) o[k] = fsParseValue(f[k]);
+      var idStr = String(o.id);
+      if(neededIds.has(idStr)) window.__lpProdCache[idStr] = o;
+    });
+  });
+}
+
+// Helper: get product by id from cache OR LS
+function lpGetProd(id){
+  var idStr = String(id);
+  if(window.__lpProdCache && window.__lpProdCache[idStr]) return window.__lpProdCache[idStr];
+  var lsProds = (typeof getProds === 'function') ? (getProds() || []) : [];
+  return lsProds.find(function(x){ return String(x.id) === idStr; });
+}
+
 // M4: Inject SEO meta tags (og:title/description/image, twitter, canonical) for LP
 function lpInjectSEO(p){
   if(!p) return;
@@ -19705,7 +19777,13 @@ function loadLandingPage(slug){
     }
     window.__lpVariant = variant;
     if(loadingEl) loadingEl.style.display = 'none';
-    renderLandingPage(p, contentEl);
+    // W3.2/W3.3 BUG FIX: Pre-fetch cross-sell + bundle products for public visitors
+    lpPrefetchRelatedProds(p).then(function(){
+      renderLandingPage(p, contentEl);
+    }).catch(function(){
+      // If prefetch fails, render anyway (cross-sell/bundle just won't show)
+      renderLandingPage(p, contentEl);
+    });
   };
   // Try LS first
   var prods = getProds() || [];
@@ -19839,11 +19917,8 @@ function renderLandingPage(p, contentEl){
     } else if(sec.type === 'crosssell'){
       var csIds = pr.productIds || [];
       if(csIds.length){
-        // Fetch products from local storage (already available since we're on client-rendered LP)
-        var allP = (typeof getProds === 'function') ? getProds() : [];
-        var csProds = csIds.map(function(id){
-          return allP.find(function(x){ return String(x.id) === String(id); });
-        }).filter(Boolean);
+        // W3.2 BUG FIX: use lpGetProd (cache + LS fallback) — works for public visitors
+        var csProds = csIds.map(function(id){ return lpGetProd(id); }).filter(Boolean);
         if(csProds.length){
           var csCards = csProds.map(function(cp){
             var cImg = cp.coverImage || (cp.images && cp.images[0] && (cp.images[0].b64 || cp.images[0])) || '';
@@ -19870,8 +19945,8 @@ function renderLandingPage(p, contentEl){
     } else if(sec.type === 'bundle'){
       var bId = pr.bundleProductId;
       if(bId){
-        var allP2 = (typeof getProds === 'function') ? getProds() : [];
-        var bProd = allP2.find(function(x){ return String(x.id) === String(bId); });
+        // W3.3 BUG FIX: use lpGetProd (cache + LS fallback) — works for public visitors
+        var bProd = lpGetProd(bId);
         if(bProd){
           var bImg = bProd.coverImage || (bProd.images && bProd.images[0] && (bProd.images[0].b64 || bProd.images[0])) || '';
           var mainPrice = priceNum || 0;
