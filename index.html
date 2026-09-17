@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-09-04-lp-menu-opsib-fix';
+window.__APP_VERSION = '2026-09-04-lp-focus-mode';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -19943,24 +19943,58 @@ function lpListOpenEditor(pid){
   }, 100);
 }
 
-// Buat produk baru dari LP menu — switch ke produk panel, terus buka form kosong
+// Buat produk baru dari LP menu — LP-FOCUS MODE: collapse all sections except essentials + LP
 function lpListCreateNew(){
   if(typeof showPanel === 'function') showPanel('produk', { skipHistory: true });
   setTimeout(function(){
     if(typeof showProdForm === 'function') showProdForm(null);
     setTimeout(function(){
-      // Auto-scroll to Landing Page section + auto-check enable toggle
-      var lpSec = document.getElementById('ppanel-lp');
-      if(lpSec){
-        lpSec.classList.remove('collapsed');
-        var chk = document.getElementById('fLpEnabled');
-        if(chk && !chk.checked){
-          chk.checked = true;
-          if(typeof toggleLpEnabled === 'function') toggleLpEnabled();
-        }
+      lpFocusMode(true);
+      // Auto-check enable toggle biar editor LP langsung visible
+      var chk = document.getElementById('fLpEnabled');
+      if(chk && !chk.checked){
+        chk.checked = true;
+        if(typeof toggleLpEnabled === 'function') toggleLpEnabled();
       }
+      // Scroll ke section 1 (Info Produk) — user isi info dulu, LP di bawah
+      var sec1 = document.querySelector('.pfv2-section[data-sec="1"]');
+      if(sec1) sec1.scrollIntoView({ behavior:'smooth', block:'start' });
     }, 300);
   }, 100);
+}
+
+// LP-Focus Mode: hide sections yang gak essential buat bikin LP
+// Show: 1 (Info), 2 (Gambar), 3 (Harga), 6 (Tugaskan CS), 12 (LP), 14 (Save)
+// Hide: 4, 5, 7, 8, 9, 10, 11, 13
+function lpFocusMode(on){
+  var essential = ['1','2','3','6','12','14'];
+  var hidden = ['4','5','7','8','9','10','11','13'];
+  hidden.forEach(function(n){
+    var sec = document.querySelector('.pfv2-section[data-sec="'+n+'"]');
+    if(sec) sec.style.display = on ? 'none' : '';
+  });
+  // Expand essential sections + banner
+  if(on){
+    essential.forEach(function(n){
+      var sec = document.querySelector('.pfv2-section[data-sec="'+n+'"]');
+      if(sec) sec.classList.remove('collapsed');
+    });
+    // Inject "LP Focus Mode" banner at top of form
+    var form = document.getElementById('prodFormCard');
+    if(form && !document.getElementById('lpFocusBanner')){
+      var banner = document.createElement('div');
+      banner.id = 'lpFocusBanner';
+      banner.style.cssText = 'background:linear-gradient(135deg,#EDE9FE,#DBEAFE);border:1px solid #C4B5FD;border-radius:12px;padding:14px 18px;margin:16px 20px 0;display:flex;align-items:center;gap:12px';
+      banner.innerHTML = '<div style="width:40px;height:40px;background:#7C3AED;color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0"><i class="ti ti-layout"></i></div>' +
+        '<div style="flex:1"><div style="font-size:13.5px;font-weight:700;color:#4C1D95;margin-bottom:2px">🎯 LP Focus Mode Aktif</div>' +
+        '<div style="font-size:11.5px;color:#6D28D9;line-height:1.45">Isi info produk minimum (nama, gambar, harga, CS) → design landing page di Section 12 → simpan. Section lain di-hide biar fokus.</div></div>' +
+        '<button onclick="lpFocusMode(false)" style="background:#fff;border:1px solid #C4B5FD;color:#6D28D9;padding:6px 12px;border-radius:8px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap"><i class="ti ti-eye" style="font-size:12px;vertical-align:-1px"></i> Show All Sections</button>';
+      form.insertBefore(banner, form.firstChild);
+    }
+  } else {
+    var b = document.getElementById('lpFocusBanner');
+    if(b) b.remove();
+  }
 }
 
 function lpListCopyLink(slug){
