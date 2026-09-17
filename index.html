@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-09-04-lp-menu-opsib';
+window.__APP_VERSION = '2026-09-04-lp-menu-opsib-fix';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -19828,7 +19828,7 @@ function renderLandingPageList(){
 
   html += '<div class="nol-lpl-header">' +
     '<div><h1 class="nol-lpl-title"><i class="ti ti-layout"></i>Landing Page</h1></div>' +
-    '<button class="btn-primary-sm" onclick="showProdForm(null)" style="padding:8px 14px;font-size:12.5px"><i class="ti ti-plus"></i>Buat Landing Page</button>' +
+    '<button class="btn-primary-sm" onclick="lpListCreateNew()" style="padding:8px 14px;font-size:12.5px"><i class="ti ti-plus"></i>Buat Landing Page</button>' +
   '</div>';
   html += '<p class="nol-lpl-desc">Kelola semua landing page produk lo. Klik row untuk buka LP editor, atau klik icon aksi untuk buka live / duplicate.</p>';
 
@@ -19867,7 +19867,7 @@ function renderLandingPageList(){
   html += '<div class="nol-lpl-list">';
 
   if(!showList.length){
-    html += '<div class="nol-lpl-empty"><i class="ti ti-layout-off"></i><h3>Belum ada Landing Page</h3><p>Buka produk mana aja → Section 12 (Landing Page) → aktifin toggle. Atau bikin produk baru langsung dengan LP enabled.</p><button class="btn-primary-sm" onclick="showProdForm(null)" style="padding:8px 16px;font-size:12.5px"><i class="ti ti-plus"></i>Buat Produk Baru</button></div>';
+    html += '<div class="nol-lpl-empty"><i class="ti ti-layout-off"></i><h3>Belum ada Landing Page</h3><p>Buka produk mana aja → Section 12 (Landing Page) → aktifin toggle. Atau bikin produk baru langsung dengan LP enabled.</p><button class="btn-primary-sm" onclick="lpListCreateNew()" style="padding:8px 16px;font-size:12.5px"><i class="ti ti-plus"></i>Buat Produk Baru</button></div>';
   } else {
     // Header row
     html += '<div class="nol-lpl-list-header">' +
@@ -19926,20 +19926,41 @@ function renderLandingPageList(){
   }
 }
 
-// Open LP editor for a product — bypass the scroll ordeal
+// Open LP editor for a product — switch to produk panel first, then open form + scroll to LP section
 function lpListOpenEditor(pid){
-  showProdForm(pid);
+  // Switch to produk panel FIRST (biar prodFormCard visible)
+  if(typeof showPanel === 'function') showPanel('produk', { skipHistory: true });
   setTimeout(function(){
-    // Expand Section 12 (Landing Page) — remove collapsed class + scroll to it
-    var lpSec = document.getElementById('ppanel-lp');
-    if(lpSec){
-      lpSec.classList.remove('collapsed');
-      // Auto-enable toggle so user langsung liat editor
-      var fLpEnabled = document.getElementById('fLpEnabled');
-      // Don't force-check — respect current state, just make section visible
-      lpSec.scrollIntoView({ behavior:'smooth', block:'start' });
-    }
-  }, 250);
+    if(typeof showProdForm === 'function') showProdForm(pid);
+    setTimeout(function(){
+      // Expand Section 12 (Landing Page) — remove collapsed class + scroll to it
+      var lpSec = document.getElementById('ppanel-lp');
+      if(lpSec){
+        lpSec.classList.remove('collapsed');
+        lpSec.scrollIntoView({ behavior:'smooth', block:'start' });
+      }
+    }, 300);
+  }, 100);
+}
+
+// Buat produk baru dari LP menu — switch ke produk panel, terus buka form kosong
+function lpListCreateNew(){
+  if(typeof showPanel === 'function') showPanel('produk', { skipHistory: true });
+  setTimeout(function(){
+    if(typeof showProdForm === 'function') showProdForm(null);
+    setTimeout(function(){
+      // Auto-scroll to Landing Page section + auto-check enable toggle
+      var lpSec = document.getElementById('ppanel-lp');
+      if(lpSec){
+        lpSec.classList.remove('collapsed');
+        var chk = document.getElementById('fLpEnabled');
+        if(chk && !chk.checked){
+          chk.checked = true;
+          if(typeof toggleLpEnabled === 'function') toggleLpEnabled();
+        }
+      }
+    }, 300);
+  }, 100);
 }
 
 function lpListCopyLink(slug){
