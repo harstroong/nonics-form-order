@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-09-02-landing-page-m2';
+window.__APP_VERSION = '2026-09-03-landing-page-m3-m4-m5';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -4867,9 +4867,32 @@ document.addEventListener('DOMContentLoaded', function(){
                 </label>
 
                 <div id="fLpBox" style="display:none">
+                  <!-- M4: Publish state card -->
+                  <div id="fLpPublishCard" style="background:linear-gradient(135deg,#ECFDF5,#F0FDF4);border:1px solid #A7F3D0;border-radius:10px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:12px">
+                    <div id="fLpPublishDot" style="width:10px;height:10px;border-radius:50%;background:#10B981;box-shadow:0 0 0 4px rgba(16,185,129,.15);flex-shrink:0"></div>
+                    <div style="flex:1">
+                      <div id="fLpPublishStatus" style="font-size:13px;font-weight:600;color:#065F46">Live</div>
+                      <div style="font-size:11px;color:#047857;margin-top:2px">Landing page aktif · perubahan tersimpan setelah Simpan Produk</div>
+                    </div>
+                    <a href="#" id="fLpOpenLive" target="_blank" style="background:#10B981;color:#fff;padding:6px 12px;border-radius:7px;font-size:11.5px;font-weight:600;text-decoration:none;white-space:nowrap"><i class="ti ti-external-link" style="font-size:12px;vertical-align:-1px"></i> Buka Live</a>
+                  </div>
+
                   <div class="pfv2-info-card" style="background:#F0F9FF;color:#075985;border-color:#BAE6FD;margin-bottom:12px">
                     <i class="ti ti-info-circle"></i>
                     <div>Landing page URL: <code>/lp/<span id="fLpSlugPreview">slug-produk</span></code> · <a href="#" id="fLpOpenLink" target="_blank" style="color:var(--primary)">Buka preview →</a></div>
+                  </div>
+
+                  <!-- M5: Template starters -->
+                  <div style="margin-bottom:14px">
+                    <label class="pfv2-label">Template Starter <span style="font-size:9px;background:#FEF3C7;color:#92400E;padding:1px 6px;border-radius:99px;font-weight:600;margin-left:5px">NEW</span></label>
+                    <div class="pfv2-hint" style="margin-bottom:8px">Klik untuk apply preset sections + copywriting per kategori produk.</div>
+                    <div id="fLpTemplateGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px">
+                      <button type="button" class="lp-tpl-btn" data-tpl="beauty" onclick="lpApplyTemplate('beauty')" style="background:#fff;border:1px solid var(--border);border-radius:9px;padding:10px 8px;cursor:pointer;text-align:center;transition:all .15s"><div style="font-size:22px;margin-bottom:4px">💄</div><div style="font-size:11.5px;font-weight:600;color:#0F172A">Beauty</div><div style="font-size:9.5px;color:var(--text-muted);margin-top:1px">Skincare, makeup</div></button>
+                      <button type="button" class="lp-tpl-btn" data-tpl="electronics" onclick="lpApplyTemplate('electronics')" style="background:#fff;border:1px solid var(--border);border-radius:9px;padding:10px 8px;cursor:pointer;text-align:center;transition:all .15s"><div style="font-size:22px;margin-bottom:4px">📱</div><div style="font-size:11.5px;font-weight:600;color:#0F172A">Electronics</div><div style="font-size:9.5px;color:var(--text-muted);margin-top:1px">Gadget, aksesoris</div></button>
+                      <button type="button" class="lp-tpl-btn" data-tpl="fashion" onclick="lpApplyTemplate('fashion')" style="background:#fff;border:1px solid var(--border);border-radius:9px;padding:10px 8px;cursor:pointer;text-align:center;transition:all .15s"><div style="font-size:22px;margin-bottom:4px">👗</div><div style="font-size:11.5px;font-weight:600;color:#0F172A">Fashion</div><div style="font-size:9.5px;color:var(--text-muted);margin-top:1px">Baju, sepatu, tas</div></button>
+                      <button type="button" class="lp-tpl-btn" data-tpl="fnb" onclick="lpApplyTemplate('fnb')" style="background:#fff;border:1px solid var(--border);border-radius:9px;padding:10px 8px;cursor:pointer;text-align:center;transition:all .15s"><div style="font-size:22px;margin-bottom:4px">🍔</div><div style="font-size:11.5px;font-weight:600;color:#0F172A">F&amp;B</div><div style="font-size:9.5px;color:var(--text-muted);margin-top:1px">Makanan, minuman</div></button>
+                      <button type="button" class="lp-tpl-btn" data-tpl="health" onclick="lpApplyTemplate('health')" style="background:#fff;border:1px solid var(--border);border-radius:9px;padding:10px 8px;cursor:pointer;text-align:center;transition:all .15s"><div style="font-size:22px;margin-bottom:4px">💊</div><div style="font-size:11.5px;font-weight:600;color:#0F172A">Health</div><div style="font-size:9.5px;color:var(--text-muted);margin-top:1px">Herbal, suplemen</div></button>
+                    </div>
                   </div>
 
                   <label class="pfv2-label">Sections</label>
@@ -6928,7 +6951,17 @@ document.addEventListener('DOMContentLoaded', function(){
     <div id="lpContent"></div>
   </div>
 </div>
-<style>@keyframes lpSpin{to{transform:rotate(360deg)}}</style>
+<style>
+@keyframes lpSpin{to{transform:rotate(360deg)}}
+.lp-tpl-btn:hover{border-color:var(--primary)!important;background:#F0FDF4!important;transform:translateY(-1px);box-shadow:0 2px 8px rgba(16,185,129,.15)}
+.lp-tpl-btn:active{transform:translateY(0)}
+/* M4: Mobile responsive polish for LP */
+@media (max-width:480px){
+  #lpRoot section{padding-left:16px!important;padding-right:16px!important}
+  #lpRoot h1{font-size:20px!important}
+  #lpRoot h2{font-size:16px!important}
+}
+</style>
 
 <div id="viewDigitalCheckout" style="display:none;min-height:100vh;background:#FAFAFA">
 
@@ -10995,6 +11028,8 @@ function showProdForm(id){
     if(_lpSlugEl) _lpSlugEl.textContent = p.urlSlug || 'slug-produk';
     var _lpLink = document.getElementById('fLpOpenLink');
     if(_lpLink) _lpLink.href = '/lp/' + (p.urlSlug || '');
+    // M4: Publish state indicator
+    if(typeof lpUpdatePublishCard === 'function') lpUpdatePublishCard(p);
     setV('fPrice', p.price);
     setV('fHpp', p.hpp);
     setV('fInventaris', (typeof p.inventaris === 'number') ? p.inventaris : '');
@@ -13983,6 +14018,280 @@ function toggleLpEnabled(){
     window.__lpSections = getDefaultLpSections(pTemp);
     lpRenderSectionsList();
   }
+  // M4: refresh publish state card
+  if(typeof lpUpdatePublishCard === 'function'){
+    var slug = (document.getElementById('fLpSlugPreview')||{}).textContent || '';
+    lpUpdatePublishCard({ lpEnabled: chk.checked, urlSlug: slug });
+  }
+}
+
+// M4: Publish state indicator (Live vs Draft)
+function lpUpdatePublishCard(p){
+  var card = document.getElementById('fLpPublishCard');
+  var dot = document.getElementById('fLpPublishDot');
+  var stat = document.getElementById('fLpPublishStatus');
+  var openBtn = document.getElementById('fLpOpenLive');
+  if(!card || !stat) return;
+  var isLive = !!(p && p.lpEnabled);
+  var slug = (p && p.urlSlug) || (document.getElementById('fLpSlugPreview')||{}).textContent || '';
+  if(isLive){
+    card.style.background = 'linear-gradient(135deg,#ECFDF5,#F0FDF4)';
+    card.style.borderColor = '#A7F3D0';
+    if(dot){ dot.style.background = '#10B981'; dot.style.boxShadow = '0 0 0 4px rgba(16,185,129,.15)'; }
+    stat.textContent = 'Live';
+    stat.style.color = '#065F46';
+    if(openBtn){
+      openBtn.style.display = '';
+      openBtn.style.background = '#10B981';
+      openBtn.href = '/lp/' + slug;
+    }
+  } else {
+    card.style.background = 'linear-gradient(135deg,#FFF7ED,#FEF3C7)';
+    card.style.borderColor = '#FDE68A';
+    if(dot){ dot.style.background = '#F59E0B'; dot.style.boxShadow = '0 0 0 4px rgba(245,158,11,.15)'; }
+    stat.textContent = 'Draft';
+    stat.style.color = '#92400E';
+    if(openBtn){ openBtn.style.display = 'none'; }
+  }
+}
+
+// M5: Template starters — pre-designed sections per product category
+window.LP_TEMPLATES = {
+  beauty: {
+    label: 'Beauty',
+    sections: function(p){
+      var name = (p && p.name) || 'Produk Beauty';
+      return [
+        { id:'hero', type:'hero', enabled:true, props:{
+          headline: name + ' — Glowing Skin dalam 7 Hari',
+          subheadline: 'Formula alami dengan bahan aktif teruji dermatologist. Aman untuk semua jenis kulit.',
+          ctaText: 'Pesan Sekarang', bgStyle:'gradient'
+        }},
+        { id:'benefits', type:'benefits', enabled:true, props:{
+          title: 'Kenapa harus pilih ini?',
+          items: [
+            { icon:'ti-sparkles', title:'Kulit Glowing Alami', desc:'Terlihat cerah & sehat dalam 7-14 hari pemakaian rutin' },
+            { icon:'ti-shield-check', title:'BPOM & Halal', desc:'Sudah terdaftar BPOM dan bersertifikat Halal MUI' },
+            { icon:'ti-leaf', title:'100% Natural Ingredients', desc:'Tanpa merkuri, hidroquinon, dan bahan berbahaya' },
+            { icon:'ti-heart', title:'Aman untuk Kulit Sensitif', desc:'Sudah tested pada kulit sensitif, tidak menyebabkan iritasi' }
+          ]
+        }},
+        { id:'testimonials', type:'testimonials', enabled:true, props:{
+          title: 'Kata pelanggan yang sudah coba',
+          items: [
+            { name:'Sari Marlina', text:'Kulit gua yang tadinya kusam jadi glowing banget setelah 2 minggu. Beneran works!', rating:5 },
+            { name:'Rina Ayu', text:'Awalnya skeptis, tapi setelah nyoba wajah jadi lebih cerah dan halus. Recommended!', rating:5 },
+            { name:'Diana Putri', text:'Cocok banget buat kulit sensitif kayak gua. Gak bikin iritasi sama sekali.', rating:5 }
+          ]
+        }},
+        { id:'video', type:'video', enabled:false, props:{ url:'' }},
+        { id:'form', type:'form', enabled:true, props:{} },
+        { id:'faq', type:'faq', enabled:true, props:{
+          title: 'Pertanyaan yang sering diajukan',
+          items: [
+            { question:'Amankah untuk ibu hamil & menyusui?', answer:'Aman karena formulanya 100% natural, tapi disarankan konsultasi dokter kandungan dulu untuk memastikan.' },
+            { question:'Berapa lama hasilnya terlihat?', answer:'Rata-rata pelanggan melihat perubahan signifikan dalam 7-14 hari pemakaian rutin 2x sehari.' },
+            { question:'Apakah sudah BPOM?', answer:'Ya, produk kami sudah terdaftar BPOM dan bersertifikat Halal MUI.' },
+            { question:'Bisa retur kalau gak cocok?', answer:'Ya, kami kasih garansi 7 hari uang kembali kalau kulit iritasi/gak cocok.' }
+          ]
+        }},
+        { id:'trust', type:'trust', enabled:true, props:{} }
+      ];
+    }
+  },
+  electronics: {
+    label: 'Electronics',
+    sections: function(p){
+      var name = (p && p.name) || 'Gadget Terbaik';
+      return [
+        { id:'hero', type:'hero', enabled:true, props:{
+          headline: name + ' — Original 100% + Garansi Resmi',
+          subheadline: 'Barang baru, garansi distributor 1 tahun, ready stock. Dijamin bukan refurbished.',
+          ctaText: 'Beli Sekarang', bgStyle:'gradient'
+        }},
+        { id:'benefits', type:'benefits', enabled:true, props:{
+          title: 'Kelebihan produk ini',
+          items: [
+            { icon:'ti-award', title:'Original 100%', desc:'Garansi produk asli, bukan replika atau refurbished' },
+            { icon:'ti-shield-check', title:'Garansi Resmi 1 Tahun', desc:'Rusak? Klaim langsung di service center resmi' },
+            { icon:'ti-truck-delivery', title:'Same Day Delivery', desc:'Order sebelum jam 3 sore, dikirim hari yang sama' },
+            { icon:'ti-package', title:'Packing Aman Anti-Rusak', desc:'Double bubble wrap + box khusus elektronik' }
+          ]
+        }},
+        { id:'testimonials', type:'testimonials', enabled:true, props:{
+          title: 'Review dari pelanggan',
+          items: [
+            { name:'Budi Santoso', text:'Barang sesuai deskripsi, packing rapi banget. Sudah dipakai 2 bulan gak ada masalah.', rating:5 },
+            { name:'Andi Pratama', text:'Original 100%, cek IMEI di web resmi valid semua. Recommended seller!', rating:5 },
+            { name:'Rangga H.', text:'Pengiriman cepet, sampai dalam 2 hari padahal luar Jawa. Puas!', rating:5 }
+          ]
+        }},
+        { id:'video', type:'video', enabled:false, props:{ url:'' }},
+        { id:'form', type:'form', enabled:true, props:{} },
+        { id:'faq', type:'faq', enabled:true, props:{
+          title: 'FAQ',
+          items: [
+            { question:'Barangnya original atau replika?', answer:'100% original, kami hanya jual barang baru bersegel dengan garansi distributor resmi.' },
+            { question:'Bagaimana klaim garansi?', answer:'Cukup bawa unit + kotak + invoice ke service center resmi terdekat, gratis biaya perbaikan selama masa garansi.' },
+            { question:'Bisa COD?', answer:'Ya, tersedia COD untuk area Jabodetabek dan kota besar. Cek ongkir dulu ke CS.' },
+            { question:'Ready stock atau PO?', answer:'Ready stock semua warna. Order hari ini, dikirim hari ini juga (cutoff jam 3 sore).' }
+          ]
+        }},
+        { id:'trust', type:'trust', enabled:true, props:{} }
+      ];
+    }
+  },
+  fashion: {
+    label: 'Fashion',
+    sections: function(p){
+      var name = (p && p.name) || 'Fashion Terbaru';
+      return [
+        { id:'hero', type:'hero', enabled:true, props:{
+          headline: name + ' — Tampil Beda, Percaya Diri',
+          subheadline: 'Kualitas premium, harga terjangkau. Tersedia berbagai size & warna, cocok untuk daily wear atau hangout.',
+          ctaText: 'Pesan Sekarang', bgStyle:'gradient'
+        }},
+        { id:'benefits', type:'benefits', enabled:true, props:{
+          title: 'Kenapa banyak yang suka?',
+          items: [
+            { icon:'ti-diamond', title:'Bahan Premium', desc:'Material berkualitas, nyaman dipakai seharian tanpa gerah' },
+            { icon:'ti-scissors', title:'Jahitan Rapi', desc:'Detail finishing rapi, tahan lama meski dicuci berulang kali' },
+            { icon:'ti-palette', title:'Warna Tidak Luntur', desc:'Sudah diuji ketahanan warna, aman dicuci mesin' },
+            { icon:'ti-ruler', title:'Size Chart Akurat', desc:'Tersedia size chart lengkap, jarang complain size gak pas' }
+          ]
+        }},
+        { id:'testimonials', type:'testimonials', enabled:true, props:{
+          title: 'Review pelanggan',
+          items: [
+            { name:'Melati Sari', text:'Bahannya adem, jahitannya rapi. Sesuai foto banget, gak zonk kayak toko online lain.', rating:5 },
+            { name:'Kirana Ayu', text:'Size fitting pas banget di aku. Warnanya juga cakep, cocok buat kondangan.', rating:5 },
+            { name:'Dinda P.', text:'Udah dicuci 5x warnanya masih bagus, gak nyusut juga. Worth it!', rating:5 }
+          ]
+        }},
+        { id:'video', type:'video', enabled:false, props:{ url:'' }},
+        { id:'form', type:'form', enabled:true, props:{} },
+        { id:'faq', type:'faq', enabled:true, props:{
+          title: 'FAQ',
+          items: [
+            { question:'Ada size chart?', answer:'Ada, silakan chat CS untuk mendapat size chart lengkap sesuai bentuk badan kamu.' },
+            { question:'Bisa tukar size?', answer:'Bisa, dalam 3 hari sejak barang diterima. Ongkir tukar ditanggung pembeli.' },
+            { question:'Bahan panas atau adem?', answer:'Adem, karena kami pakai material breathable yang nyaman untuk cuaca tropis.' },
+            { question:'Warna sesuai foto?', answer:'Insya Allah sesuai, tapi mungkin ada sedikit perbedaan karena efek layar HP.' }
+          ]
+        }},
+        { id:'trust', type:'trust', enabled:true, props:{} }
+      ];
+    }
+  },
+  fnb: {
+    label: 'F&B',
+    sections: function(p){
+      var name = (p && p.name) || 'Makanan Enak';
+      return [
+        { id:'hero', type:'hero', enabled:true, props:{
+          headline: name + ' — Fresh dari Dapur, Enak Bikin Nagih',
+          subheadline: 'Dibuat fresh setiap hari dengan bahan pilihan. Halal, bersih, dan bebas pengawet.',
+          ctaText: 'Pesan Sekarang', bgStyle:'gradient'
+        }},
+        { id:'benefits', type:'benefits', enabled:true, props:{
+          title: 'Kenapa pilih kami?',
+          items: [
+            { icon:'ti-star', title:'Rasa Otentik', desc:'Resep turun-temurun, cita rasa khas yang bikin nagih' },
+            { icon:'ti-shield-check', title:'Halal & Higienis', desc:'Bersertifikat Halal MUI, diproses dengan standar higienis' },
+            { icon:'ti-leaf', title:'Bahan Fresh Setiap Hari', desc:'Bahan baku dibeli fresh dari pasar setiap pagi' },
+            { icon:'ti-truck-delivery', title:'Same Day Delivery', desc:'Dikirim di hari yang sama biar masih anget & fresh' }
+          ]
+        }},
+        { id:'testimonials', type:'testimonials', enabled:true, props:{
+          title: 'Kata yang sudah coba',
+          items: [
+            { name:'Bu Rina', text:'Enak banget! Anak-anak sampai request tiap minggu. Rasanya autentik.', rating:5 },
+            { name:'Pak Andi', text:'Porsinya banyak, harga masuk akal. Beneran nagih!', rating:5 },
+            { name:'Fitri N.', text:'Bumbunya nendang, gak eneg. Sudah langganan tiap weekend.', rating:5 }
+          ]
+        }},
+        { id:'video', type:'video', enabled:false, props:{ url:'' }},
+        { id:'form', type:'form', enabled:true, props:{} },
+        { id:'faq', type:'faq', enabled:true, props:{
+          title: 'FAQ',
+          items: [
+            { question:'Halal?', answer:'Ya, kami bersertifikat Halal MUI dan semua bahan pasti halal.' },
+            { question:'Berapa lama bisa disimpan?', answer:'Fresh 1-2 hari di kulkas. Untuk keawetan lebih lama, simpan di freezer bisa tahan 1 minggu.' },
+            { question:'Bisa custom pedas?', answer:'Bisa! Chat CS sebelum order untuk request level pedas: normal / medium / extra hot.' },
+            { question:'Ada minimum order?', answer:'Tidak, order 1 pcs pun kami kirim. Tapi bisa dapat diskon kalau order 5 pcs ke atas.' }
+          ]
+        }},
+        { id:'trust', type:'trust', enabled:true, props:{} }
+      ];
+    }
+  },
+  health: {
+    label: 'Health',
+    sections: function(p){
+      var name = (p && p.name) || 'Suplemen Herbal';
+      return [
+        { id:'hero', type:'hero', enabled:true, props:{
+          headline: name + ' — Solusi Herbal Alami, Terbukti Ampuh',
+          subheadline: 'Formula herbal warisan turun-temurun dengan bahan pilihan. BPOM, Halal, dan sudah dipakai ribuan orang.',
+          ctaText: 'Pesan Sekarang', bgStyle:'gradient'
+        }},
+        { id:'benefits', type:'benefits', enabled:true, props:{
+          title: 'Kenapa efektif?',
+          items: [
+            { icon:'ti-leaf', title:'100% Herbal Alami', desc:'Tanpa bahan kimia, aman untuk konsumsi jangka panjang' },
+            { icon:'ti-shield-check', title:'BPOM & Halal MUI', desc:'Sudah terdaftar BPOM, dijamin aman dan halal' },
+            { icon:'ti-heart', title:'Terbukti Ribuan Testimoni', desc:'Sudah membantu ribuan orang merasakan manfaat nyata' },
+            { icon:'ti-clock', title:'Efek Terasa 7-14 Hari', desc:'Konsumsi rutin sesuai anjuran, efek mulai terasa dalam 2 minggu' }
+          ]
+        }},
+        { id:'testimonials', type:'testimonials', enabled:true, props:{
+          title: 'Testimoni pelanggan',
+          items: [
+            { name:'Ibu Wati (48 th)', text:'Setelah 3 minggu rutin konsumsi, badan lebih fit dan gak gampang capek. Terima kasih!', rating:5 },
+            { name:'Pak Hendra (52 th)', text:'Cocok buat gua yang sering begadang. Stamina jadi lebih terjaga.', rating:5 },
+            { name:'Bu Sri (45 th)', text:'Sudah 2 bulan pakai, tubuh lebih ringan dan tidur lebih nyenyak.', rating:5 }
+          ]
+        }},
+        { id:'video', type:'video', enabled:false, props:{ url:'' }},
+        { id:'form', type:'form', enabled:true, props:{} },
+        { id:'faq', type:'faq', enabled:true, props:{
+          title: 'FAQ',
+          items: [
+            { question:'Ada efek samping?', answer:'Karena 100% herbal alami, aman dikonsumsi jangka panjang tanpa efek samping berbahaya. Konsumsi sesuai anjuran.' },
+            { question:'Aman untuk penderita hipertensi/diabetes?', answer:'Umumnya aman, tapi sebaiknya konsultasi dokter dulu jika sedang minum obat rutin.' },
+            { question:'Berapa lama efek terasa?', answer:'Rata-rata pelanggan merasakan efek dalam 7-14 hari konsumsi rutin sesuai anjuran.' },
+            { question:'BPOM asli?', answer:'Ya, produk kami sudah terdaftar BPOM. Nomor registrasi bisa dicek di website resmi BPOM.' }
+          ]
+        }},
+        { id:'trust', type:'trust', enabled:true, props:{} }
+      ];
+    }
+  }
+};
+
+function lpApplyTemplate(key){
+  var tpl = window.LP_TEMPLATES[key];
+  if(!tpl){ toast('Template tidak ditemukan'); return; }
+  var hasContent = window.__lpSections && window.__lpSections.length > 0;
+  var confirmMsg = hasContent
+    ? 'Apply template "' + tpl.label + '"? Ini akan mengganti semua section yang sudah ada.'
+    : 'Apply template "' + tpl.label + '"?';
+  if(!confirm(confirmMsg)) return;
+  var pTemp = { name: (document.getElementById('fName')||{}).value || '' };
+  window.__lpSections = tpl.sections(pTemp);
+  lpRenderSectionsList();
+  // Highlight active template button
+  var btns = document.querySelectorAll('.lp-tpl-btn');
+  btns.forEach(function(b){
+    if(b.getAttribute('data-tpl') === key){
+      b.style.borderColor = 'var(--primary)';
+      b.style.background = '#F0FDF4';
+    } else {
+      b.style.borderColor = '';
+      b.style.background = '';
+    }
+  });
+  if(typeof toast === 'function') toast('Template "' + tpl.label + '" diterapkan');
 }
 
 function lpRenderSectionsList(){
@@ -14061,6 +14370,31 @@ function lpCloseEditModal(){
   window.__lpEditingIdx = -1;
 }
 
+// Common Tabler icons untuk Benefits section
+window.LP_BENEFIT_ICONS = [
+  {v:'ti-check',            l:'✓ Check'},
+  {v:'ti-shield-check',     l:'🛡️ Shield'},
+  {v:'ti-heart',            l:'❤️ Heart'},
+  {v:'ti-star',             l:'⭐ Star'},
+  {v:'ti-truck',            l:'🚚 Truck'},
+  {v:'ti-truck-delivery',   l:'📦 Delivery'},
+  {v:'ti-clock',            l:'⏰ Clock'},
+  {v:'ti-refresh',          l:'🔄 Refresh'},
+  {v:'ti-gift',             l:'🎁 Gift'},
+  {v:'ti-cash',             l:'💵 Cash'},
+  {v:'ti-currency-dollar',  l:'💲 Money'},
+  {v:'ti-medal',            l:'🏅 Medal'},
+  {v:'ti-award',            l:'🏆 Award'},
+  {v:'ti-lock',             l:'🔒 Lock'},
+  {v:'ti-flame',            l:'🔥 Fire'},
+  {v:'ti-bolt',             l:'⚡ Bolt'},
+  {v:'ti-sparkles',         l:'✨ Sparkles'},
+  {v:'ti-diamond',          l:'💎 Diamond'},
+  {v:'ti-thumb-up',         l:'👍 Thumbs Up'},
+  {v:'ti-eye-check',        l:'👁️ Verified'},
+  {v:'ti-headset',          l:'🎧 Support' }
+];
+
 function lpRenderEditForm(sec){
   var pr = sec.props || {};
   var esc = function(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); };
@@ -14073,23 +14407,155 @@ function lpRenderEditForm(sec){
     return '<div style="'+fieldWrap+'"><label style="'+lbl+'">Headline (H1)</label><input id="_lpHeadline" type="text" style="'+inp+'" value="'+esc(pr.headline||'')+'" placeholder="Nama produk / benefit utama"/></div>' +
       '<div style="'+fieldWrap+'"><label style="'+lbl+'">Subheadline</label><textarea id="_lpSubheadline" style="'+ta+'" placeholder="Deskripsi singkat / value proposition">'+esc(pr.subheadline||'')+'</textarea></div>' +
       '<div style="'+fieldWrap+'"><label style="'+lbl+'">CTA Button Text</label><input id="_lpCtaText" type="text" style="'+inp+'" value="'+esc(pr.ctaText||'Pesan Sekarang')+'" placeholder="Pesan Sekarang / Beli / Order"/></div>';
-  } else if(sec.type === 'benefits'){
-    var itemsJson = JSON.stringify(pr.items || [], null, 2);
-    return '<div style="'+fieldWrap+'"><label style="'+lbl+'">Judul Section</label><input id="_lpTitle" type="text" style="'+inp+'" value="'+esc(pr.title||'Benefits')+'"/></div>' +
-      '<div style="'+fieldWrap+'"><label style="'+lbl+'">Items (JSON list — {icon, title, desc})</label><textarea id="_lpItemsJson" style="'+ta+';min-height:180px;font-family:monospace;font-size:11px">'+esc(itemsJson)+'</textarea><div style="font-size:11px;color:var(--text-muted);margin-top:6px;line-height:1.5">Icon dari Tabler (ti-check / ti-shield-check / ti-heart / ti-star / ti-truck / ti-clock / ti-refresh / ti-gift). <a href="https://tabler.io/icons" target="_blank" style="color:var(--primary)">Browse ikon →</a></div></div>';
-  } else if(sec.type === 'testimonials'){
-    var itemsJson2 = JSON.stringify(pr.items || [], null, 2);
-    return '<div style="'+fieldWrap+'"><label style="'+lbl+'">Judul Section</label><input id="_lpTitle" type="text" style="'+inp+'" value="'+esc(pr.title||'Testimonials')+'"/></div>' +
-      '<div style="'+fieldWrap+'"><label style="'+lbl+'">Items (JSON list — {name, text, rating})</label><textarea id="_lpItemsJson" style="'+ta+';min-height:200px;font-family:monospace;font-size:11px">'+esc(itemsJson2)+'</textarea><div style="font-size:11px;color:var(--text-muted);margin-top:6px">rating: 1-5 (integer)</div></div>';
+  } else if(sec.type === 'benefits' || sec.type === 'testimonials' || sec.type === 'faq'){
+    window.__lpEditItems = (pr.items || []).map(function(it){ return Object.assign({}, it); });
+    var html = '<div style="'+fieldWrap+'"><label style="'+lbl+'">Judul Section</label><input id="_lpTitle" type="text" style="'+inp+'" value="'+esc(pr.title||'')+'"/></div>' +
+      '<div style="border-top:1px dashed var(--border);padding-top:14px;margin-top:14px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><label style="'+lbl+';margin-bottom:0">Items (<span id="_lpItemCount">'+window.__lpEditItems.length+'</span>)</label>' +
+      '<button type="button" class="btn btn-outline" style="padding:5px 10px;font-size:11px" onclick="lpAddItem(\''+sec.type+'\')"><i class="ti ti-plus" style="font-size:12px"></i> Tambah Item</button></div>' +
+      '<div id="_lpItemsList" style="display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto"></div>' +
+      '</div>';
+    return html;
   } else if(sec.type === 'video'){
     return '<div style="'+fieldWrap+'"><label style="'+lbl+'">YouTube URL</label><input id="_lpVideoUrl" type="text" style="'+inp+'" value="'+esc(pr.url||'')+'" placeholder="https://youtube.com/watch?v=xxx atau https://youtu.be/xxx"/><div style="font-size:11px;color:var(--text-muted);margin-top:6px">Support format: watch?v=, youtu.be/, embed/</div></div>';
-  } else if(sec.type === 'faq'){
-    var itemsJson3 = JSON.stringify(pr.items || [], null, 2);
-    return '<div style="'+fieldWrap+'"><label style="'+lbl+'">Judul Section</label><input id="_lpTitle" type="text" style="'+inp+'" value="'+esc(pr.title||'FAQ')+'"/></div>' +
-      '<div style="'+fieldWrap+'"><label style="'+lbl+'">Items (JSON list — {question, answer})</label><textarea id="_lpItemsJson" style="'+ta+';min-height:200px;font-family:monospace;font-size:11px">'+esc(itemsJson3)+'</textarea></div>';
   }
   return '<div style="padding:20px;text-align:center;color:var(--text-muted)">Section ini tidak bisa di-edit (auto-managed).</div>';
 }
+
+// Render items GUI (called after lpRenderEditForm)
+function lpRenderItemsGUI(type){
+  var listEl = document.getElementById('_lpItemsList');
+  if(!listEl) return;
+  var items = window.__lpEditItems || [];
+  var esc = function(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); };
+  var lbl = 'display:block;font-size:10.5px;font-weight:600;color:var(--text-muted);margin-bottom:3px';
+  var inp = 'width:100%;padding:6px 9px;font-size:12px;border:1px solid var(--border);border-radius:6px;box-sizing:border-box;font-family:inherit';
+
+  var html = items.map(function(it, idx){
+    var head = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:11px;font-weight:600;color:var(--text-muted)">#'+(idx+1)+'</div>' +
+      '<div style="display:flex;gap:4px">' +
+        '<button type="button" onclick="lpMoveItem('+idx+',-1,\''+type+'\')" '+(idx===0?'disabled':'')+' style="background:none;border:none;padding:2px 5px;cursor:'+(idx===0?'not-allowed':'pointer')+';color:var(--text-muted);opacity:'+(idx===0?'.3':'.7')+'"><i class="ti ti-chevron-up" style="font-size:13px"></i></button>' +
+        '<button type="button" onclick="lpMoveItem('+idx+',1,\''+type+'\')" '+(idx===items.length-1?'disabled':'')+' style="background:none;border:none;padding:2px 5px;cursor:'+(idx===items.length-1?'not-allowed':'pointer')+';color:var(--text-muted);opacity:'+(idx===items.length-1?'.3':'.7')+'"><i class="ti ti-chevron-down" style="font-size:13px"></i></button>' +
+        '<button type="button" onclick="lpDeleteItem('+idx+',\''+type+'\')" style="background:none;border:none;padding:2px 5px;cursor:pointer;color:#DC2626"><i class="ti ti-trash" style="font-size:13px"></i></button>' +
+      '</div></div>';
+    if(type === 'benefits'){
+      var iconOpts = window.LP_BENEFIT_ICONS.map(function(ic){
+        return '<option value="'+ic.v+'"'+(it.icon===ic.v?' selected':'')+'>'+ic.l+'</option>';
+      }).join('');
+      return '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:10px 12px">' + head +
+        '<div style="display:grid;grid-template-columns:120px 1fr;gap:8px;margin-bottom:6px">' +
+          '<div><label style="'+lbl+'">Icon</label><select id="_lpItem_icon_'+idx+'" style="'+inp+'">'+iconOpts+'</select></div>' +
+          '<div><label style="'+lbl+'">Title</label><input id="_lpItem_title_'+idx+'" type="text" style="'+inp+'" value="'+esc(it.title||'')+'" placeholder="Praktis"/></div>' +
+        '</div>' +
+        '<div><label style="'+lbl+'">Deskripsi</label><input id="_lpItem_desc_'+idx+'" type="text" style="'+inp+'" value="'+esc(it.desc||'')+'" placeholder="Mudah digunakan siapa saja"/></div>' +
+      '</div>';
+    } else if(type === 'testimonials'){
+      var rating = it.rating || 5;
+      var stars = '';
+      for(var s=1; s<=5; s++){
+        stars += '<button type="button" onclick="lpSetRating('+idx+','+s+')" style="background:none;border:none;cursor:pointer;padding:0 2px;color:'+(s<=rating?'#F59E0B':'#E5E7EB')+';font-size:16px" id="_lpStar_'+idx+'_'+s+'">★</button>';
+      }
+      return '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:10px 12px">' + head +
+        '<div style="display:grid;grid-template-columns:1fr 140px;gap:8px;margin-bottom:6px">' +
+          '<div><label style="'+lbl+'">Nama</label><input id="_lpItem_name_'+idx+'" type="text" style="'+inp+'" value="'+esc(it.name||'')+'" placeholder="Sari Marlina"/></div>' +
+          '<div><label style="'+lbl+'">Rating</label><div id="_lpItem_rating_'+idx+'" data-rating="'+rating+'" style="padding:3px 0">'+stars+'</div></div>' +
+        '</div>' +
+        '<div><label style="'+lbl+'">Testimoni</label><textarea id="_lpItem_text_'+idx+'" style="'+inp+';resize:vertical;min-height:50px" placeholder="Produk bagus, kirim cepat">'+esc(it.text||'')+'</textarea></div>' +
+      '</div>';
+    } else if(type === 'faq'){
+      return '<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:10px 12px">' + head +
+        '<div style="margin-bottom:6px"><label style="'+lbl+'">Pertanyaan</label><input id="_lpItem_question_'+idx+'" type="text" style="'+inp+'" value="'+esc(it.question||'')+'" placeholder="Berapa lama pengiriman?"/></div>' +
+        '<div><label style="'+lbl+'">Jawaban</label><textarea id="_lpItem_answer_'+idx+'" style="'+inp+';resize:vertical;min-height:60px" placeholder="1-3 hari kerja untuk Jabodetabek">'+esc(it.answer||'')+'</textarea></div>' +
+      '</div>';
+    }
+    return '';
+  }).join('');
+  if(!html){
+    html = '<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px;background:var(--surface-2);border:1px dashed var(--border);border-radius:8px">Belum ada item. Klik <b>+ Tambah Item</b> di atas.</div>';
+  }
+  listEl.innerHTML = html;
+  var cntEl = document.getElementById('_lpItemCount');
+  if(cntEl) cntEl.textContent = items.length;
+}
+
+function lpAddItem(type){
+  // Save current form values first (biar gak hilang pas re-render)
+  lpCaptureItemsFromForm(type);
+  window.__lpEditItems = window.__lpEditItems || [];
+  var newItem = {};
+  if(type === 'benefits') newItem = { icon:'ti-check', title:'', desc:'' };
+  else if(type === 'testimonials') newItem = { name:'', text:'', rating:5 };
+  else if(type === 'faq') newItem = { question:'', answer:'' };
+  window.__lpEditItems.push(newItem);
+  lpRenderItemsGUI(type);
+}
+
+function lpDeleteItem(idx, type){
+  if(!confirm('Hapus item ini?')) return;
+  lpCaptureItemsFromForm(type);
+  window.__lpEditItems.splice(idx, 1);
+  lpRenderItemsGUI(type);
+}
+
+function lpMoveItem(idx, delta, type){
+  lpCaptureItemsFromForm(type);
+  var arr = window.__lpEditItems;
+  var newIdx = idx + delta;
+  if(newIdx < 0 || newIdx >= arr.length) return;
+  var tmp = arr[idx]; arr[idx] = arr[newIdx]; arr[newIdx] = tmp;
+  lpRenderItemsGUI(type);
+}
+
+function lpSetRating(idx, rating){
+  window.__lpEditItems = window.__lpEditItems || [];
+  if(!window.__lpEditItems[idx]) return;
+  window.__lpEditItems[idx].rating = rating;
+  // Update stars visually
+  for(var s=1; s<=5; s++){
+    var el = document.getElementById('_lpStar_'+idx+'_'+s);
+    if(el) el.style.color = s <= rating ? '#F59E0B' : '#E5E7EB';
+  }
+  var wrap = document.getElementById('_lpItem_rating_'+idx);
+  if(wrap) wrap.setAttribute('data-rating', rating);
+}
+
+function lpCaptureItemsFromForm(type){
+  var items = window.__lpEditItems || [];
+  var g = function(id){ var el = document.getElementById(id); return el ? el.value : ''; };
+  items.forEach(function(it, idx){
+    if(type === 'benefits'){
+      it.icon = g('_lpItem_icon_'+idx) || 'ti-check';
+      it.title = g('_lpItem_title_'+idx).trim();
+      it.desc = g('_lpItem_desc_'+idx).trim();
+    } else if(type === 'testimonials'){
+      it.name = g('_lpItem_name_'+idx).trim();
+      it.text = g('_lpItem_text_'+idx).trim();
+      var rEl = document.getElementById('_lpItem_rating_'+idx);
+      it.rating = parseInt(rEl && rEl.getAttribute('data-rating'), 10) || 5;
+    } else if(type === 'faq'){
+      it.question = g('_lpItem_question_'+idx).trim();
+      it.answer = g('_lpItem_answer_'+idx).trim();
+    }
+  });
+}
+
+// Override lpEditSection to render items GUI after
+var _origLpEditSection = window.lpEditSection;
+window.lpEditSection = function(idx){
+  window.__lpEditingIdx = idx;
+  var sec = window.__lpSections[idx];
+  var meta = LP_SECTION_META[sec.type] || { icon:'ti-square', color:'#64748B', bg:'#F1F5F9', name: sec.type };
+  document.getElementById('lpEditTitle').textContent = 'Edit ' + meta.name;
+  document.getElementById('lpEditIcon').style.background = meta.bg;
+  document.getElementById('lpEditIcon').style.color = meta.color;
+  document.getElementById('lpEditIcon').innerHTML = '<i class="ti '+meta.icon+'"></i>';
+  document.getElementById('lpEditBody').innerHTML = lpRenderEditForm(sec);
+  document.getElementById('lpEditModal').style.display = 'flex';
+  // Post-render: kalau items-based section, render items GUI
+  if(sec.type === 'benefits' || sec.type === 'testimonials' || sec.type === 'faq'){
+    setTimeout(function(){ lpRenderItemsGUI(sec.type); }, 30);
+  }
+};
 
 function lpSaveEditSection(){
   var idx = window.__lpEditingIdx;
@@ -14104,10 +14570,8 @@ function lpSaveEditSection(){
       newProps.ctaText = g('_lpCtaText').trim() || 'Pesan Sekarang';
     } else if(sec.type === 'benefits' || sec.type === 'testimonials' || sec.type === 'faq'){
       newProps.title = g('_lpTitle').trim();
-      var jsonStr = g('_lpItemsJson');
-      try { newProps.items = JSON.parse(jsonStr); }
-      catch(e){ toast('⚠️ JSON items invalid: ' + e.message); return; }
-      if(!Array.isArray(newProps.items)){ toast('⚠️ Items harus berupa list/array'); return; }
+      lpCaptureItemsFromForm(sec.type);
+      newProps.items = (window.__lpEditItems || []).slice();
     } else if(sec.type === 'video'){
       newProps.url = g('_lpVideoUrl').trim();
     }
@@ -18302,6 +18766,55 @@ function getDefaultLpSections(p){
   ];
 }
 
+// M4: Inject SEO meta tags (og:title/description/image, twitter, canonical) for LP
+function lpInjectSEO(p){
+  if(!p) return;
+  var cfg = getCfg() || {};
+  var title = (p.name || 'Produk') + ' — ' + (cfg.storeName || 'Nonics Order');
+  var desc = String(p.desc || 'Pesan sekarang, gratis konsultasi. COD tersedia.').slice(0, 160);
+  var slug = p.urlSlug || String(p.id||'');
+  var url = window.location.origin + '/lp/' + slug;
+  var imgs = (p.images && p.images.length) ? p.images : (p.coverImage ? [{b64:p.coverImage}] : []);
+  var imgUrl = '';
+  if(imgs.length){
+    var first = typeof imgs[0] === 'string' ? imgs[0] : imgs[0].b64;
+    if(first && first.indexOf('http') === 0) imgUrl = first;
+    // Base64 too big for meta; skip if not URL
+  }
+  var setMeta = function(attr, key, val){
+    if(!val) return;
+    var sel = 'meta['+attr+'="'+key+'"]';
+    var m = document.querySelector(sel);
+    if(!m){ m = document.createElement('meta'); m.setAttribute(attr, key); document.head.appendChild(m); }
+    m.setAttribute('content', val);
+  };
+  var setLink = function(rel, href){
+    var m = document.querySelector('link[rel="'+rel+'"]');
+    if(!m){ m = document.createElement('link'); m.setAttribute('rel', rel); document.head.appendChild(m); }
+    m.setAttribute('href', href);
+  };
+  document.title = title;
+  setMeta('name', 'description', desc);
+  setMeta('property', 'og:type', 'product');
+  setMeta('property', 'og:title', title);
+  setMeta('property', 'og:description', desc);
+  setMeta('property', 'og:url', url);
+  if(imgUrl) setMeta('property', 'og:image', imgUrl);
+  setMeta('property', 'og:site_name', cfg.storeName || 'Nonics Order');
+  setMeta('name', 'twitter:card', imgUrl ? 'summary_large_image' : 'summary');
+  setMeta('name', 'twitter:title', title);
+  setMeta('name', 'twitter:description', desc);
+  if(imgUrl) setMeta('name', 'twitter:image', imgUrl);
+  // Price meta (for product-type OG)
+  var priceStr = String(p.price||'').replace(/[^0-9]/g,'');
+  var currency = p.currency || (window.COUNTRY_TO_CURRENCY ? window.COUNTRY_TO_CURRENCY[String(p.country||'62')] : null) || 'IDR';
+  if(priceStr){
+    setMeta('property', 'product:price:amount', priceStr);
+    setMeta('property', 'product:price:currency', currency);
+  }
+  setLink('canonical', url);
+}
+
 function landingPageRoute(slug){
   // Hide all views
   var ids = ['viewLogin','viewDashboard','viewCS','viewDashboardDigital','viewMember','viewDigitalCheckout','viewProdukForm'];
@@ -18329,6 +18842,7 @@ function loadLandingPage(slug){
       return;
     }
     try { document.title = (p.name || 'Landing') + ' — Nonics Order'; } catch(e){}
+    try { lpInjectSEO(p); } catch(e){ console.warn('SEO inject fail:', e); }
     if(loadingEl) loadingEl.style.display = 'none';
     renderLandingPage(p, contentEl);
   };
