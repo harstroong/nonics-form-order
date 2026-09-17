@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-09-04-lp-editor-fullscreen';
+window.__APP_VERSION = '2026-09-04-lp-editor-polish';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -20460,9 +20460,9 @@ function lpEditorRenderCanvas(){
     '<div class="lpe-canvas-url"><i class="ti ti-lock"></i><span>' + (window.location.host || 'preview') + '/lp/' + slug + '</span></div>' +
     '<a class="lpe-canvas-open" onclick="window.open(\'/lp/'+slug+'\',\'_blank\')"><i class="ti ti-external-link"></i>Open Live</a>';
 
-  // Device widths
-  var widths = { desktop:'100%', tablet:'768px', mobile:'380px' };
-  var w = widths[window.__lpEditorDevice] || '100%';
+  // Device widths — cap desktop biar gak stretched
+  var widths = { desktop:'900px', tablet:'768px', mobile:'380px' };
+  var w = widths[window.__lpEditorDevice] || '900px';
 
   // Render inline preview using scoped mini-renderer
   area.innerHTML = '<div class="lpe-device-frame" style="max-width:'+w+'">' + lpEditorMiniPreview(p) + '</div>';
@@ -20574,7 +20574,7 @@ function lpEditorMiniPreview(p){
       '<div class="lpe-prev-input" style="height:32px">Alamat</div>' +
       '<div class="lpe-prev-input">Kota</div>' +
       (p.bumpEnabled ? '<div style="background:#fffbeb;border:2px dashed #f59e0b;border-radius:6px;padding:8px;margin:6px 0;font-size:9px"><b>🎁 '+esc(p.bumpTitle||'Order Bump')+'</b></div>' : '') +
-      '<div class="lpe-prev-cta">'+esc((typeof getCfg==='function'?(getCfg().cta||'Pesan Sekarang'):'Pesan Sekarang'))+' →</div>' +
+      '<div class="lpe-prev-cta">'+esc(String((typeof getCfg==='function'?(getCfg().cta||'Pesan Sekarang'):'Pesan Sekarang')).replace(/\s*[→>]+\s*$/,''))+' →</div>' +
     '</div>' +
   '</div>';
 
@@ -20888,24 +20888,24 @@ function lpEditorStyles(){
     '.lpe-prev-brand-logo{width:26px;height:26px;background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px}' +
     '.lpe-prev-badges{display:flex;gap:5px}' +
     '.lpe-prev-badge{padding:3px 8px;background:#ecfdf5;color:#10b981;border-radius:99px;font-size:9.5px;font-weight:600}' +
-    '.lpe-prev-body{display:grid;grid-template-columns:1fr 260px;gap:14px;padding:14px}' +
-    '.lpe-prev-content{display:flex;flex-direction:column;gap:10px}' +
-    '.lpe-prev-card{background:#fff;border:1px solid #e8eef7;border-radius:12px;padding:14px;position:relative;cursor:pointer;transition:all .12s}' +
+    '.lpe-prev-body{display:grid;grid-template-columns:1fr 240px;gap:14px;padding:14px}' +
+    '.lpe-prev-content{display:flex;flex-direction:column;gap:10px;min-width:0}' +
+    '.lpe-prev-card{background:#fff;border:1px solid #e8eef7;border-radius:12px;padding:12px;position:relative;cursor:pointer;transition:all .12s}' +
     '.lpe-prev-card:hover{border-color:#2563eb}' +
     '.lpe-prev-card.selected{border-color:#2563eb;box-shadow:0 0 0 2px rgba(37,99,235,.18)}' +
     '.lpe-prev-card.selected::before{content:attr(data-label);position:absolute;top:-10px;left:12px;background:#2563eb;color:#fff;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}' +
-    '.lpe-prev-hero-img{aspect-ratio:5/3;background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:8px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;font-size:36px;overflow:hidden}' +
-    '.lpe-prev-h1{font-size:15px;font-weight:700;color:#0f172a;margin-bottom:6px;line-height:1.3}' +
-    '.lpe-prev-price{font-size:18px;font-weight:800;color:#2563eb;font-family:"SF Mono",Menlo,monospace;display:flex;align-items:baseline;gap:6px}' +
+    '.lpe-prev-hero-img{aspect-ratio:16/9;max-height:220px;background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:8px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;font-size:44px;overflow:hidden}' +
+    '.lpe-prev-h1{font-size:14px;font-weight:700;color:#0f172a;margin-bottom:6px;line-height:1.3}' +
+    '.lpe-prev-price{font-size:17px;font-weight:800;color:#2563eb;font-family:"SF Mono",Menlo,monospace;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}' +
     '.lpe-prev-price-old{font-size:11px;color:#94a3b8;text-decoration:line-through;font-weight:400}' +
-    '.lpe-prev-trust{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-top:10px;padding-top:10px;border-top:1px solid #e8eef7}' +
-    '.lpe-prev-trust-item{display:flex;align-items:center;gap:5px;padding:5px 7px;background:#f8fbff;border-radius:6px;font-size:9.5px;font-weight:500}' +
-    '.lpe-prev-trust-item i{font-size:12px}' +
+    '.lpe-prev-trust{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:5px;margin-top:10px;padding-top:10px;border-top:1px solid #e8eef7}' +
+    '.lpe-prev-trust-item{display:flex;align-items:center;gap:5px;padding:5px 7px;background:#f8fbff;border-radius:6px;font-size:9.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+    '.lpe-prev-trust-item i{font-size:12px;flex-shrink:0}' +
     '.lpe-prev-benefits{display:grid;grid-template-columns:1fr 1fr;gap:6px}' +
-    '.lpe-prev-benefit{background:#f8fbff;border-radius:6px;padding:6px;display:flex;gap:6px}' +
-    '.lpe-prev-b-icon{width:22px;height:22px;background:#eff6ff;color:#2563eb;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}' +
-    '.lpe-prev-b-title{font-size:10px;font-weight:600;color:#0f172a}' +
-    '.lpe-prev-b-desc{font-size:8.5px;color:#64748b}' +
+    '.lpe-prev-benefit{background:#f8fbff;border-radius:6px;padding:7px;display:flex;gap:6px}' +
+    '.lpe-prev-b-icon{width:24px;height:24px;background:#eff6ff;color:#2563eb;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}' +
+    '.lpe-prev-b-title{font-size:10.5px;font-weight:600;color:#0f172a;margin-bottom:1px}' +
+    '.lpe-prev-b-desc{font-size:9px;color:#64748b;line-height:1.35}' +
     '.lpe-prev-title{font-size:12px;font-weight:700;color:#0f172a;margin-bottom:8px;display:flex;align-items:center;gap:5px}' +
     '.lpe-prev-title i{color:#2563eb;font-size:13px}' +
     '.lpe-prev-form-card{background:#fff;border:1px solid #e8eef7;border-radius:12px;overflow:hidden;box-shadow:0 8px 20px rgba(15,23,42,.06);position:sticky;top:0;align-self:flex-start}' +
@@ -20913,8 +20913,8 @@ function lpEditorStyles(){
     '.lpe-prev-form-title{font-size:11.5px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:4px}' +
     '.lpe-prev-form-title i{color:#2563eb;font-size:12px}' +
     '.lpe-prev-form-body{padding:10px 12px}' +
-    '.lpe-prev-input{display:block;width:100%;height:24px;background:#f8fbff;border:1px solid #e8eef7;border-radius:5px;margin-bottom:5px;padding:0 8px;font-size:9.5px;color:#64748b;line-height:24px}' +
-    '.lpe-prev-cta{width:100%;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;padding:7px;border-radius:6px;text-align:center;font-size:10.5px;font-weight:700;margin-top:5px;box-shadow:0 4px 10px rgba(37,99,235,.3)}' +
+    '.lpe-prev-input{display:block;width:100%;height:26px;background:#f8fbff;border:1px solid #e8eef7;border-radius:5px;margin-bottom:6px;padding:0 8px;font-size:10px;color:#94a3b8;line-height:26px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}' +
+    '.lpe-prev-cta{width:100%;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;padding:9px;border-radius:6px;text-align:center;font-size:11px;font-weight:700;margin-top:6px;box-shadow:0 4px 10px rgba(37,99,235,.3)}' +
     '.lpe-right,.lpe-right-panel{background:var(--lpe-surface);border-left:1px solid var(--lpe-border);display:flex;flex-direction:column;overflow:hidden}' +
     '.lpe-rp-header{padding:14px 16px;border-bottom:1px solid var(--lpe-border);display:flex;align-items:center;gap:10px;flex-shrink:0}' +
     '.lpe-rp-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}' +
