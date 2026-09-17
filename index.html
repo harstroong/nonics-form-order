@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-09-04-lp-preview-sync';
+window.__APP_VERSION = '2026-09-04-lp-empty-sections';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -21457,10 +21457,12 @@ function renderLandingPage(p, contentEl){
         '</div>';
       }).join('');
       html += '<div class="nol-lp-card"><div class="nol-lp-card-title"><i class="ti ti-message-circle"></i>'+esc(pr.title || 'Kata pelanggan')+'</div>'+itemsHtml+'</div>';
-    } else if(sec.type === 'video' && pr.url){
-      var vid = _extractYtId(pr.url);
+    } else if(sec.type === 'video'){
+      var vid = pr.url ? _extractYtId(pr.url) : '';
       if(vid){
         html += '<div class="nol-lp-card"><div class="nol-lp-card-title"><i class="ti ti-brand-youtube"></i>Video Produk</div><div class="nol-lp-video-wrap"><iframe src="https://www.youtube.com/embed/'+vid+'" allowfullscreen></iframe></div></div>';
+      } else {
+        html += '<div class="nol-lp-card" style="border-style:dashed;background:#F8FAFC"><div class="nol-lp-card-title"><i class="ti ti-brand-youtube"></i>Video Produk</div><div style="aspect-ratio:16/9;background:#0F172A;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#94A3B8;gap:8px"><i class="ti ti-video-off" style="font-size:36px"></i><div style="font-size:12px">Belum ada YouTube URL — set di panel kanan</div></div></div>';
       }
     } else if(sec.type === 'faq'){
       var itemsHtml = (pr.items||[]).map(function(it, idx){
@@ -21468,70 +21470,75 @@ function renderLandingPage(p, contentEl){
       }).join('');
       html += '<div class="nol-lp-card"><div class="nol-lp-card-title"><i class="ti ti-help-circle"></i>'+esc(pr.title || 'FAQ')+'</div>'+itemsHtml+'</div>';
     } else if(sec.type === 'trust'){
-      // Trust badges already shown in hero — skip
+      var codShort2 = (t.cod || 'COD').replace(/\s*\(.+\)$/, '');
+      html += '<div class="nol-lp-card" style="padding:14px 20px"><div style="display:flex;justify-content:space-around;align-items:center;gap:12px;font-size:12px;color:#64748B;flex-wrap:wrap">' +
+        (p.freeOngkir ? '<div style="display:flex;align-items:center;gap:5px;color:#059669;font-weight:600"><i class="ti ti-truck-delivery" style="font-size:15px"></i>'+(t.freeOngkir || 'Gratis Ongkir')+'</div>' : '') +
+        '<div style="display:flex;align-items:center;gap:5px"><i class="ti ti-cash" style="color:#F59E0B;font-size:15px"></i>'+codShort2+'</div>' +
+        (p.warrantyEnabled ? '<div style="display:flex;align-items:center;gap:5px"><i class="ti ti-shield-check" style="color:#10B981;font-size:15px"></i>'+(p.warrantyLabel || t.guarantee || 'Garansi')+'</div>' : '') +
+        '<div style="display:flex;align-items:center;gap:5px"><i class="ti ti-award" style="color:#8B5CF6;font-size:15px"></i>100% Original</div>' +
+      '</div></div>';
     } else if(sec.type === 'beforeafter'){
-      if(pr.beforeImg || pr.afterImg){
-        html += '<div class="nol-lp-card"><div class="nol-lp-card-title"><i class="ti ti-arrows-diff"></i>'+esc(pr.title || 'Sebelum & Sesudah')+'</div>' +
-          (pr.caption ? '<div class="nol-lp-card-sub">'+esc(pr.caption)+'</div>' : '') +
-          '<div class="nol-lp-ba-grid">' +
-            '<div class="nol-lp-ba-item" style="background:'+(pr.beforeImg?'transparent url('+pr.beforeImg+') center/cover':'#e2e8f0')+'"><span class="nol-lp-ba-label before">'+esc(pr.beforeLabel || 'Sebelum')+'</span></div>' +
-            '<div class="nol-lp-ba-item" style="background:'+(pr.afterImg?'transparent url('+pr.afterImg+') center/cover':'#e2e8f0')+'"><span class="nol-lp-ba-label after">'+esc(pr.afterLabel || 'Sesudah')+'</span></div>' +
-          '</div>' +
-        '</div>';
-      }
+      html += '<div class="nol-lp-card"><div class="nol-lp-card-title"><i class="ti ti-arrows-diff"></i>'+esc(pr.title || 'Sebelum & Sesudah')+'</div>' +
+        (pr.caption ? '<div class="nol-lp-card-sub">'+esc(pr.caption)+'</div>' : '') +
+        '<div class="nol-lp-ba-grid">' +
+          '<div class="nol-lp-ba-item" style="background:'+(pr.beforeImg?'transparent url('+pr.beforeImg+') center/cover':'#FEE2E2')+';display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:36px">'+(pr.beforeImg?'':'📷')+'<span class="nol-lp-ba-label before">'+esc(pr.beforeLabel || 'Sebelum')+'</span></div>' +
+          '<div class="nol-lp-ba-item" style="background:'+(pr.afterImg?'transparent url('+pr.afterImg+') center/cover':'#DCFCE7')+';display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:36px">'+(pr.afterImg?'':'📷')+'<span class="nol-lp-ba-label after">'+esc(pr.afterLabel || 'Sesudah')+'</span></div>' +
+        '</div>' +
+        (!pr.beforeImg || !pr.afterImg ? '<div style="text-align:center;font-size:11.5px;color:#94A3B8;margin-top:10px;padding:8px;background:#F8FAFC;border-radius:6px">📤 Upload gambar sebelum/sesudah di panel kanan</div>' : '') +
+      '</div>';
     } else if(sec.type === 'crosssell'){
       var csIds = pr.productIds || [];
-      if(csIds.length){
-        var csProds = csIds.map(function(id){ return lpGetProd(id); }).filter(Boolean);
-        if(csProds.length){
-          var csCards = csProds.map(function(cp){
-            var cImg = cp.coverImage || (cp.images && cp.images[0] && (cp.images[0].b64 || cp.images[0])) || '';
-            var cPrice = parseInt(String(cp.price||'').replace(/[^0-9]/g,''),10) || 0;
-            var cSlug = cp.urlSlug || cp.id;
-            var cCur = cp.currency || currency;
-            var _cSymMap = {IDR:'Rp ',MYR:'RM ',SGD:'S$',USD:'$',THB:'฿',PHP:'₱',BND:'B$'};
-            var _cPriceStr = (_cSymMap[cCur]||'') + cPrice.toLocaleString('id-ID');
-            return '<a href="/lp/'+encodeURIComponent(cSlug)+'" class="nol-lp-cross-card">' +
-              (cImg?'<div class="nol-lp-cross-img" style="background-image:url('+cImg+')"></div>':'<div class="nol-lp-cross-img"><i class="ti ti-package" style="font-size:36px"></i></div>') +
-              '<div class="nol-lp-cross-info"><div class="nol-lp-cross-name">'+esc(cp.name||'')+'</div><div class="nol-lp-cross-price">'+_cPriceStr+'</div></div>' +
-            '</a>';
-          }).join('');
-          html += '<div class="nol-lp-card"><div class="nol-lp-card-title"><i class="ti ti-basket-plus"></i>'+esc(pr.title || 'Sering Dibeli Bareng')+'</div>' +
-            (pr.subtitle ? '<div class="nol-lp-card-sub">'+esc(pr.subtitle)+'</div>' : '') +
-            '<div class="nol-lp-cross-scroll">'+csCards+'</div>' +
-          '</div>';
-        }
+      var csProds = csIds.length ? csIds.map(function(id){ return lpGetProd(id); }).filter(Boolean) : [];
+      html += '<div class="nol-lp-card"><div class="nol-lp-card-title"><i class="ti ti-basket-plus"></i>'+esc(pr.title || 'Sering Dibeli Bareng')+'</div>' +
+        (pr.subtitle ? '<div class="nol-lp-card-sub">'+esc(pr.subtitle)+'</div>' : '');
+      if(csProds.length){
+        var csCards = csProds.map(function(cp){
+          var cImg = cp.coverImage || (cp.images && cp.images[0] && (cp.images[0].b64 || cp.images[0])) || '';
+          var cPrice = parseInt(String(cp.price||'').replace(/[^0-9]/g,''),10) || 0;
+          var cSlug = cp.urlSlug || cp.id;
+          var cCur = cp.currency || currency;
+          var _cSymMap = {IDR:'Rp ',MYR:'RM ',SGD:'S$',USD:'$',THB:'฿',PHP:'₱',BND:'B$'};
+          var _cPriceStr = (_cSymMap[cCur]||'') + cPrice.toLocaleString('id-ID');
+          return '<a href="/lp/'+encodeURIComponent(cSlug)+'" class="nol-lp-cross-card">' +
+            (cImg?'<div class="nol-lp-cross-img" style="background-image:url('+cImg+')"></div>':'<div class="nol-lp-cross-img"><i class="ti ti-package" style="font-size:36px"></i></div>') +
+            '<div class="nol-lp-cross-info"><div class="nol-lp-cross-name">'+esc(cp.name||'')+'</div><div class="nol-lp-cross-price">'+_cPriceStr+'</div></div>' +
+          '</a>';
+        }).join('');
+        html += '<div class="nol-lp-cross-scroll">'+csCards+'</div>';
+      } else {
+        html += '<div style="text-align:center;padding:28px;background:#F8FAFC;border:1px dashed #E2E8F0;border-radius:8px;color:#94A3B8;font-size:12.5px"><i class="ti ti-basket-off" style="font-size:36px;display:block;margin-bottom:10px"></i>Belum ada produk cross-sell<br><span style="font-size:11px">Pilih produk di panel kanan</span></div>';
       }
+      html += '</div>';
     } else if(sec.type === 'bundle'){
       var bId = pr.bundleProductId;
-      if(bId){
-        var bProd = lpGetProd(bId);
-        if(bProd){
-          var bImg = bProd.coverImage || (bProd.images && bProd.images[0] && (bProd.images[0].b64 || bProd.images[0])) || '';
-          var mainPrice = priceNum || 0;
-          var bPrice = parseInt(String(bProd.price||'').replace(/[^0-9]/g,''),10) || 0;
-          var totalNormal = mainPrice + bPrice;
-          var discount = pr.bundleDiscount || 20;
-          var totalDeal = Math.round(totalNormal * (100 - discount) / 100);
-          var savings = totalNormal - totalDeal;
-          html += '<div class="nol-lp-card"><div class="nol-lp-card-title"><i class="ti ti-package"></i>🎁 '+esc(pr.title || 'Bundle Hemat')+'</div>' +
-            (pr.subtitle ? '<div class="nol-lp-card-sub">'+esc(pr.subtitle)+'</div>' : '') +
-            '<div class="nol-lp-bundle-card">' +
-              '<div class="nol-lp-bundle-imgs">' +
-                '<div class="nol-lp-bundle-thumb" style="background-image:url('+(coverB64||'')+')">'+(coverB64?'':'📦')+'</div>' +
-                '<div class="nol-lp-bundle-plus">+</div>' +
-                '<div class="nol-lp-bundle-thumb" style="background-image:url('+(bImg||'')+')">'+(bImg?'':'📦')+'</div>' +
-                '<div class="nol-lp-bundle-meta"><div style="font-size:11px;color:#64748b;line-height:1.4">'+esc(p.name||'')+' <b>+</b> '+esc(bProd.name||'')+'</div><div style="font-size:10.5px;color:#94a3b8;text-decoration:line-through;margin-top:2px">'+fmtP(totalNormal)+'</div></div>' +
-              '</div>' +
-              '<div style="text-align:center;margin-bottom:14px">' +
-                '<div style="display:inline-flex;align-items:baseline;gap:6px"><span style="font-size:11px;color:#64748b">Total bundle</span><span style="font-size:24px;font-weight:800;color:'+primary+';font-family:\'SF Mono\',Menlo,monospace">'+fmtP(totalDeal)+'</span></div>' +
-                '<div style="display:inline-block;background:#dcfce7;color:#065f46;padding:3px 12px;border-radius:99px;font-size:11px;font-weight:700;margin-top:6px;margin-left:6px">Hemat '+fmtP(savings)+' ('+discount+'%)</div>' +
-              '</div>' +
-              '<a href="#lp-form" data-cta="bundle" class="nol-lp-bundle-cta">'+esc(pr.ctaText || 'Ambil Bundle Deal')+' →</a>' +
-            '</div>' +
-          '</div>';
-        }
+      var bProd = bId ? lpGetProd(bId) : null;
+      html += '<div class="nol-lp-card"><div class="nol-lp-card-title"><i class="ti ti-package"></i>🎁 '+esc(pr.title || 'Bundle Hemat')+'</div>' +
+        (pr.subtitle ? '<div class="nol-lp-card-sub">'+esc(pr.subtitle)+'</div>' : '');
+      if(bProd){
+        var bImg = bProd.coverImage || (bProd.images && bProd.images[0] && (bProd.images[0].b64 || bProd.images[0])) || '';
+        var mainPrice = priceNum || 0;
+        var bPrice = parseInt(String(bProd.price||'').replace(/[^0-9]/g,''),10) || 0;
+        var totalNormal = mainPrice + bPrice;
+        var discount = pr.bundleDiscount || 20;
+        var totalDeal = Math.round(totalNormal * (100 - discount) / 100);
+        var savings = totalNormal - totalDeal;
+        html += '<div class="nol-lp-bundle-card">' +
+          '<div class="nol-lp-bundle-imgs">' +
+            '<div class="nol-lp-bundle-thumb" style="background-image:url('+(coverB64||'')+')">'+(coverB64?'':'📦')+'</div>' +
+            '<div class="nol-lp-bundle-plus">+</div>' +
+            '<div class="nol-lp-bundle-thumb" style="background-image:url('+(bImg||'')+')">'+(bImg?'':'📦')+'</div>' +
+            '<div class="nol-lp-bundle-meta"><div style="font-size:11px;color:#64748b;line-height:1.4">'+esc(p.name||'')+' <b>+</b> '+esc(bProd.name||'')+'</div><div style="font-size:10.5px;color:#94a3b8;text-decoration:line-through;margin-top:2px">'+fmtP(totalNormal)+'</div></div>' +
+          '</div>' +
+          '<div style="text-align:center;margin-bottom:14px">' +
+            '<div style="display:inline-flex;align-items:baseline;gap:6px"><span style="font-size:11px;color:#64748b">Total bundle</span><span style="font-size:24px;font-weight:800;color:'+primary+';font-family:\'SF Mono\',Menlo,monospace">'+fmtP(totalDeal)+'</span></div>' +
+            '<div style="display:inline-block;background:#dcfce7;color:#065f46;padding:3px 12px;border-radius:99px;font-size:11px;font-weight:700;margin-top:6px;margin-left:6px">Hemat '+fmtP(savings)+' ('+discount+'%)</div>' +
+          '</div>' +
+          '<a href="#lp-form" data-cta="bundle" class="nol-lp-bundle-cta">'+esc(pr.ctaText || 'Ambil Bundle Deal')+' →</a>' +
+        '</div>';
+      } else {
+        html += '<div style="text-align:center;padding:28px;background:#F8FAFC;border:1px dashed #E2E8F0;border-radius:8px;color:#94A3B8;font-size:12.5px"><i class="ti ti-package-off" style="font-size:36px;display:block;margin-bottom:10px"></i>Belum ada produk bundle<br><span style="font-size:11px">Pilih produk di panel kanan</span></div>';
       }
+      html += '</div>';
     } else if(sec.type === 'pricing'){
       var prItems = pr.items || [];
       if(prItems.length){
