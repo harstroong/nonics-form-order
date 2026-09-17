@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-09-04-lp-tabs-addbtn-bigger';
+window.__APP_VERSION = '2026-09-04-lp-preview-sync';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -20288,6 +20288,14 @@ function lpEditorUpdateProp(path, value){
     if(!obj) return;
   }
   obj[parts[parts.length - 1]] = value;
+  // AUTO-SYNC: when product name changes, sync hero headline (if hero.headline matches previous name or is default)
+  if(path === 'name'){
+    var hero = (p.lpSections || []).find(function(s){ return s.type === 'hero'; });
+    if(hero && hero.props){
+      // Always update hero.headline to match product name (simplest UX)
+      hero.props.headline = value;
+    }
+  }
   lpEditorMarkDirty();
 }
 
@@ -20483,17 +20491,20 @@ function lpEditorRenderCanvas(){
   lpEditorSavePreviewData(p);
   var existingIframe = area.querySelector('iframe');
   if(existingIframe){
-    // Just reload iframe (debounced by caller)
-    if(!window.__lpEditorReloadTimer){
-      window.__lpEditorReloadTimer = setTimeout(function(){
-        window.__lpEditorReloadTimer = null;
-        var f = document.querySelector('.lpe-device-frame iframe');
-        if(f){ f.contentWindow.location.reload(); }
-      }, 400);
-    }
+    // Debounced reload (500ms) with cache-busting timestamp
+    if(window.__lpEditorReloadTimer) clearTimeout(window.__lpEditorReloadTimer);
+    window.__lpEditorReloadTimer = setTimeout(function(){
+      window.__lpEditorReloadTimer = null;
+      var f = document.querySelector('.lpe-device-frame iframe');
+      if(f){
+        try {
+          f.src = '/lp/__lpe_preview__?v=' + Date.now();
+        } catch(e){ f.contentWindow.location.reload(); }
+      }
+    }, 500);
   } else {
     area.innerHTML = '<div class="lpe-device-frame" style="max-width:'+w+';height:calc(100vh - 130px);min-height:600px;overflow:hidden;background:#fff">' +
-      '<iframe src="/lp/__lpe_preview__" style="width:100%;height:100%;border:none;background:#F8FBFF" scrolling="yes" onload="lpEditorWireIframeClicks(this)"></iframe>' +
+      '<iframe src="/lp/__lpe_preview__?v='+Date.now()+'" style="width:100%;height:100%;border:none;background:#F8FBFF" scrolling="yes" onload="lpEditorWireIframeClicks(this)"></iframe>' +
     '</div>';
   }
 }
