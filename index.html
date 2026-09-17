@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-09-04-lp-empty-sections';
+window.__APP_VERSION = '2026-09-04-lp-form-toggleable';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -14782,8 +14782,7 @@ function lpRenderSectionsList(){
   var sections = window.__lpSections || [];
   var esc = function(s){ return String(s||'').replace(/</g,'&lt;'); };
   listEl.innerHTML = sections.map(function(s, idx){
-    // Adform-style redesign: hide form section from list (always sticky in new design)
-    if(s.type === 'form') return '';
+    // Form section: toggle ON = inline, toggle OFF = sticky right (default)
     var meta = LP_SECTION_META[s.type] || { icon:'ti-square', color:'#64748B', bg:'#F1F5F9', name: s.type };
     var isOn = !!s.enabled;
     var pr = s.props || {};
@@ -14793,7 +14792,7 @@ function lpRenderSectionsList(){
     else if(s.type === 'faq') subtitle = (pr.items||[]).length + ' Q&A';
     else if(s.type === 'video') subtitle = pr.url ? 'YouTube link ada' : 'belum di-set';
     else if(s.type === 'hero') subtitle = pr.headline ? esc((pr.headline||'').substring(0,32)) : 'default';
-    else if(s.type === 'form') subtitle = 'integrated';
+    else if(s.type === 'form') subtitle = s.enabled ? 'INLINE (hide sticky)' : 'sticky right';
     else if(s.type === 'trust') subtitle = 'auto';
     else if(s.type === 'beforeafter') subtitle = (pr.beforeImg && pr.afterImg) ? 'gambar siap' : 'upload gambar dulu';
     else if(s.type === 'pricing') subtitle = (pr.items||[]).length + ' paket';
@@ -19519,7 +19518,11 @@ function getDefaultLpSections(p){
       bundleDiscount: 20,
       ctaText: 'Ambil Bundle Deal'
     }},
-    // NOTE: 'form' section removed in Adform-style redesign — form is always sticky on right side
+    // 'form' section: OFF by default = sticky right. Toggle ON = inline (hides sticky).
+    { id:'form', type:'form', enabled:false, props:{
+      title: 'Pesan Sekarang',
+      subtitle: 'Isi data di bawah, CS hubungi via WhatsApp dalam 5 menit'
+    }},
     { id:'faq', type:'faq', enabled:true, props:{
       title: 'Pertanyaan yang sering diajukan',
       items: [
@@ -20387,7 +20390,6 @@ function lpEditorRenderLeft(){
     var sections = window.__lpEditorProd.lpSections || [];
     var LP_META = (typeof LP_SECTION_META !== 'undefined') ? LP_SECTION_META : {};
     sections.forEach(function(s, idx){
-      if(s.type === 'form') return; // skip form (always sticky)
       var meta = LP_META[s.type] || { icon:'ti-square', color:'#64748B', bg:'#F1F5F9', name:s.type };
       var pr = s.props || {};
       var sub = '';
@@ -20401,6 +20403,7 @@ function lpEditorRenderLeft(){
       else if(s.type === 'crosssell') sub = (pr.productIds||[]).length + ' produk';
       else if(s.type === 'bundle') sub = pr.bundleProductId ? 'diskon '+(pr.bundleDiscount||0)+'%' : 'pilih produk';
       else if(s.type === 'trust') sub = 'auto';
+      else if(s.type === 'form') sub = s.enabled ? 'INLINE (hide sticky)' : 'sticky di kanan';
       var selCls = window.__lpEditorSelIdx === idx ? ' selected' : '';
       var enCls = s.enabled ? ' on' : '';
       html += '<div class="lpe-sec-item'+selCls+'" onclick="lpEditorSelectSection('+idx+')">' +
@@ -21257,6 +21260,7 @@ function renderLandingPage(p, contentEl){
     '.nol-lp-badge{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;background:#ecfdf5;color:#10b981;border-radius:99px;font-size:11.5px;font-weight:600;white-space:nowrap}' +
     '.nol-lp-badge i{font-size:12px}' +
     '.nol-lp-container{max-width:1200px;margin:0 auto;padding:20px 18px 48px;display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start}' +
+    '.nol-lp-container.no-sticky{grid-template-columns:1fr;max-width:800px}' +
     '@media(max-width:720px){.nol-lp-container{grid-template-columns:1fr;padding:14px;gap:16px}}' +
     '.nol-lp-content{display:flex;flex-direction:column;gap:20px;min-width:0}' +
     '.nol-lp-hero{background:#fff;border:1px solid #e8eef7;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(15,23,42,.06)}' +
@@ -21374,7 +21378,9 @@ function renderLandingPage(p, contentEl){
   '</div></div>';
 
   // ═══ MAIN CONTAINER ═══
-  html += '<div class="nol-lp-container">';
+  // Check form mode BEFORE rendering container (used for grid + sticky decision)
+  var __formInline = (sections || []).some(function(s){ return s.type === 'form' && s.enabled; });
+  html += '<div class="nol-lp-container'+(__formInline?' no-sticky':'')+'">';
 
   // ─── LEFT: LP CONTENT ───
   html += '<div class="nol-lp-content">';
@@ -21430,10 +21436,20 @@ function renderLandingPage(p, contentEl){
     '</div>';
   }
 
-  // Render sections (skip hero + form)
-  sections.filter(function(s){ return s.enabled && s.type !== 'hero' && s.type !== 'form'; }).forEach(function(sec){
+  // Check if form section is enabled (inline mode) — if yes, hide sticky form
+  var formSectionEnabled = sections.some(function(s){ return s.type === 'form' && s.enabled; });
+
+  // Render sections (skip hero — always in fixed position)
+  sections.filter(function(s){ return s.enabled && s.type !== 'hero'; }).forEach(function(sec){
     var pr = sec.props || {};
-    if(sec.type === 'benefits'){
+    if(sec.type === 'form'){
+      // Inline form section (visitor-facing form embed will mount here)
+      html += '<div class="nol-lp-card" id="lp-form" style="border:2px solid '+primary+';box-shadow:0 8px 20px '+primary+'15">' +
+        '<div class="nol-lp-card-title"><i class="ti ti-shopping-cart"></i>'+esc(pr.title || 'Pesan Sekarang')+'</div>' +
+        (pr.subtitle ? '<div class="nol-lp-card-sub">'+esc(pr.subtitle)+'</div>' : '') +
+        '<div id="lpFormMountInline"></div>' +
+      '</div>';
+    } else if(sec.type === 'benefits'){
       var itemsHtml = (pr.items||[]).map(function(it){
         return '<div class="nol-lp-benefit">' +
           '<div class="nol-lp-benefit-icon"><i class="ti '+(it.icon||'ti-check')+'"></i></div>' +
@@ -21562,28 +21578,30 @@ function renderLandingPage(p, contentEl){
 
   html += '</div>'; // end .nol-lp-content
 
-  // ─── RIGHT: STICKY FORM ───
-  html += '<div class="nol-lp-form-sticky" id="lp-form">' +
-    '<div class="nol-lp-form-card">' +
-      '<div class="nol-lp-form-header">' +
-        '<span class="nol-lp-form-badge"><span class="dot"></span>LIVE · Order aktif</span>' +
-        '<div class="nol-lp-form-title"><i class="ti ti-shopping-cart"></i>Pesan Sekarang</div>' +
-        '<div class="nol-lp-form-sub">Isi data di bawah, CS akan hubungi via WhatsApp dalam 5 menit</div>' +
-      '</div>' +
-      '<div class="nol-lp-form-body"><div id="lpFormMount"></div></div>' +
-      '<div class="nol-lp-payment">' +
-        '<span class="nol-lp-pm-label">Bayar via:</span>' +
-        '<div class="nol-lp-pm-icons">' +
-          '<span class="nol-lp-pm-icon" style="color:#10b981">COD</span>' +
-          '<span class="nol-lp-pm-icon" style="background:#e11d48;color:#fff">QRIS</span>' +
-          '<span class="nol-lp-pm-icon">BCA</span>' +
-          '<span class="nol-lp-pm-icon">BNI</span>' +
-          '<span class="nol-lp-pm-icon">BRI</span>' +
-          '<span class="nol-lp-pm-icon">DANA</span>' +
+  // ─── RIGHT: STICKY FORM (hidden if inline form section is enabled) ───
+  if(!formSectionEnabled){
+    html += '<div class="nol-lp-form-sticky" id="lp-form">' +
+      '<div class="nol-lp-form-card">' +
+        '<div class="nol-lp-form-header">' +
+          '<span class="nol-lp-form-badge"><span class="dot"></span>LIVE · Order aktif</span>' +
+          '<div class="nol-lp-form-title"><i class="ti ti-shopping-cart"></i>Pesan Sekarang</div>' +
+          '<div class="nol-lp-form-sub">Isi data di bawah, CS akan hubungi via WhatsApp dalam 5 menit</div>' +
+        '</div>' +
+        '<div class="nol-lp-form-body"><div id="lpFormMount"></div></div>' +
+        '<div class="nol-lp-payment">' +
+          '<span class="nol-lp-pm-label">Bayar via:</span>' +
+          '<div class="nol-lp-pm-icons">' +
+            '<span class="nol-lp-pm-icon" style="color:#10b981">COD</span>' +
+            '<span class="nol-lp-pm-icon" style="background:#e11d48;color:#fff">QRIS</span>' +
+            '<span class="nol-lp-pm-icon">BCA</span>' +
+            '<span class="nol-lp-pm-icon">BNI</span>' +
+            '<span class="nol-lp-pm-icon">BRI</span>' +
+            '<span class="nol-lp-pm-icon">DANA</span>' +
+          '</div>' +
         '</div>' +
       '</div>' +
-    '</div>' +
-  '</div>';
+    '</div>';
+  }
 
   html += '</div>'; // end .nol-lp-container
 
@@ -21697,8 +21715,8 @@ function renderLandingPage(p, contentEl){
     }, 100);
   }
 
-  // Mount form embed into #lpFormMount (always present in new design)
-  var formMount = document.getElementById('lpFormMount');
+  // Mount form embed into #lpFormMount (sticky) OR #lpFormMountInline (inline mode)
+  var formMount = document.getElementById('lpFormMountInline') || document.getElementById('lpFormMount');
   if(formMount){
     try {
       var oldTarget = document.getElementById('prodEmbedInline');
