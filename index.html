@@ -2656,7 +2656,7 @@ tr:hover td{background:var(--surface-2)}
      Buat catching error JS yang silent di iOS Safari
 ═══════════════════════════════════ -->
 <script>
-window.__APP_VERSION = '2026-09-03-lp-w3-bugfix';
+window.__APP_VERSION = '2026-09-04-lp-adform-style';
 window.__JS_LOADED_AT = Date.now();
 window.__JS_ERRORS = [];
 
@@ -14725,6 +14725,8 @@ function lpRenderSectionsList(){
   var sections = window.__lpSections || [];
   var esc = function(s){ return String(s||'').replace(/</g,'&lt;'); };
   listEl.innerHTML = sections.map(function(s, idx){
+    // Adform-style redesign: hide form section from list (always sticky in new design)
+    if(s.type === 'form') return '';
     var meta = LP_SECTION_META[s.type] || { icon:'ti-square', color:'#64748B', bg:'#F1F5F9', name: s.type };
     var isOn = !!s.enabled;
     var pr = s.props || {};
@@ -19460,7 +19462,7 @@ function getDefaultLpSections(p){
       bundleDiscount: 20,
       ctaText: 'Ambil Bundle Deal'
     }},
-    { id:'form', type:'form', enabled:true, props:{} },
+    // NOTE: 'form' section removed in Adform-style redesign — form is always sticky on right side
     { id:'faq', type:'faq', enabled:true, props:{
       title: 'Pertanyaan yang sering diajukan',
       items: [
@@ -19821,7 +19823,524 @@ function loadLandingPage(slug){
   });
 }
 
+// ═══════════════════════════════════════════
+// V2: Adform-style Landing Page Renderer
+// 2-column layout (LP content left, sticky form right)
+// Light theme, clean cards, prominent CTA
+// ═══════════════════════════════════════════
 function renderLandingPage(p, contentEl){
+  var sections = (p.lpSections && p.lpSections.length) ? p.lpSections : getDefaultLpSections(p);
+  var cfg = getCfg();
+  var primary = p.primaryColor || cfg.primaryColor || '#2563EB';
+  var primaryDark = (typeof _v2AdjustColor === 'function') ? _v2AdjustColor(primary, -25) : primary;
+  var currency = p.currency || (window.COUNTRY_TO_CURRENCY ? window.COUNTRY_TO_CURRENCY[String(p.country||'62')] : null) || 'IDR';
+  var t = (window.getL10n) ? window.getL10n(p) : {};
+  var esc = function(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); };
+  var priceStr = String(p.price||'').replace(/[^0-9]/g,'');
+  var priceNum = parseInt(priceStr, 10) || 0;
+  var normalPriceNum = parseInt(String(p.hargaNormal||'').replace(/[^0-9]/g,''), 10) || 0;
+  var fmtP = function(n){ return (window.formatMoney) ? window.formatMoney(n, currency) : ('Rp '+n.toLocaleString('id-ID')); };
+  var imgs = (p.images && p.images.length) ? p.images : (p.coverImage ? [{b64:p.coverImage}] : []);
+  var imgSrcs = imgs.map(function(im){ return typeof im === 'string' ? im : im.b64; }).filter(Boolean);
+  var coverB64 = imgSrcs[0] || '';
+
+  // Hero data — from lpSections hero if exists, fallback to product
+  var heroSection = sections.find(function(s){ return s.type === 'hero'; });
+  var heroPr = (heroSection && heroSection.props) || {};
+  var heroHeadline = heroPr.headline || p.name || 'Produk';
+  var heroSubheadline = heroPr.subheadline || p.desc || '';
+
+  // Discount %
+  var discountPct = (normalPriceNum > priceNum && priceNum > 0) ? Math.round(((normalPriceNum - priceNum) / normalPriceNum) * 100) : 0;
+
+  // Country flag
+  var _flags = {'62':'🇮🇩','60':'🇲🇾','65':'🇸🇬','673':'🇧🇳','66':'🇹🇭','63':'🇵🇭'};
+  var countryFlag = _flags[String(p.country||'62')] || '🌐';
+
+  // Setup fullwidth wrapper
+  var lpRoot = document.getElementById('lpRoot');
+  if(lpRoot){ lpRoot.style.maxWidth = 'none'; lpRoot.style.background = 'transparent'; lpRoot.style.minHeight = '100vh'; }
+  var viewLP = document.getElementById('viewLandingPage');
+  if(viewLP){ viewLP.style.background = '#f8fbff'; }
+
+  // ═══ Build HTML ═══
+  var html = '';
+
+  // Scoped CSS
+  html += '<style>' +
+    '.nol-lp *,.nol-lp *::before,.nol-lp *::after{box-sizing:border-box;margin:0;padding:0}' +
+    '.nol-lp{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0f172a;line-height:1.5;font-size:15px;-webkit-font-smoothing:antialiased}' +
+    '.nol-lp a{text-decoration:none;color:inherit}' +
+    '.nol-lp-topbar{background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid #e8eef7;padding:12px 20px;position:sticky;top:0;z-index:40}' +
+    '.nol-lp-topbar-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px}' +
+    '.nol-lp-brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px}' +
+    '.nol-lp-brand-logo{width:32px;height:32px;background:linear-gradient(135deg,'+primary+','+primaryDark+');border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;box-shadow:0 4px 12px '+primary+'40}' +
+    '.nol-lp-brand-sub{font-size:11px;font-weight:400;color:#64748b}' +
+    '.nol-lp-topbar-badges{display:flex;gap:6px;align-items:center;flex-wrap:wrap}' +
+    '.nol-lp-badge{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;background:#ecfdf5;color:#10b981;border-radius:99px;font-size:11.5px;font-weight:600;white-space:nowrap}' +
+    '.nol-lp-badge i{font-size:12px}' +
+    '.nol-lp-container{max-width:1200px;margin:0 auto;padding:24px 20px 48px;display:grid;grid-template-columns:1fr 400px;gap:28px;align-items:start}' +
+    '@media(max-width:900px){.nol-lp-container{grid-template-columns:1fr;padding:16px;gap:20px}}' +
+    '.nol-lp-content{display:flex;flex-direction:column;gap:20px;min-width:0}' +
+    '.nol-lp-hero{background:#fff;border:1px solid #e8eef7;border-radius:16px;padding:24px;box-shadow:0 1px 3px rgba(15,23,42,.06)}' +
+    '.nol-lp-hero-img{aspect-ratio:4/3;background:#eff6ff;border-radius:12px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:60px}' +
+    '.nol-lp-hero-img img{width:100%;height:100%;object-fit:cover;display:block}' +
+    '.nol-lp-hero-thumbs{display:flex;gap:8px;margin-top:10px}' +
+    '.nol-lp-hero-thumb{flex:1;aspect-ratio:1;background:#eff6ff;border-radius:8px;border:2px solid #e8eef7;cursor:pointer;opacity:.6;transition:all .15s;overflow:hidden}' +
+    '.nol-lp-hero-thumb img{width:100%;height:100%;object-fit:cover;display:block}' +
+    '.nol-lp-hero-thumb.active{border-color:'+primary+';opacity:1}' +
+    '.nol-lp-hero-thumb:hover{opacity:1}' +
+    '.nol-lp-breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:#64748b;margin-top:20px;margin-bottom:8px;flex-wrap:wrap}' +
+    '.nol-lp-breadcrumb-cat{background:'+primary+'15;color:'+primary+';padding:3px 10px;border-radius:99px;font-weight:600}' +
+    '.nol-lp-product-name{font-size:24px;font-weight:700;line-height:1.3;color:#0f172a;margin-bottom:12px}' +
+    '.nol-lp-price-block{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:16px}' +
+    '.nol-lp-price-current{font-size:32px;font-weight:800;color:'+primary+';font-family:"SF Mono",Menlo,monospace;letter-spacing:-.5px}' +
+    '.nol-lp-price-normal{font-size:15px;color:#94a3b8;text-decoration:line-through}' +
+    '.nol-lp-price-badge{background:#fee2e2;color:#b91c1c;padding:3px 10px;border-radius:6px;font-size:11.5px;font-weight:700}' +
+    '.nol-lp-trust-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;padding-top:16px;border-top:1px solid #e8eef7}' +
+    '.nol-lp-trust-item{display:flex;align-items:center;gap:8px;padding:9px 11px;background:#f8fbff;border-radius:8px;font-size:12px;font-weight:500;color:#0f172a}' +
+    '.nol-lp-trust-item i{font-size:16px;flex-shrink:0}' +
+    '.nol-lp-countdown{background:linear-gradient(135deg,#fef3c7,#fed7aa);border:1px solid #f59e0b;border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:14px}' +
+    '.nol-lp-countdown-icon{width:40px;height:40px;background:rgba(245,158,11,.2);color:#b45309;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}' +
+    '.nol-lp-countdown-label{font-size:11.5px;color:#92400e;font-weight:600;margin-bottom:3px}' +
+    '.nol-lp-countdown-clock{display:flex;gap:4px;font-family:"SF Mono",Menlo,monospace;font-weight:700;font-size:15px;color:#92400e;align-items:center}' +
+    '.nol-lp-countdown-clock .num{background:#fff;padding:3px 8px;border-radius:6px;min-width:32px;text-align:center;box-shadow:0 1px 2px rgba(15,23,42,.06)}' +
+    '.nol-lp-card{background:#fff;border:1px solid #e8eef7;border-radius:16px;padding:22px 24px;box-shadow:0 1px 3px rgba(15,23,42,.06)}' +
+    '.nol-lp-card-title{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:700;color:#0f172a;margin-bottom:16px}' +
+    '.nol-lp-card-title i{color:'+primary+';font-size:20px}' +
+    '.nol-lp-card-sub{font-size:13px;color:#64748b;margin:-12px 0 16px}' +
+    '.nol-lp-benefit-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}' +
+    '@media(max-width:640px){.nol-lp-benefit-grid{grid-template-columns:1fr}}' +
+    '.nol-lp-benefit{display:flex;gap:12px;padding:12px;background:#f8fbff;border-radius:12px}' +
+    '.nol-lp-benefit-icon{width:40px;height:40px;background:'+primary+'15;color:'+primary+';border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}' +
+    '.nol-lp-benefit-title{font-size:13.5px;font-weight:600;margin-bottom:3px;color:#0f172a}' +
+    '.nol-lp-benefit-desc{font-size:12px;color:#64748b;line-height:1.5}' +
+    '.nol-lp-ba-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}' +
+    '.nol-lp-ba-item{aspect-ratio:1;border-radius:12px;position:relative;overflow:hidden;background:#e2e8f0}' +
+    '.nol-lp-ba-label{position:absolute;top:10px;left:10px;padding:4px 12px;border-radius:99px;font-size:11px;font-weight:700;color:#fff;backdrop-filter:blur(6px)}' +
+    '.nol-lp-ba-label.before{background:rgba(220,38,38,.85)}' +
+    '.nol-lp-ba-label.after{background:rgba(16,185,129,.85)}' +
+    '.nol-lp-testi{background:#f8fbff;border-radius:12px;padding:14px 16px;margin-bottom:10px}' +
+    '.nol-lp-testi-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}' +
+    '.nol-lp-testi-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0}' +
+    '.nol-lp-testi-name{font-size:13px;font-weight:600;color:#0f172a;display:flex;align-items:center;gap:6px;flex-wrap:wrap}' +
+    '.nol-lp-testi-verified{display:inline-flex;align-items:center;gap:3px;font-size:10px;color:#10b981;font-weight:600}' +
+    '.nol-lp-testi-verified i{font-size:12px}' +
+    '.nol-lp-testi-stars{color:#f59e0b;font-size:12px;margin-top:2px}' +
+    '.nol-lp-testi-text{font-size:13px;color:#0f172a;line-height:1.55;font-style:italic}' +
+    '.nol-lp-faq{background:#f8fbff;border-radius:12px;margin-bottom:8px;overflow:hidden}' +
+    '.nol-lp-faq summary{padding:14px 18px;font-size:13.5px;font-weight:600;color:#0f172a;cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none;gap:12px}' +
+    '.nol-lp-faq summary::-webkit-details-marker{display:none}' +
+    '.nol-lp-faq summary::after{content:"\\ea5f";font-family:"tabler-icons";color:#64748b;transition:transform .2s;flex-shrink:0}' +
+    '.nol-lp-faq[open] summary::after{transform:rotate(180deg)}' +
+    '.nol-lp-faq-body{padding:0 18px 14px;font-size:13px;color:#64748b;line-height:1.6}' +
+    '.nol-lp-video-wrap{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px}' +
+    '.nol-lp-video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}' +
+    '.nol-lp-cross-scroll{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}' +
+    '.nol-lp-cross-card{flex:0 0 170px;background:#f8fbff;border:1px solid #e8eef7;border-radius:12px;overflow:hidden;transition:all .15s}' +
+    '.nol-lp-cross-card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.08)}' +
+    '.nol-lp-cross-img{aspect-ratio:1;background:#eff6ff center/cover no-repeat;display:flex;align-items:center;justify-content:center;color:#94a3b8}' +
+    '.nol-lp-cross-info{padding:10px 12px}' +
+    '.nol-lp-cross-name{font-size:12.5px;font-weight:600;color:#0f172a;line-height:1.35;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}' +
+    '.nol-lp-cross-price{font-size:13px;font-weight:700;color:'+primary+';font-family:"SF Mono",Menlo,monospace}' +
+    '.nol-lp-bundle-card{background:#fff;border:2px solid '+primary+';border-radius:14px;padding:16px;box-shadow:0 8px 24px '+primary+'20}' +
+    '.nol-lp-bundle-imgs{display:flex;align-items:center;gap:10px;margin-bottom:14px}' +
+    '.nol-lp-bundle-thumb{width:70px;height:70px;border-radius:9px;background:#f1f5f9 center/cover no-repeat;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:24px}' +
+    '.nol-lp-bundle-plus{font-size:20px;font-weight:700;color:'+primary+'}' +
+    '.nol-lp-bundle-meta{flex:1;min-width:0}' +
+    '.nol-lp-bundle-cta{display:block;background:'+primary+';color:#fff;padding:12px;border-radius:9px;font-size:13.5px;font-weight:700;text-align:center;box-shadow:0 4px 12px '+primary+'40}' +
+    '.nol-lp-pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;padding-top:14px}' +
+    '.nol-lp-pricing-card{position:relative;background:#fff;border:2px solid #e8eef7;border-radius:14px;padding:16px 14px;text-align:center}' +
+    '.nol-lp-pricing-card.best{background:linear-gradient(135deg,'+primary+','+primaryDark+');border-color:'+primary+';transform:scale(1.03);box-shadow:0 8px 24px '+primary+'40}' +
+    '.nol-lp-pricing-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#f59e0b;color:#fff;padding:3px 12px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:.5px;white-space:nowrap}' +
+    '.nol-lp-pricing-label{font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px}' +
+    '.nol-lp-pricing-card.best .nol-lp-pricing-label{color:#fff}' +
+    '.nol-lp-pricing-price{font-size:22px;font-weight:800;color:#0f172a;font-family:"SF Mono",Menlo,monospace;margin-bottom:4px}' +
+    '.nol-lp-pricing-card.best .nol-lp-pricing-price{color:#fff}' +
+    '.nol-lp-pricing-savings{display:inline-block;background:#fef3c7;color:#92400e;padding:2px 10px;border-radius:99px;font-size:10.5px;font-weight:600;margin-bottom:10px}' +
+    '.nol-lp-pricing-card.best .nol-lp-pricing-savings{background:rgba(255,255,255,.25);color:#fff}' +
+    '.nol-lp-pricing-cta{display:block;background:'+primary+';color:#fff;padding:9px 14px;border-radius:9px;font-size:12.5px;font-weight:700;margin-top:6px}' +
+    '.nol-lp-pricing-card.best .nol-lp-pricing-cta{background:#fff;color:'+primary+'}' +
+    '.nol-lp-form-sticky{position:sticky;top:84px}' +
+    '@media(max-width:900px){.nol-lp-form-sticky{position:static;top:auto}}' +
+    '.nol-lp-form-card{background:#fff;border:1px solid #e8eef7;border-radius:16px;box-shadow:0 10px 15px -3px rgba(15,23,42,.08),0 4px 6px -4px rgba(15,23,42,.05);overflow:hidden}' +
+    '.nol-lp-form-header{padding:18px 22px 14px;border-bottom:1px solid #e8eef7;background:linear-gradient(180deg,#f8fbff,#fff)}' +
+    '.nol-lp-form-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:#ecfdf5;color:#10b981;border-radius:99px;font-size:11px;font-weight:700;margin-bottom:8px}' +
+    '.nol-lp-form-badge .dot{width:6px;height:6px;background:#10b981;border-radius:50%;animation:nolPulse 2s ease-in-out infinite}' +
+    '@keyframes nolPulse{0%,100%{opacity:1}50%{opacity:.4}}' +
+    '.nol-lp-form-title{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:4px;display:flex;align-items:center;gap:6px}' +
+    '.nol-lp-form-title i{color:'+primary+'}' +
+    '.nol-lp-form-sub{font-size:12.5px;color:#64748b}' +
+    '.nol-lp-form-body{padding:18px 22px}' +
+    '#lpFormMount{min-height:100px}' +
+    '#lpFormMount>div{max-width:none!important}' +
+    '#lpFormMount>div>div{padding:0!important;box-shadow:none!important;border-radius:0!important}' +
+    '.nol-lp-payment{padding:14px 22px;background:#f8fbff;border-top:1px solid #e8eef7;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center}' +
+    '.nol-lp-pm-label{font-size:11px;color:#64748b;font-weight:600}' +
+    '.nol-lp-pm-icons{display:flex;gap:6px;flex-wrap:wrap}' +
+    '.nol-lp-pm-icon{padding:3px 8px;background:#fff;border:1px solid #e8eef7;border-radius:4px;font-size:9.5px;font-weight:700;color:#64748b}' +
+    '.nol-lp-footer{background:#fff;border-top:1px solid #e8eef7;padding:20px;text-align:center;font-size:11.5px;color:#94a3b8;margin-top:20px}' +
+    '.nol-lp-footer b{color:#64748b}' +
+  '</style>';
+
+  // ═══ TOP BAR ═══
+  html += '<div class="nol-lp">';
+  html += '<div class="nol-lp-topbar"><div class="nol-lp-topbar-inner">' +
+    '<div class="nol-lp-brand">' +
+      '<div class="nol-lp-brand-logo"><i class="ti ti-shield-check"></i></div>' +
+      '<div><div>'+esc(cfg.storeName || 'Toko Online')+'</div><div class="nol-lp-brand-sub">Order aman & terpercaya</div></div>' +
+    '</div>' +
+    '<div class="nol-lp-topbar-badges">' +
+      '<span class="nol-lp-badge"><i class="ti ti-shield-lock"></i>SSL Aman</span>' +
+      (p.freeOngkir ? '<span class="nol-lp-badge"><i class="ti ti-truck-delivery"></i>Free Ongkir</span>' : '') +
+    '</div>' +
+  '</div></div>';
+
+  // ═══ MAIN CONTAINER ═══
+  html += '<div class="nol-lp-container">';
+
+  // ─── LEFT: LP CONTENT ───
+  html += '<div class="nol-lp-content">';
+
+  // Hero card
+  html += '<div class="nol-lp-hero">';
+  html += '<div class="nol-lp-hero-img">' + (coverB64 ? '<img src="'+coverB64+'" alt="'+esc(heroHeadline)+'"/>' : '<i class="ti ti-package"></i>') + '</div>';
+  if(imgSrcs.length > 1){
+    html += '<div class="nol-lp-hero-thumbs">';
+    imgSrcs.slice(0, 5).forEach(function(src, idx){
+      html += '<div class="nol-lp-hero-thumb' + (idx === 0 ? ' active' : '') + '" onclick="var m=this.parentNode.previousSibling;m.innerHTML=\'<img src=\\\''+src+'\\\'/>\';Array.prototype.slice.call(this.parentNode.children).forEach(function(c){c.classList.remove(\'active\')});this.classList.add(\'active\')"><img src="'+src+'" alt=""/></div>';
+    });
+    html += '</div>';
+  }
+  html += '<div class="nol-lp-breadcrumb">';
+  if(p.kategori) html += '<span class="nol-lp-breadcrumb-cat">'+esc(p.kategori)+'</span>';
+  html += '<span>'+countryFlag+' '+esc(p.koleksi || 'Bestseller')+'</span>';
+  html += '</div>';
+  html += '<h1 class="nol-lp-product-name">'+esc(heroHeadline)+'</h1>';
+  if(heroSubheadline) html += '<p style="font-size:13.5px;color:#64748b;line-height:1.55;margin-bottom:14px">'+esc(heroSubheadline)+'</p>';
+  if(priceNum > 0){
+    html += '<div class="nol-lp-price-block">' +
+      '<span class="nol-lp-price-current">'+fmtP(priceNum)+'</span>' +
+      (normalPriceNum > priceNum ? '<span class="nol-lp-price-normal">'+fmtP(normalPriceNum)+'</span>' : '') +
+      (discountPct > 0 ? '<span class="nol-lp-price-badge">Hemat '+discountPct+'%</span>' : '') +
+    '</div>';
+  }
+  var trustItems = [];
+  if(p.freeOngkir) trustItems.push({icon:'ti-truck-delivery',color:'#10b981',text:t.freeOngkir || 'Gratis Ongkir'});
+  trustItems.push({icon:'ti-cash',color:'#f59e0b',text:(t.cod || 'Bisa COD').replace(/\s*\(.+\)$/, '')});
+  if(p.warrantyEnabled) trustItems.push({icon:'ti-shield-check',color:primary,text:p.warrantyLabel || (t.guarantee || 'Garansi')});
+  trustItems.push({icon:'ti-award',color:'#8b5cf6',text:'100% Original'});
+  html += '<div class="nol-lp-trust-row">';
+  trustItems.forEach(function(it){
+    html += '<div class="nol-lp-trust-item"><i class="ti '+it.icon+'" style="color:'+it.color+'"></i>'+esc(it.text)+'</div>';
+  });
+  html += '</div>';
+  html += '</div>'; // end hero
+
+  // Countdown card (if enabled)
+  if(p.countdownEnabled && p.countdownEnd){
+    html += '<div class="nol-lp-countdown">' +
+      '<div class="nol-lp-countdown-icon"><i class="ti ti-flame"></i></div>' +
+      '<div style="flex:1">' +
+        '<div class="nol-lp-countdown-label">🔥 '+esc(p.countdownLabel || 'Promo berakhir dalam:')+'</div>' +
+        '<div class="nol-lp-countdown-clock" data-cd-end="'+esc(p.countdownEnd)+'">' +
+          '<span class="num" data-cd="d">00</span>:' +
+          '<span class="num" data-cd="h">00</span>:' +
+          '<span class="num" data-cd="m">00</span>:' +
+          '<span class="num" data-cd="s">00</span>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  // Render sections (skip hero + form)
+  sections.filter(function(s){ return s.enabled && s.type !== 'hero' && s.type !== 'form'; }).forEach(function(sec){
+    var pr = sec.props || {};
+    if(sec.type === 'benefits'){
+      var itemsHtml = (pr.items||[]).map(function(it){
+        return '<div class="nol-lp-benefit">' +
+          '<div class="nol-lp-benefit-icon"><i class="ti '+(it.icon||'ti-check')+'"></i></div>' +
+          '<div><div class="nol-lp-benefit-title">'+esc(it.title)+'</div><div class="nol-lp-benefit-desc">'+esc(it.desc)+'</div></div>' +
+        '</div>';
+      }).join('');
+      html += '<div class="nol-lp-card"><div class="nol-lp-card-title"><i class="ti ti-checks"></i>'+esc(pr.title || 'Kenapa pilih kami?')+'</div><div class="nol-lp-benefit-grid">'+itemsHtml+'</div></div>';
+    } else if(sec.type === 'testimonials'){
+      var starsFn = function(n){ var s=''; for(var i=0;i<5;i++) s += (i<n?'★':'☆'); return s; };
+      var bgColors = ['#eff6ff','#fce7f3','#ecfdf5','#fef3c7','#ede9fe','#fee2e2'];
+      var txtColors = ['#1e40af','#9d174d','#065f46','#78350f','#5b21b6','#991b1b'];
+      var itemsHtml = (pr.items||[]).map(function(it,i){
+        var init = (it.name||'?').split(' ').map(function(w){return w[0];}).slice(0,2).join('').toUpperCase();
+        var ci = i % bgColors.length;
+        return '<div class="nol-lp-testi">' +
+          '<div class="nol-lp-testi-head">' +
+            '<div class="nol-lp-testi-avatar" style="background:'+bgColors[ci]+';color:'+txtColors[ci]+'">'+esc(init)+'</div>' +
+            '<div><div class="nol-lp-testi-name">'+esc(it.name)+'<span class="nol-lp-testi-verified"><i class="ti ti-rosette-discount-check-filled"></i>Verified Buyer</span></div><div class="nol-lp-testi-stars">'+starsFn(it.rating||5)+'</div></div>' +
+          '</div>' +
+          '<div class="nol-lp-testi-text">"'+esc(it.text)+'"</div>' +
+        '</div>';
+      }).join('');
+      html += '<div class="nol-lp-card"><div class="nol-lp-card-title"><i class="ti ti-message-circle"></i>'+esc(pr.title || 'Kata pelanggan')+'</div>'+itemsHtml+'</div>';
+    } else if(sec.type === 'video' && pr.url){
+      var vid = _extractYtId(pr.url);
+      if(vid){
+        html += '<div class="nol-lp-card"><div class="nol-lp-card-title"><i class="ti ti-brand-youtube"></i>Video Produk</div><div class="nol-lp-video-wrap"><iframe src="https://www.youtube.com/embed/'+vid+'" allowfullscreen></iframe></div></div>';
+      }
+    } else if(sec.type === 'faq'){
+      var itemsHtml = (pr.items||[]).map(function(it, idx){
+        return '<details class="nol-lp-faq"'+(idx===0?' open':'')+'><summary>'+esc(it.question)+'</summary><div class="nol-lp-faq-body">'+esc(it.answer)+'</div></details>';
+      }).join('');
+      html += '<div class="nol-lp-card"><div class="nol-lp-card-title"><i class="ti ti-help-circle"></i>'+esc(pr.title || 'FAQ')+'</div>'+itemsHtml+'</div>';
+    } else if(sec.type === 'trust'){
+      // Trust badges already shown in hero — skip
+    } else if(sec.type === 'beforeafter'){
+      if(pr.beforeImg || pr.afterImg){
+        html += '<div class="nol-lp-card"><div class="nol-lp-card-title"><i class="ti ti-arrows-diff"></i>'+esc(pr.title || 'Sebelum & Sesudah')+'</div>' +
+          (pr.caption ? '<div class="nol-lp-card-sub">'+esc(pr.caption)+'</div>' : '') +
+          '<div class="nol-lp-ba-grid">' +
+            '<div class="nol-lp-ba-item" style="background:'+(pr.beforeImg?'transparent url('+pr.beforeImg+') center/cover':'#e2e8f0')+'"><span class="nol-lp-ba-label before">'+esc(pr.beforeLabel || 'Sebelum')+'</span></div>' +
+            '<div class="nol-lp-ba-item" style="background:'+(pr.afterImg?'transparent url('+pr.afterImg+') center/cover':'#e2e8f0')+'"><span class="nol-lp-ba-label after">'+esc(pr.afterLabel || 'Sesudah')+'</span></div>' +
+          '</div>' +
+        '</div>';
+      }
+    } else if(sec.type === 'crosssell'){
+      var csIds = pr.productIds || [];
+      if(csIds.length){
+        var csProds = csIds.map(function(id){ return lpGetProd(id); }).filter(Boolean);
+        if(csProds.length){
+          var csCards = csProds.map(function(cp){
+            var cImg = cp.coverImage || (cp.images && cp.images[0] && (cp.images[0].b64 || cp.images[0])) || '';
+            var cPrice = parseInt(String(cp.price||'').replace(/[^0-9]/g,''),10) || 0;
+            var cSlug = cp.urlSlug || cp.id;
+            var cCur = cp.currency || currency;
+            var _cSymMap = {IDR:'Rp ',MYR:'RM ',SGD:'S$',USD:'$',THB:'฿',PHP:'₱',BND:'B$'};
+            var _cPriceStr = (_cSymMap[cCur]||'') + cPrice.toLocaleString('id-ID');
+            return '<a href="/lp/'+encodeURIComponent(cSlug)+'" class="nol-lp-cross-card">' +
+              (cImg?'<div class="nol-lp-cross-img" style="background-image:url('+cImg+')"></div>':'<div class="nol-lp-cross-img"><i class="ti ti-package" style="font-size:36px"></i></div>') +
+              '<div class="nol-lp-cross-info"><div class="nol-lp-cross-name">'+esc(cp.name||'')+'</div><div class="nol-lp-cross-price">'+_cPriceStr+'</div></div>' +
+            '</a>';
+          }).join('');
+          html += '<div class="nol-lp-card"><div class="nol-lp-card-title"><i class="ti ti-basket-plus"></i>'+esc(pr.title || 'Sering Dibeli Bareng')+'</div>' +
+            (pr.subtitle ? '<div class="nol-lp-card-sub">'+esc(pr.subtitle)+'</div>' : '') +
+            '<div class="nol-lp-cross-scroll">'+csCards+'</div>' +
+          '</div>';
+        }
+      }
+    } else if(sec.type === 'bundle'){
+      var bId = pr.bundleProductId;
+      if(bId){
+        var bProd = lpGetProd(bId);
+        if(bProd){
+          var bImg = bProd.coverImage || (bProd.images && bProd.images[0] && (bProd.images[0].b64 || bProd.images[0])) || '';
+          var mainPrice = priceNum || 0;
+          var bPrice = parseInt(String(bProd.price||'').replace(/[^0-9]/g,''),10) || 0;
+          var totalNormal = mainPrice + bPrice;
+          var discount = pr.bundleDiscount || 20;
+          var totalDeal = Math.round(totalNormal * (100 - discount) / 100);
+          var savings = totalNormal - totalDeal;
+          html += '<div class="nol-lp-card"><div class="nol-lp-card-title"><i class="ti ti-package"></i>🎁 '+esc(pr.title || 'Bundle Hemat')+'</div>' +
+            (pr.subtitle ? '<div class="nol-lp-card-sub">'+esc(pr.subtitle)+'</div>' : '') +
+            '<div class="nol-lp-bundle-card">' +
+              '<div class="nol-lp-bundle-imgs">' +
+                '<div class="nol-lp-bundle-thumb" style="background-image:url('+(coverB64||'')+')">'+(coverB64?'':'📦')+'</div>' +
+                '<div class="nol-lp-bundle-plus">+</div>' +
+                '<div class="nol-lp-bundle-thumb" style="background-image:url('+(bImg||'')+')">'+(bImg?'':'📦')+'</div>' +
+                '<div class="nol-lp-bundle-meta"><div style="font-size:11px;color:#64748b;line-height:1.4">'+esc(p.name||'')+' <b>+</b> '+esc(bProd.name||'')+'</div><div style="font-size:10.5px;color:#94a3b8;text-decoration:line-through;margin-top:2px">'+fmtP(totalNormal)+'</div></div>' +
+              '</div>' +
+              '<div style="text-align:center;margin-bottom:14px">' +
+                '<div style="display:inline-flex;align-items:baseline;gap:6px"><span style="font-size:11px;color:#64748b">Total bundle</span><span style="font-size:24px;font-weight:800;color:'+primary+';font-family:\'SF Mono\',Menlo,monospace">'+fmtP(totalDeal)+'</span></div>' +
+                '<div style="display:inline-block;background:#dcfce7;color:#065f46;padding:3px 12px;border-radius:99px;font-size:11px;font-weight:700;margin-top:6px;margin-left:6px">Hemat '+fmtP(savings)+' ('+discount+'%)</div>' +
+              '</div>' +
+              '<a href="#lp-form" data-cta="bundle" class="nol-lp-bundle-cta">'+esc(pr.ctaText || 'Ambil Bundle Deal')+' →</a>' +
+            '</div>' +
+          '</div>';
+        }
+      }
+    } else if(sec.type === 'pricing'){
+      var prItems = pr.items || [];
+      if(prItems.length){
+        var pricingCards = prItems.map(function(it){
+          var isBest = !!it.best;
+          return '<div class="nol-lp-pricing-card'+(isBest?' best':'')+'">' +
+            (isBest ? '<div class="nol-lp-pricing-badge">⭐ BEST VALUE</div>' : '') +
+            '<div class="nol-lp-pricing-label">'+esc(it.label || 'Paket')+'</div>' +
+            '<div class="nol-lp-pricing-price">'+fmtP(it.price||0)+'</div>' +
+            (it.savings ? '<div class="nol-lp-pricing-savings">'+esc(it.savings)+'</div>' : '<div style="height:22px"></div>') +
+            '<a href="#lp-form" data-qty="'+(it.qty||1)+'" class="nol-lp-pricing-cta">Pilih Paket →</a>' +
+          '</div>';
+        }).join('');
+        html += '<div class="nol-lp-card"><div class="nol-lp-card-title"><i class="ti ti-tags"></i>'+esc(pr.title || 'Pilih Paket')+'</div>' +
+          (pr.subtitle ? '<div class="nol-lp-card-sub">'+esc(pr.subtitle)+'</div>' : '') +
+          '<div class="nol-lp-pricing-grid">'+pricingCards+'</div>' +
+        '</div>';
+      }
+    }
+  });
+
+  html += '</div>'; // end .nol-lp-content
+
+  // ─── RIGHT: STICKY FORM ───
+  html += '<div class="nol-lp-form-sticky" id="lp-form">' +
+    '<div class="nol-lp-form-card">' +
+      '<div class="nol-lp-form-header">' +
+        '<span class="nol-lp-form-badge"><span class="dot"></span>LIVE · Order aktif</span>' +
+        '<div class="nol-lp-form-title"><i class="ti ti-shopping-cart"></i>Pesan Sekarang</div>' +
+        '<div class="nol-lp-form-sub">Isi data di bawah, CS akan hubungi via WhatsApp dalam 5 menit</div>' +
+      '</div>' +
+      '<div class="nol-lp-form-body"><div id="lpFormMount"></div></div>' +
+      '<div class="nol-lp-payment">' +
+        '<span class="nol-lp-pm-label">Bayar via:</span>' +
+        '<div class="nol-lp-pm-icons">' +
+          '<span class="nol-lp-pm-icon" style="color:#10b981">COD</span>' +
+          '<span class="nol-lp-pm-icon" style="background:#e11d48;color:#fff">QRIS</span>' +
+          '<span class="nol-lp-pm-icon">BCA</span>' +
+          '<span class="nol-lp-pm-icon">BNI</span>' +
+          '<span class="nol-lp-pm-icon">BRI</span>' +
+          '<span class="nol-lp-pm-icon">DANA</span>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+
+  html += '</div>'; // end .nol-lp-container
+
+  // Footer
+  html += '<div class="nol-lp-footer">🔒 '+(t.dataEncrypted || 'Data terenkripsi')+' · '+(t.poweredBy || 'Powered by')+' <b>'+esc(cfg.storeName || 'Nonics Order')+'</b></div>';
+
+  html += '</div>'; // end .nol-lp
+
+  // W1: Boosters (unchanged)
+  if(p.lpFloatingWA){
+    var waNum = String(p.produkWA || p.waNum || '').replace(/[^0-9]/g,'');
+    if(waNum){
+      var waMsg = encodeURIComponent(p.lpFloatingWAMsg || ('Halo, saya tertarik dengan ' + (p.name || 'produk ini')));
+      html += '<a href="https://wa.me/'+waNum+'?text='+waMsg+'" target="_blank" id="lpFloatingWA" style="position:fixed;bottom:20px;right:20px;width:56px;height:56px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(37,211,102,.4);z-index:1000;text-decoration:none;animation:lpWaPulse 2s ease-in-out infinite">' +
+        '<svg viewBox="0 0 24 24" width="30" height="30" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>' +
+      '</a>' +
+      '<style>@keyframes lpWaPulse{0%,100%{box-shadow:0 8px 24px rgba(37,211,102,.4)}50%{box-shadow:0 8px 24px rgba(37,211,102,.7),0 0 0 8px rgba(37,211,102,.1)}}</style>';
+    }
+  }
+  if(p.lpStickyCTA){
+    html += '<div id="lpStickyCTA" style="position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e8eef7;padding:10px 14px;z-index:999;display:none;box-shadow:0 -4px 16px rgba(0,0,0,.08);align-items:center;gap:10px">' +
+        '<div style="flex:1;min-width:0">' +
+          (priceNum > 0 ? '<div style="font-size:13px;font-weight:700;color:#0f172a;font-family:\'SF Mono\',Menlo,monospace">'+fmtP(priceNum)+'</div>' : '') +
+          '<div style="font-size:10px;color:#64748b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(p.name || 'Produk')+'</div>' +
+        '</div>' +
+        '<a href="#lp-form" style="background:'+primary+';color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;box-shadow:0 4px 12px '+primary+'40">Pesan Sekarang →</a>' +
+      '</div>' +
+      '<style>@media (max-width:900px){#lpStickyCTA.visible{display:flex!important}#lpFloatingWA{bottom:80px!important}#lpRoot{padding-bottom:70px}}</style>';
+  }
+  if(p.lpExitIntent){
+    var exH = esc(p.lpExitHeadline || 'Tunggu Dulu! 🎁');
+    var exM = esc(p.lpExitMsg || 'Sebelum lo pergi, dapatkan penawaran spesial hari ini.');
+    var exC = esc(p.lpExitCta || 'Lanjut Order Sekarang');
+    html += '<div id="lpExitModal" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.7);align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)document.getElementById(\'lpExitModal\').style.display=\'none\'">' +
+        '<div style="background:#fff;border-radius:18px;max-width:400px;width:100%;padding:28px 24px 22px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.4);position:relative;animation:lpExitIn .3s ease-out">' +
+          '<button onclick="document.getElementById(\'lpExitModal\').style.display=\'none\'" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:22px;color:#94a3b8;cursor:pointer">✕</button>' +
+          '<div style="font-size:42px;margin-bottom:10px">🎁</div>' +
+          '<h3 style="font-size:22px;font-weight:800;color:#0f172a;margin:0 0 10px;line-height:1.25">'+exH+'</h3>' +
+          '<p style="font-size:13.5px;color:#64748b;line-height:1.55;margin:0 0 20px">'+exM+'</p>' +
+          '<a href="#lp-form" onclick="document.getElementById(\'lpExitModal\').style.display=\'none\'" style="display:block;background:linear-gradient(135deg,'+primary+','+primaryDark+');color:#fff;padding:13px 20px;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none;box-shadow:0 6px 16px '+primary+'50">'+exC+' →</a>' +
+        '</div>' +
+      '</div>' +
+      '<style>@keyframes lpExitIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}</style>';
+  }
+
+  contentEl.innerHTML = html;
+
+  // Wire countdown ticker (if any)
+  var cdEl = contentEl.querySelector('.nol-lp-countdown-clock');
+  if(cdEl){
+    var endTs = new Date(cdEl.getAttribute('data-cd-end')).getTime();
+    if(endTs && !isNaN(endTs)){
+      var pad = function(n){ return n<10?'0'+n:String(n); };
+      var tick = function(){
+        var d = Math.max(0, endTs - Date.now());
+        var days = Math.floor(d/86400000);
+        var hrs = Math.floor((d%86400000)/3600000);
+        var mins = Math.floor((d%3600000)/60000);
+        var secs = Math.floor((d%60000)/1000);
+        var dEl = cdEl.querySelector('[data-cd="d"]'); if(dEl) dEl.textContent = pad(days);
+        var hEl = cdEl.querySelector('[data-cd="h"]'); if(hEl) hEl.textContent = pad(hrs);
+        var mEl = cdEl.querySelector('[data-cd="m"]'); if(mEl) mEl.textContent = pad(mins);
+        var sEl = cdEl.querySelector('[data-cd="s"]'); if(sEl) sEl.textContent = pad(secs);
+      };
+      tick(); setInterval(tick, 1000);
+    }
+  }
+
+  // Wire sticky CTA scroll detection
+  if(p.lpStickyCTA){
+    setTimeout(function(){
+      var sticky = document.getElementById('lpStickyCTA');
+      if(!sticky) return;
+      var onScroll = function(){
+        var pct = (window.scrollY / Math.max(1, document.body.scrollHeight - window.innerHeight)) * 100;
+        if(pct > 20) sticky.classList.add('visible');
+        else sticky.classList.remove('visible');
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    }, 100);
+  }
+
+  // Start LP tracker
+  try { lpStartTracking(p, contentEl); } catch(e){ console.warn('LP tracker fail:', e); }
+
+  // Wire exit-intent trigger
+  if(p.lpExitIntent){
+    setTimeout(function(){
+      var shown = false;
+      var storageKey = 'lpExitShown_' + (p.urlSlug || p.id);
+      try { if(sessionStorage.getItem(storageKey)) shown = true; } catch(e){}
+      var trigger = function(){
+        if(shown) return;
+        shown = true;
+        try { sessionStorage.setItem(storageKey, '1'); } catch(e){}
+        var m = document.getElementById('lpExitModal');
+        if(m) m.style.display = 'flex';
+      };
+      document.addEventListener('mouseleave', function(e){
+        if(e.clientY <= 5 && !shown) trigger();
+      });
+      var lastY = 0, scrolledDown = false;
+      window.addEventListener('scroll', function(){
+        var y = window.scrollY;
+        var pct = (y / Math.max(1, document.body.scrollHeight - window.innerHeight)) * 100;
+        if(pct > 30) scrolledDown = true;
+        if(scrolledDown && y < lastY - 60 && y < 200 && !shown) trigger();
+        lastY = y;
+      }, { passive: true });
+    }, 100);
+  }
+
+  // Mount form embed into #lpFormMount (always present in new design)
+  var formMount = document.getElementById('lpFormMount');
+  if(formMount){
+    try {
+      var oldTarget = document.getElementById('prodEmbedInline');
+      var stashInline = oldTarget ? oldTarget.textContent : '';
+      generateProdEmbed(p);
+      var code = (document.getElementById('prodEmbedInline')||{}).textContent || '';
+      if(oldTarget) oldTarget.textContent = stashInline;
+      if(code && code.indexOf('Simpan produk dulu') < 0){
+        var wrapper = document.createElement('div');
+        wrapper.innerHTML = code;
+        Array.prototype.slice.call(wrapper.childNodes).forEach(function(node){
+          if(node.tagName === 'SCRIPT'){
+            var s = document.createElement('script');
+            if(node.src) s.src = node.src; else s.textContent = node.textContent;
+            document.body.appendChild(s);
+          } else {
+            formMount.appendChild(node);
+          }
+        });
+      }
+    } catch(err){ console.error('LP form mount error:', err); formMount.innerHTML = '<div style="text-align:center;color:#DC2626;padding:20px">Gagal load form</div>'; }
+  }
+}
+
+// Backup old renderer for rollback if needed
+function renderLandingPage_v1_backup(p, contentEl){
   var sections = (p.lpSections && p.lpSections.length) ? p.lpSections : getDefaultLpSections(p);
   var cfg = getCfg();
   var primary = p.primaryColor || cfg.primaryColor || '#10B981';
